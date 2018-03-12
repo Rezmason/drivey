@@ -1,0 +1,1627 @@
+/*
+	
+	DRIVEY a driving demo written in jujuscript which is a bit like javascript with some
+	strong typing and operator overloads thrown in.
+	
+	Copyright © 2007 Mark Pursey
+	
+	free to use and modify for non-profit purposes only
+	
+	visit http://drivey.com for news/info on future versions
+	
+	Please do not ask for support with this code... this is provided AS IS and for the sake
+	of those who are interested. See it as a challenge :)
+
+*/
+
+var appname = "DRIVEY"
+var version = "0.16 jujuscript demo";
+var copyright = "© 2007 Mark Pursey";
+
+
+	// set up globals
+with object g
+{
+	showDashboard = true;
+	showHelp = 0.0;
+	
+	wireframe = false;
+	frameRate = 1.0;
+	rearView = false;	
+	zoom = 0.6;
+	roadType = 0;
+
+	with col 
+	{
+		with sky 
+		{
+			lo = 0.5 as color;
+			hi = lo;
+			gradient = 0.5;	// power
+		}
+		ground = color;
+	}
+	
+		// colors for palette tinting
+	tint = color(0.2, 0.3, 0.8);//0.5 as color;
+		
+	fade = 0.0;
+	
+	gradient = true;
+	auto = true;
+	cycle = true;
+	center = point(0.5, 0.3);
+	
+	laneSpacing = 2;
+	laneOffset = 2.5;	// north american
+	
+	timeSlice = 0.05;		// maximum size for movement calculations
+}
+
+var defaults = g;
+
+function LoadConfig()
+{
+	var cfg = LoadString("drivey.cfg");
+	while (cfg != "")
+	{
+	
+	 	if (cfg >> "map")
+	 		cfg >> g.roadType;
+	 	else if (cfg >> "palette_cycle")
+	 		cfg >> g.cycle;
+		else if (cfg >> "tint")
+			cfg >> g.tint.r, cfg >> g.tint.g, cfg >> g.tint.b, g.tint *= 1.0/255;
+		else if (cfg >> "us")
+			g.laneOffset = -abs(g.laneOffset);
+		else if (cfg >> "eu")
+			g.laneOffset = abs(g.laneOffset);
+		else if (cfg >> "zoom")
+			cfg >> g.zoom, g.zoom /= 100, g.zoom = min(max(g.zoom, 0.25),1.0);
+		else if (cfg >> "dashboard")
+		{
+			if (cfg >> "on")
+				g.showDashboard = true;
+			else if (cfg >> "off")
+				g.showDashboard = false;
+		}
+		else 
+			cfg.Skip();
+	}
+}
+
+function SaveConfig()
+{
+	var cfg = "";
+	cfg += "map " + g.roadType + "\n";
+	cfg += "palette_cycle " + g.cycle + "\n";
+	cfg += "tint " + (int)(g.tint.r * 255) + " " + (int)(g.tint.g * 255) + " "  + (int)(g.tint.b * 255) + "\n";
+	cfg += (g.laneOffset < 0 ? "us" : "eu") + "\n";
+	cfg += "zoom " + g.zoom * 100 + "\n";
+	cfg += "dashboard " + (g.showDashboard ? "on" : "off" ) + "\n";
+	
+	SaveString("drivey.cfg", cfg);
+}
+
+class world
+{
+	path road;
+	shape walls;
+
+}
+
+shape theRoad;
+
+with window win
+{
+	if (commandline >> "/p")
+	{
+		Create(160,100);
+		Move(0,0);
+	}
+	else
+	{
+		Create(640,480);
+		ShowCursor(false);
+		FullScreen(true);
+	}
+	
+	SetText(appname + " " + version);
+	Show(true);
+	//Cmd("lock syskeys");
+}
+
+var& scr = win.BackBuffer();
+
+with scr//with screen scr
+{
+	SetMonochrome(true);////SetTint(0, tint * 0.6, tint);
+}
+
+
+function ShowTitle()
+{
+	with scr {
+		SetTint(0,0.5,1);
+		rgb = 1;
+		alpha = 1;
+		bg = 0;
+		Cls();
+		}
+	
+	var msg = appname;
+	shape s = TextShape(msg, "bold Arial");
+	s.Scale(0.05);
+	//s.BoxFit();
+	//s.Scale(point(0.5, 0.05));
+	s.ReCenter();
+	s.Move(point(0.5, 0.4));
+	shape x = s;
+	s.Scale(win.GetDims());
+	scr.Shape(s);
+	
+	
+	shape s = TextShape(version, "bold Arial");
+	//s.BoxFit();
+	s.Scale(0.05);
+	s.ReCenter();
+	s.Move(point(0.5, 0.45));
+	s.Scale(win.GetDims());
+	scr.rgb = 1;
+	scr.Shape(s);
+	/*with scr
+	{
+		rgb = 1;//color(0,1,0);
+		bg = 0;
+		Locate(0,0);
+		Print(msg);
+	} */
+
+	win.Paint(); 
+	
+	g.fade = 0;
+	//win.Show(true);
+}
+
+
+string message;
+function SetMessage(msg)
+{
+	message = msg;
+	g.showHelp = 1;	// 2 seconds should be enough?
+
+}
+
+function DrawHelp()
+{  
+	if (g.showHelp > 0)
+	{
+		with scr
+		{
+			rgb = 1;
+			alpha = min(1,g.showHelp);
+			bg = 0;
+			Locate(0,0);
+			if (message.Length())
+				Print(message);
+			else 
+			{
+				Print("<esc>: quit");
+				Print("<home>: return to road");
+				Print("W,A,S,D & Arrow keys: speed and steering control");
+				Print("F1: toggle help");
+				Print("F2: wireframe");
+				Print("F3: toggle dashboard");
+				Print("F4: rear view");
+				Print("F5: toggle (awful) manual control");
+				Print("F7: toggle sky gradient");
+				Print("F8: switch driving side");
+				Print("F9: save configuration");
+				Print("F11: toggle fullscreen");
+				Print("F12: default settings");
+				Print("G: greyscale palette");
+				Print("H: random palette");
+				Print("K: toggle palette cycling");
+				Print("N,M: adjust view angle");
+				Print("V,B: adjust brightness");
+				Print("1-4: switch environment type");
+				Print("<ctrl>: super fast");
+				Print("<shift>: super slow");
+			}
+			Cmd("font size " + Height() / 32);
+			rgb = 0.5;
+			bg = 0;
+			Locate(0,-3);
+			Print(appname + " " + version + "\n" + copyright + "\nhttp://drivey.com");
+		}
+	}
+
+}
+
+//real user.angle = 0;
+//point pos.Set(0,0);
+//point vel.Set(0,0);
+real tt = 0;
+
+real g_lastTime = 0;
+real g_lastStep = 0.05;
+real g_zoom = 1;
+point  g_mid.Set(0,0);
+
+
+class part : shape
+{
+	color rgb;
+	real alpha;
+	real height;
+	real extrude;
+	
+	construct() {
+rgb = 1; height = 0; extrude = 0; alpha = 1; }
+}
+
+class car
+{
+	vector pos;
+	vector vel; 
+	
+	vector lastVel;
+	vector lastPos;
+	
+	real angle;
+	
+	real accelerate;	// for tilting
+	real brake;
+	
+	real tilt;
+	real pitch;
+
+	real tiltV;
+	real pitchV;
+	
+	int	roadDir;
+	real 	roadPos;
+	real   stepVel;
+	
+	real steer;
+	real steerTo;
+	real steerPos;
+	real steerV;
+	
+	bool sliding;
+	real spin;	// only valid while sliding
+	
+	real cruise;
+	
+	construct() { Init(); }
+	
+	function Init() 
+	{ 
+		pos.Set(0,1,0); 
+		vel.Set(0,0,0); 
+		lastVel.Set(0,0,0);
+		
+		accelerate = 0;
+		brake = 0;
+		
+		angle = 0;
+		 
+		tilt = 0; 
+		pitch = 0; 
+		
+		tiltV = 0;
+		pitchV = 0;
+		
+		roadPos = 0; 
+		stepVel = 0;
+		roadDir = -1;
+		
+		steer = 0; 
+		steerPos = 0;
+		steerTo = 0;
+		steerV = 0;
+		
+		sliding = false;
+		spin = 0;
+		cruise = 120 * 1000 / 3600;	// 50 kph
+	}
+	
+	function Dir()
+	
+	{
+	
+	   return vector(0, 0, 1).RotateY(-angle);
+	}  
+	
+	function Advance(var t) 
+	{
+	
+		if (t <= 0)
+			return;
+		
+		var dir = vector(0, 0, 1).RotateY(-angle);
+		
+		var acc = dir * accelerate * 10 + vel * - 0.1;
+		
+		var oldSpin = spin;
+		
+		var newVel = dir * ((vel+acc*t) ^ dir);
+		if (brake >= 0.9)
+			newVel.Set(0,0,0);
+		
+		if (!sliding && (newVel - vel).Magnitude()/t > 750)	// maximum acceleration allowable?
+			sliding = true;
+		else if (sliding && (newVel - vel).Magnitude()/t < 50)
+			sliding = false;
+		//else if (sliding && (newVel - vel).Magnitude() < 25 * t)	// break into skid?
+			//sliding = false;
+			
+		if (sliding)
+		{			
+			var friction = !(newVel - vel) * 20;
+			//if (friction.Magnitude() < (newVel - vel).Magnitude())	// have we got this worked out now?
+			vel += friction * t;
+//			else 
+	//			sliding = false;
+		}
+		
+		if (!sliding)
+		{
+			vel = newVel;
+		}
+		
+		spin = (vel ^ dir) * steerPos * (sliding ? 0.5 : 1.0);
+		angle += spin * t;
+		pos += vel * t;
+		
+		var velDiff = vel - lastVel;
+		
+		//tilt *= -1;
+		tiltV += ((tiltV * -0.2) + (velDiff ^ dir.RotateY(Math.PI * -0.5)) * 0.001 / t - tilt) * t * 20;
+		tilt += tiltV * t;
+		//tilt /= -1;
+		
+		pitchV += ((pitchV * -0.2) + (velDiff ^ dir) * 0.001 / t - pitch) * t * 20;
+		pitch += pitchV * t;
+		             
+		var diff = steerTo-steerPos;
+		
+		if (|diff > t * 0.05)
+			diff *= t * 0.05 / |diff;
+			
+		steerPos += diff;//steerTo;//mix(steerPos, steerTo, Math.pow(0.9, 1.0/t));
+		
+		var grav = -10;
+			
+		pos.y = lastPos.y + lastVel.y * t + 0.5 * grav * t * t;
+		vel.y = lastVel.y + grav * t;
+		
+		if (pos.y < 1.5)
+		{
+			pos.y = 1.5;
+			vel.y = 0;
+		}
+		
+		lastVel = vel;
+		lastPos = pos;
+	}
+
+}
+     
+car user;
+
+LoadConfig();	// pick a road type
+
+var road = MakeRoad();
+
+LoadConfig();
+
+
+with shape speedoShape
+{
+	MakeCircle(point(0,0), 0.5);
+	Outline(0.025);
+	
+	with shape dash
+	{
+		AddVertex(-0.01,-0.49);
+		AddVertex(0.01,-0.49);
+		AddVertex(0.01,-0.44);
+		AddVertex(-0.01,-0.44);
+		//AddControl(0,-0.4);
+	}
+	int n = 8;
+	for (int i = 0; i <= n; i++)
+	{
+	
+		shape sh = dash;
+		sh.Rotate(mix(-Math.PI * 0.8, Math.PI * 0.8, (real)i / n));
+		Merge(sh);
+	}
+}
+
+with shape speedoNeedle
+{
+	
+	AddVertex(-0.02,0.1);
+	//AddControl(0,-0.9);
+	AddVertex(-0.005,-0.4);
+	AddVertex(0.005,-0.4);
+	AddVertex(0.02,0.1);
+	
+	/*
+	int n = 16;	// outer ring
+	for (int i = 0; i < n; i++)
+	{
+		
+		AddControl(point(Math.cos(i * 2 * Math.PI / n), Math.sin(i * 2 * Math.PI / n)) * 0.5);
+	}
+	*/
+	ClosePath();
+}
+
+with shape steeringWheelShape
+{
+	MakeCircle(point(0,0), 0.5);
+	ClosePath();
+	
+	int n = 60;	// inner ring
+	for (int i = n - 3; i > n / 2 + 2; i--)
+		AddControl(point(Math.cos(i * 2 * Math.PI / n), Math.sin(i * 2 * Math.PI / n)) * ((i & 1) ? 0.435: 0.45));
+		
+	ClosePath();
+	
+	for (int i = n / 2 - 1; i > 0; i--)
+		AddControl(point(Math.cos(i * 2 * Math.PI / n), Math.sin(i * 2 * Math.PI / n)) * ((i & 1) ? 0.435: 0.45));
+		
+	AddControl(point(0.25, 0.075));
+	AddControl(point(0.125, 0.2));
+	AddControl(point(-0.125, 0.2));
+	AddControl(point(-0.25, 0.075));
+		
+	ClosePath();
+	//Expand(-0.01);
+}
+
+
+
+with shape carLights
+{
+	Init();
+	
+	shape sq.MakeUnit();
+	
+	Merge(sq);
+	sq.Move(point(3,0)); 	
+	Merge(sq);
+	
+	BoxFit();
+	ReCenter();
+	//MakeCircle(point(0,0), 0.5);
+	Scale(point(2,0.1));
+	Move(point(0,2));
+}
+
+with shape carLightPaths
+{
+	Init();
+	
+	shape sq;//.MakeUnit();
+	sq.AddVertex(0,0);
+	sq.AddControl(-6,13);
+	sq.AddControl(4,15);
+	
+	Merge(sq);
+	sq.Scale(point(-1,1)); 	
+	sq.Invert();
+	sq.Move(point(1.6,0)); 	
+	Merge(sq);
+	
+	//BoxFit();
+	//ReCenter();
+	//MakeCircle(point(0,0), 0.5);
+	//Scale(point(2,0.1));
+	Move(point(-0.8,3));
+}
+
+with shape carTailLightShape
+{
+	Init();
+	
+	shape sq.MakeUnit();
+	
+	Merge(sq);
+	sq.Move(point(3,0)); 	
+	Merge(sq);
+	
+	BoxFit();
+	ReCenter();
+	//MakeCircle(point(0,0), 0.5);
+	Scale(point(2,0.05));
+	Move(point(0,-2));
+}
+
+with shape carBodyBottom
+{
+	Init();
+	
+	MakeUnit();
+	
+	BoxFit();
+	ReCenter();
+	
+	//MakeCircle(point(0,0), 0.5);
+	Scale(point(2,4));
+}
+
+with shape carBodyTop
+{
+	Init();
+	
+	MakeUnit();
+	
+	BoxFit();
+	ReCenter();
+	
+	//MakeCircle(point(0,0), 0.5);
+	Scale(point(2,3));
+	Move(point(0,-0.5));
+}
+
+int g_frames = 0;
+time g_startTime.GetLocal();
+real g_frameInterval = 0.01;
+
+time lastTime.GetLocal();
+real lastStep = 0;
+real lastJoyX = 0;
+
+function M2W(*p)
+{
+	return vector(p.x, 0, p.y);
+
+}                             
+function W2M(*p)
+{
+	return point(p.x, p.z);
+
+}                             
+
+function car::PlaceOn(*rd)
+{
+	var t = rd.GetNearest(W2M(pos));
+	var tan = !rd.GetTangent(t);
+	var normal = -rd.GetNormal(t);
+	if (roadDir < 0)
+		tan = -tan, normal = -normal;
+	
+	lastPos = pos = M2W(rd.GetPoint(t) + normal * (g.laneSpacing * roadPos + g.laneOffset));
+	angle = -tan.GetAngle() + Math.PI * 0.5;
+	lastVel = vel = vector(0, 0, cruise).RotateY(-angle);
+}
+
+function car::AutoDrive(*aroad)
+{
+	with aroad
+	{
+		
+		var dir = vel;
+		if (dir.Magnitude() > 0)
+			dir = !vel;
+		else
+			dir = vector(0, 0, 1).RotateY(-angle);
+		
+			// get position on road for 1 second ahead of now
+					
+		var lookAhead = 20;	// basic direction stuff
+		var t = GetNearest(W2M(pos + dir * lookAhead));
+		
+		var targetDir = M2W(GetPoint(t)) - pos;
+		var tangent = M2W(!GetTangent(t));
+		
+		if (roadDir < 0)
+			tangent = -tangent;
+			
+		var normal = tangent.RotateY(Math.PI * 0.5);
+		targetDir += normal * (g.laneSpacing * roadPos + g.laneOffset);
+		
+		if (targetDir.Magnitude() > 0)
+			tangent = mix(tangent, targetDir, 0.05);
+		
+		var newAngle = W2M(tangent).GetAngle() - Math.PI * 0.5;
+		newAngle = -newAngle;
+		
+		newAngle -= angle;
+		
+		while (newAngle > Math.PI)
+			newAngle -= Math.PI * 2;
+		while (newAngle < -Math.PI)
+			newAngle += Math.PI * 2;
+			
+		if (|newAngle > 1)
+			newAngle /= |newAngle;
+			
+		steerTo = newAngle / (min(targetDir.Magnitude() * 0.5, 50) + 1);// mix(steer, newAngle * 20, 0.25);
+		
+		if (|steerTo > 0.02)
+			steerTo *= 0.02/|steerTo;
+			
+		
+		//steerPos = steerTo;
+		
+		if (vel.Magnitude() < cruise)
+			accelerate = 1;
+		else 
+			accelerate = cruise / vel.Magnitude();
+	}
+}     
+
+SetMessage("ESC to quit, F1 for help\n(arrow keys adjust speed and steering)");
+g.showHelp = 2;
+
+
+	// main loop
+while (win.IsValid())
+{
+	int key = win.GetKey();
+	
+	if (key <= 0)
+	{
+	
+		// no key or maybe key release
+	}
+	else if (key == 112)	// F1
+	{
+		if (!message.Length() && g.showHelp > 1)
+			g.showHelp = 0;
+		else
+			g.showHelp = 6;
+			
+		message = "";
+	}
+		
+	else if (key == 118)	// F7
+	{
+	
+		g.gradient = !g.gradient;
+		SetMessage("gradient " + (g.gradient ? "on": "off"));
+	}
+	else if (key == 27)	// escape
+	{
+	
+	  	break;
+	}
+	else if (key == 119)	// F8
+	{
+	
+		g.laneOffset = -g.laneOffset;
+		SetMessage("Driving side: " + (g.laneOffset < 0 ? "American": "European"));
+	}
+	else if (key == 120)	// F9
+	{
+	
+		SaveConfig();
+		SetMessage("Config saved.");
+	}
+	else if (key == 123)	// F9
+	{
+	
+		g = defaults;
+		road = MakeRoad();
+		SetMessage("restored default settings.");
+	}
+	else if (key == 116)	// f5
+	{
+	
+		g.auto = !g.auto;
+		SetMessage(g.auto ? "autodrive" : "manual steer");
+	}
+	else if (key == 'G')
+	{
+	
+		g.tint = 0.5;
+		g.cycle = false;
+		SetMessage("greyscale");
+	}                 
+	else if (key == 'H')
+	{
+	
+		var tint = Math.(color(random(),random(),random());
+		tint *= 1.0/tint.Brightness();
+		g.tint = tint * 0.6;
+		g.cycle = false;
+		SetMessage("random palette");
+	}
+	else if (key == 'K')
+	{
+	
+		g.cycle = !g.cycle;
+		SetMessage("palette cycle " + (g.cycle ? "on" : "off" ));
+	}
+	/*else if (key == 'C')
+	{
+	
+		scr.SetMonochrome(false);
+	} */
+	else if (key == 114)	// F3
+	{
+	
+		g.showDashboard = !g.showDashboard;
+		//scr.SetMonochrome(false);
+		//g.cycle = false;
+		SetMessage("dashboard " + (g.showDashboard ? "on" : "off" ));
+	}                 
+	else if (key >= '1' && key <= '9')
+	{
+	
+		g.roadType = key-'1';
+		user.Init();
+		road = MakeRoad();
+		lastTime.GetLocal();
+	}
+	
+	
+	var lineThickness = scr.Width() * 0.0025;
+	g.center.y = min(0.5, max(0.3, 1.0 - (scr.Width() * 0.5/scr.Height())));
+	
+		// now let's get the time step here
+	time tm.GetLocal();
+	real period = tm - lastTime;
+	lastTime = tm;
+	real step = period;
+	
+	if (step > 0.1)	// maximum frame step is 0.1 seconds
+		step = 0.1;
+	
+	if (KeyPressed("shift"))
+		step *= 0.125;
+	else if (KeyPressed("control"))
+		step *= 4;
+		
+		// soften it to deal with coarse timing issues
+	step = mix(lastStep, step, 0.5);
+	lastStep = step;
+	
+
+	point acc.Set(0,0);
+	
+	var joy = point(0,0);
+	joy.x = mix(lastJoyX, joy.x, 0.5);
+	lastJoyX = joy.x;
+	
+	joy.y = -joy.y;
+	
+	acc.y = joy.y;
+	
+	var temp_steer = 0;//joy.x;
+	
+	if (KeyPressed("up") or KeyPressed('W'))
+	{
+	
+		acc.y += 1;
+	}
+	if (KeyPressed("down") or KeyPressed('S'))
+	{
+	
+		acc.y -= 2;
+	}  
+	
+	if (KeyPressed("left") or KeyPressed('A'))
+	{
+	
+		if (g.auto)
+			user.roadPos += 3 * step;
+		else
+			temp_steer -= 1;
+	}
+	if (KeyPressed("right") or KeyPressed('D'))
+	{
+	
+		if (g.auto)
+			user.roadPos += -3 * step;
+		else
+			temp_steer += 1;
+	} 
+	
+	if (g.auto)
+	{
+		if (user.roadPos > 0.1)
+			user.roadPos -= step;
+		else if (user.roadPos < -0.1)
+			user.roadPos += step;
+	}
+	
+	int wanted = (int)(user.roadPos + 100.5) - 100;
+	
+		// read function keys      
+	if (g.wireframe != KeyPressed("f2"))
+	{
+	
+		g.wireframe = !g.wireframe;
+		scr.Cmd("wireframe " + (g.wireframe ? "on" : "off"));
+		SetMessage("wireframe " + (g.wireframe ? "on" : "off"));
+	}  
+	
+   g.rearView = KeyPressed("f4");
+   if (g.rearView)
+   	SetMessage("rear view");
+      
+	if (KeyPressed('B'))	// hi contrast
+	{
+	
+		g.tint *= Math.pow(2, step);
+		g.cycle = false;
+	}
+	if (KeyPressed('V'))	// lo contrast
+	{
+	
+		g.tint *= Math.pow(2, -step);
+		g.cycle = false;
+	}
+	
+	if (KeyPressed('M'))
+	{
+	
+		g.zoom *= Math.pow(2, step);//1.01;
+		SetMessage("zoom " + (int)(g.zoom * 100));
+	}
+	if (KeyPressed('N'))
+	{
+	
+		g.zoom *= Math.pow(2, -step);//1.01;
+		if (g.zoom < 0.125)
+			g.zoom = 0.125;
+		SetMessage("zoom " + (int)(g.zoom * 100));
+	}
+	
+	if (KeyPressed("home"))
+	{
+	
+		//user.Init();
+		g.auto = true;
+		user.roadPos = 0;
+		user.PlaceOn(theRoad[0]);
+		g.fade = 0;
+		SetMessage("returned to road");
+	}
+	
+	user.brake = 0;
+	user.accelerate = 0;
+	
+		
+	if (KeyPressed(" "))
+		user.brake = 1;
+	
+	var xs = joy.x;
+	
+	xs = sign(xs) * 0.75 * (Math.pow(|xs, 3) + |xs * 0.25);	//mix(xs*0.5, xs, abs(xs));
+	
+	var carCloseness;
+	var closeness;
+	for (var tt = step; tt > 0; tt -= g.timeSlice)
+	{
+		var step = min(tt, g.timeSlice);
+		
+		if (g.auto)   
+			user.AutoDrive(theRoad[0]);
+		else
+		{
+			var diff = -sign(user.steerTo) * 0.0002 * user.vel.Magnitude() * step;
+			if (|diff >= |user.steerTo)
+				user.steerTo = 0;
+			else
+				user.steerTo += diff;
+				
+			user.steerTo = user.steerTo + temp_steer * 0.025 * step;
+		}
+		
+		user.accelerate += acc.y;
+			
+		user.steerTo += xs * 0.05;
+	
+		user.Advance(step);
+	}
+	
+		
+	
+		
+	user.steerTo -= xs * 0.05;
+	
+	if (g.cycle)	// cycle colors
+	{
+		real t = lastTime * 0.125;
+		var tint1 = color(Math.sin(t * 0.7) * 0.5 + 0.5, Math.sin(t*0.9) * 0.5 + 0.5, Math.sin(t*1.3) * 0.5 + 0.5);
+		//tint.b = 1 - max(tint.r,tint.g);
+		
+		tint1 *= 0.7 / tint1.Brightness();
+		
+		g.tint = tint1;
+	}
+	
+	if (g.wireframe)
+	{
+		scr.bg = 0;
+		scr.Cls();
+	}
+	else
+	{
+		scr.DrawBackground();
+	}
+	
+		// draw the road itself
+	scr.DrawSet(road);
+	
+		// draw the road itself
+		
+	shape carBodiesTop;
+	shape carBodiesBottom;
+	shape cars;
+	shape lights;
+	shape lightPaths;
+	
+	scr.rgb = 1;
+	
+	if (true)
+	{
+		scr.rgb = g.col.ground;	// black bodies
+		scr.alpha = 1;
+		scr.DrawRoadShape(carBodiesTop, 2, 1.75);
+		scr.DrawRoadShape(carBodiesBottom, 0.25, -1.75);
+		
+		//scr.alpha = 0.5;
+		scr.rgb = 0.6;	// tail light?
+		scr.alpha = 1;
+		scr.DrawRoadShape(cars, 0.75, 0.2);
+		
+		scr.alpha = 1;
+		
+		scr.rgb = 1.0;	// head light?
+		scr.alpha = 1;
+		
+		scr.alpha = 1;
+		scr.DrawRoadShape(lights, 1, 0.3);
+	}
+	   
+	
+	var nearest = theRoad.GetNearestPoint(user.pos);
+	
+	var normalSpeed = 100 * 1000 / 3600;	// 100 km/h
+	
+	if (g.showDashboard && !g.rearView)	// draw controls
+	{
+	
+		var dwidth = scr.Width();
+		var dheight = dwidth * 2/3;
+			
+		scr.alpha = 1;
+		
+		color fill = 0;//g.col.sky * 0.5;
+		color line = 0.2;
+		color shadow = 0;
+		
+		var thick = lineThickness * 4;
+   
+		shape sh.MakeCircle(point(0,0), 1);
+		sh.Scale(point(1.2,0.3) * dwidth);
+		sh.Move(point(dwidth * (g.laneOffset < 0 ? 0.2 : 0.8), dheight * 1.05));
+		scr.rgb = fill;
+		
+		scr.Shape(sh);
+		
+		sh.Outline(thick);
+		scr.rgb = line;
+		scr.Shape(sh);
+		
+			// do speedo
+		scr.rgb = line;
+		
+		var sh = speedoShape;
+		sh.Scale(point(1,1) * dwidth * 0.2);
+		sh.Move(point(dwidth * (g.laneOffset < 0 ? 0.325 : 0.675), dheight * 0.85));
+		scr.Shape(sh);
+		
+		var sh = speedoShape;
+		sh.Scale(point(1,1) * dwidth * 0.2);
+		sh.Move(point(dwidth * (g.laneOffset < 0 ? 0.1 : 0.9), dheight * 0.85));
+		scr.Shape(sh);
+		
+		real speed = user.vel.Magnitude() / 1000 * 3600;
+		speed = mix(-Math.PI * 0.8, Math.PI * 0.8, min(speed/400, 1));
+		var sh = speedoNeedle;
+		sh.Scale(point(1,1) * dwidth * 0.2);
+		sh.Rotate(speed);
+		sh.Move(point(dwidth * (g.laneOffset < 0 ? 0.325 : 0.675), dheight * 0.875));
+		scr.rgb = line;
+		scr.Shape(sh);
+		
+		real speed = g.frameRate;
+		speed = mix(-Math.PI * 0.8, Math.PI * 0.8, min(speed/80, 1));
+		var sh = speedoNeedle;
+		sh.Scale(point(1,1) * dwidth * 0.2);
+		sh.Rotate(speed);
+		sh.Move(point(dwidth * (g.laneOffset < 0 ? 0.1 : 0.9), dheight * 0.875));
+		scr.rgb = line;
+		scr.Shape(sh);
+		
+			// do steeringwheel
+		var sh = steeringWheelShape;
+		sh.Rotate(user.steerPos * 50);
+		sh.Scale(point(1,1) * dwidth * 0.9);
+		sh.Move(point(dwidth * (g.laneOffset < 0 ? 0.2 : 0.8), dheight * 1.1));
+		if (true)
+		{
+		
+			scr.rgb = line;
+			//scr.alpha = 0.2;
+			//scr.Shape(sh);
+			var s2 = sh;
+			s2.Move(point(0, -thick*0.5));
+			s2.Expand(-thick*0.5);
+			sh.Expand(thick*0.5);			
+			//sh.Outline(thick);
+			scr.rgb = line;
+			scr.Shape(sh);
+			if (shadow != fill)
+			{
+				scr.rgb = shadow;
+				sh.Scale(point(1.1,1.3));
+				scr.alpha = 0.25;
+				scr.Shape(sh);  
+				scr.alpha = 1;
+			}              
+			
+			scr.rgb = fill;
+			scr.Shape(s2);
+			//scr.alpha = 0.2;
+			//scr.Shape(sh);
+		}
+		else
+		{
+		
+			scr.rgb = fill;
+			//scr.alpha = 0.2;
+			scr.Shape(sh);
+			
+			sh.Outline(thick);
+			scr.rgb = line;
+			scr.Shape(sh);
+			//scr.alpha = 0.2;
+			//scr.Shape(sh);
+		}
+		scr.alpha = 1;
+		
+	}
+	
+	
+	g_frameInterval = mix(g_frameInterval, period, 0.01);
+	
+	g.frameRate = 1.0/g_frameInterval;
+	
+	if (g.showHelp > 0)
+	{
+	
+		g.showHelp -= 0.5 * step;
+		DrawHelp();
+	}
+	
+		
+	if (g.wireframe)
+	{
+	 
+		var t = color(0,0,0.5);
+		scr.SetTint(t, mix(t,1,0.75), 1);
+	}
+	else
+	{
+		color fw = 0 * g.fade;
+		color fl = g.tint * g.fade;
+		color fh = 1 * g.fade;
+		
+		if (g.fade < 1)
+			g.fade = mix(1, g.fade, 0.8/2`period);
+		
+		if (g.fade > 1)
+			g.fade = 1;
+		
+		scr.Cmd("tint lo 0 hi 255 #%06X #%06X #%06X" << [fw.Get32(), fl.Get32(), fh.Get32()]);
+	}
+	win.Paint();
+	g_frames++;
+}
+
+function screen::DrawBackground()
+{
+	alpha = 1;
+	bg = g.col.ground;
+	Cls();
+	
+	var center = point(Width() * g.center.x, Height() * g.center.y);
+	
+	shape sh;//.MakeUnit();
+
+	with sh
+	{	
+		.AddVertex(point(1,0));
+		.AddVertex(point(1,1));
+		.AddVertex(point(0,1));
+		.AddVertex(point(0,0));
+		
+		.Move(point(-0.5,0.0001));
+		.Scale(point(-1,1));
+	}
+	//sh.Move(point(0,-0.02));
+	
+	vector vo.Set(0,0,g.rearView ? -0.01 : 0.01);
+	vector vx.Set(1,0,0);
+	vector vy.Set(0,1,0);	// vertical
+	
+	var tilt = user.tilt * Math.PI
+	var pitch = -user.pitch * Math.PI;
+	var zoom = 1.0/(g.rearView ? -g.zoom : g.zoom);
+	
+	with (vo,vx,vy)
+		this = RotateZ(tilt).RotateX(pitch);
+	
+	with (vo,vx,vy)
+	{
+		z *= zoom;
+		y = -y;
+		if (g.rearView)
+			x = -x;
+	}
+	
+	sh.Project(vo, vx, vy);
+	
+	var scale = max(center.x, center.y);
+	
+	point gradTop = (vo + vy * 0.015).( this / z);
+	point gradOrg = vo / vo.z;
+	gradTop -= gradOrg;
+	gradTop *= scale;
+	gradOrg *= scale;
+	gradOrg += center;
+	
+	sh.Scale(scale);
+	
+	//sh.Rotate(user.tilt * Math.PI);
+	sh.Move(center);
+	
+	bg = g.col.sky.hi;//ground;
+	rgb = g.col.sky.lo;
+	
+	if (g.gradient)
+		Cmd("pattern gradient linear power %g org %g %g dx %g %g" << [g.col.sky.gradient, gradOrg.x, gradOrg.y, gradTop.x, gradTop.y]);
+	else
+		rgb = (g.col.sky.hi + g.col.sky.lo) * 0.5;	// average the two
+		
+	Shape(sh);
+	Cmd("pattern"); 
+}
+
+function screen::DrawRoadShape(&sh) { DrawRoadShape(sh, 0.0, 0.0); }
+
+function screen::DrawRoadShape(sh, real height, real extr)
+{
+	if (height > 0)
+		Cmd("pattern"); 
+	
+	var center = point(Width() * g.center.x, Height() * g.center.y);
+	if (true)
+	{
+		var up = user.pos;//vector up.Set(user.pos.x, 0, user.pos.y);
+		
+		vector vo.Set(0,height,0);
+		vector vx.Set(1,0,0);
+		vector vy.Set(0,0,1);
+		
+		vo -= up;
+		
+		var yaw = user.angle;
+		var tilt = user.tilt * Math.PI;
+		var pitch = -user.pitch * Math.PI;
+		
+		with (vo,vx,vy)
+			this = RotateY(yaw).RotateZ(tilt).RotateX(pitch);
+		
+		vector vz = (vx * vy) * extr;
+			
+			// factor in zoom here now
+		var zoom = 1.0/(g.rearView ? -g.zoom : g.zoom);
+		
+		with (vo,vx,vy,vz)
+		{
+			z *= zoom;
+			if (g.rearView)
+				x = -x;
+		}
+		
+		if (extr != 0)
+			sh.Project(vo, vx, vy, vz);
+		else                         
+			sh.Project(vo, vx, vy);
+		
+			// make sure positive y is up
+		sh.Scale(point(1,-1) * max(center.x, center.y));// * g.zoom);
+		
+		sh.Move(center);
+	}
+	
+	Shape(sh);	
+}
+
+function screen::DrawSet(set)
+{
+	for (int i = 0; i < set.Length(); i++)
+	{
+	
+		var& a = set[i];
+		rgb = a.rgb;
+		alpha = a.alpha;
+		
+		DrawRoadShape(a, a.height, a.extrude);
+	}
+
+	rgb = 1;
+	alpha = 1;
+}
+
+function MakeRoad()
+{
+	ShowTitle();
+	g.auto = true;
+	g.laneSpacing = 4;
+	with theRoad
+	{ 
+		Init();
+		int n = 24;
+		for (int i = 0; i < n; i++)
+		{
+			real theta = i * Math.PI * 2 / n;
+			var pt = point(Math.cos(theta), Math.sin(theta)) * (Math.random() + 3); 
+			AddControl(pt);
+		}
+		
+		BoxFit();
+		Scale(point(600,600));
+		ReCenter();
+	}
+	
+	var &p = theRoad[0];
+	
+	part set[];
+	
+	var &layer = set.Next();
+	
+	with g
+	{
+		tint = 0.5;
+		with col
+		{
+			ground = 0.0;
+			with sky
+			{
+				lo = 0.75;
+				hi = 0.25;
+				gradient = 0.5;
+			}
+		}
+	}
+	
+	if (track.Length() > 0)	// this could be loaded from separate file
+	{
+	
+		g.roadType = g.roadType % track.Length();
+		var c = track[g.roadType];
+		part layer;
+		layer.rgb = 1;
+		while (c.Length() > 0)
+		{
+		
+			if (c >> "layer")
+			{
+			
+				set += layer;
+				layer = part;
+			}
+			else if (c >> "grey")
+				layer.rgb = (real)c.GetItem();				
+			else if (c >> "alpha")
+				layer.alpha = (real)c.GetItem();				
+			else if (c >> "dash")
+				layer.Merge(MakeDash(p, (real)c.GetItem(), (real)c.GetItem(), (real)c.GetItem(), (real)c.GetItem()));
+			else if (c >> "height")
+				layer.height = (real)c.GetItem();
+			else if (c >> "extrude")
+				layer.extrude = (real)c.GetItem();
+			else 
+				c.GetItem();
+		}
+	}
+	else 	// very very simple road
+	{
+	
+		SetMessage("(very sparse road)");
+		g.tint = 0.7;
+		g.col.(ground = sky.(hi = lo = 0));
+		//g.col.ground = 0.075;
+		color lines = 0.75;
+		
+		theRoad.Scale(2);
+		layer.rgb = lines;
+		layer.height = 0;
+		//layer.extrude = 0.0125;
+		
+		layer.Merge(MakeDash(p, 0, 0.2, 4, 10));
+		layer.Merge(MakeDash(p, -3, 0.15, 30, 2));
+		layer.Merge(MakeDash(p, 3, 0.15, 30, 2));
+		
+		scr.SetTint(0, 0.6, 1);
+	}
+	            
+	
+	var scale = vector(1.25,1.25,1);
+	theRoad.Scale(scale);
+	for (int i = 0; i < set.Length(); i++)
+	{
+	
+		with set[i] 
+		{
+			Scale(scale);			
+			height *= scale.z;
+			extrude *= scale.z;
+		}
+	}  
+	
+	user.PlaceOn(theRoad[0]);
+		
+	return set;//layer;
+}
+
+function MakeDash(path p, var xpos, var width, var dashOn, var dashOff)
+{
+	bool smooth = dashOn > 0;
+	dashOn = |dashOn;
+	shape sh;
+	bool on = true;
+	real begin = 0; 
+	real end = p.Length();
+	for (real t0 = begin; t0 < end; )
+	{
+	
+			// we need to establish an interval t0-t1 of the desired length
+		var t1;
+		
+	 	if (on && dashOn == 0)
+	 		t1 = t0;
+	 	else
+	 	{
+	 		t1 = p.StepInterval((on ? dashOn : dashOff), t0);
+	 		if (t1 < 0 || t1 > end)
+	 			t1 = end;
+	 	}
+	 	
+		var p0 = p.GetPoint(t0);
+	 	var p1 = p.GetPoint(t1);
+		
+		if (on)
+		{
+			var x0 = p.GetNormal(t0);
+			var x1 = p.GetNormal(t1);
+			if (dashOn == 0)	// special case?
+			{
+			
+				shape c.MakeCircle(p0 + x0 * xpos, width);
+				sh.Merge(c);
+			}
+			else
+			{
+					// calculate how many mid points are needed
+				int between = smooth ? dashOn * 0.5 : 0;
+				
+				sh.AddVertex(p0+x0*(xpos-width*0.5));
+				sh.AddVertex(p0+x0*(xpos+width*0.5));
+	
+				for (int i = 0; i < between; i+=1)
+				{
+			
+					var t = mix(t0,t1,(real)(i+1)/(between+1));
+					var pt = p.GetPoint(t) + p.GetNormal(t)*(xpos+width*0.5);
+					sh.AddControl(pt);
+				}			
+				
+				sh.AddVertex(p1+x1*(xpos+width*0.5));
+				sh.AddVertex(p1+x1*(xpos-width*0.5));
+				
+				for (int i = 0; i < between; i+=1)
+				{
+			
+					var t = mix(t1,t0,(real)(i+1)/(between+1));
+					var pt = p.GetPoint(t) + p.GetNormal(t)*(xpos-width*0.5);
+					sh.AddControl(pt);
+				}			
+				
+				sh.ClosePath();
+			}
+		}  
+		
+		t0 = t1;
+		
+		if (dashOff > 0)
+			on = !on;
+	}
+	return sh;
+}
+
+
+function shape::ReCenter()
+{
+	Move(-GetRect().Center());
+
+}
+
+function shape::BoxFit()
+{
+	rect rc = GetRect();
+	if (rc.IsEmpty())
+		return;
+
+	Move(-rc.lo);
+	var scale = rc.hi - rc.lo;
+	
+	if (scale.x > 0)
+		scale.x = 1.0/scale.x;
+		
+	if (scale.y > 0)
+		scale.y = 1.0/scale.y;
+		
+	Scale(scale);
+
+}
+function shape::AddVertex(x,y)
+{
+	AddVertex(point(x,y));
+
+}
+function shape::AddControl(x,y)
+{
+	AddControl(point(x,y));
+
+}
+
+time finishTime.GetLocal();
+
+return 0;//g_frames/(finishTime - g_startTime);
+
+// DATA!
+
+static var track = [$$
+	grey   0.5 
+	dash -4  0.15  60  2   
+	dash 4  0.15  60  2   
+	
+	dash -0.2  0.15  -4  6   
+	dash 0.125  0.125  60  0   
+	layer
+ 	
+	grey 1
+	height 62
+	extrude 2
+	dash 300 0.5 0 250
+	dash 320  0.75  0  250   
+	layer
+	
+	grey   0 
+	height   60 
+	extrude   60 
+	dash 300  0.5  0  250   
+	dash 320  0.75  0  250   
+	dash 400  8  0  240   
+	dash 500  8  0  240   
+	layer 
+	
+	grey   0 
+	height   12 
+	extrude   12 
+	dash -80  20  -40  60   
+	dash 180  50  -40  30   
+	dash 300  50  -20  20   
+	
+	dash -100  8  0  200   
+	dash -60  8  0  1500   
+	dash 100  8  0  140   
+	dash 120  8  0  220   
+	layer 
+	
+	grey   0
+	dash 0  1  -2  200   
+	Expand 1  
+	layer
+		
+	grey   0 
+	height   15.2
+	extrude   0.2
+	dash -5.6  5  0.2  80
+	layer
+ 	
+	grey   0 
+	height   15
+	extrude   15 
+	dash -8  0.2  0.2  80   
+	layer	 
+	
+	grey   1 
+	height   15
+	extrude   0.4
+	dash -4  2  0.2  80   
+	layer
+ 	
+	grey   0 
+	height   12 
+	extrude   2 
+	dash  0  162  -8  300   
+	layer
+ 	
+	grey   0 
+	height   10 
+	extrude   10 
+	dash  -100  42  -8  300   
+	dash  -40  2  -8  300   
+	dash  -10  2  -8  300   
+	dash  10  2  -8  300   
+	dash  40  2  -8  300   
+	dash  200  242  -8  300   
+	layer
+	
+	grey   0 
+	height   12 
+	extrude   12 
+	dash -30  0.25  0  90   
+	dash -40  0.25  0  110   
+	dash 60  0.25  0  60   
+	dash -50  0.25  0  60   
+	dash -20  0.125  0  100   
+	dash 20  0.25  0  45   
+	dash 50  0.125  0  50   
+	dash 70  0.25  0  75   
+	layer
+ 	
+	grey   0 
+	height   13 
+	extrude   1 
+	dash -40  1  0  110   
+	dash 60  1  0  60   
+	layer
+	
+	grey   0 
+	height   11.25 
+	extrude   0.025 
+	dash -50  0.025  -60  0   
+	dash -20  0.025  -100  0   
+	dash 20  0.025  -45  0   
+	dash 50  0.025  -50  0   
+	dash 70  0.025  -75  0   
+	layer 
+ 	
+	grey   0 
+	height   5 
+	extrude   5 
+	dash -25  0.1  0  30   
+	dash 25  0.1  0  30   
+	layer
+ 	
+	grey   0 
+	height   4.5
+	extrude   0.1 
+	dash -25  0.1  -30  0   
+	dash 25  0.1  -30  0   
+	layer 
+	
+	grey   0 
+	alpha   0.25 
+	height   4.4 
+	extrude   4.4
+	dash -25  0.1  -30  0   
+	dash 25  0.1  -30  0   
+	layer 
+	$$
+];
