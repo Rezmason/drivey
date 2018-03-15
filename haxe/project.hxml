@@ -1,2 +1,3 @@
 -main Drivey.hx
--swf Drivey.swf
+-lib threejs
+-js drivey.js
