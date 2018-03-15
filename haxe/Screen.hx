@@ -12,6 +12,10 @@ class Screen {
         // TODO
     }
 
+    public function isKeyDown(code) {
+        return false; // TODO
+    }
+
     public function drawShape(shape:Shape) {
         // TODO
     }

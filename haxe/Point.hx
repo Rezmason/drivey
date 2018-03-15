@@ -9,7 +9,10 @@ package ;
     @:op(A + B) static inline function add(a:Point, b:Point):Point return new Point(a.x + b.x, a.y + b.y);
     @:op(A - B) static inline function subtract(a:Point, b:Point):Point return new Point(a.x - b.x, a.y - b.y);
     @:op(-A) static inline function invert(a:Point):Point return new Point(-a.x, -a.y);
-    @:op(!A) static inline function not(a:Point):Point return null; // TODO, I have no idea
     public inline static function mix(a:Point, b:Point, t:Float) return a*(1-t) + b*t;
     inline function get_magnitude():Float return Math.sqrt(this.x * this.x + this.y * this.y);
+    @:op(!A) static inline function normalize(a:Point):Point {
+        var mag = a.magnitude;
+        return new Point(a.x / mag, a.y / mag);
+    }
 }

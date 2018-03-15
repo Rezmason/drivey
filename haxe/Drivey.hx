@@ -270,10 +270,6 @@ class Drivey {
         return carBodyTop;
     }
 
-    function isKeyDown(code) {
-        return false; // TODO, event listeners
-    }
-
     function addNPCCar()
     {
         var npcCar = new Car();
@@ -386,14 +382,14 @@ class Drivey {
             newAngle += Math.PI * 2;
         }
 
-        if (bar(newAngle) > 1) {
-            newAngle /= bar(newAngle);
+        if (abs(newAngle) > 1) {
+            newAngle /= abs(newAngle);
         }
 
         car.steerTo = newAngle / (min(targetDir.magnitude * 0.5, 50) + 1);
 
-        if (bar(car.steerTo) > 0.02) {
-            car.steerTo *= 0.02/bar(car.steerTo);
+        if (abs(car.steerTo) > 0.02) {
+            car.steerTo *= 0.02/abs(car.steerTo);
         }
 
         if (car.vel.magnitude < car.cruise) {
@@ -564,7 +560,7 @@ class Drivey {
     function makeRoadLine(p:Path, xpos:Float, width:Float, dashOn:Float, dashOff:Float)
     {
         var smooth = dashOn > 0;
-        dashOn = bar(dashOn);
+        dashOn = abs(dashOn);
         var sh:Shape = new Shape();
         var on = true;
         var begin:Float = 0;
@@ -1227,7 +1223,7 @@ class Drivey {
     // main loop
     function tick()
     {
-        if (isKeyDown('F1'))
+        if (scr.isKeyDown('F1'))
         {
             if (message.length ==  0&& g.showHelp > 1) {
                 g.showHelp = 0;
@@ -1237,16 +1233,16 @@ class Drivey {
 
             message = '';
         }
-        if (isKeyDown('F7'))
+        if (scr.isKeyDown('F7'))
         {
             g.gradient = !g.gradient;
             setMessage('gradient ' + (g.gradient ? 'on': 'off'));
         }
-        if (isKeyDown('Esc'))
+        if (scr.isKeyDown('Esc'))
         {
             // exit
         }
-        if (isKeyDown('C'))
+        if (scr.isKeyDown('C'))
         {
             if (other.length > 16) {
                 other = [];
@@ -1258,28 +1254,28 @@ class Drivey {
             }
             setMessage('' + other.length + ' cars on the road');
         }
-        if (isKeyDown('F8'))
+        if (scr.isKeyDown('F8'))
         {
             g.laneOffset = -g.laneOffset;
             setMessage('driving style: ' + (g.laneOffset < 0 ? 'North American': 'Australian'));
         }
-        if (isKeyDown('F6'))
+        if (scr.isKeyDown('F6'))
         {
             g.collisions = !g.collisions;
             setMessage('collision detection ' + (g.collisions ? 'on (crappy)': 'off'));
         }
-        if (isKeyDown('F5'))
+        if (scr.isKeyDown('F5'))
         {
             g.auto = !g.auto;
             setMessage(g.auto ? 'autodrive' : 'manual steer');
         }
-        if (isKeyDown('G'))
+        if (scr.isKeyDown('G'))
         {
             g.tint = 0.5;
             g.cycle = false;
             setMessage('greyscale');
         }
-        if (isKeyDown('H'))
+        if (scr.isKeyDown('H'))
         {
             var tint = new Color(Math.random(),Math.random(),Math.random());
             tint *= 1.0/tint.brightness();
@@ -1287,17 +1283,17 @@ class Drivey {
             g.cycle = false;
             setMessage('random palette');
         }
-        if (isKeyDown('K'))
+        if (scr.isKeyDown('K'))
         {
             g.cycle = !g.cycle;
             setMessage('palette cycle ' + (g.cycle ? 'on' : 'off' ));
         }
-        if (isKeyDown('F3'))
+        if (scr.isKeyDown('F3'))
         {
             g.showDashboard = !g.showDashboard;
             setMessage('dashboard ' + (g.showDashboard ? 'on' : 'off' ));
         }
-        if (isKeyDown('1'))
+        if (scr.isKeyDown('1'))
         {
             g.roadType = (g.roadType + 1) % 4;
             user.init();
@@ -1319,9 +1315,9 @@ class Drivey {
             step = 0.1;
         }
 
-        if (isKeyDown('shift')) {
+        if (scr.isKeyDown('shift')) {
             step *= 0.125;
-        } else if (isKeyDown('control')) {
+        } else if (scr.isKeyDown('control')) {
             step *= 4;
         }
 
@@ -1342,16 +1338,16 @@ class Drivey {
 
         var temp_steer = 0;
 
-        if (isKeyDown('up') || isKeyDown('W'))
+        if (scr.isKeyDown('up') || scr.isKeyDown('W'))
         {
             acc.y += 1;
         }
-        if (isKeyDown('down') || isKeyDown('S'))
+        if (scr.isKeyDown('down') || scr.isKeyDown('S'))
         {
             acc.y -= 2;
         }
 
-        if (isKeyDown('left') || isKeyDown('A'))
+        if (scr.isKeyDown('left') || scr.isKeyDown('A'))
         {
             if (g.auto)
             {
@@ -1362,7 +1358,7 @@ class Drivey {
                 temp_steer -= 1;
             }
         }
-        if (isKeyDown('right') || isKeyDown('D'))
+        if (scr.isKeyDown('right') || scr.isKeyDown('D'))
         {
             if (g.auto)
             {
@@ -1389,35 +1385,35 @@ class Drivey {
         var wanted = Std.int(user.roadPos + 100.5) - 100;
 
         // read function keys
-        if (g.wireframe != isKeyDown('F2'))
+        if (g.wireframe != scr.isKeyDown('F2'))
         {
             g.wireframe = !g.wireframe;
             scr.cmd('wireframe ' + (g.wireframe ? 'on' : 'off'));
             setMessage('wireframe ' + (g.wireframe ? 'on' : 'off'));
         }
 
-        g.rearView = isKeyDown('F4');
+        g.rearView = scr.isKeyDown('F4');
         if (g.rearView) {
             setMessage('rear view');
         }
 
-        if (isKeyDown('B'))    // hi contrast
+        if (scr.isKeyDown('B'))    // hi contrast
         {
             g.tint *= Math.pow(2, step);
             g.cycle = false;
         }
-        if (isKeyDown('V'))    // lo contrast
+        if (scr.isKeyDown('V'))    // lo contrast
         {
             g.tint *= Math.pow(2, -step);
             g.cycle = false;
         }
 
-        if (isKeyDown('M'))
+        if (scr.isKeyDown('M'))
         {
             g.zoom *= Math.pow(2, step);
             setMessage('zoom ' + Std.int(g.zoom * 100));
         }
-        if (isKeyDown('N'))
+        if (scr.isKeyDown('N'))
         {
             g.zoom *= Math.pow(2, -step);
             if (g.zoom < 0.125)
@@ -1427,7 +1423,7 @@ class Drivey {
             setMessage('zoom ' + Std.int(g.zoom * 100));
         }
 
-        if (isKeyDown('home'))
+        if (scr.isKeyDown('home'))
         {
             g.auto = true;
             user.roadPos = 0;
@@ -1440,14 +1436,14 @@ class Drivey {
         user.accelerate = 0;
 
 
-        if (isKeyDown(' '))
+        if (scr.isKeyDown(' '))
             user.brake = 1;
 
         var xs = joy.x;
 
         if (g.xfunc)
         {
-            xs = sign(xs) * 0.75 * (Math.pow(bar(xs), 3) + bar(xs) * 0.25);
+            xs = sign(xs) * 0.75 * (Math.pow(abs(xs), 3) + abs(xs) * 0.25);
         }
         else
         {
@@ -1466,7 +1462,7 @@ class Drivey {
             else
             {
                 var diff = -sign(user.steerTo) * 0.0002 * user.vel.magnitude * step;
-                if (bar(diff) >= bar(user.steerTo))
+                if (abs(diff) >= abs(user.steerTo))
                 {
                     user.steerTo = 0;
                 } else
@@ -1721,7 +1717,7 @@ class Drivey {
 
             if (g.fade < 1)
             {
-                g.fade = mix(1, g.fade, 0.4/period); // g.fade = mix(1, g.fade, 0.8/2`period);
+                g.fade = mix(1, g.fade, 0.8/Math.pow(2, period));
             }
 
             if (g.fade > 1)

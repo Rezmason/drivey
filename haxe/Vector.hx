@@ -12,9 +12,32 @@ package ;
         this.z = z;
     }
 
-    public function rotateX(amount:Float):Vector return null; // TODO
-    public function rotateY(amount:Float):Vector return null; // TODO
-    public function rotateZ(amount:Float):Vector return null; // TODO
+    // Did I do these right?
+
+    public function rotateX(amount:Float):Vector {
+        var len = Math.sqrt(this.y * this.y + this.z * this.z);
+        var angle = Math.atan2(this.z, this.y);
+        var y = len * Math.cos(angle);
+        var z = len * Math.sin(angle);
+        return new Vector(this.x, y, z);
+    }
+
+    public function rotateY(amount:Float):Vector {
+        var len = Math.sqrt(this.x * this.x + this.z * this.z);
+        var angle = Math.atan2(this.x, this.z);
+        var z = len * Math.cos(angle);
+        var x = len * Math.sin(angle);
+        return new Vector(x, this.y, z);
+    }
+
+    public function rotateZ(amount:Float):Vector {
+        var len = Math.sqrt(this.x * this.x + this.y * this.y);
+        var angle = Math.atan2(this.y, this.x);
+        var x = len * Math.cos(angle);
+        var y = len * Math.sin(angle);
+        return new Vector(x, y, this.z);
+    }
+
 
     inline function get_magnitude():Float return Math.sqrt(this.x * this.x + this.y * this.y + this.z * this.z);
 
@@ -29,8 +52,10 @@ package ;
     @:op(A + B) static inline function add(a:Vector, b:Vector):Vector return new Vector(a.x + b.x, a.y + b.y, a.z + b.z);
     @:op(A - B) static inline function subtract(a:Vector, b:Vector):Vector return new Vector(a.x - b.x, a.y - b.y, a.z - b.z);
     @:op(-A) static inline function invert(a:Vector):Vector return new Vector(-a.x, -a.y, -a.z);
-    @:op(!A) static inline function not(a:Vector):Vector return null; // TODO, I have no idea
     @:op(A ^ B) static inline function dotProduct(a:Vector, b:Vector):Float return a.x * b.x + a.y * b.y + a.z * b.z;
     public inline static function mix(a:Vector, b:Vector, t:Float):Vector return a*(1-t) + b*t;
-    public inline function bar():Float return 0; // TODO, no idea
+    @:op(!A) static inline function normalize(a:Vector):Vector {
+        var mag = a.magnitude;
+        return new Vector(a.x / mag, a.y / mag, a.z / mag);
+    }
 }

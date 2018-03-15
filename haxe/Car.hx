@@ -85,7 +85,7 @@ class Car
                 vel -= vd;
                 c.vel += vd;
             }
-            var push = !pd * (radius - pd.bar());
+            var push = !pd * (radius - pd.magnitude);
             pos += push;
             c.pos -= push;
         }
@@ -169,8 +169,8 @@ class Car
 
         var diff = steerTo-steerPos;
 
-        if (bar(diff) > t * 0.05) {
-            diff *= t * 0.05 / bar(diff);
+        if (abs(diff) > t * 0.05) {
+            diff *= t * 0.05 / abs(diff);
         }
 
         steerPos += diff;
