@@ -4,11 +4,11 @@ import drivey.Utils.*;
 
 class Car
 {
-    public var pos:Vector = new Vector();
-    public var vel:Vector = new Vector();
+    public var pos:Vector3 = new Vector3();
+    public var vel:Vector3 = new Vector3();
 
-    public var lastVel:Vector = new Vector();
-    public var lastPos:Vector = new Vector();
+    public var lastVel:Vector3 = new Vector3();
+    public var lastPos:Vector3 = new Vector3();
 
     public var angle:Float;
 
@@ -76,7 +76,7 @@ class Car
         var vd = vel - c.vel;
         var radius = 2.0;
 
-        var dist:Float = pd.magnitude - radius;
+        var dist:Float = pd.length() - radius;
         if (dist < 0)
         {
             if ((vd ^ pd) < 0)  // closing?
@@ -85,7 +85,7 @@ class Car
                 vel -= vd;
                 c.vel += vd;
             }
-            var push = !pd * (radius - pd.magnitude);
+            var push = !pd * (radius - pd.length());
             pos += push;
             c.pos -= push;
         }
@@ -99,17 +99,17 @@ class Car
         }
 
         var pt = m2w(s.getNearestPoint(w2m(pos)));
-        var pd = pt - new Vector(pos.x,0,pos.z);
+        var pd = pt - new Vector3(pos.x,0,pos.z);
         var radius = 1;
 
-        var dist = pd.magnitude - radius;
+        var dist = pd.length() - radius;
         if (dist < 0)   // contact?
         {
             if ((vel ^ pd) > 0) // hitting an obstacle? bounce off it
             {
                 vel -= !pd * (vel ^ !pd) * 1.5;
             }
-            var push = !pd * (radius - pd.magnitude);
+            var push = !pd * (radius - pd.length());
             pos -= push;
         }
         return dist;
@@ -117,7 +117,7 @@ class Car
 
     public function dir()
     {
-        return new Vector(0, 0, 1).rotateY(-angle);
+        return new Vector3(0, 0, 1).rotateY(-angle);
     }
 
     public function advance(t:Float)
@@ -126,20 +126,20 @@ class Car
             return;
         }
 
-        var dir = new Vector(0, 0, 1).rotateY(-angle);
+        var dir = new Vector3(0, 0, 1).rotateY(-angle);
 
         var acc = dir * accelerate * 10 + vel * - 0.1;
 
         var oldSpin = spin;
 
-        var newVel:Vector = dir * ((vel+acc*t) ^ dir);
+        var newVel:Vector3 = dir * ((vel+acc*t) ^ dir);
         if (brake >= 0.9) newVel.set(0,0,0);
 
-        if (!sliding && (newVel - vel).magnitude/t > 750) // maximum acceleration allowable?
+        if (!sliding && (newVel - vel).length()/t > 750) // maximum acceleration allowable?
         {
             sliding = true;
         }
-        else if (sliding && (newVel - vel).magnitude/t < 50)
+        else if (sliding && (newVel - vel).length()/t < 50)
         {
             sliding = false;
         }

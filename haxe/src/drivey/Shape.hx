@@ -16,18 +16,18 @@ class Shape {
     }
 
     public function addVertexXY(x:Float, y:Float) {
-        addVertex(new Point(x, y));
+        addVertex(new Vector2(x, y));
     }
 
-    public function addVertex(xy:Point) {
+    public function addVertex(xy:Vector2) {
         // TODO
     }
 
     public function addControlXY(x:Float, y:Float) {
-        addControl(new Point(x, y));
+        addControl(new Vector2(x, y));
     }
 
-    public function addControl(xy:Point) {
+    public function addControl(xy:Vector2) {
         // TODO
     }
 
@@ -47,7 +47,7 @@ class Shape {
         // TODO
     }
 
-    public function scale(xy:Point) {
+    public function scale(xy:Vector2) {
         // TODO
     }
 
@@ -55,7 +55,7 @@ class Shape {
         // TODO
     }
 
-    public function move(xy:Point) {
+    public function move(xy:Vector2) {
         // TODO
     }
 
@@ -63,7 +63,7 @@ class Shape {
         // TODO
     }
 
-    public function project(vo:Vector, vx:Vector, vy:Vector, vz:Vector = null) {
+    public function project(vo:Vector3, vx:Vector3, vy:Vector3, vz:Vector3 = null) {
         // TODO
     }
 
@@ -75,7 +75,7 @@ class Shape {
         return false; // TODO
     }
 
-    public function makeCircle(xy:Point, radius:Float) {
+    public function makeCircle(xy:Vector2, radius:Float) {
         // TODO
     }
 
@@ -113,7 +113,7 @@ class Shape {
         scale(scaleBy);
     }
 
-    public function getNearestPoint(xy:Point):Point {
+    public function getNearestPoint(xy:Vector2):Vector2 {
         return null; // TODO
     }
 

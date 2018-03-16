@@ -2,9 +2,9 @@ package drivey;
 
 class Rect {
 
-    public var hi(get, never):Point;
-    public var lo(get, never):Point;
-    public var center(get, never):Point;
+    public var hi(get, never):Vector2;
+    public var lo(get, never):Vector2;
+    public var center(get, never):Vector2;
     public var x:Float;
     public var y:Float;
     public var width:Float;
@@ -17,16 +17,16 @@ class Rect {
         this.height = height;
     }
 
-    function get_hi():Point {
-        return new Point(x + width, y + height);
+    function get_hi():Vector2 {
+        return new Vector2(x + width, y + height);
     }
 
-    function get_lo():Point {
-        return new Point(x, y);
+    function get_lo():Vector2 {
+        return new Vector2(x, y);
     }
 
-    function get_center():Point {
-        return new Point(x + width / 2, y + height / 2);
+    function get_center():Vector2 {
+        return new Vector2(x + width / 2, y + height / 2);
     }
 
     public function isEmpty() {

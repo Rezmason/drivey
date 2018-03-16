@@ -31,7 +31,7 @@ typedef Global = {
         },
         ground : Color
     },
-    center : Point,
+    center : Vector2,
     blur : Bool,
     auto : Bool, 
 };
@@ -72,7 +72,7 @@ class Drivey {
         auto:true,
         cycle:false,
         collisions:true,
-        center:new Point(0.5, 0.3),
+        center:new Vector2(0.5, 0.3),
 
         laneSpacing:2,
         laneOffset:-2.5, // north american
@@ -153,7 +153,7 @@ class Drivey {
 
     function makeSpeedoShape():Shape {
         var speedoShape:Shape = new Shape();
-        speedoShape.makeCircle(new Point(0,0), 0.5);
+        speedoShape.makeCircle(new Vector2(0,0), 0.5);
         speedoShape.outline(0.025);
 
         var dash:Shape = new Shape();
@@ -165,7 +165,7 @@ class Drivey {
         for (i in 0...n)
         {
             var sh:Shape = dash.clone();
-            sh.rotate(mix(-Math.PI * 0.8, Math.PI * 0.8, i / n));
+            sh.rotate(lerp(-Math.PI * 0.8, Math.PI * 0.8, i / n));
             speedoShape.merge(sh);
         }
         return speedoShape;
@@ -183,24 +183,24 @@ class Drivey {
 
     function makeSteeringWheelShape():Shape {
         var steeringWheelShape:Shape = new Shape();
-        steeringWheelShape.makeCircle(new Point(0,0), 0.5);
+        steeringWheelShape.makeCircle(new Vector2(0,0), 0.5);
         steeringWheelShape.closePath();
         var n = 60;
         for (i in 0...25) {
             var theta = (57 - i) * Math.PI * 2 / n;
             var mag = ((i & 1 != 0) ? 0.435: 0.45);
-            steeringWheelShape.addControl(new Point(Math.cos(theta), Math.sin(theta)) * mag);
+            steeringWheelShape.addControl(new Vector2(Math.cos(theta), Math.sin(theta)) * mag);
         }
         steeringWheelShape.closePath();
         for (i in 0...29) {
             var theta = (29-i) * 2 * Math.PI / n;
             var mag = ((i & 1 != 0) ? 0.435: 0.45);
-            steeringWheelShape.addControl(new Point(Math.cos(theta), Math.sin(theta)) * mag);
+            steeringWheelShape.addControl(new Vector2(Math.cos(theta), Math.sin(theta)) * mag);
         }
-        steeringWheelShape.addControl(new Point(0.25, 0.075));
-        steeringWheelShape.addControl(new Point(0.125, 0.2));
-        steeringWheelShape.addControl(new Point(-0.125, 0.2));
-        steeringWheelShape.addControl(new Point(-0.25, 0.075));
+        steeringWheelShape.addControl(new Vector2(0.25, 0.075));
+        steeringWheelShape.addControl(new Vector2(0.125, 0.2));
+        steeringWheelShape.addControl(new Vector2(-0.125, 0.2));
+        steeringWheelShape.addControl(new Vector2(-0.25, 0.075));
         steeringWheelShape.closePath();
         return steeringWheelShape;
     }
@@ -211,12 +211,12 @@ class Drivey {
         var sq:Shape = new Shape();
         sq.makeUnit();
         carLights.merge(sq);
-        sq.move(new Point(3,0));
+        sq.move(new Vector2(3,0));
         carLights.merge(sq);
         carLights.boxFit();
         carLights.recenter();
-        carLights.scale(new Point(2,0.1));
-        carLights.move(new Point(0,2));
+        carLights.scale(new Vector2(2,0.1));
+        carLights.move(new Vector2(0,2));
         return carLights;
     }
 
@@ -228,11 +228,11 @@ class Drivey {
         sq.addControlXY(-6,13);
         sq.addControlXY(4,15);
         carLightPaths.merge(sq);
-        sq.scale(new Point(-1,1));
+        sq.scale(new Vector2(-1,1));
         sq.invert();
-        sq.move(new Point(1.6,0));
+        sq.move(new Vector2(1.6,0));
         carLightPaths.merge(sq);
-        carLightPaths.move(new Point(-0.8,3));
+        carLightPaths.move(new Vector2(-0.8,3));
         return carLightPaths;
     }
 
@@ -242,12 +242,12 @@ class Drivey {
         var sq:Shape = new Shape();
         sq.makeUnit();
         carTailLightShape.merge(sq);
-        sq.move(new Point(3,0));
+        sq.move(new Vector2(3,0));
         carTailLightShape.merge(sq);
         carTailLightShape.boxFit();
         carTailLightShape.recenter();
-        carTailLightShape.scale(new Point(2,0.05));
-        carTailLightShape.move(new Point(0,-2));
+        carTailLightShape.scale(new Vector2(2,0.05));
+        carTailLightShape.move(new Vector2(0,-2));
         return carTailLightShape;
     }
 
@@ -257,7 +257,7 @@ class Drivey {
         carBodyBottom.makeUnit();
         carBodyBottom.boxFit();
         carBodyBottom.recenter();
-        carBodyBottom.scale(new Point(2,4));
+        carBodyBottom.scale(new Vector2(2,4));
         return carBodyBottom;
     }
 
@@ -267,8 +267,8 @@ class Drivey {
         carBodyTop.makeUnit();
         carBodyTop.boxFit();
         carBodyTop.recenter();
-        carBodyTop.scale(new Point(2,3));
-        carBodyTop.move(new Point(0,-0.5));
+        carBodyTop.scale(new Vector2(2,3));
+        carBodyTop.move(new Vector2(0,-0.5));
         return carBodyTop;
     }
 
@@ -339,17 +339,17 @@ class Drivey {
         car.pos = m2w(rd.getPoint(t) + normal * (g.laneSpacing * car.roadPos + g.laneOffset));
         car.lastPos = car.pos.clone();
         car.angle = -tan.getAngle() + Math.PI * 0.5;
-        car.vel = new Vector(0, 0, car.cruise).rotateY(-car.angle);
+        car.vel = new Vector3(0, 0, car.cruise).rotateY(-car.angle);
         car.lastVel = car.vel.clone();
     }
 
     function autoDrive(car:Car, aroad:Path)
     {
         var dir = car.vel;
-        if (dir.magnitude > 0) {
+        if (dir.length() > 0) {
             dir = !car.vel;
         } else {
-            dir = new Vector(0, 0, 1).rotateY(-car.angle);
+            dir = new Vector3(0, 0, 1).rotateY(-car.angle);
         }
 
         // get position on road for 1 second ahead of now
@@ -367,8 +367,8 @@ class Drivey {
         var normal = tangent.rotateY(Math.PI * 0.5);
         targetDir += normal * (g.laneSpacing * car.roadPos + g.laneOffset);
 
-        if (targetDir.magnitude > 0) {
-            tangent = Point.mix(tangent, targetDir, 0.05);
+        if (targetDir.length() > 0) {
+            tangent = Vector2.lerp(tangent, targetDir, 0.05);
         }
 
         var newAngle = w2m(tangent).getAngle() - Math.PI * 0.5;
@@ -388,16 +388,16 @@ class Drivey {
             newAngle /= abs(newAngle);
         }
 
-        car.steerTo = newAngle / (min(targetDir.magnitude * 0.5, 50) + 1);
+        car.steerTo = newAngle / (min(targetDir.length() * 0.5, 50) + 1);
 
         if (abs(car.steerTo) > 0.02) {
             car.steerTo *= 0.02/abs(car.steerTo);
         }
 
-        if (car.vel.magnitude < car.cruise) {
+        if (car.vel.length() < car.cruise) {
             car.accelerate = 1;
         } else {
-            car.accelerate = car.cruise / car.vel.magnitude;
+            car.accelerate = car.cruise / car.vel.length();
         }
     }
 
@@ -412,32 +412,32 @@ class Drivey {
             return;
         }
 
-        var center = new Point(screen.width * g.center.x, screen.height * g.center.y);
+        var center = new Vector2(screen.width * g.center.x, screen.height * g.center.y);
 
         var sh:Shape = new Shape();
 
-        sh.addVertex(new Point(1,0));
-        sh.addVertex(new Point(1,1));
-        sh.addVertex(new Point(0,1));
-        sh.addVertex(new Point(0,0));
+        sh.addVertex(new Vector2(1,0));
+        sh.addVertex(new Vector2(1,1));
+        sh.addVertex(new Vector2(0,1));
+        sh.addVertex(new Vector2(0,0));
 
-        sh.move(new Point(-0.5,0.0001));
-        sh.scale(new Point(-1,1));
+        sh.move(new Vector2(-0.5,0.0001));
+        sh.scale(new Vector2(-1,1));
 
-        var vo:Vector = new Vector();
+        var vo:Vector3 = new Vector3();
         vo.set(0,0,g.rearView ? -0.01 : 0.01);
-        var vx:Vector = new Vector();
+        var vx:Vector3 = new Vector3();
         vx.set(1,0,0);
-        var vy:Vector = new Vector();
+        var vy:Vector3 = new Vector3();
         vy.set(0,1,0); // vertical
 
         var tilt = user.tilt * Math.PI;
         var pitch = -user.pitch * Math.PI;
         var zoom = 1.0/(g.rearView ? -g.zoom : g.zoom);
 
-        var vo:Vector = vo.rotateZ(tilt).rotateX(pitch);
-        var vx:Vector = vx.rotateZ(tilt).rotateX(pitch);
-        var vy:Vector = vy.rotateZ(tilt).rotateX(pitch);
+        var vo:Vector3 = vo.rotateZ(tilt).rotateX(pitch);
+        var vx:Vector3 = vx.rotateZ(tilt).rotateX(pitch);
+        var vy:Vector3 = vy.rotateZ(tilt).rotateX(pitch);
 
         vo.z *= zoom;
         vo.y = -vo.y;
@@ -453,10 +453,10 @@ class Drivey {
 
         var scale = max(center.x, center.y);
 
-        var gradTopVec:Vector = vo + vy * 0.015;
-        var gradTop:Point = new Point(gradTopVec.x / gradTopVec.z, gradTopVec.y / gradTopVec.z);
-        var vop:Point = vo;
-        var gradOrg:Point = vop / vo.z;
+        var gradTopVec:Vector3 = vo + vy * 0.015;
+        var gradTop:Vector2 = new Vector2(gradTopVec.x / gradTopVec.z, gradTopVec.y / gradTopVec.z);
+        var vop:Vector2 = vo;
+        var gradOrg:Vector2 = vop / vo.z;
         gradTop -= gradOrg;
         gradTop *= scale;
         gradOrg *= scale;
@@ -486,16 +486,16 @@ class Drivey {
             screen.cmd('pattern');
         }
 
-        var center = new Point(screen.width * g.center.x, screen.height * g.center.y);
+        var center = new Vector2(screen.width * g.center.x, screen.height * g.center.y);
         if (g.project)
         {
             var up = user.pos;
 
-            var vo:Vector = new Vector();
+            var vo:Vector3 = new Vector3();
             vo.set(0,height,0);
-            var vx:Vector = new Vector();
+            var vx:Vector3 = new Vector3();
             vx.set(1,0,0);
-            var vy:Vector = new Vector();
+            var vy:Vector3 = new Vector3();
             vy.set(0,0,1);
 
             vo -= up;
@@ -508,7 +508,7 @@ class Drivey {
             vx = vx.rotateY(yaw).rotateZ(tilt).rotateX(pitch);
             vy = vy.rotateY(yaw).rotateZ(tilt).rotateX(pitch);
 
-            var vz:Vector = (vx * vy) * extr;
+            var vz:Vector3 = (vx * vy) * extr;
 
             // factor in zoom here now
             var zoom = 1.0/(g.rearView ? -g.zoom : g.zoom);
@@ -529,7 +529,7 @@ class Drivey {
             }
 
             // make sure positive y is up
-            sh.scale(new Point(1,-1) * max(center.x, center.y));// * g.zoom);
+            sh.scale(new Vector2(1,-1) * max(center.x, center.y));// * g.zoom);
 
             sh.move(center);
         }
@@ -537,8 +537,8 @@ class Drivey {
         {
             sh.move(-w2m(user.pos));
             sh.rotate(user.angle);
-            sh.scale(new Point(30,-30) * ((center.x + center.y) * 0.0025 / (user.pos.y * 0.05 + 4)));
-            center = new Point(screen.width * 0.5, screen.height * 0.6);
+            sh.scale(new Vector2(30,-30) * ((center.x + center.y) * 0.0025 / (user.pos.y * 0.05 + 4)));
+            center = new Vector2(screen.width * 0.5, screen.height * 0.6);
             sh.move(center);
         }
 
@@ -607,7 +607,7 @@ class Drivey {
 
                     for (i in 0...Std.int(between))
                     {
-                        var t = mix(t0,t1,(i+1)/(between+1));
+                        var t = lerp(t0,t1,(i+1)/(between+1));
                         var pt = p.getPoint(t) + p.getNormal(t)*(xpos+width*0.5);
                         sh.addControl(pt);
                     }
@@ -617,7 +617,7 @@ class Drivey {
 
                     for (i in 0...Std.int(between))
                     {
-                        var t = mix(t1,t0,(i+1)/(between+1));
+                        var t = lerp(t1,t0,(i+1)/(between+1));
                         var pt = p.getPoint(t) + p.getNormal(t)*(xpos-width*0.5);
                         sh.addControl(pt);
                     }
@@ -646,12 +646,12 @@ class Drivey {
         for (i in 0...n)
         {
             var theta:Float = i * Math.PI * 2 / n;
-            var pt = new Point(Math.cos(theta), Math.sin(theta)) * (Math.random() + 5);
+            var pt = new Vector2(Math.cos(theta), Math.sin(theta)) * (Math.random() + 5);
             theRoad.addControl(pt);
         }
 
         theRoad.boxFit();
-        theRoad.scale(new Point(400,400));
+        theRoad.scale(new Vector2(400,400));
         theRoad.recenter();
 
         var p = theRoad.getPath(0);
@@ -772,13 +772,13 @@ class Drivey {
                 for (i in 0...100)
                 {
                     var sh2:Shape = new Shape();
-                    var p = new Point(Math.random()-0.5, Math.random()-0.5);
-                    if (p.magnitude > 0.5 || p.magnitude < 0.1) {
+                    var p = new Vector2(Math.random()-0.5, Math.random()-0.5);
+                    if (p.length() > 0.5 || p.length() < 0.1) {
                         continue;
                     }
 
                     p *= 8000;
-                    if ((p - sh.getNearestPoint(p)).magnitude < 200) {
+                    if ((p - sh.getNearestPoint(p)).length() < 200) {
                         continue;
                     }
 
@@ -864,13 +864,13 @@ class Drivey {
                     {
                         var y = j * 150 - radius;
 
-                        var pos = new Point(x+Math.random()*100,y+Math.random()*100);
-                        if (pos.magnitude > radius) {
+                        var pos = new Vector2(x+Math.random()*100,y+Math.random()*100);
+                        if (pos.length() > radius) {
                             continue;
                         }
 
                         var pt = p.getNearestPoint(pos);
-                        if ((pt - pos).magnitude < 60) {
+                        if ((pt - pos).length() < 60) {
                             continue;
                         }
 
@@ -1060,7 +1060,7 @@ class Drivey {
                 var depth = 8;
                 var spacing = 300;
                 var p2 = p.clone();
-                p2.scale(new Point(1,1.5));
+                p2.scale(new Vector2(1,1.5));
 
                 
                 var sh = new Shape();
@@ -1069,7 +1069,7 @@ class Drivey {
                 sh.height = 12;
                 sh.extrude = 2;
                 sh.merge(makeRoadLine(p2, 0, 162, -depth, spacing));
-                sh.scale(new Point(1,1/1.5));
+                sh.scale(new Vector2(1,1/1.5));
 
                 
                 var sh = new Shape();
@@ -1083,11 +1083,11 @@ class Drivey {
                 sh.merge(makeRoadLine(p2, 10, 2, -depth, spacing));
                 sh.merge(makeRoadLine(p2, 40, 2, -depth, spacing));
                 sh.merge(makeRoadLine(p2, 200, 242, -depth, spacing));
-                sh.scale(new Point(1,1/1.5));
+                sh.scale(new Vector2(1,1/1.5));
 
                 var wall:Shape = makeRoadLine(p2, -10, 2, -depth, spacing);
                 wall.merge(makeRoadLine(p2, 10, 2, -depth, spacing));
-                wall.scale(new Point(1,1/1.5));
+                wall.scale(new Vector2(1,1/1.5));
                 theWalls.merge(wall);
             }
 
@@ -1208,7 +1208,7 @@ class Drivey {
         }
 
 
-        var scale = new Point(1.25,1.25);
+        var scale = new Vector2(1.25,1.25);
         theRoad.scale(scale);
         theWalls.scale(scale);
         for (i in 0...newRoad.length)
@@ -1324,14 +1324,14 @@ class Drivey {
         }
 
         // soften it to deal with coarse timing issues
-        step = mix(lastStep, step, 0.5);
+        step = lerp(lastStep, step, 0.5);
         lastStep = step;
 
 
-        var acc:Point = new Point(0,0);
+        var acc:Vector2 = new Vector2(0,0);
 
-        var joy = new Point(0,0);
-        joy.x = mix(lastJoyX, joy.x, 0.5);
+        var joy = new Vector2(0,0);
+        joy.x = lerp(lastJoyX, joy.x, 0.5);
         lastJoyX = joy.x;
 
         joy.y = -joy.y;
@@ -1463,7 +1463,7 @@ class Drivey {
             }
             else
             {
-                var diff = -sign(user.steerTo) * 0.0002 * user.vel.magnitude * step;
+                var diff = -sign(user.steerTo) * 0.0002 * user.vel.length() * step;
                 if (abs(diff) >= abs(user.steerTo))
                 {
                     user.steerTo = 0;
@@ -1590,7 +1590,7 @@ class Drivey {
             drawRoadShape(scr, lights, 1, 0.3);
         }
 
-        var nearest:Point = theRoad.getNearestPoint(user.pos);
+        var nearest:Vector2 = theRoad.getNearestPoint(user.pos);
 
         var normalSpeed = 100 * 1000 / 3600; // 100 km/h
 
@@ -1608,9 +1608,9 @@ class Drivey {
 
             var thick = lineThickness * 4;
             var sh:Shape = new Shape();
-            sh.makeCircle(new Point(0,0), 1);
-            sh.scale(new Point(1.2,0.3) * dwidth);
-            sh.move(new Point(dwidth * (g.laneOffset < 0 ? 0.2 : 0.8), dheight * 1.05));
+            sh.makeCircle(new Vector2(0,0), 1);
+            sh.scale(new Vector2(1.2,0.3) * dwidth);
+            sh.move(new Vector2(dwidth * (g.laneOffset < 0 ? 0.2 : 0.8), dheight * 1.05));
             scr.rgb = fill;
 
             scr.drawShape(sh);
@@ -1624,43 +1624,43 @@ class Drivey {
             scr.rgb = line;
 
             var sh = speedoShape;
-            sh.scale(new Point(1,1) * dwidth * 0.2);
-            sh.move(new Point(dwidth * (g.laneOffset < 0 ? 0.325 : 0.675), dheight * 0.875));
+            sh.scale(new Vector2(1,1) * dwidth * 0.2);
+            sh.move(new Vector2(dwidth * (g.laneOffset < 0 ? 0.325 : 0.675), dheight * 0.875));
             scr.drawShape(sh);
 
             var sh = speedoShape;
-            sh.scale(new Point(1,1) * dwidth * 0.2);
-            sh.move(new Point(dwidth * (g.laneOffset < 0 ? 0.1 : 0.9), dheight * 0.875));
+            sh.scale(new Vector2(1,1) * dwidth * 0.2);
+            sh.move(new Vector2(dwidth * (g.laneOffset < 0 ? 0.1 : 0.9), dheight * 0.875));
             scr.drawShape(sh);
 
-            var speed:Float = user.vel.magnitude / 1000 * 3600;
-            speed = mix(-Math.PI * 0.8, Math.PI * 0.8, min(speed/400, 1));
+            var speed:Float = user.vel.length() / 1000 * 3600;
+            speed = lerp(-Math.PI * 0.8, Math.PI * 0.8, min(speed/400, 1));
             var sh = speedoNeedle;
-            sh.scale(new Point(1,1) * dwidth * 0.2);
+            sh.scale(new Vector2(1,1) * dwidth * 0.2);
             sh.rotate(speed);
-            sh.move(new Point(dwidth * (g.laneOffset < 0 ? 0.325 : 0.675), dheight * 0.875));
+            sh.move(new Vector2(dwidth * (g.laneOffset < 0 ? 0.325 : 0.675), dheight * 0.875));
             scr.rgb = line;
             scr.drawShape(sh);
 
             var speed:Float = g.frameRate;
-            speed = mix(-Math.PI * 0.8, Math.PI * 0.8, min(speed/80, 1));
+            speed = lerp(-Math.PI * 0.8, Math.PI * 0.8, min(speed/80, 1));
             var sh = speedoNeedle;
-            sh.scale(new Point(1,1) * dwidth * 0.2);
+            sh.scale(new Vector2(1,1) * dwidth * 0.2);
             sh.rotate(speed);
-            sh.move(new Point(dwidth * (g.laneOffset < 0 ? 0.1 : 0.9), dheight * 0.875));
+            sh.move(new Vector2(dwidth * (g.laneOffset < 0 ? 0.1 : 0.9), dheight * 0.875));
             scr.rgb = line;
             scr.drawShape(sh);
 
             // do steeringwheel
             var sh = steeringWheelShape;
             sh.rotate(user.steerPos * 50);
-            sh.scale(new Point(1,1) * dwidth * 0.9);
-            sh.move(new Point(dwidth * (g.laneOffset < 0 ? 0.2 : 0.8), dheight * 1.1));
+            sh.scale(new Vector2(1,1) * dwidth * 0.9);
+            sh.move(new Vector2(dwidth * (g.laneOffset < 0 ? 0.2 : 0.8), dheight * 1.1));
             if (true)
             {
                 scr.rgb = line;
                 var s2 = sh;
-                s2.move(new Point(0, -thick*0.5));
+                s2.move(new Vector2(0, -thick*0.5));
                 s2.expand(-thick*0.5);
                 sh.expand(thick*0.5);
                 scr.rgb = line;
@@ -1668,7 +1668,7 @@ class Drivey {
                 if (shadow != fill)
                 {
                     scr.rgb = shadow;
-                    sh.scale(new Point(1.1,1.3));
+                    sh.scale(new Vector2(1.1,1.3));
                     scr.alpha = 0.25;
                     scr.drawShape(sh);
                     scr.alpha = 1;
@@ -1695,7 +1695,7 @@ class Drivey {
             scr.cmd('blur x3 y3');
         }
 
-        g_frameInterval = mix(g_frameInterval, period, 0.01);
+        g_frameInterval = lerp(g_frameInterval, period, 0.01);
 
         g.frameRate = 1.0/g_frameInterval;
 
@@ -1709,7 +1709,7 @@ class Drivey {
         {
         
             var t:Color = new Color(0,0,0.5);
-            scr.setTint(t, Color.mix(t,1,0.75), 1);
+            scr.setTint(t, Color.lerp(t,1,0.75), 1);
         }
         else
         {
@@ -1719,7 +1719,7 @@ class Drivey {
 
             if (g.fade < 1)
             {
-                g.fade = mix(1, g.fade, 0.8/Math.pow(2, period));
+                g.fade = lerp(1, g.fade, 0.8/Math.pow(2, period));
             }
 
             if (g.fade > 1)

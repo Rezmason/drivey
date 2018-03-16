@@ -12,19 +12,19 @@ class Path {
         return 0; // TODO
     }
 
-    public function getPoint(t:Float):Point {
+    public function getPoint(t:Float):Vector2 {
         return null; // TODO
     }
 
-    public function getNormal(t:Float):Point {
+    public function getNormal(t:Float):Vector2 {
         return null; // TODO
     }
 
-    public function getTangent(t:Float):Point {
+    public function getTangent(t:Float):Vector2 {
         return null; // TODO
     }
 
-    public function getNearest(to:Point):Float {
+    public function getNearest(to:Vector2):Float {
         return 0; // TODO
     }
 
@@ -32,7 +32,7 @@ class Path {
         // TODO
     }
 
-    public function getNearestPoint(xy:Point):Point {
+    public function getNearestPoint(xy:Vector2):Vector2 {
         return null; // TODO
     }
 
@@ -40,7 +40,7 @@ class Path {
         return null; // TODO
     }
 
-    public function scale(xy:Point) {
+    public function scale(xy:Vector2) {
         // TODO
     }
 
