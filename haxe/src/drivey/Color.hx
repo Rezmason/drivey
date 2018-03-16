@@ -1,4 +1,4 @@
-package ;
+package drivey;
 
 @:forward(r, g, b) abstract Color({r:Float, g:Float, b:Float}) {
     public inline function new(r:Float = 0, g:Float = 0, b:Float = 0) this = {r:r, g:g, b:b};

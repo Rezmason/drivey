@@ -1,6 +1,6 @@
-package ;
+package drivey;
 
-import Utils.*;
+import drivey.Utils.*;
 
 class Car
 {

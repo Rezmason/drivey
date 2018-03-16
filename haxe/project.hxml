@@ -1,3 +1,4 @@
--main Drivey.hx
--lib threejs
+-cp src
+-cp extern
+-main drivey.Drivey
 -js drivey.js

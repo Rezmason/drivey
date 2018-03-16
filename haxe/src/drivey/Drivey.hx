@@ -1,8 +1,8 @@
-package;
+package drivey;
 
 import haxe.Timer;
 
-import Utils.*;
+import drivey.Utils.*;
 
 typedef Global = {
     zoom : Float,
@@ -113,6 +113,8 @@ class Drivey {
     var finishTime:Float;
     
     function new() {
+
+        Example.run();
 
         /*
         win.create(640,480);

@@ -1,4 +1,4 @@
-package ;
+package drivey;
 
 @:forward(x, y) abstract Point({x:Float, y:Float}) {
     public var magnitude(get, never):Float;

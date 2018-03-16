@@ -1,4 +1,4 @@
-package ;
+package drivey;
 
 class Utils {
     public inline static function min(a:Float, b:Float) return (a < b) ? a : b;
