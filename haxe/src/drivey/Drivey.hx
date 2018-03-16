@@ -4,81 +4,36 @@ import haxe.Timer;
 
 import drivey.Utils.*;
 
-typedef Global = {
-    zoom : Float,
-    xfunc : Bool,
-    wireframe : Bool,
-    tint : Color,
-    timeSlice : Float,
-    showHelp : Float,
-    showDashboard : Bool,
-    roadType : Int,
-    rearView : Bool,
-    project : Bool,
-    noAA : Bool,
-    laneSpacing : Int,
-    laneOffset : Float,
-    gradient : Bool,
-    frameRate : Float,
-    fade : Float,
-    cycle : Bool,
-    collisions : Bool,
-    col : {
-        sky : {
-            lo : Color,
-            hi : Color,
-            gradient : Color,
-        },
-        ground : Color
-    },
-    center : Vector2,
-    blur : Bool,
-    auto : Bool, 
-};
-
 class Drivey {
 
     static function main() new Drivey();
 
-    static var g:Global = {
-        project:true,
-        showDashboard:true,
-        showHelp:0.0,
-
-        blur:false,
-        wireframe:false,
-        noAA:false,
-        frameRate:1.0,
-        rearView:false,
-        zoom:0.6,
-        xfunc:true,
-        roadType:3,
-
-        col: {
-            sky: {
-                lo:0.5,
-                hi:0.5,
-                gradient:0.5, // power
-            },
-            ground:new Color(),
-        },
-
-        // colors for palette tinting
-        tint:new Color(0.2, 0.3, 0.8),
-
-        fade:0.0,
-
-        gradient:true,
-        auto:true,
-        cycle:false,
-        collisions:true,
-        center:new Vector2(0.5, 0.3),
-
-        laneSpacing:2,
-        laneOffset:-2.5, // north american
-        
-        timeSlice:0.05,
-    };
+    var skyLow:Color = 0.5;
+    var skyHigh:Color = 0.5;
+    var skyGradient:Color = 0.5; // power
+    var ground:Color = new Color();
+    
+    var auto:Bool = true;
+    var blur:Bool = false;
+    var center:Vector2 = new Vector2(0.5, 0.3);
+    var collisions:Bool = true;
+    var cycle:Bool = false;
+    var fade:Float = 0.0;
+    var frameRate:Float = 1.0;
+    var gradient:Bool = true;
+    var laneOffset:Float = -2.5; // north american
+    var laneSpacing:Int = 2;
+    var noAA:Bool = false;
+    var project:Bool = true;
+    var rearView:Bool = false;
+    var roadType:Int = 3;
+    var showDashboard:Bool = true;
+    var showHelp:Float = 0.0;
+    var timeSlice:Float = 0.05;
+    var tint:Color = new Color(0.2, 0.3, 0.8); // colors for palette tinting
+    var wireframe:Bool = false;
+    var xfunc:Bool = true;
+    var zoom:Float = 0.6;
 
     var appname = 'DRIVEY (graphic test)';
     var version = '0.15';
@@ -109,7 +64,7 @@ class Drivey {
     var lastTime:Float;
     var lastStep:Float;
     var lastJoyX:Float;
-    var timer:haxe.Timer;
+    var timer:Timer;
     var finishTime:Float;
     
     function new() {
@@ -142,10 +97,10 @@ class Drivey {
         lastJoyX = 0;
 
         setMessage('ESC to quit, F1 for help\n(arrow keys adjust speed and steering)');
-        g.showHelp = 2;
+        showHelp = 2;
 
         tick();
-        timer = new haxe.Timer(33);
+        timer = new Timer(33);
         timer.run = tick;
 
         finishTime = Timer.stamp();
@@ -285,14 +240,14 @@ class Drivey {
     function setMessage(msg:String)
     {
         message = msg;
-        g.showHelp = 1; // 2 seconds should be enough?
+        showHelp = 1; // 2 seconds should be enough?
     }
 
     function drawHelp()
     {
         var print = function(s) trace(s);
 
-        if (g.showHelp > 0)
+        if (showHelp > 0)
         {
             if (message.length > 0)
             {
@@ -336,7 +291,7 @@ class Drivey {
             normal = -normal;
         }
 
-        car.pos = m2w(rd.getPoint(t) + normal * (g.laneSpacing * car.roadPos + g.laneOffset));
+        car.pos = m2w(rd.getPoint(t) + normal * (laneSpacing * car.roadPos + laneOffset));
         car.lastPos = car.pos.clone();
         car.angle = -tan.getAngle() + Math.PI * 0.5;
         car.vel = new Vector3(0, 0, car.cruise).rotateY(-car.angle);
@@ -365,7 +320,7 @@ class Drivey {
         }
 
         var normal = tangent.rotateY(Math.PI * 0.5);
-        targetDir += normal * (g.laneSpacing * car.roadPos + g.laneOffset);
+        targetDir += normal * (laneSpacing * car.roadPos + laneOffset);
 
         if (targetDir.length() > 0) {
             tangent = Vector2.lerp(tangent, targetDir, 0.05);
@@ -404,15 +359,15 @@ class Drivey {
     function drawBackground(screen:Screen)
     {
         screen.alpha = 1;
-        screen.bg = g.col.ground;
+        screen.bg = ground;
         screen.clear();
 
-        if (!g.project)
+        if (!project)
         {
             return;
         }
 
-        var center = new Vector2(screen.width * g.center.x, screen.height * g.center.y);
+        var center = new Vector2(screen.width * center.x, screen.height * center.y);
 
         var sh:Shape = new Shape();
 
@@ -425,7 +380,7 @@ class Drivey {
         sh.scale(new Vector2(-1,1));
 
         var vo:Vector3 = new Vector3();
-        vo.set(0,0,g.rearView ? -0.01 : 0.01);
+        vo.set(0,0,rearView ? -0.01 : 0.01);
         var vx:Vector3 = new Vector3();
         vx.set(1,0,0);
         var vy:Vector3 = new Vector3();
@@ -433,7 +388,7 @@ class Drivey {
 
         var tilt = user.tilt * Math.PI;
         var pitch = -user.pitch * Math.PI;
-        var zoom = 1.0/(g.rearView ? -g.zoom : g.zoom);
+        var zoom = 1.0/(rearView ? -zoom : zoom);
 
         var vo:Vector3 = vo.rotateZ(tilt).rotateX(pitch);
         var vx:Vector3 = vx.rotateZ(tilt).rotateX(pitch);
@@ -441,13 +396,13 @@ class Drivey {
 
         vo.z *= zoom;
         vo.y = -vo.y;
-        if (g.rearView) vo.x = -vo.x;
+        if (rearView) vo.x = -vo.x;
         vx.z *= zoom;
         vx.y = -vx.y;
-        if (g.rearView) vx.x = -vx.x;
+        if (rearView) vx.x = -vx.x;
         vy.z *= zoom;
         vy.y = -vy.y;
-        if (g.rearView) vy.x = -vy.x;
+        if (rearView) vy.x = -vy.x;
 
         sh.project(vo, vx, vy);
 
@@ -466,14 +421,14 @@ class Drivey {
 
         sh.move(center);
 
-        screen.bg = g.col.sky.hi;
-        screen.rgb = g.col.sky.lo;
+        screen.bg = skyHigh;
+        screen.rgb = skyLow;
 
-        if (g.gradient)
+        if (gradient)
         {
-            screen.cmd('pattern gradient linear power ${g.col.sky.gradient} org ${gradOrg.x} ${gradOrg.y} dx ${gradTop.x} ${gradTop.y}');
+            screen.cmd('pattern gradient linear power ${skyGradient} org ${gradOrg.x} ${gradOrg.y} dx ${gradTop.x} ${gradTop.y}');
         } else {
-            screen.rgb = (g.col.sky.hi + g.col.sky.lo) * 0.5; // average the two
+            screen.rgb = (skyHigh + skyLow) * 0.5; // average the two
         }
 
         screen.drawShape(sh);
@@ -486,8 +441,8 @@ class Drivey {
             screen.cmd('pattern');
         }
 
-        var center = new Vector2(screen.width * g.center.x, screen.height * g.center.y);
-        if (g.project)
+        var center = new Vector2(screen.width * center.x, screen.height * center.y);
+        if (project)
         {
             var up = user.pos;
 
@@ -511,16 +466,16 @@ class Drivey {
             var vz:Vector3 = (vx * vy) * extr;
 
             // factor in zoom here now
-            var zoom = 1.0/(g.rearView ? -g.zoom : g.zoom);
+            var zoom = 1.0/(rearView ? -zoom : zoom);
 
             vo.z *= zoom;
-            if (g.rearView) vo.x = -vo.x;
+            if (rearView) vo.x = -vo.x;
             vx.z *= zoom;
-            if (g.rearView) vx.x = -vx.x;
+            if (rearView) vx.x = -vx.x;
             vy.z *= zoom;
-            if (g.rearView) vy.x = -vy.x;
+            if (rearView) vy.x = -vy.x;
             vz.z *= zoom;
-            if (g.rearView) vz.x = -vz.x;
+            if (rearView) vz.x = -vz.x;
 
             if (extr != 0) {
                 sh.project(vo, vx, vy, vz);
@@ -529,7 +484,7 @@ class Drivey {
             }
 
             // make sure positive y is up
-            sh.scale(new Vector2(1,-1) * max(center.x, center.y));// * g.zoom);
+            sh.scale(new Vector2(1,-1) * max(center.x, center.y));// * zoom);
 
             sh.move(center);
         }
@@ -638,8 +593,8 @@ class Drivey {
     function makeRoad()
     {
         scr.clear();
-        g.auto = true;
-        g.laneSpacing = 4;
+        auto = true;
+        laneSpacing = 4;
         theWalls.init();
         theRoad.init();
         var n = 16;
@@ -661,17 +616,17 @@ class Drivey {
         var layer = new Shape();
         newRoad.push(layer);
 
-        g.tint = 0.5;
-        g.col.ground = 0.0;
-        g.col.sky.lo = 0.75;
-        g.col.sky.hi = 0.25;
-        g.col.sky.gradient = 0.5;
+        tint = 0.5;
+        ground = 0.0;
+        skyLow = 0.75;
+        skyHigh = 0.25;
+        skyGradient = 0.5;
 
-        if (g.roadType == 1)    // tunnel
+        if (roadType == 1)    // tunnel
         {
             setMessage('(tunnel)');
-            g.tint = new Color(0.2, 0.7, 0.1);
-            g.col.sky.lo = g.col.sky.hi = 0;
+            tint = new Color(0.2, 0.7, 0.1);
+            skyLow = skyHigh = 0;
             var tarmac = 0.1;
             var whiteLines = 0.8;
             var yellowLines = 0.75;
@@ -731,7 +686,7 @@ class Drivey {
             if (true)   // walls
             {
                 var layer:Shape = new Shape();
-                layer.rgb = g.col.sky.lo;
+                layer.rgb = skyLow;
 
                 layer.height = 4;
                 layer.extrude = 4;
@@ -739,7 +694,7 @@ class Drivey {
                 layer.merge(makeRoadLine(p, 5, 0.4, 100, 0));
 
                 newRoad.push(layer);
-                layer.rgb = g.col.sky.lo;
+                layer.rgb = skyLow;
 
                 layer.height = 0;
                 layer.extrude = -4;
@@ -748,25 +703,25 @@ class Drivey {
                 newRoad.push(layer);
             }
         }
-        else if (g.roadType == 2)   // city
+        else if (roadType == 2)   // city
         {
-            g.tint = new Color(0.3, 0.3, 0.7) * 1.5;
+            tint = new Color(0.3, 0.3, 0.7) * 1.5;
 
             setMessage('(city)');
             p.scaleUniform(2);
 
-            g.col.ground = 0.05;
+            ground = 0.05;
             var lines:Color = 0.6;
-            var obc:Color = g.col.ground.clone();
+            var obc:Color = ground.clone();
 
-            g.col.sky.lo = 0.4;
-            g.col.sky.hi = 0.0;
+            skyLow = 0.4;
+            skyHigh = 0.0;
 
             if (true)   // sky ?
             {
                 var sh = new Shape();
                 newRoad.push(sh);
-                sh.rgb = (g.col.sky.lo + g.col.sky.hi) * 0.5;
+                sh.rgb = (skyLow + skyHigh) * 0.5;
                 sh.alpha = 1;
                 sh.height = 200;
                 for (i in 0...100)
@@ -794,7 +749,7 @@ class Drivey {
             {
                 var sh = new Shape();
                 newRoad.push(sh);
-                sh.rgb = g.col.ground;
+                sh.rgb = ground;
                 sh.height = 50;
                 sh.extrude = 50;
                 sh.merge(makeRoadLine(p, -200, 15, 0, 200));
@@ -804,7 +759,7 @@ class Drivey {
                 
                 var sh = new Shape();
                 newRoad.push(sh);
-                sh.rgb = g.col.ground;
+                sh.rgb = ground;
                 sh.height = 70;
                 sh.extrude = 70;
                 sh.merge(makeRoadLine(p, -160, 10, -20, 90));
@@ -815,7 +770,7 @@ class Drivey {
                 
                 var sh = new Shape();
                 newRoad.push(sh);
-                sh.rgb = g.col.ground;
+                sh.rgb = ground;
                 sh.height = 40;
                 sh.extrude = 40;
                 sh.merge(makeRoadLine(p, -80, 20, -25, 150));
@@ -826,7 +781,7 @@ class Drivey {
                 
                 var sh = new Shape();
                 newRoad.push(sh);
-                sh.rgb = g.col.ground;
+                sh.rgb = ground;
                 sh.height = 20;
                 sh.extrude = 20;
                 sh.merge(makeRoadLine(p, -80, 40, -20, 45));
@@ -932,18 +887,18 @@ class Drivey {
             sh.merge(makeRoadLine(p, -3, 0.15, 3, 12));
             sh.merge(makeRoadLine(p, 3, 0.15, 3, 12));
         }
-        else if (g.roadType == 3)   // industrial
+        else if (roadType == 3)   // industrial
         {
             setMessage('(industrial)');
-            g.tint = new Color(0.7, 0.4, 0.1);
+            tint = new Color(0.7, 0.4, 0.1);
 
-            g.col.sky.hi = 0.15;
-            g.col.sky.lo = 1.0;
-            g.col.sky.gradient = 0.25;
+            skyHigh = 0.15;
+            skyLow = 1.0;
+            skyGradient = 0.25;
 
-            g.col.ground = 0.05;
+            ground = 0.05;
             var lines:Color = 0.6;
-            var obc:Color = g.col.ground;
+            var obc:Color = ground;
 
             // far off buildings
             if (true)
@@ -1004,7 +959,7 @@ class Drivey {
                     
                     var sh = new Shape();
                     newRoad.push(sh);
-                    sh.rgb = g.col.ground;
+                    sh.rgb = ground;
                     sh.merge(makeRoadLine(p, 0, 1, -2, 200));
                     sh.expand(1);
 
@@ -1178,10 +1133,10 @@ class Drivey {
         else // ordinary road
         {
             setMessage('(very sparse road)');
-            g.tint = 0.7;
-            g.col.ground = 0;
-            g.col.sky.hi = 0;
-            g.col.sky.lo = 0;
+            tint = 0.7;
+            ground = 0;
+            skyHigh = 0;
+            skyLow = 0;
             var lines:Color = 0.75;
 
             theRoad.scaleUniform(2);
@@ -1227,18 +1182,18 @@ class Drivey {
     {
         if (scr.isKeyDown('F1'))
         {
-            if (message.length ==  0&& g.showHelp > 1) {
-                g.showHelp = 0;
+            if (message.length ==  0&& showHelp > 1) {
+                showHelp = 0;
             } else {
-                g.showHelp = 6;
+                showHelp = 6;
             }
 
             message = '';
         }
         if (scr.isKeyDown('F7'))
         {
-            g.gradient = !g.gradient;
-            setMessage('gradient ' + (g.gradient ? 'on': 'off'));
+            gradient = !gradient;
+            setMessage('gradient ' + (gradient ? 'on': 'off'));
         }
         if (scr.isKeyDown('Esc'))
         {
@@ -1258,53 +1213,53 @@ class Drivey {
         }
         if (scr.isKeyDown('F8'))
         {
-            g.laneOffset = -g.laneOffset;
-            setMessage('driving style: ' + (g.laneOffset < 0 ? 'North American': 'Australian'));
+            laneOffset = -laneOffset;
+            setMessage('driving style: ' + (laneOffset < 0 ? 'North American': 'Australian'));
         }
         if (scr.isKeyDown('F6'))
         {
-            g.collisions = !g.collisions;
-            setMessage('collision detection ' + (g.collisions ? 'on (crappy)': 'off'));
+            collisions = !collisions;
+            setMessage('collision detection ' + (collisions ? 'on (crappy)': 'off'));
         }
         if (scr.isKeyDown('F5'))
         {
-            g.auto = !g.auto;
-            setMessage(g.auto ? 'autodrive' : 'manual steer');
+            auto = !auto;
+            setMessage(auto ? 'autodrive' : 'manual steer');
         }
         if (scr.isKeyDown('G'))
         {
-            g.tint = 0.5;
-            g.cycle = false;
+            tint = 0.5;
+            cycle = false;
             setMessage('greyscale');
         }
         if (scr.isKeyDown('H'))
         {
             var tint = new Color(Math.random(),Math.random(),Math.random());
             tint *= 1.0/tint.brightness();
-            g.tint = tint * 0.6;
-            g.cycle = false;
+            tint = tint * 0.6;
+            cycle = false;
             setMessage('random palette');
         }
         if (scr.isKeyDown('K'))
         {
-            g.cycle = !g.cycle;
-            setMessage('palette cycle ' + (g.cycle ? 'on' : 'off' ));
+            cycle = !cycle;
+            setMessage('palette cycle ' + (cycle ? 'on' : 'off' ));
         }
         if (scr.isKeyDown('F3'))
         {
-            g.showDashboard = !g.showDashboard;
-            setMessage('dashboard ' + (g.showDashboard ? 'on' : 'off' ));
+            showDashboard = !showDashboard;
+            setMessage('dashboard ' + (showDashboard ? 'on' : 'off' ));
         }
         if (scr.isKeyDown('1'))
         {
-            g.roadType = (g.roadType + 1) % 4;
+            roadType = (roadType + 1) % 4;
             user.init();
             road = makeRoad();
             lastTime = Timer.stamp();
         }
 
         var lineThickness = scr.width * 0.0025;
-        g.center.y = min(0.5, max(0.3, 1.0 - (scr.width * 0.5/scr.height)));
+        center.y = min(0.5, max(0.3, 1.0 - (scr.width * 0.5/scr.height)));
 
         // now let's get the time step here
         var tm = Timer.stamp();
@@ -1351,7 +1306,7 @@ class Drivey {
 
         if (scr.isKeyDown('left') || scr.isKeyDown('A'))
         {
-            if (g.auto)
+            if (auto)
             {
                 user.roadPos += 3 * step;
             }
@@ -1362,7 +1317,7 @@ class Drivey {
         }
         if (scr.isKeyDown('right') || scr.isKeyDown('D'))
         {
-            if (g.auto)
+            if (auto)
             {
                 user.roadPos += -3 * step;
             }
@@ -1372,7 +1327,7 @@ class Drivey {
             }
         }
 
-        if (g.auto)
+        if (auto)
         {
             if (user.roadPos > 0.1)
             {
@@ -1387,50 +1342,50 @@ class Drivey {
         var wanted = Std.int(user.roadPos + 100.5) - 100;
 
         // read function keys
-        if (g.wireframe != scr.isKeyDown('F2'))
+        if (wireframe != scr.isKeyDown('F2'))
         {
-            g.wireframe = !g.wireframe;
-            scr.cmd('wireframe ' + (g.wireframe ? 'on' : 'off'));
-            setMessage('wireframe ' + (g.wireframe ? 'on' : 'off'));
+            wireframe = !wireframe;
+            scr.cmd('wireframe ' + (wireframe ? 'on' : 'off'));
+            setMessage('wireframe ' + (wireframe ? 'on' : 'off'));
         }
 
-        g.rearView = scr.isKeyDown('F4');
-        if (g.rearView) {
+        rearView = scr.isKeyDown('F4');
+        if (rearView) {
             setMessage('rear view');
         }
 
         if (scr.isKeyDown('B'))    // hi contrast
         {
-            g.tint *= Math.pow(2, step);
-            g.cycle = false;
+            tint *= Math.pow(2, step);
+            cycle = false;
         }
         if (scr.isKeyDown('V'))    // lo contrast
         {
-            g.tint *= Math.pow(2, -step);
-            g.cycle = false;
+            tint *= Math.pow(2, -step);
+            cycle = false;
         }
 
         if (scr.isKeyDown('M'))
         {
-            g.zoom *= Math.pow(2, step);
-            setMessage('zoom ' + Std.int(g.zoom * 100));
+            zoom *= Math.pow(2, step);
+            setMessage('zoom ' + Std.int(zoom * 100));
         }
         if (scr.isKeyDown('N'))
         {
-            g.zoom *= Math.pow(2, -step);
-            if (g.zoom < 0.125)
+            zoom *= Math.pow(2, -step);
+            if (zoom < 0.125)
             {
-                g.zoom = 0.125;
+                zoom = 0.125;
             }
-            setMessage('zoom ' + Std.int(g.zoom * 100));
+            setMessage('zoom ' + Std.int(zoom * 100));
         }
 
         if (scr.isKeyDown('home'))
         {
-            g.auto = true;
+            auto = true;
             user.roadPos = 0;
             placeOn(user, theRoad.getPath(0));
-            g.fade = 0;
+            fade = 0;
             setMessage('returned to road');
         }
 
@@ -1443,7 +1398,7 @@ class Drivey {
 
         var xs = joy.x;
 
-        if (g.xfunc)
+        if (xfunc)
         {
             xs = sign(xs) * 0.75 * (Math.pow(abs(xs), 3) + abs(xs) * 0.25);
         }
@@ -1455,9 +1410,9 @@ class Drivey {
         var tt = step;
         while (tt > 0)
         {
-            var step = min(tt, g.timeSlice);
+            var step = min(tt, timeSlice);
 
-            if (g.auto)
+            if (auto)
             {
                 autoDrive(user, theRoad.getPath(0));
             }
@@ -1484,34 +1439,34 @@ class Drivey {
             {
                 autoDrive(o, theRoad.getPath(0));
                 o.advance(step);
-                if (g.collisions)
+                if (collisions)
                 {
                     user.collideWithCar(o);
                 }
             }
 
-            if (g.collisions)
+            if (collisions)
             {
                 user.collideWithShape(theWalls);
             }
 
-            tt -= g.timeSlice;
+            tt -= timeSlice;
         }
 
         user.steerTo -= xs * 0.05;
 
-        if (g.cycle)    // cycle colors
+        if (cycle)    // cycle colors
         {
             var t:Float = lastTime * 0.125;
             var tint1 = new Color(Math.sin(t * 0.7) * 0.5 + 0.5, Math.sin(t*0.9) * 0.5 + 0.5, Math.sin(t*1.3) * 0.5 + 0.5);
 
             tint1 *= 0.7 / tint1.brightness();
 
-            g.tint = tint1;
+            tint = tint1;
         }
 
         scr.cmd('pattern zoom ' + (Math.sin(lastTime * 0.1) * 0.1 + 1));
-        if (g.wireframe)
+        if (wireframe)
         {
             scr.bg = 0;
             scr.clear();
@@ -1533,7 +1488,7 @@ class Drivey {
         var lightPaths:Shape = new Shape();
 
         scr.rgb = 1;
-        for (i in (g.project ? 0 : -1)...other.length)
+        for (i in (project ? 0 : -1)...other.length)
         {
             var c = i < 0 ? user : other[i];
 
@@ -1572,7 +1527,7 @@ class Drivey {
 
         if (true)
         {
-            scr.rgb = g.col.ground; // black bodies
+            scr.rgb = ground; // black bodies
             scr.alpha = 1;
             drawRoadShape(scr, carBodiesTop, 2, 1.75);
             drawRoadShape(scr, carBodiesBottom, 0.25, -1.75);
@@ -1595,7 +1550,7 @@ class Drivey {
         var normalSpeed = 100 * 1000 / 3600; // 100 km/h
 
 
-        if (g.project && g.showDashboard && !g.rearView)    // draw controls
+        if (project && showDashboard && !rearView)    // draw controls
         {
             var dwidth = scr.width;
             var dheight = scr.height;
@@ -1610,7 +1565,7 @@ class Drivey {
             var sh:Shape = new Shape();
             sh.makeCircle(new Vector2(0,0), 1);
             sh.scale(new Vector2(1.2,0.3) * dwidth);
-            sh.move(new Vector2(dwidth * (g.laneOffset < 0 ? 0.2 : 0.8), dheight * 1.05));
+            sh.move(new Vector2(dwidth * (laneOffset < 0 ? 0.2 : 0.8), dheight * 1.05));
             scr.rgb = fill;
 
             scr.drawShape(sh);
@@ -1625,12 +1580,12 @@ class Drivey {
 
             var sh = speedoShape;
             sh.scale(new Vector2(1,1) * dwidth * 0.2);
-            sh.move(new Vector2(dwidth * (g.laneOffset < 0 ? 0.325 : 0.675), dheight * 0.875));
+            sh.move(new Vector2(dwidth * (laneOffset < 0 ? 0.325 : 0.675), dheight * 0.875));
             scr.drawShape(sh);
 
             var sh = speedoShape;
             sh.scale(new Vector2(1,1) * dwidth * 0.2);
-            sh.move(new Vector2(dwidth * (g.laneOffset < 0 ? 0.1 : 0.9), dheight * 0.875));
+            sh.move(new Vector2(dwidth * (laneOffset < 0 ? 0.1 : 0.9), dheight * 0.875));
             scr.drawShape(sh);
 
             var speed:Float = user.vel.length() / 1000 * 3600;
@@ -1638,16 +1593,16 @@ class Drivey {
             var sh = speedoNeedle;
             sh.scale(new Vector2(1,1) * dwidth * 0.2);
             sh.rotate(speed);
-            sh.move(new Vector2(dwidth * (g.laneOffset < 0 ? 0.325 : 0.675), dheight * 0.875));
+            sh.move(new Vector2(dwidth * (laneOffset < 0 ? 0.325 : 0.675), dheight * 0.875));
             scr.rgb = line;
             scr.drawShape(sh);
 
-            var speed:Float = g.frameRate;
+            var speed:Float = frameRate;
             speed = lerp(-Math.PI * 0.8, Math.PI * 0.8, min(speed/80, 1));
             var sh = speedoNeedle;
             sh.scale(new Vector2(1,1) * dwidth * 0.2);
             sh.rotate(speed);
-            sh.move(new Vector2(dwidth * (g.laneOffset < 0 ? 0.1 : 0.9), dheight * 0.875));
+            sh.move(new Vector2(dwidth * (laneOffset < 0 ? 0.1 : 0.9), dheight * 0.875));
             scr.rgb = line;
             scr.drawShape(sh);
 
@@ -1655,7 +1610,7 @@ class Drivey {
             var sh = steeringWheelShape;
             sh.rotate(user.steerPos * 50);
             sh.scale(new Vector2(1,1) * dwidth * 0.9);
-            sh.move(new Vector2(dwidth * (g.laneOffset < 0 ? 0.2 : 0.8), dheight * 1.1));
+            sh.move(new Vector2(dwidth * (laneOffset < 0 ? 0.2 : 0.8), dheight * 1.1));
             if (true)
             {
                 scr.rgb = line;
@@ -1690,22 +1645,22 @@ class Drivey {
 
         }
 
-        if (g.blur)
+        if (blur)
         {
             scr.cmd('blur x3 y3');
         }
 
         g_frameInterval = lerp(g_frameInterval, period, 0.01);
 
-        g.frameRate = 1.0/g_frameInterval;
+        frameRate = 1.0/g_frameInterval;
 
-        if (g.showHelp > 0)
+        if (showHelp > 0)
         {
-            g.showHelp -= 0.5 * step;
+            showHelp -= 0.5 * step;
             drawHelp();
         }
 
-        if (g.wireframe)
+        if (wireframe)
         {
         
             var t:Color = new Color(0,0,0.5);
@@ -1713,18 +1668,18 @@ class Drivey {
         }
         else
         {
-            var fw:Color = 0 * g.fade;
-            var fl:Color = g.tint * g.fade;
-            var fh:Color = 1 * g.fade;
+            var fw:Color = 0 * fade;
+            var fl:Color = tint * fade;
+            var fh:Color = 1 * fade;
 
-            if (g.fade < 1)
+            if (fade < 1)
             {
-                g.fade = lerp(1, g.fade, 0.8/Math.pow(2, period));
+                fade = lerp(1, fade, 0.8/Math.pow(2, period));
             }
 
-            if (g.fade > 1)
+            if (fade > 1)
             {
-                g.fade = 1;
+                fade = 1;
             }
 
             scr.cmd('tint lo 0 hi 255 #$fw #$fl #$fh');
