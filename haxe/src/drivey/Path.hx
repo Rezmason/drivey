@@ -13,15 +13,15 @@ class Path {
     }
 
     public function getPoint(t:Float):Vector2 {
-        return null; // TODO
+        return new Vector2(); // TODO
     }
 
     public function getNormal(t:Float):Vector2 {
-        return null; // TODO
+        return new Vector2(); // TODO
     }
 
     public function getTangent(t:Float):Vector2 {
-        return null; // TODO
+        return new Vector2(); // TODO
     }
 
     public function getNearest(to:Vector2):Float {
@@ -33,11 +33,11 @@ class Path {
     }
 
     public function getNearestPoint(xy:Vector2):Vector2 {
-        return null; // TODO
+        return new Vector2(); // TODO
     }
 
     public function clone():Path {
-        return null; // TODO
+        return new Path(); // TODO
     }
 
     public function scale(xy:Vector2) {

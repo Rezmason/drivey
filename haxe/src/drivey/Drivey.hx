@@ -245,38 +245,36 @@ class Drivey {
 
     function drawHelp()
     {
-        var print = function(s) trace(s);
-
         if (showHelp > 0)
         {
             if (message.length > 0)
             {
-                print(message);
+                scr.print(message);
             }
             else
             {
-                print('<esc>: quit');
-                print('<home>: return to road');
-                print('W,A,S,D & arrow keys: speed and steering control');
-                print('F1: toggle help');
-                print('F2: wireframe');
-                print('F3: toggle dashboard');
-                print('F4: rear view');
-                print('F5: toggle (awful) manual control');
-                print('F6: toggle (awful) collision detection');
-                print('F7: toggle sky gradient');
-                print('F8: switch driving side');
-                print('F9: save configuration');
-                print('F11: toggle fullscreen');
-                print('G: greyscale palette');
-                print('H: random palette');
-                print('K: toggle palette cycling');
-                print('N,M: adjust view angle');
-                print('V,B: adjust brightness');
-                print('C: add other cars');
-                print('1-4: switch environment type');
-                print('<ctrl>: super fast');
-                print('<shift>: super slow');
+                scr.print('<esc>: quit');
+                scr.print('<home>: return to road');
+                scr.print('W,A,S,D & arrow keys: speed and steering control');
+                scr.print('F1: toggle help');
+                scr.print('F2: wireframe');
+                scr.print('F3: toggle dashboard');
+                scr.print('F4: rear view');
+                scr.print('F5: toggle (awful) manual control');
+                scr.print('F6: toggle (awful) collision detection');
+                scr.print('F7: toggle sky gradient');
+                scr.print('F8: switch driving side');
+                scr.print('F9: save configuration');
+                scr.print('F11: toggle fullscreen');
+                scr.print('G: greyscale palette');
+                scr.print('H: random palette');
+                scr.print('K: toggle palette cycling');
+                scr.print('N,M: adjust view angle');
+                scr.print('V,B: adjust brightness');
+                scr.print('C: add other cars');
+                scr.print('1-4: switch environment type');
+                scr.print('<ctrl>: super fast');
+                scr.print('<shift>: super slow');
             }
         }
     }

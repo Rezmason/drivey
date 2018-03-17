@@ -25,7 +25,7 @@ class Screen {
     }
 
     public function cmd(s) {
-        trace(s); // TODO: replace with gradient calls?
+        // TODO
     }
 
     public function setTint(fw:Color, fLow:Color, fHigh:Color) {
@@ -38,5 +38,9 @@ class Screen {
 
     inline function get_height() {
         return 0; // TODO
+    }
+
+    public function print(message) {
+        // TODO
     }
 }

@@ -36,7 +36,7 @@ class Shape {
     }
 
     public function clone():Shape {
-        return null; // TODO
+        return new Shape(); // TODO
     }
 
     public function merge(otherShape:Shape) {
@@ -68,7 +68,7 @@ class Shape {
     }
 
     public function getPath(index:UInt):Path {
-        return null; // TODO
+        return new Path(); // TODO
     }
 
     public function hasPaths():Bool {
@@ -84,7 +84,7 @@ class Shape {
     }
 
     public function getRect():Rect {
-        return null; // TODO
+        return new Rect(); // TODO
     }
 
     public function recenter()
@@ -114,7 +114,7 @@ class Shape {
     }
 
     public function getNearestPoint(xy:Vector2):Vector2 {
-        return null; // TODO
+        return new Vector2(); // TODO
     }
 
     public function invert() {
