@@ -69,7 +69,7 @@ class Drivey {
     
     function new() {
 
-        Example.run();
+        Playground.run();
 
         /*
         win.create(640,480);
