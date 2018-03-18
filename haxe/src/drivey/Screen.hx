@@ -5,6 +5,7 @@ import js.html.Element;
 
 import js.three.Object3D;
 import js.three.PerspectiveCamera;
+import js.three.OrthographicCamera;
 import js.three.Scene;
 import js.three.WebGLRenderer;
 
@@ -20,6 +21,7 @@ class Screen {
 
     var element:Element;
     var camera:PerspectiveCamera;
+    var orthoCamera:OrthographicCamera;
     var scene:Scene;
     var renderer:WebGLRenderer;
 
@@ -30,22 +32,31 @@ class Screen {
         Browser.document.body.appendChild( element );
 
         scene = new Scene();
-        camera = new PerspectiveCamera( 50, width / height, 1, 1000 );
-        scene.add( camera );
 
+        camera = new PerspectiveCamera( 50, 1, 1, 1000 );
+        scene.add( camera );
+        orthoCamera = new OrthographicCamera(0, 0, 0, 0, 1, 1000);
         renderer = new WebGLRenderer( { antialias: true } );
         renderer.setPixelRatio( Browser.window.devicePixelRatio );
-        renderer.setSize( width, height );
+        Browser.window.addEventListener( 'resize', onWindowResize, false );
+        onWindowResize();
         
         element.appendChild(renderer.domElement);
 
-        Browser.window.addEventListener( 'resize', onWindowResize, false );
         animate();
     }
 
     function onWindowResize() {
         camera.aspect = width / height;
         camera.updateProjectionMatrix();
+
+        var aspect = width / height;
+        orthoCamera.left   = -100 * aspect / 2;
+        orthoCamera.right  =  100 * aspect / 2;
+        orthoCamera.top    =  100 / 2;
+        orthoCamera.bottom = -100 / 2;
+        orthoCamera.updateProjectionMatrix();
+
         renderer.setSize( width, height );
     }
 
@@ -56,7 +67,7 @@ class Screen {
     }
     
     function render() {
-        renderer.render( scene, camera );
+        renderer.render( scene, false ? orthoCamera : camera );
     }
 
     public function isKeyDown(code) {
