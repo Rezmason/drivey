@@ -5,17 +5,15 @@ import drivey.Screen;
 import js.three.BufferGeometry;
 import js.three.ExtrudeGeometry;
 import js.three.Group;
-import js.three.Line;
-import js.three.LineBasicMaterial;
 import js.three.Mesh;
 import js.three.MeshBasicMaterial;
+import js.three.Curve;
 import js.three.Path;
-import js.three.Points;
-import js.three.PointsMaterial;
 import js.three.Shape;
 import js.three.ShapeBufferGeometry;
 import js.three.Vector2;
 import js.three.Vector;
+import js.three.CatmullRomCurve3;
 
 class Playground
 {
@@ -35,127 +33,141 @@ class Playground
 
     function init() {
         group = new Group();
-        group.rotation.x = Math.PI * 0.55;
+        group.position.z = -100;
         
-        function addLineShape( shape:Path, color, x, y) {
-            // lines
-            shape.autoClose = true;
-            var points:Array<Vector> = [for (point in shape.getPoints()) point];
-            var spacedPoints:Array<Vector> = [for (point in shape.getSpacedPoints( 50 )) point];
-            var geometryPoints:BufferGeometry = new BufferGeometry().setFromPoints( points );
-            var geometrySpacedPoints = new BufferGeometry().setFromPoints( spacedPoints );
-            // solid line
-            var line = new Line( geometryPoints, new LineBasicMaterial( { color: color, linewidth: 3 } ) );
-            line.position.set( x, y, 25 );
-            group.add( line );
-            // line from equidistance sampled points
-            var line = new Line( geometrySpacedPoints, new LineBasicMaterial( { color: color, linewidth: 3 } ) );
-            line.position.set( x, y, 75 );
-            group.add( line );
-            // vertices from real points
-            var particles = new Points( geometryPoints, new PointsMaterial( { color: color, size: 4 } ) );
-            particles.position.set( x, y, 25 );
-            group.add( particles );
-            // equidistance sampled points
-            var particles = new Points( geometrySpacedPoints, new PointsMaterial( { color: color, size: 4 } ) );
-            particles.position.set( x, y, 75 );
-            group.add( particles );
-        }
+        function addShape( shape:Shape, amount:Float, curveSegments:UInt, color, x, y) {
+            var material = new MeshBasicMaterial( { wireframe: false, color: color } );
+            // material.side = DoubleSide;
 
-        function addShape( shape:Shape, extrudeSettings, color, x, y) {
-            // flat shape
-            var geometry = new ShapeBufferGeometry( shape );
-            var mesh = new Mesh( geometry, new MeshBasicMaterial( { wireframe: false, color: color } ) );
-            mesh.position.set( x, y, -75 );
+            var geometry = new ExtrudeGeometry(shape, {amount:amount, bevelEnabled:false, curveSegments:curveSegments});
+            var mesh = new Mesh( geometry, material );
             group.add( mesh );
-            // extruded shape
-            var geometry = new ExtrudeGeometry( shape, extrudeSettings );
-            var mesh = new Mesh( geometry, new MeshBasicMaterial( { wireframe: false, color: color } ) );
-            mesh.position.set( x, y, -25 );
-            group.add( mesh );
-            addLineShape( shape, color, x, y);
-            if (shape.holes != null) {
-                for (hole in shape.holes) {
-                    addLineShape( hole, color, x, y);
-                }
-            }
         }
         
-        // California
-        var californiaPts = [];
-        californiaPts.push( new Vector2( 610, 320 ) );
-        californiaPts.push( new Vector2( 450, 300 ) );
-        californiaPts.push( new Vector2( 392, 392 ) );
-        californiaPts.push( new Vector2( 266, 438 ) );
-        californiaPts.push( new Vector2( 190, 570 ) );
-        californiaPts.push( new Vector2( 190, 600 ) );
-        californiaPts.push( new Vector2( 160, 620 ) );
-        californiaPts.push( new Vector2( 160, 650 ) );
-        californiaPts.push( new Vector2( 180, 640 ) );
-        californiaPts.push( new Vector2( 165, 680 ) );
-        californiaPts.push( new Vector2( 150, 670 ) );
-        californiaPts.push( new Vector2(  90, 737 ) );
-        californiaPts.push( new Vector2(  80, 795 ) );
-        californiaPts.push( new Vector2(  50, 835 ) );
-        californiaPts.push( new Vector2(  64, 870 ) );
-        californiaPts.push( new Vector2(  60, 945 ) );
-        californiaPts.push( new Vector2( 300, 945 ) );
-        californiaPts.push( new Vector2( 300, 743 ) );
-        californiaPts.push( new Vector2( 600, 473 ) );
-        californiaPts.push( new Vector2( 626, 425 ) );
-        californiaPts.push( new Vector2( 600, 370 ) );
-        californiaPts.push( new Vector2( 610, 320 ) );
-        for(point in californiaPts) point.multiplyScalar( 0.25 );
-        var californiaShape = new Shape( californiaPts );
-        var x = 0, y = 0;
-        // Square
+        // addShape( makeSquareShape(),       10, 12, 0x008000,  120,   0);
+        // addShape( makeDonutShape(),         40, 12, 0x804000,   80,   0);
+        // addShape( makeRoadShape(),           1, 120, 0xFF0000, 0, 0);
+        addShape( expandShape(makeSteeringWheelShape(), 6, 250),      1, 240, 0x333333, 0, 0 );
+        addShape( expandShape(makeSteeringWheelShape(), 3, 250),      1, 240, 0x000000, 0, 0 );
+    }
+
+    function makeSquareShape() {
         var sqLength = 80;
         var squareShape:Shape = new Shape();
-        squareShape.moveTo( 0, 0 );
-        squareShape.lineTo( 0, sqLength );
-        squareShape.lineTo( sqLength, sqLength );
-        squareShape.lineTo( sqLength, 0 );
-        squareShape.lineTo( 0, 0 );
-        // Rounded rectangle
-        var roundedRectShape:Shape = new Shape();
-        ( function roundedRect( ctx, x, y, width, height, radius ) {
-            ctx.moveTo( x, y + radius );
-            ctx.lineTo( x, y + height - radius );
-            ctx.quadraticCurveTo( x, y + height, x + radius, y + height );
-            ctx.lineTo( x + width - radius, y + height );
-            ctx.quadraticCurveTo( x + width, y + height, x + width, y + height - radius );
-            ctx.lineTo( x + width, y + radius );
-            ctx.quadraticCurveTo( x + width, y, x + width - radius, y );
-            ctx.lineTo( x + radius, y );
-            ctx.quadraticCurveTo( x, y, x, y + radius );
-        } )( roundedRectShape, 0, 0, 50, 50, 20 );
-        // Track
-        var trackShape:Shape = new Shape();
-        trackShape.moveTo( 40, 40 );
-        trackShape.lineTo( 40, 160 );
-        trackShape.absarc( 60, 160, 20, Math.PI, 0, true );
-        trackShape.lineTo( 80, 40 );
-        trackShape.absarc( 60, 40, 20, 2 * Math.PI, Math.PI, true );
-        // Arc circle
-        var arcShape:Shape = new Shape();
-        arcShape.moveTo( 50, 10 );
-        arcShape.absarc( 10, 10, 40, 0, Math.PI * 2, false );
+        squareShape.moveTo( -sqLength / 2, -sqLength / 2 );
+        squareShape.lineTo(  sqLength / 2, -sqLength / 2 );
+        squareShape.lineTo(  sqLength / 2,  sqLength / 2 );
+        squareShape.lineTo( -sqLength / 2,  sqLength / 2 );
+        squareShape.lineTo( -sqLength / 2, -sqLength / 2 );
+        return squareShape;
+    }
+
+    function makeDonutShape() {
+        var donutShape:Shape = new Shape();
+        donutShape.absarc( 0, 0, 40, 0, Math.PI * 2, true);
         var holePath = new Path();
-        holePath.moveTo( 20, 10 );
-        holePath.absarc( 10, 10, 30, 0, Math.PI * 2, true );
-        arcShape.holes.push( holePath );
-        var extrudeSettings = { amount: 8, bevelEnabled: false, curveSegments: 12 };
-        // addShape( shape, color, x, y);
-        addShape( californiaShape,  extrudeSettings, 0xf08000, -120,   0);
-        addShape( trackShape,       extrudeSettings, 0x008000,  120,   0);
-        addShape( roundedRectShape, extrudeSettings, 0x008080,  -80,   0);
-        addShape( squareShape,      extrudeSettings, 0x0040f0,    0, 200);
-        addShape( arcShape,         extrudeSettings, 0x804000,   80,   0);
+        holePath.absarc( 0, 0, 30, 0, Math.PI * 2, true);
+        donutShape.holes.push( holePath );
+        return donutShape;
+    }
+
+    function makeRoadShape() {
+
+        var pts = [];
+
+        var n = 16;
+        for (i in 0...n)
+        {
+            var theta:Float = i * Math.PI * 2 / n;
+            var mag = (Math.random() + 5) * 20;
+            var pt = new Vector2(Math.cos(theta) * mag, Math.sin(theta) * mag);
+            pts.push(pt);
+        }
+
+        return makeClosedSplineShape(pts);
+    }
+
+    function makeSteeringWheelShape() {
+        var scale = 200;
+
+        var steeringWheelShape:Shape = new Shape();
+
+        var outerRim = new Shape();
+        outerRim.absarc( 0, 0, scale * 0.5, 0, Math.PI * 2, true);
+
+        var innerRim1Points = [];
+        var n = 60;
+        for (i in 0...25) {
+            var theta = (57 - i) * Math.PI * 2 / n;
+            var mag = ((i & 1 != 0) ? 0.435: 0.45) * scale;
+            innerRim1Points.push(new Vector2(Math.cos(theta) * mag, Math.sin(theta) * mag));
+        }
+        var innerRim1 = makeClosedSplineShape(innerRim1Points);
+
+        var innerRim2Points = [];
+        for (i in 0...29) {
+            var theta = (29-i) * 2 * Math.PI / n;
+            var mag = ((i & 1 != 0) ? 0.435: 0.45) * scale;
+            innerRim2Points.push(new Vector2(Math.cos(theta) * mag, Math.sin(theta) * mag));
+        }
+        innerRim2Points.push(new Vector2(scale *  0.25 , scale * 0.075));
+        innerRim2Points.push(new Vector2(scale *  0.125, scale * 0.2));
+        innerRim2Points.push(new Vector2(scale * -0.125, scale * 0.2));
+        innerRim2Points.push(new Vector2(scale * -0.25 , scale * 0.075));
+        var innerRim2 = makeClosedSplineShape(innerRim2Points);
+
+        steeringWheelShape.curves.push(outerRim);
+        steeringWheelShape.holes.push(innerRim1);
+        steeringWheelShape.holes.push(innerRim2);
+
+        return steeringWheelShape;
+    }
+
+    function makeClosedSplineShape(pts:Array<Vector2>):Shape {
+        var closedShape:Shape = new Shape();
+        var spline = new CatmullRomCurve3([for (pt in pts) new js.three.Vector3(pt.x, pt.y)], true);
+        closedShape.curves.push(cast spline);
+        return closedShape;
+    }
+
+    function expandShape(shape:Shape, thickness:Float, divisions:UInt):Shape {
+
+        function expandCurve(source:Curve<Vector2>, isHole:Bool):Shape {
+            var points:Array<Vector2> = [];
+            for (i in 0...divisions) {
+                var t:Float = i / divisions;
+                var pos:Vector2 = source.getPoint(t);
+                var bump:Vector2 = source.getTangent(t);
+                // [bump.x, bump.y] = [-bump.y, bump.x];
+                var temp = bump.x;
+                bump.x = -bump.y;
+                bump.y = temp;
+                if (isHole) bump.negate();
+                bump.multiplyScalar(thickness / 2);
+                points.push(cast pos.clone().add(bump));
+            }
+
+            var curve:Shape = new Shape();
+            curve.moveTo(points[divisions - 1].x, points[divisions - 1].y);
+            for (point in points) curve.lineTo(point.x, point.y);
+            return curve;
+        }
+
+        var expansion:Shape = expandCurve(shape, false);
+        var holes = [for (hole in shape.holes) expandCurve(hole, true)];
+        
+        for (hole in holes) {
+            expansion.holes.push(hole);
+        }
+        
+        return expansion;
     }
 
     function update() {
-        group.rotation.z += Math.PI * 0.005;
+        group.rotation.z = Math.sin(haxe.Timer.stamp()) / 2;
+        group.rotation.x = Math.PI;
         screen.clear();
         screen.drawObject(group);
+        group.position.z = -300;
     }
 }

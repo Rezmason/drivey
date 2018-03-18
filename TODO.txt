@@ -33,3 +33,6 @@ Optimization
     Build scene graph once
     Use the profiler to find bottlenecks
 
+
+Am I doing splines right?
+    
