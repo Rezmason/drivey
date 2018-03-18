@@ -1,50 +1,42 @@
 import js.Browser;
-import js.html.Element;
 
-import js.three.*;
-import Math;
+import drivey.Screen;
+
+import js.three.BufferGeometry;
+import js.three.ExtrudeGeometry;
+import js.three.Group;
+import js.three.Line;
+import js.three.LineBasicMaterial;
+import js.three.Mesh;
+import js.three.MeshBasicMaterial;
+import js.three.Path;
+import js.three.Points;
+import js.three.PointsMaterial;
+import js.three.Shape;
+import js.three.ShapeBufferGeometry;
+import js.three.Vector2;
+import js.three.Vector;
 
 class Playground
 {
-    var container:Element;
-    var camera:PerspectiveCamera;
-    var scene:Scene;
-    var renderer:WebGLRenderer;
     var group:Group;
-    var targetRotation:Float;
-    var targetRotationOnMouseDown:Float;
-    var mouseX:Float;
-    var mouseXOnMouseDown:Float;
-    var windowHalfX:Float;
+    var screen:Screen;
 
-    public static function run()
+    public static function run(screen:Screen)
     {
-        new Playground();
+        new Playground(screen);
     }
 
-    function new() {
-        targetRotation = 0;
-        targetRotationOnMouseDown = 0;
-        mouseX = 0;
-        mouseXOnMouseDown = 0;
-        windowHalfX = Browser.window.innerWidth / 2;
-        
+    function new(screen:Screen) {
+        this.screen = screen;
         init();
-        animate();
+        screen.addRenderListener(update);
     }
 
     function init() {
-        container = Browser.document.createElement( 'div' );
-        Browser.document.body.appendChild( container );
-        scene = new Scene();
-        scene.background = new Color( 0xf0f0f0 );
-        camera = new PerspectiveCamera( 50, Browser.window.innerWidth / Browser.window.innerHeight, 1, 1000 );
-        camera.position.set( 0, 0, 500 );
-        scene.add( camera );
         group = new Group();
         group.rotation.x = Math.PI * 0.55;
-        scene.add( group );
-
+        
         function addLineShape( shape:Path, color, x, y) {
             // lines
             shape.autoClose = true;
@@ -159,28 +151,11 @@ class Playground
         addShape( roundedRectShape, extrudeSettings, 0x008080,  -80,   0);
         addShape( squareShape,      extrudeSettings, 0x0040f0,    0, 200);
         addShape( arcShape,         extrudeSettings, 0x804000,   80,   0);
-        
-        renderer = new WebGLRenderer( { antialias: true } );
-        renderer.setPixelRatio( Browser.window.devicePixelRatio );
-        renderer.setSize( Browser.window.innerWidth, Browser.window.innerHeight );
-        container.appendChild( renderer.domElement );
-        
-        Browser.window.addEventListener( 'resize', onWindowResize, false );
     }
 
-    function onWindowResize() {
-        camera.aspect = Browser.window.innerWidth / Browser.window.innerHeight;
-        camera.updateProjectionMatrix();
-        renderer.setSize( Browser.window.innerWidth, Browser.window.innerHeight );
-    }
-
-    function animate() {
-        render();
-        untyped __js__('requestAnimationFrame({0})', animate);
-    }
-    
-    function render() {
+    function update() {
         group.rotation.z += Math.PI * 0.005;
-        renderer.render( scene, camera );
+        screen.clear();
+        screen.drawObject(group);
     }
 }

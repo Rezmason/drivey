@@ -10,10 +10,11 @@ Three.js
         Just give each car a ready-built group
     Dashboard
         Probably needs a separate Camera
+    Tinted background
     Gradient sky
         Skybox with no texture
         Gradient material
-    Everything else is a solid color
+    Everything else is a tinted solid color
         Screen RGB and alpha are unnecessary
     White on blue wireframe support
         Doesn't have to be as pretty
