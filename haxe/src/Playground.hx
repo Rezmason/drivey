@@ -29,26 +29,26 @@ class Playground
         this.screen = screen;
         init();
         screen.addRenderListener(update);
+        // screen.bg = new drivey.Color(0.7, 0.4, 0.1);
     }
 
     function init() {
         group = new Group();
         group.position.z = -100;
+        group.rotation.x = -Math.PI / 8;
         
-        function addShape( shape:Shape, amount:Float, curveSegments:UInt, color, x, y) {
+        function addShape( shape:Shape, amount:Float, curveSegments:UInt, color, x, y, z) {
             var material = new MeshBasicMaterial( { wireframe: false, color: color } );
             // material.side = DoubleSide;
 
             var geometry = new ExtrudeGeometry(shape, {amount:amount, bevelEnabled:false, curveSegments:curveSegments});
             var mesh = new Mesh( geometry, material );
+            mesh.position.set(x, y, z);
             group.add( mesh );
         }
         
-        // addShape( makeSquareShape(),       10, 12, 0x008000,  120,   0);
-        // addShape( makeDonutShape(),         40, 12, 0x804000,   80,   0);
-        // addShape( makeRoadShape(),           1, 120, 0xFF0000, 0, 0);
-        addShape( expandShape(makeSteeringWheelShape(), 6, 250),      1, 240, 0x333333, 0, 0 );
-        addShape( expandShape(makeSteeringWheelShape(), 3, 250),      1, 240, 0x000000, 0, 0 );
+        addShape( expandShape(makeSteeringWheelShape(), 6, 250),     2, 240, 0x333333, 0, 0,    0);
+        addShape( expandShape(makeSteeringWheelShape(), 3, 250),     6, 240, 0x000000, 0, 0, -1.5);
     }
 
     function makeSquareShape() {
@@ -131,7 +131,6 @@ class Playground
     }
 
     function expandShape(shape:Shape, thickness:Float, divisions:UInt):Shape {
-
         function expandCurve(source:Curve<Vector2>, isHole:Bool):Shape {
             var points:Array<Vector2> = [];
             for (i in 0...divisions) {
@@ -154,18 +153,13 @@ class Playground
         }
 
         var expansion:Shape = expandCurve(shape, false);
-        var holes = [for (hole in shape.holes) expandCurve(hole, true)];
-        
-        for (hole in holes) {
-            expansion.holes.push(hole);
-        }
-        
+        for (hole in shape.holes) expansion.holes.push(expandCurve(hole, true));
         return expansion;
     }
 
     function update() {
-        group.rotation.z = Math.sin(haxe.Timer.stamp()) / 2;
-        group.rotation.x = Math.PI;
+        group.rotation.z = Math.PI + Math.sin(haxe.Timer.stamp()) / 2;
+        //group.rotation.x += 0.025;
         screen.clear();
         screen.drawObject(group);
         group.position.z = -300;

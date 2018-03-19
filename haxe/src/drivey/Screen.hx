@@ -2,6 +2,7 @@ package drivey;
 
 import js.Browser;
 import js.html.Element;
+import js.html.KeyboardEvent;
 
 import js.three.Object3D;
 import js.three.PerspectiveCamera;
@@ -25,6 +26,9 @@ class Screen {
     var scene:Scene;
     var renderer:WebGLRenderer;
 
+    var keysDown:Map<String, Bool> = new Map();
+    var keysHit:Map<String, Bool> = new Map();
+
     var renderListeners:Array<Void->Void> = [];
 
     public function new() {
@@ -42,6 +46,9 @@ class Screen {
         onWindowResize();
         
         element.appendChild(renderer.domElement);
+
+        Browser.document.addEventListener('keydown', onKeyDown);
+        Browser.document.addEventListener('keyup', onKeyUp);
 
         animate();
     }
@@ -61,17 +68,35 @@ class Screen {
     }
 
     function animate() {
+        untyped __js__('requestAnimationFrame({0})', animate);
         for (listener in renderListeners) listener();
         render();
-        untyped __js__('requestAnimationFrame({0})', animate);
+        for (key in keysHit.keys()) keysHit.remove(key);
+        
     }
     
     function render() {
         renderer.render( scene, false ? orthoCamera : camera );
     }
 
-    public function isKeyDown(code) {
-        return false; // TODO
+    function onKeyDown(event:KeyboardEvent) {
+        event.preventDefault();
+        var code = (cast event).code;
+        if (!isKeyDown(code)) keysHit[code] = true;
+        keysDown[code] = true;
+    }
+
+    function onKeyUp(event:KeyboardEvent) {
+        event.preventDefault();
+        keysDown.remove((cast event).code);
+    }
+
+    public function isKeyDown(code):Bool {
+        return keysDown.get(code) == true;
+    }
+
+    public function isKeyHit(code):Bool {
+        return keysHit.get(code) == true;
     }
 
     public function addRenderListener(func:Void->Void) {
@@ -121,5 +146,6 @@ class Screen {
 
     public function print(message) {
         // TODO
+        // trace(message);
     }
 }
