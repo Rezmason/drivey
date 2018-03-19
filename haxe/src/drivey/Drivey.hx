@@ -28,7 +28,6 @@ class Drivey {
     var rearView:Bool = false;
     var roadType:Int = 3;
     var showDashboard:Bool = true;
-    var showHelp:Float = 0.0;
     var timeSlice:Float = 0.05;
     var tint:Color = new Color(0.2, 0.3, 0.8); // colors for palette tinting
     var wireframe:Bool = false;
@@ -96,8 +95,14 @@ class Drivey {
         lastStep = 0;
         lastJoyX = 0;
 
-        setMessage('ESC to quit, F1 for help\n(arrow keys adjust speed and steering)');
-        showHelp = 2;
+        scr.showMessage([
+            'DRIVEY',
+            'hypnotic motorway simulation',
+            '',
+            'original © 2007 Mark Pursey',
+            'retreaded for the web by @rezmason',
+            '[ F1 ] for keyboard shortcuts',
+        ].join('\n'));
 
         update();
         scr.addRenderListener(update);
@@ -234,48 +239,6 @@ class Drivey {
         npcCar.pos = m2w(theRoad.getPath(0).getPoint(t));
         npcCar.roadDir = (other.length & 1 != 0) ? -1 : 1;
         placeOn(npcCar, theRoad.getPath(0));
-    }
-
-    function setMessage(msg:String)
-    {
-        message = msg;
-        showHelp = 1; // 2 seconds should be enough?
-    }
-
-    function drawHelp()
-    {
-        if (showHelp > 0)
-        {
-            if (message.length > 0)
-            {
-                scr.print(message);
-            }
-            else
-            {
-                scr.print('<esc>: quit');
-                scr.print('<home>: return to road');
-                scr.print('W,A,S,D & arrow keys: speed and steering control');
-                scr.print('F1: toggle help');
-                scr.print('F2: wireframe');
-                scr.print('F3: toggle dashboard');
-                scr.print('F4: rear view');
-                scr.print('F5: toggle (awful) manual control');
-                scr.print('F6: toggle (awful) collision detection');
-                scr.print('F7: toggle sky gradient');
-                scr.print('F8: switch driving side');
-                scr.print('F9: save configuration');
-                scr.print('F11: toggle fullscreen');
-                scr.print('G: greyscale palette');
-                scr.print('H: random palette');
-                scr.print('K: toggle palette cycling');
-                scr.print('N,M: adjust view angle');
-                scr.print('V,B: adjust brightness');
-                scr.print('C: add other cars');
-                scr.print('1-4: switch environment type');
-                scr.print('<ctrl>: super fast');
-                scr.print('<shift>: super slow');
-            }
-        }
     }
 
     function placeOn(car:Car, rd:Path)
@@ -619,9 +582,9 @@ class Drivey {
         skyHigh = 0.25;
         skyGradient = 0.5;
 
-        if (roadType == 1)    // tunnel
+        if (roadType == 1)
         {
-            setMessage('(tunnel)');
+            scr.showMessage('Now driving through: The Tunnel');
             tint = new Color(0.2, 0.7, 0.1);
             skyLow = skyHigh = 0;
             var tarmac = 0.1;
@@ -700,11 +663,11 @@ class Drivey {
                 newRoad.push(layer);
             }
         }
-        else if (roadType == 2)   // city
+        else if (roadType == 2)
         {
             tint = new Color(0.3, 0.3, 0.7) * 1.5;
 
-            setMessage('(city)');
+            scr.showMessage('Now driving through: The City');
             p.scaleUniform(2);
 
             ground = 0.05;
@@ -884,9 +847,9 @@ class Drivey {
             sh.merge(makeRoadLine(p, -3, 0.15, 3, 12));
             sh.merge(makeRoadLine(p, 3, 0.15, 3, 12));
         }
-        else if (roadType == 3)   // industrial
+        else if (roadType == 3)
         {
-            setMessage('(industrial)');
+            scr.showMessage('Now driving through: The Industrial Zone');
             tint = new Color(0.7, 0.4, 0.1);
 
             skyHigh = 0.15;
@@ -1127,9 +1090,9 @@ class Drivey {
                 theWalls.merge(sh);
             }
         }
-        else // ordinary road
+        else
         {
-            setMessage('(very sparse road)');
+            scr.showMessage('Now driving through: The Deep Dark Night');
             tint = 0.7;
             ground = 0;
             skyHigh = 0;
@@ -1179,18 +1142,34 @@ class Drivey {
     {
         if (scr.isKeyHit('F1'))
         {
-            if (message.length ==  0&& showHelp > 1) {
-                showHelp = 0;
-            } else {
-                showHelp = 6;
-            }
-
-            message = '';
+            scr.showMessage([
+                '<home>: return to road',
+                'W,A,S,D & arrow keys: speed and steering control',
+                'F1: toggle help',
+                'F2: wireframe',
+                'F3: toggle dashboard',
+                'F4: rear view',
+                'F5: toggle (awful) manual control',
+                'F6: toggle (awful) collision detection',
+                'F7: toggle sky gradient',
+                'F8: switch driving side',
+                'F9: save configuration',
+                'F11: toggle fullscreen',
+                'G: greyscale palette',
+                'H: random palette',
+                'K: toggle palette cycling',
+                'N,M: adjust view angle',
+                'V,B: adjust brightness',
+                'C: add other cars',
+                '1-4: switch environment type',
+                '<ctrl>: super fast',
+                '<shift>: super slow',
+            ].join('\n'), 6);
         }
         if (scr.isKeyHit('F7'))
         {
             gradient = !gradient;
-            setMessage('gradient ' + (gradient ? 'on': 'off'));
+            scr.showMessage('gradient ' + (gradient ? 'on': 'off'));
         }
         if (scr.isKeyHit('Escape'))
         {
@@ -1206,28 +1185,28 @@ class Drivey {
                     addNPCCar();
                 }
             }
-            setMessage('' + other.length + ' cars on the road');
+            scr.showMessage('' + other.length + ' cars on the road');
         }
         if (scr.isKeyHit('F8'))
         {
             laneOffset = -laneOffset;
-            setMessage('driving style: ' + (laneOffset < 0 ? 'North American': 'Australian'));
+            scr.showMessage('driving style: ' + (laneOffset < 0 ? 'North American': 'Australian'));
         }
         if (scr.isKeyHit('F6'))
         {
             collisions = !collisions;
-            setMessage('collision detection ' + (collisions ? 'on (crappy)': 'off'));
+            scr.showMessage('collision detection ' + (collisions ? 'on (crappy)': 'off'));
         }
         if (scr.isKeyHit('F5'))
         {
             auto = !auto;
-            setMessage(auto ? 'autodrive' : 'manual steer');
+            scr.showMessage(auto ? 'autodrive' : 'manual steer');
         }
         if (scr.isKeyHit('KeyG'))
         {
             tint = 0.5;
             cycle = false;
-            setMessage('greyscale');
+            scr.showMessage('greyscale');
         }
         if (scr.isKeyHit('KeyH'))
         {
@@ -1235,17 +1214,17 @@ class Drivey {
             tint *= 1.0/tint.brightness();
             tint = tint * 0.6;
             cycle = false;
-            setMessage('random palette');
+            scr.showMessage('random palette');
         }
         if (scr.isKeyHit('KeyK'))
         {
             cycle = !cycle;
-            setMessage('palette cycle ' + (cycle ? 'on' : 'off' ));
+            scr.showMessage('palette cycle ' + (cycle ? 'on' : 'off' ));
         }
         if (scr.isKeyHit('F3'))
         {
             showDashboard = !showDashboard;
-            setMessage('dashboard ' + (showDashboard ? 'on' : 'off' ));
+            scr.showMessage('dashboard ' + (showDashboard ? 'on' : 'off' ));
         }
         if (scr.isKeyHit('Digit1'))
         {
@@ -1343,12 +1322,12 @@ class Drivey {
         {
             wireframe = !wireframe;
             scr.cmd('wireframe ' + (wireframe ? 'on' : 'off'));
-            setMessage('wireframe ' + (wireframe ? 'on' : 'off'));
+            scr.showMessage('wireframe ' + (wireframe ? 'on' : 'off'));
         }
 
         rearView = scr.isKeyDown('F4');
         if (rearView) {
-            setMessage('rear view');
+            scr.showMessage('rear view');
         }
 
         if (scr.isKeyDown('KeyB'))    // hi contrast
@@ -1365,7 +1344,7 @@ class Drivey {
         if (scr.isKeyDown('KeyM'))
         {
             zoom *= Math.pow(2, step);
-            setMessage('zoom ' + Std.int(zoom * 100));
+            scr.showMessage('zoom ' + Std.int(zoom * 100));
         }
         if (scr.isKeyDown('KeyN'))
         {
@@ -1374,7 +1353,7 @@ class Drivey {
             {
                 zoom = 0.125;
             }
-            setMessage('zoom ' + Std.int(zoom * 100));
+            scr.showMessage('zoom ' + Std.int(zoom * 100));
         }
 
         if (scr.isKeyHit('Home'))
@@ -1383,7 +1362,7 @@ class Drivey {
             user.roadPos = 0;
             placeOn(user, theRoad.getPath(0));
             fade = 0;
-            setMessage('returned to road');
+            scr.showMessage('returned to road');
         }
 
         user.brake = 0;
@@ -1650,12 +1629,6 @@ class Drivey {
         g_frameInterval = lerp(g_frameInterval, period, 0.01);
 
         frameRate = 1.0/g_frameInterval;
-
-        if (showHelp > 0)
-        {
-            showHelp -= 0.5 * step;
-            drawHelp();
-        }
 
         if (wireframe)
         {

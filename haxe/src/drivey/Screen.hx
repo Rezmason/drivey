@@ -80,14 +80,15 @@ class Screen {
     }
 
     function onKeyDown(event:KeyboardEvent) {
-        event.preventDefault();
         var code = (cast event).code;
+        //if (code == 'KeyR' && (event.metaKey || event.ctrlKey)) return;
+        //event.preventDefault();
         if (!isKeyDown(code)) keysHit[code] = true;
         keysDown[code] = true;
     }
 
     function onKeyUp(event:KeyboardEvent) {
-        event.preventDefault();
+        //event.preventDefault();
         keysDown.remove((cast event).code);
     }
 
@@ -144,8 +145,13 @@ class Screen {
         return color;
     }
 
-    public function print(message) {
+    public function showMessage(msg:String, seconds:Float = 2)
+    {
         // TODO
-        // trace(message);
+        trace(msg);
+    }
+
+    public function adjustPerspectiveCamera(pitch:Float, roll:Float, yaw:Float, pointBackwards:Bool):Void {
+        // TODO
     }
 }
