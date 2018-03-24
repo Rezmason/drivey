@@ -38,7 +38,7 @@ class Playground
         group.rotation.x = -Math.PI / 8;
         
         function addShape( shape:Shape, amount:Float, curveSegments:UInt, color, x, y, z) {
-            var material = new MeshBasicMaterial( { wireframe: false, color: color } );
+            var material = new MeshBasicMaterial( { wireframe: true, color: color } );
             // material.side = DoubleSide;
 
             var geometry = new ExtrudeGeometry(shape, {amount:amount, bevelEnabled:false, curveSegments:curveSegments});
@@ -49,6 +49,8 @@ class Playground
         
         addShape( expandShape(makeSteeringWheelShape(), 6, 250),     2, 240, 0x333333, 0, 0,    0);
         addShape( expandShape(makeSteeringWheelShape(), 3, 250),     6, 240, 0x000000, 0, 0, -1.5);
+
+        // addShape( makeHeadlightShape(), 1, 30, 0xFFFFFF, 0, 0, 0);
     }
 
     function makeSquareShape() {
@@ -84,7 +86,18 @@ class Playground
             pts.push(pt);
         }
 
-        return makeClosedSplineShape(pts);
+        return makeSplineShape(pts, true);
+    }
+
+    function makeHeadlightShape() {
+        var pts:Array<Vector2> = [
+            new Vector2( 0,   0),
+            new Vector2(-6,  13),
+            new Vector2( 4,  15),
+            new Vector2( 0,   0),
+        ];
+        
+        return makeSplineShape(pts, true);
     }
 
     function makeSteeringWheelShape() {
@@ -102,7 +115,7 @@ class Playground
             var mag = ((i & 1 != 0) ? 0.435: 0.45) * scale;
             innerRim1Points.push(new Vector2(Math.cos(theta) * mag, Math.sin(theta) * mag));
         }
-        var innerRim1 = makeClosedSplineShape(innerRim1Points);
+        var innerRim1 = makeSplineShape(innerRim1Points, true);
 
         var innerRim2Points = [];
         for (i in 0...29) {
@@ -114,7 +127,7 @@ class Playground
         innerRim2Points.push(new Vector2(scale *  0.125, scale * 0.2));
         innerRim2Points.push(new Vector2(scale * -0.125, scale * 0.2));
         innerRim2Points.push(new Vector2(scale * -0.25 , scale * 0.075));
-        var innerRim2 = makeClosedSplineShape(innerRim2Points);
+        var innerRim2 = makeSplineShape(innerRim2Points, true);
 
         steeringWheelShape.curves.push(outerRim);
         steeringWheelShape.holes.push(innerRim1);
@@ -123,11 +136,11 @@ class Playground
         return steeringWheelShape;
     }
 
-    function makeClosedSplineShape(pts:Array<Vector2>):Shape {
-        var closedShape:Shape = new Shape();
-        var spline = new CatmullRomCurve3([for (pt in pts) new js.three.Vector3(pt.x, pt.y)], true);
-        closedShape.curves.push(cast spline);
-        return closedShape;
+    function makeSplineShape(pts:Array<Vector2>, closed:Bool):Shape {
+        var shape:Shape = new Shape();
+        var spline = new CatmullRomCurve3([for (pt in pts) new js.three.Vector3(pt.x, pt.y)], closed);
+        shape.curves.push(cast spline);
+        return shape;
     }
 
     function expandShape(shape:Shape, thickness:Float, divisions:UInt):Shape {

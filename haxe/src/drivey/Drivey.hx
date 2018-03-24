@@ -185,9 +185,13 @@ class Drivey {
         var carLightPaths:Shape = new Shape();
         carLightPaths.init();
         var sq:Shape = new Shape();
-        sq.addVertexXY(0,0);
-        sq.addControlXY(-6,13);
-        sq.addControlXY(4,15);
+        var points = [
+            new Vector2( 0,   0),
+            new Vector2(-6,  13),
+            new Vector2( 4,  15),
+            new Vector2( 0,   0),
+        ];
+        sq.addSplineCurve(points, true);
         carLightPaths.merge(sq);
         sq.scale(new Vector2(-1,1));
         sq.invert();

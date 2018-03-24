@@ -1,11 +1,14 @@
 Three.js
 
     Playground
-        Any curved shape
         Road lines
             base it on t
                 getPoint and getTangent create basis for plane
             Dashed lines
+        Car
+            Scaled extruded unit squares
+            headlights
+            tail lights
 
     Move Path over to Three.js Path or Shape
     Move Shape over to Three.js ExtrudeGeometry

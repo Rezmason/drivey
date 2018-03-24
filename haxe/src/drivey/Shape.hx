@@ -25,10 +25,6 @@ class Shape {
         // TODO
     }
 
-    public function addControlXY(x:Float, y:Float) {
-        addControl(new Vector2(x, y));
-    }
-
     public function addControl(xy:Vector2) {
         // TODO
     }
