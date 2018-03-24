@@ -1,4 +1,12 @@
 Three.js
+
+    Playground
+        Any curved shape
+        Road lines
+            base it on t
+                getPoint and getTangent create basis for plane
+            Dashed lines
+
     Move Path over to Three.js Path or Shape
     Move Shape over to Three.js ExtrudeGeometry
     Screen::drawShape should contain a Scene and add Shapes to it if they have no parent

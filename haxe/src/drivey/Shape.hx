@@ -1,5 +1,7 @@
 package drivey;
 
+typedef ThreeShape = js.three.Shape;
+
 class Shape {
 
     public var rgb:Color = 1;
@@ -28,6 +30,10 @@ class Shape {
     }
 
     public function addControl(xy:Vector2) {
+        // TODO
+    }
+
+    public function addSplineCurve(points:Array<Vector2>, closed:Bool) {
         // TODO
     }
 
@@ -114,6 +120,7 @@ class Shape {
     }
 
     public function getNearestPoint(xy:Vector2):Vector2 {
+        // Utils.minDistSquaredIndex(approx, xy);
         return new Vector2(); // TODO
     }
 

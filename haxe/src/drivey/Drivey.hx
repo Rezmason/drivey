@@ -145,22 +145,24 @@ class Drivey {
         steeringWheelShape.makeCircle(new Vector2(0,0), 0.5);
         steeringWheelShape.closePath();
         var n = 60;
+        var points = [];
         for (i in 0...25) {
             var theta = (57 - i) * Math.PI * 2 / n;
             var mag = ((i & 1 != 0) ? 0.435: 0.45);
-            steeringWheelShape.addControl(new Vector2(Math.cos(theta), Math.sin(theta)) * mag);
+            points.push(new Vector2(Math.cos(theta), Math.sin(theta)) * mag);
         }
-        steeringWheelShape.closePath();
+        steeringWheelShape.addSplineCurve(points, true);
+        points = [];
         for (i in 0...29) {
             var theta = (29-i) * 2 * Math.PI / n;
             var mag = ((i & 1 != 0) ? 0.435: 0.45);
-            steeringWheelShape.addControl(new Vector2(Math.cos(theta), Math.sin(theta)) * mag);
+            points.push(new Vector2(Math.cos(theta), Math.sin(theta)) * mag);
         }
-        steeringWheelShape.addControl(new Vector2(0.25, 0.075));
-        steeringWheelShape.addControl(new Vector2(0.125, 0.2));
-        steeringWheelShape.addControl(new Vector2(-0.125, 0.2));
-        steeringWheelShape.addControl(new Vector2(-0.25, 0.075));
-        steeringWheelShape.closePath();
+        points.push(new Vector2(0.25, 0.075));
+        points.push(new Vector2(0.125, 0.2));
+        points.push(new Vector2(-0.125, 0.2));
+        points.push(new Vector2(-0.25, 0.075));
+        steeringWheelShape.addSplineCurve(points, true);
         return steeringWheelShape;
     }
 
@@ -235,15 +237,13 @@ class Drivey {
     {
         var npcCar = new Car();
         other.push(npcCar);
-        var t = theRoad.getPath(0).length * Math.random();
-        npcCar.pos = m2w(theRoad.getPath(0).getPoint(t));
         npcCar.roadDir = (other.length & 1 != 0) ? -1 : 1;
-        placeOn(npcCar, theRoad.getPath(0));
+        placeCar(npcCar, theRoad.getPath(0), Math.random());
     }
 
-    function placeOn(car:Car, rd:Path)
+    function placeCar(car:Car, rd:Path, along:Float)
     {
-        var t = rd.getNearest(w2m(car.pos));
+        var t = along * rd.length;
         var tan = !rd.getTangent(t);
         var normal = -rd.getNormal(t);
         if (car.roadDir < 0) {
@@ -558,12 +558,13 @@ class Drivey {
         theWalls.init();
         theRoad.init();
         var n = 16;
+        var points = [];
         for (i in 0...n)
         {
             var theta:Float = i * Math.PI * 2 / n;
-            var pt = new Vector2(Math.cos(theta), Math.sin(theta)) * (Math.random() + 5);
-            theRoad.addControl(pt);
+            points.push(new Vector2(Math.cos(theta), Math.sin(theta)) * (Math.random() + 5));
         }
+        theRoad.addSplineCurve(points, true);
 
         theRoad.boxFit();
         theRoad.scale(new Vector2(400,400));
@@ -1131,7 +1132,7 @@ class Drivey {
             newRoad[i].scale(scale);
         }
 
-        placeOn(user, theRoad.getPath(0));
+        placeCar(user, theRoad.getPath(0), 0);
         other = [];
 
         return newRoad;
@@ -1360,7 +1361,7 @@ class Drivey {
         {
             auto = true;
             user.roadPos = 0;
-            placeOn(user, theRoad.getPath(0));
+            placeCar(user, theRoad.getPath(0), 0);
             fade = 0;
             scr.showMessage('returned to road');
         }
@@ -1520,11 +1521,6 @@ class Drivey {
             scr.alpha = 1;
             drawRoadShape(scr, lights, 1, 0.3);
         }
-
-        var nearest:Vector2 = theRoad.getNearestPoint(user.pos);
-
-        var normalSpeed = 100 * 1000 / 3600; // 100 km/h
-
 
         if (project && showDashboard && !rearView)    // draw controls
         {

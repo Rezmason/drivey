@@ -24,15 +24,17 @@ class Path {
         return new Vector2(); // TODO
     }
 
-    public function getNearest(to:Vector2):Float {
-        return 0; // TODO
-    }
-
     public function scaleUniform(amount:Float) {
         // TODO
     }
 
+    public function getNearest(to:Vector2):Float {
+        // approx[Utils.minDistSquaredIndex(approx, xy)];
+        return 0; // TODO
+    }
+
     public function getNearestPoint(xy:Vector2):Vector2 {
+        // approx[Utils.minDistSquaredIndex(approx, xy)];
         return new Vector2(); // TODO
     }
 
