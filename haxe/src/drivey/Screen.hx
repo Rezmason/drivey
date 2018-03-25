@@ -25,11 +25,14 @@ class Screen {
     var orthoCamera:OrthographicCamera;
     var scene:Scene;
     var renderer:WebGLRenderer;
+    var messageBox:Element;
 
     var keysDown:Map<String, Bool> = new Map();
     var keysHit:Map<String, Bool> = new Map();
 
     var renderListeners:Array<Void->Void> = [];
+
+    var messageOpacities:Map<Element, Float> = new Map();
 
     public function new() {
         element = Browser.document.createElement( 'div' );
@@ -46,6 +49,10 @@ class Screen {
         onWindowResize();
         
         element.appendChild(renderer.domElement);
+
+        messageBox = Browser.document.createElement( 'div' );
+        messageBox.id = 'messageBox';
+        Browser.document.body.appendChild(messageBox);
 
         Browser.document.addEventListener('keydown', onKeyDown);
         Browser.document.addEventListener('keyup', onKeyUp);
@@ -71,6 +78,15 @@ class Screen {
         untyped __js__('requestAnimationFrame({0})', animate);
         for (listener in renderListeners) listener();
         render();
+        for (message in messageOpacities.keys()) {
+            messageOpacities[message] *= 0.975;
+            if (messageOpacities[message] < 0.005) {
+                messageOpacities.remove(message);
+                messageBox.removeChild(message);
+            } else {
+                message.style.opacity = Std.string(messageOpacities[message]);
+            }
+        }
         for (key in keysHit.keys()) keysHit.remove(key);
         
     }
@@ -145,10 +161,22 @@ class Screen {
         return color;
     }
 
-    public function showMessage(msg:String, seconds:Float = 2)
+    public function showMessage(msg:String, clear:Bool, seconds:Float = 2)
     {
-        // TODO
-        trace(msg);
+        if (clear) {
+            for (message in messageOpacities.keys()) {
+                messageBox.removeChild(message);
+                messageOpacities.remove(message);
+            }
+        }
+
+        var message = Browser.document.createElement('div');
+        message.classList.add('message');
+        message.innerHTML = ~/[\n\r]/g.replace(msg, '<br>');
+        haxe.Timer.delay(function() {
+            messageOpacities[message] = 1;
+        }, Std.int(1000 * seconds));
+        messageBox.appendChild(message);
     }
 
     public function adjustPerspectiveCamera(pitch:Float, roll:Float, yaw:Float, pointBackwards:Bool):Void {

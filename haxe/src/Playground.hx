@@ -38,7 +38,7 @@ class Playground
         group.rotation.x = -Math.PI / 8;
         
         function addShape( shape:Shape, amount:Float, curveSegments:UInt, color, x, y, z) {
-            var material = new MeshBasicMaterial( { wireframe: true, color: color } );
+            var material = new MeshBasicMaterial( { wireframe: false, color: color } );
             // material.side = DoubleSide;
 
             var geometry = new ExtrudeGeometry(shape, {amount:amount, bevelEnabled:false, curveSegments:curveSegments});

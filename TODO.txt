@@ -5,33 +5,32 @@ Three.js
             base it on t
                 getPoint and getTangent create basis for plane
             Dashed lines
+            Merged
         Car
             Scaled extruded unit squares
             headlights
             tail lights
+            cloning, or cloning Object3D of
+        Dashboard
+            Attached to camera
+        Gradient skybox
+            Attached to camera
+        Tinted background
+
+    Build scene graph once
+        Other cars are cloned from car template
 
     Move Path over to Three.js Path or Shape
     Move Shape over to Three.js ExtrudeGeometry
-    Screen::drawShape should contain a Scene and add Shapes to it if they have no parent
-    Wireframe meshes so everything is visible
+
     Camera
         Replace all that projection stuff
         Plug into tilt,pitch,zoom
-    Other cars
-        Just give each car a ready-built group
-    Dashboard
-        Probably needs a separate Camera
-    Tinted background
-    Gradient sky
-        Skybox with no texture
-        Gradient material
-    Everything else is a tinted solid color
-        Screen RGB and alpha are unnecessary
-    White on blue wireframe support
-        Doesn't have to be as pretty
-
-Replace Print with transient text elements
-    Create HTML elements that fade
+    Screen stuff
+        Everything besides skybox is a tinted solid color
+            Screen RGB and alpha properties on Screen are unnecessary
+        White on blue wireframe support
+            Doesn't have to be as pretty
 
 Javascript prep
     Replace operators with method calls
@@ -41,9 +40,6 @@ Javascript
     from Haxe, by hand
 
 Optimization
-    Build scene graph once
     Use the profiler to find bottlenecks
 
-
 Am I doing splines right?
-    
