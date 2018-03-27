@@ -92,13 +92,13 @@ class Car
         return dist;
     }
 
-    public function collideWithShape(s:Shape):Float
+    public function collideWithForm(form:Form):Float
     {
-        if (!s.hasPaths()) {
+        if (!form.hasPaths()) {
             return Math.POSITIVE_INFINITY;
         }
 
-        var pt = m2w(s.getNearestPoint(w2m(pos)));
+        var pt = m2w(form.getNearestPoint(w2m(pos)));
         var pd = pt - new Vector3(pos.x,0,pos.z);
         var radius = 1;
 

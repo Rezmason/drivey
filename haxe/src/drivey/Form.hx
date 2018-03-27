@@ -2,13 +2,14 @@ package drivey;
 
 typedef ThreeShape = js.three.Shape;
 
-class Shape {
+class Form {
 
     public var rgb:Color = 1;
     public var alpha:Float = 1;
     public var height:Float = 0;
     public var extrude:Float = 0;
-
+    public var length(get, never):UInt;
+    
     public function new() {
         // TODO
     }
@@ -37,11 +38,11 @@ class Shape {
         // TODO
     }
 
-    public function clone():Shape {
-        return new Shape(); // TODO
+    public function clone():Form {
+        return new Form(); // TODO
     }
 
-    public function merge(otherShape:Shape) {
+    public function merge(otherForm:Form) {
         // TODO
     }
 
@@ -69,8 +70,8 @@ class Shape {
         // TODO
     }
 
-    public function getPath(index:UInt):Path {
-        return new Path(); // TODO
+    public function getChild(index:UInt):Form {
+        return new Form(); // TODO
     }
 
     public function hasPaths():Bool {
@@ -115,16 +116,45 @@ class Shape {
         scale(scaleBy);
     }
 
-    public function getNearestPoint(xy:Vector2):Vector2 {
-        // Utils.minDistSquaredIndex(approx, xy);
-        return new Vector2(); // TODO
-    }
-
     public function invert() {
         // Probably reverses the drawing order of the vertices, etc
     }
 
     public function outline(thickness:Float) {
         // TODO
+    }
+
+
+
+
+
+    public function stepInterval(amount:Float, t:Float):Float {
+        return 0; // TODO
+    }
+
+    public function getPoint(t:Float):Vector2 {
+        return new Vector2(); // TODO
+    }
+
+    public function getNormal(t:Float):Vector2 {
+        return new Vector2(); // TODO
+    }
+
+    public function getTangent(t:Float):Vector2 {
+        return new Vector2(); // TODO
+    }
+
+    public function getNearest(to:Vector2):Float {
+        // approx[Utils.minDistSquaredIndex(approx, xy)];
+        return 0; // TODO
+    }
+
+    public function getNearestPoint(xy:Vector2):Vector2 {
+        // approx[Utils.minDistSquaredIndex(approx, xy)];
+        return new Vector2(); // TODO
+    }
+
+    function get_length() {
+        return 0; // TODO
     }
 }

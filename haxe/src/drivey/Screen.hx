@@ -128,7 +128,7 @@ class Screen {
         }
     }
 
-    public function drawShape(shape:Shape) {
+    public function drawForm(form:Form) {
         // TODO
     }
 

@@ -37,8 +37,8 @@ class Drivey {
     var appname = 'DRIVEY (graphic test)';
     var version = '0.15';
     var copyright = '¬© 2005 Mark Pursey';
-    var theRoad:Shape = new Shape();
-    var theWalls:Shape = new Shape();
+    var theRoad:Form = new Form();
+    var theWalls:Form = new Form();
     var scr:Screen = new Screen();
     var user:Car = new Car();
     var other:Array<Car> = [];
@@ -48,15 +48,15 @@ class Drivey {
     var g_lastStep:Float = 0.05;
     var g_zoom:Float = 1;
 
-    var road:Array<Shape>;
-    var speedoShape:Shape;
-    var speedoNeedle:Shape;
-    var steeringWheelShape:Shape;
-    var carLights:Shape;
-    var carLightPaths:Shape;
-    var carTailLightShape:Shape;
-    var carBodyBottom:Shape;
-    var carBodyTop:Shape;
+    var road:Array<Form>;
+    var speedoForm:Form;
+    var speedoNeedle:Form;
+    var steeringWheelForm:Form;
+    var carLights:Form;
+    var carLightPaths:Form;
+    var carTailLightForm:Form;
+    var carBodyBottom:Form;
+    var carBodyTop:Form;
 
     var g_startTime:Float;
     var g_frameInterval:Float;
@@ -89,12 +89,12 @@ class Drivey {
         ].join('\n'), false);
 
         road = makeRoad();
-        speedoShape = makeSpeedoShape();
+        speedoForm = makeSpeedoForm();
         speedoNeedle = makeSpeedoNeedle();
-        steeringWheelShape = makeSteeringWheelShape();
+        steeringWheelForm = makeSteeringWheelForm();
         carLights = makeCarLights();
         carLightPaths = makeCarLightPaths();
-        carTailLightShape = makeCarTailLightShape();
+        carTailLightForm = makeCarTailLightForm();
         carBodyBottom = makeCarBodyBottom();
         carBodyTop = makeCarBodyTop();
 
@@ -111,12 +111,12 @@ class Drivey {
         finishTime = Timer.stamp();
     }
 
-    function makeSpeedoShape():Shape {
-        var speedoShape:Shape = new Shape();
-        speedoShape.makeCircle(new Vector2(0,0), 0.5);
-        speedoShape.outline(0.025);
+    function makeSpeedoForm():Form {
+        var speedoForm:Form = new Form();
+        speedoForm.makeCircle(new Vector2(0,0), 0.5);
+        speedoForm.outline(0.025);
 
-        var dash:Shape = new Shape();
+        var dash:Form = new Form();
         dash.addVertexXY(-0.01,-0.49);
         dash.addVertexXY(0.01,-0.49);
         dash.addVertexXY(0.01,-0.44);
@@ -124,15 +124,15 @@ class Drivey {
         var n = 8;
         for (i in 0...n)
         {
-            var sh:Shape = dash.clone();
+            var sh:Form = dash.clone();
             sh.rotate(lerp(-Math.PI * 0.8, Math.PI * 0.8, i / n));
-            speedoShape.merge(sh);
+            speedoForm.merge(sh);
         }
-        return speedoShape;
+        return speedoForm;
     }
 
-    function makeSpeedoNeedle():Shape {
-        var speedoNeedle:Shape = new Shape();
+    function makeSpeedoNeedle():Form {
+        var speedoNeedle:Form = new Form();
         speedoNeedle.addVertexXY(-0.02,0.1);
         speedoNeedle.addVertexXY(-0.005,-0.4);
         speedoNeedle.addVertexXY(0.005,-0.4);
@@ -141,10 +141,10 @@ class Drivey {
         return speedoNeedle;
     }
 
-    function makeSteeringWheelShape():Shape {
-        var steeringWheelShape:Shape = new Shape();
-        steeringWheelShape.makeCircle(new Vector2(0,0), 0.5);
-        steeringWheelShape.closePath();
+    function makeSteeringWheelForm():Form {
+        var steeringWheelForm:Form = new Form();
+        steeringWheelForm.makeCircle(new Vector2(0,0), 0.5);
+        steeringWheelForm.closePath();
         var n = 60;
         var points = [];
         for (i in 0...25) {
@@ -152,7 +152,7 @@ class Drivey {
             var mag = ((i & 1 != 0) ? 0.435: 0.45);
             points.push(new Vector2(Math.cos(theta), Math.sin(theta)) * mag);
         }
-        steeringWheelShape.addSplineCurve(points, true);
+        steeringWheelForm.addSplineCurve(points, true);
         points = [];
         for (i in 0...29) {
             var theta = (29-i) * 2 * Math.PI / n;
@@ -163,14 +163,14 @@ class Drivey {
         points.push(new Vector2(0.125, 0.2));
         points.push(new Vector2(-0.125, 0.2));
         points.push(new Vector2(-0.25, 0.075));
-        steeringWheelShape.addSplineCurve(points, true);
-        return steeringWheelShape;
+        steeringWheelForm.addSplineCurve(points, true);
+        return steeringWheelForm;
     }
 
-    function makeCarLights():Shape {
-        var carLights:Shape = new Shape();
+    function makeCarLights():Form {
+        var carLights:Form = new Form();
         carLights.init();
-        var sq:Shape = new Shape();
+        var sq:Form = new Form();
         sq.makeUnit();
         carLights.merge(sq);
         sq.move(new Vector2(3,0));
@@ -182,10 +182,10 @@ class Drivey {
         return carLights;
     }
 
-    function makeCarLightPaths():Shape {
-        var carLightPaths:Shape = new Shape();
+    function makeCarLightPaths():Form {
+        var carLightPaths:Form = new Form();
         carLightPaths.init();
-        var sq:Shape = new Shape();
+        var sq:Form = new Form();
         var points = [
             new Vector2( 0,   0),
             new Vector2(-6,  13),
@@ -202,23 +202,23 @@ class Drivey {
         return carLightPaths;
     }
 
-    function makeCarTailLightShape():Shape {
-        var carTailLightShape:Shape = new Shape();
-        carTailLightShape.init();
-        var sq:Shape = new Shape();
+    function makeCarTailLightForm():Form {
+        var carTailLightForm:Form = new Form();
+        carTailLightForm.init();
+        var sq:Form = new Form();
         sq.makeUnit();
-        carTailLightShape.merge(sq);
+        carTailLightForm.merge(sq);
         sq.move(new Vector2(3,0));
-        carTailLightShape.merge(sq);
-        carTailLightShape.boxFit();
-        carTailLightShape.recenter();
-        carTailLightShape.scale(new Vector2(2,0.05));
-        carTailLightShape.move(new Vector2(0,-2));
-        return carTailLightShape;
+        carTailLightForm.merge(sq);
+        carTailLightForm.boxFit();
+        carTailLightForm.recenter();
+        carTailLightForm.scale(new Vector2(2,0.05));
+        carTailLightForm.move(new Vector2(0,-2));
+        return carTailLightForm;
     }
 
-    function makeCarBodyBottom():Shape {
-        var carBodyBottom:Shape = new Shape();
+    function makeCarBodyBottom():Form {
+        var carBodyBottom:Form = new Form();
         carBodyBottom.init();
         carBodyBottom.makeUnit();
         carBodyBottom.boxFit();
@@ -227,8 +227,8 @@ class Drivey {
         return carBodyBottom;
     }
 
-    function makeCarBodyTop():Shape {
-        var carBodyTop:Shape = new Shape();
+    function makeCarBodyTop():Form {
+        var carBodyTop:Form = new Form();
         carBodyTop.init();
         carBodyTop.makeUnit();
         carBodyTop.boxFit();
@@ -243,10 +243,10 @@ class Drivey {
         var npcCar = new Car();
         other.push(npcCar);
         npcCar.roadDir = (other.length & 1 != 0) ? -1 : 1;
-        placeCar(npcCar, theRoad.getPath(0), Math.random());
+        placeCar(npcCar, theRoad.getChild(0), Math.random());
     }
 
-    function placeCar(car:Car, rd:Path, along:Float)
+    function placeCar(car:Car, rd:Form, along:Float)
     {
         var t = along * rd.length;
         var tan = !rd.getTangent(t);
@@ -263,7 +263,7 @@ class Drivey {
         car.lastVel = car.vel.clone();
     }
 
-    function autoDrive(car:Car, aroad:Path)
+    function autoDrive(car:Car, aroad:Form)
     {
         var dir = car.vel;
         if (dir.length() > 0) {
@@ -334,7 +334,7 @@ class Drivey {
 
         var center = new Vector2(screen.width * center.x, screen.height * center.y);
 
-        var sh:Shape = new Shape();
+        var sh:Form = new Form();
 
         sh.addVertex(new Vector2(1,0));
         sh.addVertex(new Vector2(1,1));
@@ -396,11 +396,11 @@ class Drivey {
             screen.rgb = (skyHigh + skyLow) * 0.5; // average the two
         }
 
-        screen.drawShape(sh);
+        screen.drawForm(sh);
         screen.cmd('pattern');
     }
 
-    function drawRoadShape(screen:Screen, sh:Shape, height:Float, extr:Float)
+    function drawRoadForm(screen:Screen, sh:Form, height:Float, extr:Float)
     {
         if (screen.height > 0) {
             screen.cmd('pattern');
@@ -462,28 +462,28 @@ class Drivey {
             sh.move(center);
         }
 
-        screen.drawShape(sh);
+        screen.drawForm(sh);
     }
 
-    function drawShapes(screen:Screen, shapes:Array<Shape>)
+    function drawForms(screen:Screen, forms:Array<Form>)
     {
-        for (shape in shapes)
+        for (form in forms)
         {
-            screen.rgb = shape.rgb;
-            screen.alpha = shape.alpha;
+            screen.rgb = form.rgb;
+            screen.alpha = form.alpha;
 
-            drawRoadShape(screen, shape, shape.height, shape.extrude);
+            drawRoadForm(screen, form, form.height, form.extrude);
         }
 
         screen.rgb = 1;
         screen.alpha = 1;
     }
 
-    function makeRoadLine(p:Path, xpos:Float, width:Float, dashOn:Float, dashOff:Float)
+    function makeRoadLine(p:Form, xpos:Float, width:Float, dashOn:Float, dashOff:Float)
     {
         var smooth = dashOn > 0;
         dashOn = abs(dashOn);
-        var sh:Shape = new Shape();
+        var sh:Form = new Form();
         var on = true;
         var begin:Float = 0;
         var end:Float = p.length;
@@ -513,7 +513,7 @@ class Drivey {
                 var x1 = p.getNormal(t1);
                 if (dashOn == 0)    // special case?
                 {
-                    var c:Shape = new Shape();
+                    var c:Form = new Form();
                     c.makeCircle(p0 + x0 * xpos, width);
                     sh.merge(c);
                 }
@@ -575,11 +575,11 @@ class Drivey {
         theRoad.scale(new Vector2(400,400));
         theRoad.recenter();
 
-        var p = theRoad.getPath(0);
+        var p = theRoad.getChild(0);
 
-        var newRoad:Array<Shape> = [];
+        var newRoad:Array<Form> = [];
 
-        var layer = new Shape();
+        var layer = new Form();
         newRoad.push(layer);
 
         tint = 0.5;
@@ -599,12 +599,12 @@ class Drivey {
             var lightColor = 1;
 
             // do white lines
-            var layer = new Shape();
+            var layer = new Form();
             newRoad.push(layer);
             layer.rgb = tarmac;
             layer.merge(makeRoadLine(p, 0, 7, 30, 0));
 
-            var layer = new Shape();
+            var layer = new Form();
             newRoad.push(layer);
             layer.rgb = whiteLines;
             layer.merge(makeRoadLine(p, -3.5, 0.2, 30, 2));
@@ -612,7 +612,7 @@ class Drivey {
             layer.merge(makeRoadLine(p, -0.15, 0.15, -4, 8));
 
             // do yellow lines
-            var layer = new Shape();
+            var layer = new Form();
             newRoad.push(layer);
             layer.rgb = yellowLines;
             layer.merge(makeRoadLine(p, 0.125, 0.125, 30, 0));
@@ -620,13 +620,13 @@ class Drivey {
             // do crossings
             if (true)
             {
-                var layer = new Shape();
+                var layer = new Form();
                 newRoad.push(layer);
                 layer.rgb = tarmac;
                 layer.merge(makeRoadLine(p, 0, 1, -2, 200));
                 layer.expand(1);
 
-                var layer = new Shape();
+                var layer = new Form();
                 newRoad.push(layer);
                 layer.rgb = whiteLines;
                 for (i in 0...6)
@@ -639,7 +639,7 @@ class Drivey {
             // do lights
             if (true)
             {
-                var layer = new Shape();
+                var layer = new Form();
                 newRoad.push(layer);
                 layer.rgb = lightColor;
 
@@ -651,7 +651,7 @@ class Drivey {
 
             if (true)   // walls
             {
-                var layer:Shape = new Shape();
+                var layer:Form = new Form();
                 layer.rgb = skyLow;
 
                 layer.height = 4;
@@ -685,14 +685,14 @@ class Drivey {
 
             if (true)   // sky ?
             {
-                var sh = new Shape();
+                var sh = new Form();
                 newRoad.push(sh);
                 sh.rgb = (skyLow + skyHigh) * 0.5;
                 sh.alpha = 1;
                 sh.height = 200;
                 for (i in 0...100)
                 {
-                    var sh2:Shape = new Shape();
+                    var sh2:Form = new Form();
                     var p = new Vector2(Math.random()-0.5, Math.random()-0.5);
                     if (p.length() > 0.5 || p.length() < 0.1) {
                         continue;
@@ -713,7 +713,7 @@ class Drivey {
             // do bg
             if (false)
             {
-                var sh = new Shape();
+                var sh = new Form();
                 newRoad.push(sh);
                 sh.rgb = ground;
                 sh.height = 50;
@@ -723,7 +723,7 @@ class Drivey {
                 
                 // do bg
                 
-                var sh = new Shape();
+                var sh = new Form();
                 newRoad.push(sh);
                 sh.rgb = ground;
                 sh.height = 70;
@@ -734,7 +734,7 @@ class Drivey {
 
                 // do bg
                 
-                var sh = new Shape();
+                var sh = new Form();
                 newRoad.push(sh);
                 sh.rgb = ground;
                 sh.height = 40;
@@ -745,7 +745,7 @@ class Drivey {
 
                 // do bg
                 
-                var sh = new Shape();
+                var sh = new Form();
                 newRoad.push(sh);
                 sh.rgb = ground;
                 sh.height = 20;
@@ -755,24 +755,24 @@ class Drivey {
             }
             else
             {
-                var box:Shape = new Shape();
+                var box:Form = new Form();
                 box.makeUnit();
                 box.recenter();
                 box.scaleUniform(40);
 
-                var l0:Shape = new Shape();
+                var l0:Form = new Form();
                 l0.rgb = obc;
                 l0.height = 15;
                 l0.extrude = l0.height;
-                var l1:Shape = new Shape();
+                var l1:Form = new Form();
                 l1.rgb = obc;
                 l1.height = 30;
                 l1.extrude = l1.height;
-                var l2:Shape = new Shape();
+                var l2:Form = new Form();
                 l2.rgb = obc;
                 l2.height = 50;
                 l2.extrude = l2.height;
-                var l3:Shape = new Shape();
+                var l3:Form = new Form();
                 l3.rgb = obc;
                 l3.height = 120;
                 l3.extrude = l3.height;
@@ -795,7 +795,7 @@ class Drivey {
                             continue;
                         }
 
-                        var s:Shape = box.clone();
+                        var s:Form = box.clone();
                         s.move(pos);
                         if (Math.random() > 0.8) {
                             l0.merge(s);
@@ -818,7 +818,7 @@ class Drivey {
             }
 
             
-            var sh = new Shape();
+            var sh = new Form();
             newRoad.push(sh);
             sh.rgb = obc;
             sh.extrude = 10;
@@ -829,7 +829,7 @@ class Drivey {
             sh.merge(makeRoadLine(p, 16, 0.2, -0.2, 300));
             theWalls.merge(sh);
             
-            var sh = new Shape();
+            var sh = new Form();
             newRoad.push(sh);
             sh.rgb = obc;
             sh.height = 14;
@@ -837,7 +837,7 @@ class Drivey {
             sh.merge(makeRoadLine(p, -14, 6, -0.2, 400));
             sh.merge(makeRoadLine(p, 14, 6, -0.2, 300));
             
-            var sh = new Shape();
+            var sh = new Form();
             newRoad.push(sh);
             sh.rgb = lines;
             sh.height = 0;
@@ -846,7 +846,7 @@ class Drivey {
             sh.merge(makeRoadLine(p, -6, 0.15, 30, 1));
             sh.merge(makeRoadLine(p, 6, 0.15, 30, 1));
             
-            var sh = new Shape();
+            var sh = new Form();
             newRoad.push(sh);
             sh.height = 0;
             sh.rgb = lines;
@@ -871,7 +871,7 @@ class Drivey {
             {
                 // very tall things
                 
-                var sh = new Shape();
+                var sh = new Form();
                 newRoad.push(sh);
                 sh.rgb = 1;
                 sh.height = 62;
@@ -881,7 +881,7 @@ class Drivey {
 
                 if (true)
                 {
-                    var layer = new Shape();
+                    var layer = new Form();
                     newRoad.push(layer);
                     layer.rgb = obc;
                     layer.height = 60;
@@ -893,7 +893,7 @@ class Drivey {
                 }
 
                 // medium buildings
-                var layer = new Shape();
+                var layer = new Form();
                 newRoad.push(layer);
                 layer.rgb = obc;
                 layer.height = 12;
@@ -911,7 +911,7 @@ class Drivey {
             // do white lines
             if (true)
             {
-                var sh = new Shape();
+                var sh = new Form();
                 newRoad.push(sh);
                 sh.rgb = lines;
                 sh.merge(makeRoadLine(p, -3.5, 0.15, 60, 2));
@@ -923,14 +923,14 @@ class Drivey {
                 if (true)
                 {
                     
-                    var sh = new Shape();
+                    var sh = new Form();
                     newRoad.push(sh);
                     sh.rgb = ground;
                     sh.merge(makeRoadLine(p, 0, 1, -2, 200));
                     sh.expand(1);
 
                     
-                    var sh = new Shape();
+                    var sh = new Form();
                     newRoad.push(sh);
                     sh.rgb = lines;
                     for (i in 0...6)
@@ -950,7 +950,7 @@ class Drivey {
                 var tall = 15;
 
                 
-                var sh = new Shape();
+                var sh = new Form();
                 newRoad.push(sh);
                 sh.rgb = obc;
                 sh.height = tall + thick;
@@ -958,7 +958,7 @@ class Drivey {
                 sh.merge(makeRoadLine(p, -5.6, 5, thick, left));
 
                 
-                var sh = new Shape();
+                var sh = new Form();
                 newRoad.push(sh);
                 sh.rgb = obc;
                 sh.height = tall;
@@ -967,7 +967,7 @@ class Drivey {
                 theWalls.merge(sh);
 
                 
-                var sh = new Shape();
+                var sh = new Form();
                 newRoad.push(sh);
                 sh.rgb = 1;
                 sh.height = tall;
@@ -984,7 +984,7 @@ class Drivey {
                 p2.scale(new Vector2(1,1.5));
 
                 
-                var sh = new Shape();
+                var sh = new Form();
                 newRoad.push(sh);
                 sh.rgb = obc;
                 sh.height = 12;
@@ -993,7 +993,7 @@ class Drivey {
                 sh.scale(new Vector2(1,1/1.5));
 
                 
-                var sh = new Shape();
+                var sh = new Form();
                 newRoad.push(sh);
                 sh.rgb = obc;
                 sh.height = 10;
@@ -1006,7 +1006,7 @@ class Drivey {
                 sh.merge(makeRoadLine(p2, 200, 242, -depth, spacing));
                 sh.scale(new Vector2(1,1/1.5));
 
-                var wall:Shape = makeRoadLine(p2, -10, 2, -depth, spacing);
+                var wall:Form = makeRoadLine(p2, -10, 2, -depth, spacing);
                 wall.merge(makeRoadLine(p2, 10, 2, -depth, spacing));
                 wall.scale(new Vector2(1,1/1.5));
                 theWalls.merge(wall);
@@ -1015,7 +1015,7 @@ class Drivey {
             // various poles
             if (true)
             {
-                var sh = new Shape();
+                var sh = new Form();
                 newRoad.push(sh);
                 sh.rgb = obc;
 
@@ -1034,7 +1034,7 @@ class Drivey {
 
                 // knobs
                 
-                var sh = new Shape();
+                var sh = new Form();
                 newRoad.push(sh);
                 sh.rgb = obc;
                 sh.height = 13;
@@ -1044,7 +1044,7 @@ class Drivey {
 
                 // wires
                 
-                var sh = new Shape();
+                var sh = new Form();
                 newRoad.push(sh);
                 sh.rgb = obc;
                 sh.height = 11.25;
@@ -1064,7 +1064,7 @@ class Drivey {
                 var dist = 25;
 
                 
-                var sh = new Shape();
+                var sh = new Form();
                 newRoad.push(sh);
                 sh.rgb = obc;
                 sh.height = tall;
@@ -1074,7 +1074,7 @@ class Drivey {
                 sh.merge(makeRoadLine(p, dist, 0.1, 0, spacing));
 
                 
-                var sh = new Shape();
+                var sh = new Form();
                 newRoad.push(sh);
                 sh.rgb = obc;
                 sh.height = tall-0.5;
@@ -1084,7 +1084,7 @@ class Drivey {
                 sh.merge(makeRoadLine(p, dist, 0.1, -spacing, 0));
 
                 
-                var sh = new Shape();
+                var sh = new Form();
                 newRoad.push(sh);
                 sh.rgb = obc;
                 sh.alpha = 0.25;
@@ -1116,7 +1116,7 @@ class Drivey {
             // posts
             if (true)
             {
-                var sh = new Shape();
+                var sh = new Form();
                 newRoad.push(sh);
                 sh.rgb = lines;
                 sh.height = 0.6;
@@ -1137,7 +1137,7 @@ class Drivey {
             newRoad[i].scale(scale);
         }
 
-        placeCar(user, theRoad.getPath(0), 0);
+        placeCar(user, theRoad.getChild(0), 0);
         other = [];
 
         return newRoad;
@@ -1366,7 +1366,7 @@ class Drivey {
         {
             auto = true;
             user.roadPos = 0;
-            placeCar(user, theRoad.getPath(0), 0);
+            placeCar(user, theRoad.getChild(0), 0);
             fade = 0;
             scr.showMessage('returned to road', false);
         }
@@ -1396,7 +1396,7 @@ class Drivey {
 
             if (auto)
             {
-                autoDrive(user, theRoad.getPath(0));
+                autoDrive(user, theRoad.getChild(0));
             }
             else
             {
@@ -1419,7 +1419,7 @@ class Drivey {
             user.advance(step);
             for (o in other)
             {
-                autoDrive(o, theRoad.getPath(0));
+                autoDrive(o, theRoad.getChild(0));
                 o.advance(step);
                 if (collisions)
                 {
@@ -1429,7 +1429,7 @@ class Drivey {
 
             if (collisions)
             {
-                user.collideWithShape(theWalls);
+                user.collideWithForm(theWalls);
             }
 
             tt -= timeSlice;
@@ -1459,15 +1459,15 @@ class Drivey {
         }
 
         // draw the road itself
-        drawShapes(scr, road);
+        drawForms(scr, road);
 
         // draw the road itself
 
-        var carBodiesTop:Shape = new Shape();
-        var carBodiesBottom:Shape = new Shape();
-        var cars:Shape = new Shape();
-        var lights:Shape = new Shape();
-        var lightPaths:Shape = new Shape();
+        var carBodiesTop:Form = new Form();
+        var carBodiesBottom:Form = new Form();
+        var cars:Form = new Form();
+        var lights:Form = new Form();
+        var lightPaths:Form = new Form();
 
         scr.rgb = 1;
         for (i in (project ? 0 : -1)...other.length)
@@ -1485,7 +1485,7 @@ class Drivey {
             }
             else
             {
-                var a = carTailLightShape;
+                var a = carTailLightForm;
                 a.rotate(-c.angle);
                 a.move(w2m(c.pos));
                 cars.merge(a);
@@ -1511,12 +1511,12 @@ class Drivey {
         {
             scr.rgb = ground; // black bodies
             scr.alpha = 1;
-            drawRoadShape(scr, carBodiesTop, 2, 1.75);
-            drawRoadShape(scr, carBodiesBottom, 0.25, -1.75);
+            drawRoadForm(scr, carBodiesTop, 2, 1.75);
+            drawRoadForm(scr, carBodiesBottom, 0.25, -1.75);
 
             scr.rgb = 0.6; // tail light?
             scr.alpha = 1;
-            drawRoadShape(scr, cars, 0.75, 0.2);
+            drawRoadForm(scr, cars, 0.75, 0.2);
 
             scr.alpha = 1;
 
@@ -1524,7 +1524,7 @@ class Drivey {
             scr.alpha = 1;
 
             scr.alpha = 1;
-            drawRoadShape(scr, lights, 1, 0.3);
+            drawRoadForm(scr, lights, 1, 0.3);
         }
 
         if (project && showDashboard && !rearView)    // draw controls
@@ -1539,31 +1539,31 @@ class Drivey {
             var shadow:Color = 0;
 
             var thick = lineThickness * 4;
-            var sh:Shape = new Shape();
+            var sh:Form = new Form();
             sh.makeCircle(new Vector2(0,0), 1);
             sh.scale(new Vector2(1.2,0.3) * dwidth);
             sh.move(new Vector2(dwidth * (laneOffset < 0 ? 0.2 : 0.8), dheight * 1.05));
             scr.rgb = fill;
 
-            scr.drawShape(sh);
+            scr.drawForm(sh);
             scr.cmd('pattern');
 
             sh.outline(thick);
             scr.rgb = line;
-            scr.drawShape(sh);
+            scr.drawForm(sh);
 
             // do speedo
             scr.rgb = line;
 
-            var sh = speedoShape;
+            var sh = speedoForm;
             sh.scale(new Vector2(1,1) * dwidth * 0.2);
             sh.move(new Vector2(dwidth * (laneOffset < 0 ? 0.325 : 0.675), dheight * 0.875));
-            scr.drawShape(sh);
+            scr.drawForm(sh);
 
-            var sh = speedoShape;
+            var sh = speedoForm;
             sh.scale(new Vector2(1,1) * dwidth * 0.2);
             sh.move(new Vector2(dwidth * (laneOffset < 0 ? 0.1 : 0.9), dheight * 0.875));
-            scr.drawShape(sh);
+            scr.drawForm(sh);
 
             var speed:Float = user.vel.length() / 1000 * 3600;
             speed = lerp(-Math.PI * 0.8, Math.PI * 0.8, min(speed/400, 1));
@@ -1572,7 +1572,7 @@ class Drivey {
             sh.rotate(speed);
             sh.move(new Vector2(dwidth * (laneOffset < 0 ? 0.325 : 0.675), dheight * 0.875));
             scr.rgb = line;
-            scr.drawShape(sh);
+            scr.drawForm(sh);
 
             var speed:Float = frameRate;
             speed = lerp(-Math.PI * 0.8, Math.PI * 0.8, min(speed/80, 1));
@@ -1581,10 +1581,10 @@ class Drivey {
             sh.rotate(speed);
             sh.move(new Vector2(dwidth * (laneOffset < 0 ? 0.1 : 0.9), dheight * 0.875));
             scr.rgb = line;
-            scr.drawShape(sh);
+            scr.drawForm(sh);
 
             // do steeringwheel
-            var sh = steeringWheelShape;
+            var sh = steeringWheelForm;
             sh.rotate(user.steerPos * 50);
             sh.scale(new Vector2(1,1) * dwidth * 0.9);
             sh.move(new Vector2(dwidth * (laneOffset < 0 ? 0.2 : 0.8), dheight * 1.1));
@@ -1596,27 +1596,27 @@ class Drivey {
                 s2.expand(-thick*0.5);
                 sh.expand(thick*0.5);
                 scr.rgb = line;
-                scr.drawShape(sh);
+                scr.drawForm(sh);
                 if (shadow != fill)
                 {
                     scr.rgb = shadow;
                     sh.scale(new Vector2(1.1,1.3));
                     scr.alpha = 0.25;
-                    scr.drawShape(sh);
+                    scr.drawForm(sh);
                     scr.alpha = 1;
                 }
 
                 scr.rgb = fill;
-                scr.drawShape(s2);
+                scr.drawForm(s2);
             }
             else
             {
                 scr.rgb = fill;
-                scr.drawShape(sh);
+                scr.drawForm(sh);
 
                 sh.outline(thick);
                 scr.rgb = line;
-                scr.drawShape(sh);
+                scr.drawForm(sh);
             }
             scr.alpha = 1;
 
