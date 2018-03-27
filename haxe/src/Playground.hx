@@ -12,6 +12,7 @@ import js.three.Path;
 import js.three.Shape;
 import js.three.ShapeBufferGeometry;
 import js.three.Vector2;
+import js.three.Vector3;
 import js.three.Vector;
 import js.three.CatmullRomCurve3;
 
@@ -46,13 +47,74 @@ class Playground
             mesh.position.set(x, y, z);
             group.add( mesh );
         }
-        
-        addShape( expandShape(makeSteeringWheelShape(), 6, 250),     2, 240, 0x333333, 0, 0,    0);
-        addShape( expandShape(makeSteeringWheelShape(), 3, 250),     6, 240, 0x000000, 0, 0, -1.5);
+
+        /*
+        var roadShape = makeRoadShape();
+
+        addShape(makeRoadLineShape(roadShape,  0.5,  1.5, 0, 0.5, 250), 0, 250, 0xFFFF00, 0, 0, 0);
+        addShape(makeRoadLineShape(roadShape, -0.5, -1.5, 0, 0.5, 250), 0, 250, 0xFFFF00, 0, 0, 0);
+        for (i in 0...100) {
+            addShape(makeRoadLineShape(roadShape, -2.5, -3.5, i / 100, (i + 0.5) / 100, 250), 0, 3, 0xFFFF00, 0, 0, 0);
+        }
+        */
+
+        /*
+        var wheel = makeSteeringWheelShape();
+        addShape( expandShape(wheel, 6, 250),     2, 240, 0x333333, 0, 0,    0);
+        addShape( expandShape(wheel, 3, 250),     6, 240, 0x000000, 0, 0, -1.5);
+        */
 
         // addShape( makeHeadlightShape(), 1, 30, 0xFFFFFF, 0, 0, 0);
     }
 
+    function makeRoadLineShape(roadShape:Curve<Vector2>, offset1:Float, offset2:Float, start:Float, end:Float, divisions:UInt):Shape {
+        if (offset1 > offset2) {
+            var temp = offset2;
+            offset2 = offset1;
+            offset1 = temp;
+        }
+
+        var roadLine:Shape = new Shape();
+
+        if (start == end) {
+            return roadLine;
+        }
+        
+        var side1:Array<Vector2> = [];
+        var side2:Array<Vector2> = [];
+        var diff = 1 / divisions;
+        var i = start;
+        while (i < end) {
+            side1.push(cast getExtrudedPointAt(roadShape, i, offset1));
+            side2.push(cast getExtrudedPointAt(roadShape, i, offset2));
+            i += diff;
+        }
+        side1.push(cast getExtrudedPointAt(roadShape, end, offset1));
+        side2.push(cast getExtrudedPointAt(roadShape, end, offset2));
+        
+
+        if (start == 0 && end == 1) {
+            roadLine.moveTo(side1[side1.length - 1].x, side1[side1.length - 1].y);
+            for (point in side1) roadLine.lineTo(point.x, point.y);
+            roadLine.lineTo(side1[side1.length - 1].x, side1[side1.length - 1].y);
+            
+            var hole = new Shape();
+            hole.moveTo(side2[side2.length - 1].x, side2[side2.length - 1].y);
+            for (point in side2) hole.lineTo(point.x, point.y);
+            hole.lineTo(side2[side2.length - 1].x, side2[side2.length - 1].y);
+
+            roadLine.holes.push(hole);
+        } else {
+            side2.reverse();
+            var points = side1.concat(side2);
+            roadLine.moveTo(points[points.length - 1].x, points[points.length - 1].y);
+            for (point in points) roadLine.lineTo(point.x, point.y);
+        }
+
+        return roadLine;
+    }
+
+    /*
     function makeSquareShape() {
         var sqLength = 80;
         var squareShape:Shape = new Shape();
@@ -72,6 +134,7 @@ class Playground
         donutShape.holes.push( holePath );
         return donutShape;
     }
+    */
 
     function makeRoadShape() {
 
@@ -145,20 +208,8 @@ class Playground
 
     function expandShape(shape:Shape, thickness:Float, divisions:UInt):Shape {
         function expandCurve(source:Curve<Vector2>, isHole:Bool):Shape {
-            var points:Array<Vector2> = [];
-            for (i in 0...divisions) {
-                var t:Float = i / divisions;
-                var pos:Vector2 = source.getPoint(t);
-                var bump:Vector2 = source.getTangent(t);
-                // [bump.x, bump.y] = [-bump.y, bump.x];
-                var temp = bump.x;
-                bump.x = -bump.y;
-                bump.y = temp;
-                if (isHole) bump.negate();
-                bump.multiplyScalar(thickness / 2);
-                points.push(cast pos.clone().add(bump));
-            }
-
+            var mult = (isHole ? -1 : 1) * thickness / 2;
+            var points:Array<Vector2> = [for (i in 0...divisions) cast getExtrudedPointAt(source, i / divisions, mult)];
             var curve:Shape = new Shape();
             curve.moveTo(points[divisions - 1].x, points[divisions - 1].y);
             for (point in points) curve.lineTo(point.x, point.y);
@@ -170,9 +221,18 @@ class Playground
         return expansion;
     }
 
+    function getExtrudedPointAt(source:Curve<Vector2>, t:Float, offset:Float):Vector2 {
+        while (t < 0) t++;
+        while (t > 1) t--;
+        var tangent:Vector2 = source.getTangent(t);
+        return cast source.getPoint(t).add(new Vector2(-tangent.y * offset, tangent.x * offset));
+    }
+
     function update() {
+        // group.rotation.z += 0.005;
+        // group.rotation.x += 0.025;
         group.rotation.z = Math.PI + Math.sin(haxe.Timer.stamp()) / 2;
-        //group.rotation.x += 0.025;
+        
         screen.clear();
         screen.drawObject(group);
         group.position.z = -300;

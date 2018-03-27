@@ -1,16 +1,15 @@
 Three.js
 
+    Merge Path and Shape, why not
+        Just try it
+
     Playground
-        Road lines
-            base it on t
-                getPoint and getTangent create basis for plane
-            Dashed lines
-            Merged
+        Place objects on road
+            Lampposts are placed on road at offset
         Car
             Scaled extruded unit squares
             headlights
             tail lights
-            cloning, or cloning Object3D of
         Dashboard
             Attached to camera
         Gradient skybox
@@ -19,9 +18,6 @@ Three.js
 
     Build scene graph once
         Other cars are cloned from car template
-
-    Move Path over to Three.js Path or Shape
-    Move Shape over to Three.js ExtrudeGeometry
 
     Camera
         Replace all that projection stuff
