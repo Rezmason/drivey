@@ -3,7 +3,6 @@ Three.js
     Form should use ShapePath
 
     Playground
-        ShapePath dammit
         Place objects on road
             Lampposts are placed on road at offset
         Car
