@@ -5,7 +5,7 @@ import js.html.*;
 @:native("THREE.ShapeGeometry")
 extern class ShapeGeometry extends Geometry
 {
-	@:overload(function(shape:Shape,?options:Dynamic):Void{})
+	@:overload(function(shape:haxe.extern.EitherType<Shape, Array<Shape>>,?options:Dynamic):Void{})
 	@:overload(function():Void{})
 	function new() : Void;
 	@:overload(function(shapes:Array<Shape>,?options:Dynamic):Void{})
