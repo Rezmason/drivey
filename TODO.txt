@@ -18,6 +18,9 @@ Three.js
     Build scene graph once
         Other cars are cloned from car template
 
+    They say to merge all the geometry you can
+        Backgrounds, meshes that don't move but have the same material
+
     Camera
         Replace all that projection stuff
         Plug into tilt,pitch,zoom

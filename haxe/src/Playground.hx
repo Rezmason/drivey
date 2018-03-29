@@ -47,53 +47,62 @@ class Playground
             group.add(mesh);
         }
 
-
         var roadPath = makeRoadPath();
 
-        addMesh(drawRoadLine(roadPath, new ShapePath(),  0.5,  1.5, 0, 0.5, 250), 0, 250, 0xFFFF00, 0, 0, 0);
-        addMesh(drawRoadLine(roadPath, new ShapePath(), -0.5, -1.5, 0, 0.5, 250), 0, 250, 0xFFFF00, 0, 0, 0);
+        var roadStripes = new ShapePath();
+        merge(roadStripes, drawRoadLine(roadPath, new ShapePath(),  1,  1, 0, 1, 250));
+        merge(roadStripes, drawRoadLine(roadPath, new ShapePath(), -1,  1, 0, 0.5, 250));
+        addMesh(roadStripes, 0, 250, 0xFF8000, 0, 0, 0);
+
         var dashedLine = new ShapePath();
-        for (i in 0...100) {
-            drawRoadLine(roadPath, dashedLine, -2.5, -3.5, i / 100, (i + 0.5) / 100, 250);
-        }
+        for (i in 0...100) drawRoadLine(roadPath, dashedLine, -3, 1, i / 100, (i + 0.5) / 100, 250);
+        merge(roadStripes, dashedLine);
         addMesh(dashedLine, 0, 3, 0xFFFF00, 0, 0, 0);
 
+        /*
         var wheel = makeSteeringWheel();
         addMesh(expandShapePath(wheel, 6, 250),     2, 240, 0x333333, 0, 0,    0);
         addMesh(expandShapePath(wheel, 3, 250),     6, 240, 0x000000, 0, 0, -1.5);
+        /**/
         
-        // addMesh([makeHeadlightPath()], 1, 30, 0xFFFFFF, 0, 0, 0);
+        /*
+        var headlight = new ShapePath();
+        headlight.subPaths.push(makeHeadlightPath());
+        addMesh(headlight, 1, 30, 0xFFFFFF, 0, 0, 0);
+        /**/
     }
 
-    function drawRoadLine(roadPath:Path, form:ShapePath, offset1:Float, offset2:Float, start:Float, end:Float, divisions:UInt):ShapePath {
-        if (offset1 > offset2) {
-            var temp = offset2;
-            offset2 = offset1;
-            offset1 = temp;
-        }
+    function merge(shapePath:ShapePath, other:ShapePath) {
+        for (path in other.subPaths) shapePath.subPaths.push(path.clone());
+    }
+
+    function drawRoadLine(roadPath:Path, form:ShapePath, xPos:Float, width:Float, start:Float, end:Float, divisions:UInt):ShapePath {
+        width = Math.abs(width);
+        var outsideOffset = xPos - width / 2;
+        var insideOffset = xPos + width / 2;
 
         if (start == end) {
             return form;
         }
         
-        var side1:Array<Vector2> = [];
-        var side2:Array<Vector2> = [];
+        var outsidePoints:Array<Vector2> = [];
+        var insidePoints:Array<Vector2> = [];
         var diff = 1 / divisions;
         var i = start;
         while (i < end) {
-            side1.push(cast getExtrudedPointAt(roadPath, i, offset1));
-            side2.push(cast getExtrudedPointAt(roadPath, i, offset2));
+            outsidePoints.push(cast getExtrudedPointAt(roadPath, i, outsideOffset));
+            insidePoints.push(cast getExtrudedPointAt(roadPath, i, insideOffset));
             i += diff;
         }
-        side1.push(cast getExtrudedPointAt(roadPath, end, offset1));
-        side2.push(cast getExtrudedPointAt(roadPath, end, offset2));
-        side2.reverse();
-
+        outsidePoints.push(cast getExtrudedPointAt(roadPath, end, outsideOffset));
+        insidePoints.push(cast getExtrudedPointAt(roadPath, end, insideOffset));
+        outsidePoints.reverse();
+        
         if (start == 0 && end == 1) {
-            form.subPaths.push(makePolygonPath(side1));
-            form.subPaths.push(makePolygonPath(side2));
+            form.subPaths.push(makePolygonPath(outsidePoints));
+            form.subPaths.push(makePolygonPath(insidePoints));
         } else {
-            form.subPaths.push(makePolygonPath(side1.concat(side2)));
+            form.subPaths.push(makePolygonPath(outsidePoints.concat(insidePoints)));
         }
 
         return form;
@@ -164,7 +173,9 @@ class Playground
     }
 
     function makeSplinePath(pts:Array<Vector2>, closed:Bool):Path {
-        return cast new CatmullRomCurve3([for (pt in pts) new js.three.Vector3(pt.x, pt.y)], closed);
+        var spline:Path = new Path();
+        spline.curves.push(cast new CatmullRomCurve3([for (pt in pts) new js.three.Vector3(pt.x, pt.y)], closed));
+        return spline;
     }
 
     function makeCirclePath(radius:Float):Path {
