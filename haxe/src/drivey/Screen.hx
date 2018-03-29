@@ -5,6 +5,7 @@ import js.html.Element;
 import js.html.KeyboardEvent;
 
 import js.three.Object3D;
+import js.three.Group;
 import js.three.PerspectiveCamera;
 import js.three.OrthographicCamera;
 import js.three.Scene;
@@ -20,6 +21,7 @@ class Screen {
 
     var element:Element;
     var camera:PerspectiveCamera;
+    var cockpit:Object3D;
     var orthoCamera:OrthographicCamera;
     var scene:Scene;
     var renderer:WebGLRenderer;
@@ -39,7 +41,9 @@ class Screen {
         scene = new Scene();
 
         camera = new PerspectiveCamera( 50, 1, 1, 1000 );
-        scene.add( camera );
+        cockpit = new Group();
+        cockpit.add(camera);
+        scene.add( cockpit );
         orthoCamera = new OrthographicCamera(0, 0, 0, 0, 1, 1000);
         renderer = new WebGLRenderer( { antialias: true } );
         renderer.setPixelRatio( Browser.window.devicePixelRatio );
@@ -123,6 +127,12 @@ class Screen {
     public function drawObject(object:Object3D) {
         if (object.parent != scene) {
             scene.add(object);
+        }
+    }
+
+    public function drawCockpitObject(object:Object3D) {
+        if (object.parent != cockpit) {
+            cockpit.add(object);
         }
     }
 

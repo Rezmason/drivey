@@ -20,6 +20,8 @@ import js.three.Vector;
 class Playground
 {
     var group:Group;
+    var dashboard:Group;
+    var wheel:Group;
     var screen:Screen;
 
     public static function run(screen:Screen)
@@ -39,40 +41,46 @@ class Playground
         group.position.z = -100;
         group.rotation.x = -Math.PI / 8;
         
-        function addMesh( shapePath:ShapePath, amount:Float, curveSegments:UInt, color, x, y, z) {
-            var material = new MeshBasicMaterial( { wireframe: false, color: color } );
-            var geometry = new ExtrudeGeometry(shapePath.toShapes(false, false), {amount:amount, bevelEnabled:false, curveSegments:curveSegments});
-            var mesh = new Mesh( geometry, material );
-            mesh.position.set(x, y, z);
-            group.add(mesh);
-        }
+        dashboard = new Group();
 
         var roadPath = makeRoadPath();
 
         var roadStripes = new ShapePath();
-        merge(roadStripes, drawRoadLine(roadPath, new ShapePath(),  1,  1, 0, 1, 250));
-        merge(roadStripes, drawRoadLine(roadPath, new ShapePath(), -1,  1, 0, 0.5, 250));
-        addMesh(roadStripes, 0, 250, 0xFF8000, 0, 0, 0);
+        mergeShapePaths(roadStripes, drawRoadLine(roadPath, new ShapePath(),  1,  1, 0, 1, 250));
+        mergeShapePaths(roadStripes, drawRoadLine(roadPath, new ShapePath(), -1,  1, 0, 0.5, 250));
+        group.add(makeMesh(roadStripes, 0, 250, 0xFF8000));
 
         var dashedLine = new ShapePath();
         for (i in 0...100) drawRoadLine(roadPath, dashedLine, -3, 1, i / 100, (i + 0.5) / 100, 250);
-        merge(roadStripes, dashedLine);
-        addMesh(dashedLine, 0, 3, 0xFFFF00, 0, 0, 0);
+        mergeShapePaths(roadStripes, dashedLine);
+        group.add(makeMesh(dashedLine, 0, 3, 0xFFFF00));
 
-        /*
-        var wheel = makeSteeringWheel();
-        addMesh(expandShapePath(wheel, 6, 250),     2, 240, 0x333333, 0, 0,    0);
-        addMesh(expandShapePath(wheel, 3, 250),     6, 240, 0x000000, 0, 0, -1.5);
-        /**/
+        var wheelPath = makeSteeringWheel();
+        wheel = new Group();
+        var wheelEdge = makeMesh(expandShapePath(wheelPath, 4, 250), 0, 240, 0x333333);
+        var wheelFill = makeMesh(expandShapePath(wheelPath, 1, 250), 0, 240, 0x000000);
+        wheelFill.position.z = 1;
+        wheel.add(wheelEdge);
+        wheel.add(wheelFill);
+        wheel.position.set(-30, -50, 0);
+        dashboard.add(wheel);
+        dashboard.position.z = -100;
         
         /*
         var headlight = new ShapePath();
         headlight.subPaths.push(makeHeadlightPath());
-        addMesh(headlight, 1, 30, 0xFFFFFF, 0, 0, 0);
+        group.add(makeMesh(headlight, 1, 30, 0xFFFFFF));
         /**/
     }
 
-    function merge(shapePath:ShapePath, other:ShapePath) {
+    function makeMesh(shapePath:ShapePath, amount:Float, curveSegments:UInt, color = 0xFFFFFF) {
+        return new Mesh(
+            new ExtrudeGeometry(shapePath.toShapes(false, false), {amount:amount, bevelEnabled:false, curveSegments:curveSegments}),
+            new MeshBasicMaterial( { wireframe: false, color: color } )
+        );
+    }
+
+    function mergeShapePaths(shapePath:ShapePath, other:ShapePath) {
         for (path in other.subPaths) shapePath.subPaths.push(path.clone());
     }
 
@@ -136,7 +144,7 @@ class Playground
     }
 
     function makeSteeringWheel() {
-        var scale = 200;
+        var scale = 90;
 
         var form:ShapePath = new ShapePath();
 
@@ -204,12 +212,13 @@ class Playground
     }
 
     function update() {
-        // group.rotation.z += 0.005;
-        // group.rotation.x += 0.025;
-        group.rotation.z = Math.PI + Math.sin(haxe.Timer.stamp()) / 2;
+        group.rotation.z += 0.005;
+        wheel.rotation.z = Math.PI + Math.sin(haxe.Timer.stamp()) / 2;
         
         screen.clear();
         screen.drawObject(group);
+        screen.drawCockpitObject(dashboard);
         group.position.z = -300;
+        group.rotation.x = -0.4 * Math.PI;
     }
 }

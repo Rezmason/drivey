@@ -7,14 +7,15 @@ Three.js
         Can a form specify no color, so that it's inherited from a parent?
 
     Playground
+        Dashboard
+            Backing
+            Speedometers
         Place objects on road
             Lampposts are placed on road at offset
         Car
             Scaled extruded unit squares
             headlights
             tail lights
-        Dashboard
-            Attached to camera
         Gradient skybox
             Attached to camera
         Tinted background
