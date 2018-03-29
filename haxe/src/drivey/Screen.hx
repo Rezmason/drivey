@@ -14,8 +14,6 @@ using Lambda;
 
 class Screen {
 
-    public var rgb:Color = 1;
-    public var alpha:Float = 1;
     public var width(get, never):UInt;
     public var height(get, never):UInt;
     public var bg(get, set):Color;

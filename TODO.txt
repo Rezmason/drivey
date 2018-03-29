@@ -2,6 +2,10 @@ Three.js
 
     Form should use ShapePath
 
+    Merging is more complicated than it seemed
+        If two forms specify a height, does merging them preserve that difference? What about color?
+        Can a form specify no color, so that it's inherited from a parent?
+
     Playground
         Place objects on road
             Lampposts are placed on road at offset

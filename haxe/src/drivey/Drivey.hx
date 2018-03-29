@@ -14,7 +14,6 @@ class Drivey {
     var ground:Color = new Color();
     
     var auto:Bool = true;
-    var blur:Bool = false;
     var center:Vector2 = new Vector2(0.5, 0.3);
     var collisions:Bool = true;
     var cycle:Bool = false;
@@ -323,8 +322,8 @@ class Drivey {
 
     function drawBackground(screen:Screen)
     {
-        screen.alpha = 1;
-        screen.bg = ground;
+        // screen.alpha = 1;
+        // screen.bg = ground;
         screen.clear();
 
         if (!project)
@@ -387,13 +386,13 @@ class Drivey {
         sh.move(center);
 
         screen.bg = skyHigh;
-        screen.rgb = skyLow;
+        // screen.rgb = skyLow;
 
         if (gradient)
         {
             screen.cmd('pattern gradient linear power ${skyGradient} org ${gradOrg.x} ${gradOrg.y} dx ${gradTop.x} ${gradTop.y}');
         } else {
-            screen.rgb = (skyHigh + skyLow) * 0.5; // average the two
+            // screen.rgb = (skyHigh + skyLow) * 0.5; // average the two
         }
 
         screen.drawForm(sh);
@@ -469,14 +468,14 @@ class Drivey {
     {
         for (form in forms)
         {
-            screen.rgb = form.rgb;
-            screen.alpha = form.alpha;
+            // screen.rgb = form.rgb;
+            // screen.alpha = form.alpha;
 
             drawRoadForm(screen, form, form.height, form.extrude);
         }
 
-        screen.rgb = 1;
-        screen.alpha = 1;
+        // screen.rgb = 1;
+        // screen.alpha = 1;
     }
 
     function makeRoadLine(p:Form, xpos:Float, width:Float, dashOn:Float, dashOff:Float)
@@ -1469,7 +1468,7 @@ class Drivey {
         var lights:Form = new Form();
         var lightPaths:Form = new Form();
 
-        scr.rgb = 1;
+        // scr.rgb = 1;
         for (i in (project ? 0 : -1)...other.length)
         {
             var c = i < 0 ? user : other[i];
@@ -1509,21 +1508,21 @@ class Drivey {
 
         if (true)
         {
-            scr.rgb = ground; // black bodies
-            scr.alpha = 1;
+            // scr.rgb = ground; // black bodies
+            // scr.alpha = 1;
             drawRoadForm(scr, carBodiesTop, 2, 1.75);
             drawRoadForm(scr, carBodiesBottom, 0.25, -1.75);
 
-            scr.rgb = 0.6; // tail light?
-            scr.alpha = 1;
+            // scr.rgb = 0.6; // tail light?
+            // scr.alpha = 1;
             drawRoadForm(scr, cars, 0.75, 0.2);
 
-            scr.alpha = 1;
+            // scr.alpha = 1;
 
-            scr.rgb = 1.0; // head light?
-            scr.alpha = 1;
+            // scr.rgb = 1.0; // head light?
+            // scr.alpha = 1;
 
-            scr.alpha = 1;
+            // scr.alpha = 1;
             drawRoadForm(scr, lights, 1, 0.3);
         }
 
@@ -1532,7 +1531,7 @@ class Drivey {
             var dwidth = scr.width;
             var dheight = scr.height;
 
-            scr.alpha = 1;
+            // scr.alpha = 1;
 
             var fill:Color = 0;
             var line:Color = 0.2;
@@ -1543,17 +1542,17 @@ class Drivey {
             sh.makeCircle(new Vector2(0,0), 1);
             sh.scale(new Vector2(1.2,0.3) * dwidth);
             sh.move(new Vector2(dwidth * (laneOffset < 0 ? 0.2 : 0.8), dheight * 1.05));
-            scr.rgb = fill;
+            // scr.rgb = fill;
 
             scr.drawForm(sh);
             scr.cmd('pattern');
 
             sh.outline(thick);
-            scr.rgb = line;
+            // scr.rgb = line;
             scr.drawForm(sh);
 
             // do speedo
-            scr.rgb = line;
+            // scr.rgb = line;
 
             var sh = speedoForm;
             sh.scale(new Vector2(1,1) * dwidth * 0.2);
@@ -1571,7 +1570,7 @@ class Drivey {
             sh.scale(new Vector2(1,1) * dwidth * 0.2);
             sh.rotate(speed);
             sh.move(new Vector2(dwidth * (laneOffset < 0 ? 0.325 : 0.675), dheight * 0.875));
-            scr.rgb = line;
+            // scr.rgb = line;
             scr.drawForm(sh);
 
             var speed:Float = frameRate;
@@ -1580,7 +1579,7 @@ class Drivey {
             sh.scale(new Vector2(1,1) * dwidth * 0.2);
             sh.rotate(speed);
             sh.move(new Vector2(dwidth * (laneOffset < 0 ? 0.1 : 0.9), dheight * 0.875));
-            scr.rgb = line;
+            // scr.rgb = line;
             scr.drawForm(sh);
 
             // do steeringwheel
@@ -1590,41 +1589,36 @@ class Drivey {
             sh.move(new Vector2(dwidth * (laneOffset < 0 ? 0.2 : 0.8), dheight * 1.1));
             if (true)
             {
-                scr.rgb = line;
+                // scr.rgb = line;
                 var s2 = sh;
                 s2.move(new Vector2(0, -thick*0.5));
                 s2.expand(-thick*0.5);
                 sh.expand(thick*0.5);
-                scr.rgb = line;
+                // scr.rgb = line;
                 scr.drawForm(sh);
                 if (shadow != fill)
                 {
-                    scr.rgb = shadow;
+                    // scr.rgb = shadow;
                     sh.scale(new Vector2(1.1,1.3));
-                    scr.alpha = 0.25;
+                    // scr.alpha = 0.25;
                     scr.drawForm(sh);
-                    scr.alpha = 1;
+                    // scr.alpha = 1;
                 }
 
-                scr.rgb = fill;
+                // scr.rgb = fill;
                 scr.drawForm(s2);
             }
             else
             {
-                scr.rgb = fill;
+                // scr.rgb = fill;
                 scr.drawForm(sh);
 
                 sh.outline(thick);
-                scr.rgb = line;
+                // scr.rgb = line;
                 scr.drawForm(sh);
             }
-            scr.alpha = 1;
+            // scr.alpha = 1;
 
-        }
-
-        if (blur)
-        {
-            scr.cmd('blur x3 y3');
         }
 
         g_frameInterval = lerp(g_frameInterval, period, 0.01);
@@ -1639,10 +1633,6 @@ class Drivey {
         }
         else
         {
-            var fw:Color = 0 * fade;
-            var fl:Color = tint * fade;
-            var fh:Color = 1 * fade;
-
             if (fade < 1)
             {
                 fade = lerp(1, fade, 0.8/Math.pow(2, period));
@@ -1653,10 +1643,7 @@ class Drivey {
                 fade = 1;
             }
 
-            scr.cmd('tint lo 0 hi 255 #$fw #$fl #$fh');
-
+            scr.setTint(0, tint * fade, fade);
         }
-
-        // win.paint();
     }
 }
