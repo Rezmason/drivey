@@ -10,6 +10,7 @@ Three.js
         Dashboard
             Backing
             Speedometers
+            Left-right switch
         Vertex shader tinting
         Background tinting
         Car
@@ -43,3 +44,5 @@ Optimization
     Use the profiler to find bottlenecks
 
 Am I doing splines right?
+
+Pixelation exploration

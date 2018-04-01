@@ -19,6 +19,9 @@ class Screen {
     public var height(get, never):UInt;
     public var bg(get, set):Color;
 
+    public var downscale:UInt = 1;
+    public var antialias:Bool = true;
+
     var element:Element;
     public var camera(default, null):PerspectiveCamera;
     public var orthoCamera(default, null):OrthographicCamera;
@@ -51,6 +54,7 @@ class Screen {
         onWindowResize();
         
         element.appendChild(renderer.domElement);
+        renderer.domElement.id = 'renderer';
 
         messageBox = Browser.document.createElement( 'div' );
         messageBox.id = 'messageBox';
@@ -73,7 +77,9 @@ class Screen {
         orthoCamera.bottom = -100 / 2;
         orthoCamera.updateProjectionMatrix();
 
-        renderer.setSize( width, height );
+        renderer.setSize( width / downscale, height / downscale );
+        renderer.domElement.style.width = '100%';
+        renderer.domElement.style.height = '100%';
     }
 
     function animate() {
