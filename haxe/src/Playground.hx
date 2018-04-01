@@ -16,11 +16,14 @@ import js.three.ShapeBufferGeometry;
 import js.three.Vector2;
 import js.three.Vector3;
 import js.three.Vector;
+import js.three.SphereGeometry;
+import js.three.Color;
 
 class Playground
 {
-    var group:Group;
+    var world:Group;
     var dashboard:Group;
+    var skybox:Group;
     var wheel:Group;
     var screen:Screen;
 
@@ -37,40 +40,96 @@ class Playground
     }
 
     function init() {
-        group = new Group();
-        group.position.z = -100;
-        group.rotation.x = -Math.PI / 8;
+        world = new Group();
+        world.position.z = -100;
+        world.rotation.x = -Math.PI / 8;
         
         dashboard = new Group();
+        skybox = new Group();
+        skybox.add(makeSky());
+
+        var cockpit:Group = new Group();
+        cockpit.add(skybox);
+        cockpit.add(dashboard);
+        cockpit.add(screen.camera);
+        screen.scene.add(cockpit); // For now
+
+        screen.scene.add(world);
 
         var roadPath = makeRoadPath();
 
         var roadStripes = new ShapePath();
-        mergeShapePaths(roadStripes, drawRoadLine(roadPath, new ShapePath(),  1,  1, 0, 1, 250));
-        mergeShapePaths(roadStripes, drawRoadLine(roadPath, new ShapePath(), -1,  1, 0, 0.5, 250));
-        group.add(makeMesh(roadStripes, 0, 250, 0xFF8000));
+        mergeShapePaths(roadStripes, drawRoadLine(roadPath, new ShapePath(),  10,  1, 0, 1.0, 250));
+        mergeShapePaths(roadStripes, drawRoadLine(roadPath, new ShapePath(), -10,  1, 0, 0.5, 250));
+        world.add(makeMesh(roadStripes, 0, 250, 0xFF8000));
 
         var dashedLine = new ShapePath();
-        for (i in 0...100) drawRoadLine(roadPath, dashedLine, -3, 1, i / 100, (i + 0.5) / 100, 250);
+        for (i in 0...50) drawRoadLine(roadPath, dashedLine, 0, 1, i / 50, (i + 0.7) / 50, 250);
         mergeShapePaths(roadStripes, dashedLine);
-        group.add(makeMesh(dashedLine, 0, 3, 0xFFFF00));
+        world.add(makeMesh(dashedLine, 0, 3, 0xFFFF00));
 
-        var wheelPath = makeSteeringWheel();
-        wheel = new Group();
-        var wheelEdge = makeMesh(expandShapePath(wheelPath, 4, 250), 0, 240, 0x333333);
-        var wheelFill = makeMesh(expandShapePath(wheelPath, 1, 250), 0, 240, 0x000000);
-        wheelFill.position.z = 1;
-        wheel.add(wheelEdge);
-        wheel.add(wheelFill);
+        var tops = new ShapePath();
+        var sides = new ShapePath();
+        for (i in 0...5) {
+            drawRoadLine(roadPath, tops, 0, 40, i / 5, (i + 0.005) / 5, 250);
+            drawRoadLine(roadPath, sides, -20, 1, i / 5, (i + 0.005) / 5, 250);
+            drawRoadLine(roadPath, sides,  20, 1, i / 5, (i + 0.005) / 5, 250);
+        }
+        var topsMesh = makeMesh(tops, 1, 20);
+        topsMesh.position.z = 20;
+        world.add(topsMesh);
+        var sidesMesh = makeMesh(sides, 21, 20);
+        world.add(sidesMesh);
+
+
+        function addDashboardElement(path, depth:Float, hasEdge:Bool, hasFill:Bool) {
+            var element = new Group();
+            if (hasEdge) {
+                var edge = makeMesh(expandShapePath(path, 4, 250), 0, 240, 0x333333);
+                element.add(edge);
+                
+            }
+            if (hasFill) {
+                var fill = makeMesh(expandShapePath(path, 1, 250), 0, 240, 0x000000);
+                fill.position.z = 1;
+                element.add(fill);
+            }
+            dashboard.add(element);
+            return element;
+        }
+        wheel = addDashboardElement(makeSteeringWheel(), 0, true, true);
         wheel.position.set(-30, -50, 0);
-        dashboard.add(wheel);
+        
         dashboard.position.z = -100;
         
         /*
         var headlight = new ShapePath();
         headlight.subPaths.push(makeHeadlightPath());
-        group.add(makeMesh(headlight, 1, 30, 0xFFFFFF));
+        world.add(makeMesh(headlight, 1, 30, 0xFFFFFF));
         /**/
+    }
+
+    function makeSky() {
+        var size = 1000;
+        var skyGeom = new SphereGeometry(size, 10, 10, 0, Math.PI * 2, 0, Math.PI / 2);
+        for (face in skyGeom.faces) {
+            var vertices = [skyGeom.vertices[face.a], skyGeom.vertices[face.b], skyGeom.vertices[face.c]];
+            for (i in 0...3) {
+                var color = new Color();
+                color.setHSL(0, 0, vertices[i].y / size * 2);
+                face.vertexColors[i] = color;
+            }
+        }
+
+        var sky = new Mesh(
+            skyGeom,
+            new MeshBasicMaterial(cast {
+                vertexColors: 2, // VertexColors
+                side: 1, // BackSide
+            })
+        );
+        // sky.position.z = -size * 2;
+        return sky;
     }
 
     function makeMesh(shapePath:ShapePath, amount:Float, curveSegments:UInt, color = 0xFFFFFF) {
@@ -212,13 +271,11 @@ class Playground
     }
 
     function update() {
-        group.rotation.z += 0.005;
+        world.rotation.z += 0.005;
         wheel.rotation.z = Math.PI + Math.sin(haxe.Timer.stamp()) / 2;
-        
+        // skybox.rotation.y += 0.05;
         screen.clear();
-        screen.drawObject(group);
-        screen.drawCockpitObject(dashboard);
-        group.position.z = -300;
-        group.rotation.x = -0.4 * Math.PI;
+        world.position.z = -300;
+        world.rotation.x = -0.4 * Math.PI;
     }
 }

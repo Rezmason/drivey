@@ -10,15 +10,12 @@ Three.js
         Dashboard
             Backing
             Speedometers
-        Place objects on road
-            Lampposts are placed on road at offset
+        Vertex shader tinting
+        Background tinting
         Car
             Scaled extruded unit squares
             headlights
             tail lights
-        Gradient skybox
-            Attached to camera
-        Tinted background
 
     Build scene graph once
         Other cars are cloned from car template

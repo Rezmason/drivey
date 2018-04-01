@@ -20,12 +20,12 @@ class Screen {
     public var bg(get, set):Color;
 
     var element:Element;
-    var camera:PerspectiveCamera;
-    var cockpit:Object3D;
-    var orthoCamera:OrthographicCamera;
-    var scene:Scene;
+    public var camera(default, null):PerspectiveCamera;
+    public var orthoCamera(default, null):OrthographicCamera;
+    public var scene(default, null):Scene;
     var renderer:WebGLRenderer;
     var messageBox:Element;
+    var displayList:Group;
 
     var keysDown:Map<String, Bool> = new Map();
     var keysHit:Map<String, Bool> = new Map();
@@ -39,12 +39,12 @@ class Screen {
         Browser.document.body.appendChild( element );
 
         scene = new Scene();
-
         camera = new PerspectiveCamera( 50, 1, 1, 1000 );
-        cockpit = new Group();
-        cockpit.add(camera);
-        scene.add( cockpit );
+        scene.add(camera);
         orthoCamera = new OrthographicCamera(0, 0, 0, 0, 1, 1000);
+        scene.add(orthoCamera);
+        displayList = new Group();
+        scene.add(displayList);
         renderer = new WebGLRenderer( { antialias: true } );
         renderer.setPixelRatio( Browser.window.devicePixelRatio );
         Browser.window.addEventListener( 'resize', onWindowResize, false );
@@ -125,14 +125,8 @@ class Screen {
     }
 
     public function drawObject(object:Object3D) {
-        if (object.parent != scene) {
-            scene.add(object);
-        }
-    }
-
-    public function drawCockpitObject(object:Object3D) {
-        if (object.parent != cockpit) {
-            cockpit.add(object);
+        if (object.parent != displayList) {
+            displayList.add(object);
         }
     }
 
