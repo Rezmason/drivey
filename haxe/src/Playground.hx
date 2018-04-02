@@ -274,7 +274,7 @@ class Playground
         world.rotation.z += 0.005;
         wheel.rotation.z = Math.PI + Math.sin(haxe.Timer.stamp()) / 2;
         // skybox.rotation.y += 0.05;
-        screen.clear();
+        // screen.clear();
         world.position.z = -300;
         world.rotation.x = -0.4 * Math.PI;
     }

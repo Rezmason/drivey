@@ -9,8 +9,10 @@ class Form {
     public var height:Float = 0;
     public var extrude:Float = 0;
     public var length(get, never):UInt;
+    public var id(default, null):String;
     
-    public function new() {
+    public function new(id:String) {
+        this.id = id;
         // TODO
     }
 
@@ -38,8 +40,8 @@ class Form {
         // TODO
     }
 
-    public function clone():Form {
-        return new Form(); // TODO
+    public function clone(id:String):Form {
+        return new Form(id); // TODO
     }
 
     public function merge(otherForm:Form) {
@@ -68,10 +70,6 @@ class Form {
 
     public function project(vo:Vector3, vx:Vector3, vy:Vector3, vz:Vector3 = null) {
         // TODO
-    }
-
-    public function getChild(index:UInt):Form {
-        return new Form(); // TODO
     }
 
     public function hasPaths():Bool {

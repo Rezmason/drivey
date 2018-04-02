@@ -25,7 +25,7 @@ class Drivey {
     var noAA:Bool = false;
     var project:Bool = true;
     var rearView:Bool = false;
-    var roadType:Int = 3;
+    var levelID:Int = 3;
     var showDashboard:Bool = true;
     var timeSlice:Float = 0.05;
     var tint:Color = new Color(0.2, 0.3, 0.8); // colors for palette tinting
@@ -36,8 +36,9 @@ class Drivey {
     var appname = 'DRIVEY (graphic test)';
     var version = '0.15';
     var copyright = '¬© 2005 Mark Pursey';
-    var theRoad:Form = new Form();
-    var theWalls:Form = new Form();
+    var roadPath:Form = new Form('roadPath');
+    var roadForm:Form = new Form('roadForm');
+    var wallsForm:Form = new Form('wallsForm');
     var scr:Screen = new Screen();
     var user:Car = new Car();
     var other:Array<Car> = [];
@@ -47,7 +48,7 @@ class Drivey {
     var g_lastStep:Float = 0.05;
     var g_zoom:Float = 1;
 
-    var road:Array<Form>;
+    var level:Array<Form>;
     var speedoForm:Form;
     var speedoNeedle:Form;
     var steeringWheelForm:Form;
@@ -87,7 +88,7 @@ class Drivey {
             '[ F1 ] for keyboard shortcuts',
         ].join('\n'), false);
 
-        road = makeRoad();
+        level = buildLevel();
         speedoForm = makeSpeedoForm();
         speedoNeedle = makeSpeedoNeedle();
         steeringWheelForm = makeSteeringWheelForm();
@@ -111,11 +112,11 @@ class Drivey {
     }
 
     function makeSpeedoForm():Form {
-        var speedoForm:Form = new Form();
+        var speedoForm:Form = new Form('speedoForm');
         speedoForm.makeCircle(new Vector2(0,0), 0.5);
         speedoForm.outline(0.025);
 
-        var dash:Form = new Form();
+        var dash:Form = new Form('dash');
         dash.addVertexXY(-0.01,-0.49);
         dash.addVertexXY(0.01,-0.49);
         dash.addVertexXY(0.01,-0.44);
@@ -123,7 +124,7 @@ class Drivey {
         var n = 8;
         for (i in 0...n)
         {
-            var sh:Form = dash.clone();
+            var sh:Form = dash.clone('dash$i');
             sh.rotate(lerp(-Math.PI * 0.8, Math.PI * 0.8, i / n));
             speedoForm.merge(sh);
         }
@@ -131,7 +132,7 @@ class Drivey {
     }
 
     function makeSpeedoNeedle():Form {
-        var speedoNeedle:Form = new Form();
+        var speedoNeedle:Form = new Form('speedoNeedle');
         speedoNeedle.addVertexXY(-0.02,0.1);
         speedoNeedle.addVertexXY(-0.005,-0.4);
         speedoNeedle.addVertexXY(0.005,-0.4);
@@ -141,7 +142,7 @@ class Drivey {
     }
 
     function makeSteeringWheelForm():Form {
-        var steeringWheelForm:Form = new Form();
+        var steeringWheelForm:Form = new Form('steeringWheel');
         steeringWheelForm.makeCircle(new Vector2(0,0), 0.5);
         steeringWheelForm.closePath();
         var n = 60;
@@ -167,9 +168,9 @@ class Drivey {
     }
 
     function makeCarLights():Form {
-        var carLights:Form = new Form();
+        var carLights:Form = new Form('carLights');
         carLights.init();
-        var sq:Form = new Form();
+        var sq:Form = new Form('carLight');
         sq.makeUnit();
         carLights.merge(sq);
         sq.move(new Vector2(3,0));
@@ -182,9 +183,9 @@ class Drivey {
     }
 
     function makeCarLightPaths():Form {
-        var carLightPaths:Form = new Form();
+        var carLightPaths:Form = new Form('carLightPaths');
         carLightPaths.init();
-        var sq:Form = new Form();
+        var sq:Form = new Form('carLightPath');
         var points = [
             new Vector2( 0,   0),
             new Vector2(-6,  13),
@@ -202,9 +203,9 @@ class Drivey {
     }
 
     function makeCarTailLightForm():Form {
-        var carTailLightForm:Form = new Form();
+        var carTailLightForm:Form = new Form('carTailLights');
         carTailLightForm.init();
-        var sq:Form = new Form();
+        var sq:Form = new Form('carTailLight');
         sq.makeUnit();
         carTailLightForm.merge(sq);
         sq.move(new Vector2(3,0));
@@ -217,7 +218,7 @@ class Drivey {
     }
 
     function makeCarBodyBottom():Form {
-        var carBodyBottom:Form = new Form();
+        var carBodyBottom:Form = new Form('carBodyBottom');
         carBodyBottom.init();
         carBodyBottom.makeUnit();
         carBodyBottom.boxFit();
@@ -227,7 +228,7 @@ class Drivey {
     }
 
     function makeCarBodyTop():Form {
-        var carBodyTop:Form = new Form();
+        var carBodyTop:Form = new Form('carBodyTop');
         carBodyTop.init();
         carBodyTop.makeUnit();
         carBodyTop.boxFit();
@@ -242,7 +243,7 @@ class Drivey {
         var npcCar = new Car();
         other.push(npcCar);
         npcCar.roadDir = (other.length & 1 != 0) ? -1 : 1;
-        placeCar(npcCar, theRoad.getChild(0), Math.random());
+        placeCar(npcCar, roadPath, Math.random());
     }
 
     function placeCar(car:Car, rd:Form, along:Float)
@@ -333,7 +334,7 @@ class Drivey {
 
         var center = new Vector2(screen.width * center.x, screen.height * center.y);
 
-        var sh:Form = new Form();
+        var sh:Form = new Form('background');
 
         sh.addVertex(new Vector2(1,0));
         sh.addVertex(new Vector2(1,1));
@@ -478,11 +479,11 @@ class Drivey {
         // screen.alpha = 1;
     }
 
-    function makeRoadLine(p:Form, xpos:Float, width:Float, dashOn:Float, dashOff:Float)
+    function makeRoadLine(id:String, p:Form, xpos:Float, width:Float, dashOn:Float, dashOff:Float)
     {
         var smooth = dashOn > 0;
         dashOn = abs(dashOn);
-        var sh:Form = new Form();
+        var sh:Form = new Form(id);
         var on = true;
         var begin:Float = 0;
         var end:Float = p.length;
@@ -512,7 +513,7 @@ class Drivey {
                 var x1 = p.getNormal(t1);
                 if (dashOn == 0)    // special case?
                 {
-                    var c:Form = new Form();
+                    var c:Form = new Form('$id point');
                     c.makeCircle(p0 + x0 * xpos, width);
                     sh.merge(c);
                 }
@@ -554,13 +555,14 @@ class Drivey {
         return sh;
     }
 
-    function makeRoad()
+    function buildLevel()
     {
         scr.clear();
         auto = true;
         laneSpacing = 4;
-        theWalls.init();
-        theRoad.init();
+        wallsForm.init();
+        roadPath.init();
+        roadForm.init();
         var n = 16;
         var points = [];
         for (i in 0...n)
@@ -568,18 +570,22 @@ class Drivey {
             var theta:Float = i * Math.PI * 2 / n;
             points.push(new Vector2(Math.cos(theta), Math.sin(theta)) * (Math.random() + 5));
         }
-        theRoad.addSplineCurve(points, true);
+        roadPath.addSplineCurve(points, true);
+        roadPath.boxFit();
+        roadPath.scale(new Vector2(400,400));
+        roadPath.recenter();
 
-        theRoad.boxFit();
-        theRoad.scale(new Vector2(400,400));
-        theRoad.recenter();
+        roadForm.merge(roadPath);
 
-        var p = theRoad.getChild(0);
+        var newLevel:Array<Form> = [];
 
-        var newRoad:Array<Form> = [];
+        function addLayer(id:String):Form {
+            var layer = new Form('layer_$id');
+            newLevel.push(layer);
+            return layer;
+        }
 
-        var layer = new Form();
-        newRoad.push(layer);
+        var layer = addLayer('sharedLayer');
 
         tint = 0.5;
         ground = 0.0;
@@ -587,7 +593,7 @@ class Drivey {
         skyHigh = 0.25;
         skyGradient = 0.5;
 
-        if (roadType == 1)
+        if (levelID == 1)
         {
             scr.showMessage('Now driving through: The Tunnel', false);
             tint = new Color(0.2, 0.7, 0.1);
@@ -598,82 +604,74 @@ class Drivey {
             var lightColor = 1;
 
             // do white lines
-            var layer = new Form();
-            newRoad.push(layer);
+            var layer = addLayer('tunnelTarmac');
             layer.rgb = tarmac;
-            layer.merge(makeRoadLine(p, 0, 7, 30, 0));
+            layer.merge(makeRoadLine('tunnelTarmac', roadPath, 0, 7, 30, 0));
 
-            var layer = new Form();
-            newRoad.push(layer);
+            var layer = addLayer('tunnelWhiteLines');
             layer.rgb = whiteLines;
-            layer.merge(makeRoadLine(p, -3.5, 0.2, 30, 2));
-            layer.merge(makeRoadLine(p, 3.5, 0.2, 30, 2));
-            layer.merge(makeRoadLine(p, -0.15, 0.15, -4, 8));
+            layer.merge(makeRoadLine('tunnelWhiteLines1', roadPath, -3.5, 0.2, 30, 2));
+            layer.merge(makeRoadLine('tunnelWhiteLines2', roadPath, 3.5, 0.2, 30, 2));
+            layer.merge(makeRoadLine('tunnelWhiteLines3', roadPath, -0.15, 0.15, -4, 8));
 
             // do yellow lines
-            var layer = new Form();
-            newRoad.push(layer);
+            var layer = addLayer('tunnelYellowLines');
             layer.rgb = yellowLines;
-            layer.merge(makeRoadLine(p, 0.125, 0.125, 30, 0));
+            layer.merge(makeRoadLine('tunnelYellowLines', roadPath, 0.125, 0.125, 30, 0));
 
             // do crossings
             if (true)
             {
-                var layer = new Form();
-                newRoad.push(layer);
+                var layer = addLayer('tunnelCrossing');
                 layer.rgb = tarmac;
-                layer.merge(makeRoadLine(p, 0, 1, -2, 200));
+                layer.merge(makeRoadLine('tunnelCrossing', roadPath, 0, 1, -2, 200));
                 layer.expand(1);
 
-                var layer = new Form();
-                newRoad.push(layer);
+                var layer = addLayer('tunnelCrossingLines');
                 layer.rgb = whiteLines;
                 for (i in 0...6)
                 {
                     var width = 6.0 / 6 * 0.5;
-                    layer.merge(makeRoadLine(p, i * 2 * width - 3 + width, width, -2, 200));
+                    layer.merge(makeRoadLine('tunnelCrossingLine$i', roadPath, i * 2 * width - 3 + width, width, -2, 200));
                 }
             }
 
             // do lights
             if (true)
             {
-                var layer = new Form();
-                newRoad.push(layer);
+                var layer = addLayer('tunnelLights');
                 layer.rgb = lightColor;
 
                 layer.height = 4;
                 layer.extrude = 0.1;
-                layer.merge(makeRoadLine(p, -4, 0.1, -4, 6));
-                layer.merge(makeRoadLine(p, 4, 0.1, -4, 6));
+                layer.merge(makeRoadLine('tunnelLight1', roadPath, -4, 0.1, -4, 6));
+                layer.merge(makeRoadLine('tunnelLight2', roadPath, 4, 0.1, -4, 6));
             }
 
             if (true)   // walls
             {
-                var layer:Form = new Form();
+                var layer:Form = addLayer('tunnelWall1');
                 layer.rgb = skyLow;
 
                 layer.height = 4;
                 layer.extrude = 4;
-                layer.merge(makeRoadLine(p, -5, 0.4, 100, 0));
-                layer.merge(makeRoadLine(p, 5, 0.4, 100, 0));
+                layer.merge(makeRoadLine('tunnelWall1Left', roadPath, -5, 0.4, 100, 0));
+                layer.merge(makeRoadLine('tunnelWall1Right', roadPath, 5, 0.4, 100, 0));
 
-                newRoad.push(layer);
+                var layer:Form = addLayer('tunnelWall2');
                 layer.rgb = skyLow;
-
                 layer.height = 0;
                 layer.extrude = -4;
-                layer.merge(makeRoadLine(p, -5, 0.4, 200, 0));
-                layer.merge(makeRoadLine(p, 5, 0.4, 200, 0));
-                newRoad.push(layer);
+                layer.merge(makeRoadLine('tunnelWall2Left', roadPath, -5, 0.4, 200, 0));
+                layer.merge(makeRoadLine('tunnelWall2Right', roadPath, 5, 0.4, 200, 0));
             }
         }
-        else if (roadType == 2)
+        else if (levelID == 2)
         {
             tint = new Color(0.3, 0.3, 0.7) * 1.5;
 
             scr.showMessage('Now driving through: The City', false);
-            p.scaleUniform(2);
+            roadPath.scaleUniform(2);
 
             ground = 0.05;
             var lines:Color = 0.6;
@@ -684,14 +682,13 @@ class Drivey {
 
             if (true)   // sky ?
             {
-                var sh = new Form();
-                newRoad.push(sh);
+                var sh = addLayer('cityClouds');
                 sh.rgb = (skyLow + skyHigh) * 0.5;
                 sh.alpha = 1;
                 sh.height = 200;
                 for (i in 0...100)
                 {
-                    var sh2:Form = new Form();
+                    var sh2:Form = new Form('cloud$i');
                     var p = new Vector2(Math.random()-0.5, Math.random()-0.5);
                     if (p.length() > 0.5 || p.length() < 0.1) {
                         continue;
@@ -712,66 +709,62 @@ class Drivey {
             // do bg
             if (false)
             {
-                var sh = new Form();
-                newRoad.push(sh);
+                var sh = addLayer('cityBG1');
                 sh.rgb = ground;
                 sh.height = 50;
                 sh.extrude = 50;
-                sh.merge(makeRoadLine(p, -200, 15, 0, 200));
-                sh.merge(makeRoadLine(p, 200, 15, 0, 150));
+                sh.merge(makeRoadLine('cityLine1', roadPath, -200, 15, 0, 200));
+                sh.merge(makeRoadLine('cityLine2', roadPath, 200, 15, 0, 150));
                 
                 // do bg
                 
-                var sh = new Form();
-                newRoad.push(sh);
+                var sh = addLayer('cityBG2');
                 sh.rgb = ground;
                 sh.height = 70;
                 sh.extrude = 70;
-                sh.merge(makeRoadLine(p, -160, 10, -20, 90));
-                sh.merge(makeRoadLine(p, 160, 20, -25, 85));
-                sh.merge(makeRoadLine(p, 260, 20, -25, 40));
+                sh.merge(makeRoadLine('cityLine3', roadPath, -160, 10, -20, 90));
+                sh.merge(makeRoadLine('cityLine4', roadPath, 160, 20, -25, 85));
+                sh.merge(makeRoadLine('cityLine5', roadPath, 260, 20, -25, 40));
 
                 // do bg
                 
-                var sh = new Form();
-                newRoad.push(sh);
+                var sh = addLayer('cityBG3');
                 sh.rgb = ground;
                 sh.height = 40;
                 sh.extrude = 40;
-                sh.merge(makeRoadLine(p, -80, 20, -25, 150));
-                sh.merge(makeRoadLine(p, 80, 20, -20, 200));
-                sh.merge(makeRoadLine(p, 300, 20, -40, 100));
+                sh.merge(makeRoadLine('cityLine6', roadPath, -80, 20, -25, 150));
+                sh.merge(makeRoadLine('cityLine7', roadPath, 80, 20, -20, 200));
+                sh.merge(makeRoadLine('cityLine8', roadPath, 300, 20, -40, 100));
 
                 // do bg
                 
-                var sh = new Form();
-                newRoad.push(sh);
+                var sh = addLayer('cityBG4');
                 sh.rgb = ground;
                 sh.height = 20;
                 sh.extrude = 20;
-                sh.merge(makeRoadLine(p, -80, 40, -20, 45));
-                sh.merge(makeRoadLine(p, 80, 40, -25, 40));
+                sh.merge(makeRoadLine('cityLine9', roadPath, -80, 40, -20, 45));
+                sh.merge(makeRoadLine('cityLine10', roadPath, 80, 40, -25, 40));
             }
             else
             {
-                var box:Form = new Form();
+                var box:Form = new Form('cityBuilding');
                 box.makeUnit();
                 box.recenter();
                 box.scaleUniform(40);
 
-                var l0:Form = new Form();
+                var l0:Form = new Form('unused layer citySkyline1');
                 l0.rgb = obc;
                 l0.height = 15;
                 l0.extrude = l0.height;
-                var l1:Form = new Form();
+                var l1:Form = addLayer('citySkyline2');
                 l1.rgb = obc;
                 l1.height = 30;
                 l1.extrude = l1.height;
-                var l2:Form = new Form();
+                var l2:Form = addLayer('citySkyline3');
                 l2.rgb = obc;
                 l2.height = 50;
                 l2.extrude = l2.height;
-                var l3:Form = new Form();
+                var l3:Form = addLayer('citySkyline4');
                 l3.rgb = obc;
                 l3.height = 120;
                 l3.extrude = l3.height;
@@ -789,12 +782,12 @@ class Drivey {
                             continue;
                         }
 
-                        var pt = p.getNearestPoint(pos);
+                        var pt = roadPath.getNearestPoint(pos);
                         if ((pt - pos).length() < 60) {
                             continue;
                         }
 
-                        var s:Form = box.clone();
+                        var s:Form = box.clone('cityBuilding$i');
                         s.move(pos);
                         if (Math.random() > 0.8) {
                             l0.merge(s);
@@ -810,49 +803,41 @@ class Drivey {
                         }
                     }
                 }
-                
-                newRoad.push(l1);
-                newRoad.push(l2);
-                newRoad.push(l3);
             }
 
             
-            var sh = new Form();
-            newRoad.push(sh);
+            var sh = addLayer('cityWalls');
             sh.rgb = obc;
             sh.extrude = 10;
             sh.height = 10;
-            sh.merge(makeRoadLine(p, -16, 0.2, -0.2, 400));
-            sh.merge(makeRoadLine(p, -12, 0.2, -0.2, 400));
-            sh.merge(makeRoadLine(p, 12, 0.2, -0.2, 300));
-            sh.merge(makeRoadLine(p, 16, 0.2, -0.2, 300));
-            theWalls.merge(sh);
+            sh.merge(makeRoadLine('cityWall1', roadPath, -16, 0.2, -0.2, 400));
+            sh.merge(makeRoadLine('cityWall2', roadPath, -12, 0.2, -0.2, 400));
+            sh.merge(makeRoadLine('cityWall3', roadPath, 12, 0.2, -0.2, 300));
+            sh.merge(makeRoadLine('cityWall4', roadPath, 16, 0.2, -0.2, 300));
+            wallsForm.merge(sh);
             
-            var sh = new Form();
-            newRoad.push(sh);
+            var sh = addLayer('cityLinesA');
             sh.rgb = obc;
             sh.height = 14;
             sh.extrude = 4;
-            sh.merge(makeRoadLine(p, -14, 6, -0.2, 400));
-            sh.merge(makeRoadLine(p, 14, 6, -0.2, 300));
+            sh.merge(makeRoadLine('cityLine11', roadPath, -14, 6, -0.2, 400));
+            sh.merge(makeRoadLine('cityLine12', roadPath, 14, 6, -0.2, 300));
             
-            var sh = new Form();
-            newRoad.push(sh);
+            var sh = addLayer('cityLinesB');
             sh.rgb = lines;
             sh.height = 0;
-            sh.merge(makeRoadLine(p, 0, 0.1, 60, 0));
-            sh.merge(makeRoadLine(p, 0.2, 0.1, 60, 0));
-            sh.merge(makeRoadLine(p, -6, 0.15, 30, 1));
-            sh.merge(makeRoadLine(p, 6, 0.15, 30, 1));
+            sh.merge(makeRoadLine('cityLine13', roadPath, 0, 0.1, 60, 0));
+            sh.merge(makeRoadLine('cityLine14', roadPath, 0.2, 0.1, 60, 0));
+            sh.merge(makeRoadLine('cityLine15', roadPath, -6, 0.15, 30, 1));
+            sh.merge(makeRoadLine('cityLine16', roadPath, 6, 0.15, 30, 1));
             
-            var sh = new Form();
-            newRoad.push(sh);
+            var sh = addLayer('cityLinesC');
             sh.height = 0;
             sh.rgb = lines;
-            sh.merge(makeRoadLine(p, -3, 0.15, 3, 12));
-            sh.merge(makeRoadLine(p, 3, 0.15, 3, 12));
+            sh.merge(makeRoadLine('cityLine17', roadPath, -3, 0.15, 3, 12));
+            sh.merge(makeRoadLine('cityLine18', roadPath, 3, 0.15, 3, 12));
         }
-        else if (roadType == 3)
+        else if (levelID == 3)
         {
             scr.showMessage('Now driving through: The Industrial Zone', false);
             tint = new Color(0.7, 0.4, 0.1);
@@ -870,72 +855,66 @@ class Drivey {
             {
                 // very tall things
                 
-                var sh = new Form();
-                newRoad.push(sh);
+                var sh = addLayer('industrialTallThingA');
                 sh.rgb = 1;
                 sh.height = 62;
                 sh.extrude = 2;
-                sh.merge(makeRoadLine(p, 300, 0.5, 0, 250));
-                sh.merge(makeRoadLine(p, 320, 0.75, 0, 250));
+                sh.merge(makeRoadLine('tallThing1', roadPath, 300, 0.5, 0, 250));
+                sh.merge(makeRoadLine('tallThing2', roadPath, 320, 0.75, 0, 250));
 
                 if (true)
                 {
-                    var layer = new Form();
-                    newRoad.push(layer);
+                    var layer = addLayer('industrialTallThingB');
                     layer.rgb = obc;
                     layer.height = 60;
                     layer.extrude = 60;
-                    layer.merge(makeRoadLine(p, 300, 0.5, 0, 250));
-                    layer.merge(makeRoadLine(p, 320, 0.75, 0, 250));
-                    layer.merge(makeRoadLine(p, 400, 8, 0, 240));
-                    layer.merge(makeRoadLine(p, 500, 8, 0, 240));
+                    layer.merge(makeRoadLine('tallthing3', roadPath, 300, 0.5, 0, 250));
+                    layer.merge(makeRoadLine('tallthing4', roadPath, 320, 0.75, 0, 250));
+                    layer.merge(makeRoadLine('tallthing5', roadPath, 400, 8, 0, 240));
+                    layer.merge(makeRoadLine('tallthing6', roadPath, 500, 8, 0, 240));
                 }
 
                 // medium buildings
-                var layer = new Form();
-                newRoad.push(layer);
+                var layer = addLayer('industrialMediumThings');
                 layer.rgb = obc;
                 layer.height = 12;
                 layer.extrude = 12;
-                layer.merge(makeRoadLine(p, -80, 20, -40, 60));
-                layer.merge(makeRoadLine(p, 180, 50, -40, 30));
-                layer.merge(makeRoadLine(p, 300, 50, -20, 20));
+                layer.merge(makeRoadLine('mediumThing1', roadPath, -80, 20, -40, 60));
+                layer.merge(makeRoadLine('mediumThing2', roadPath, 180, 50, -40, 30));
+                layer.merge(makeRoadLine('mediumThing3', roadPath, 300, 50, -20, 20));
 
-                layer.merge(makeRoadLine(p, -100, 8, 0, 200));
-                layer.merge(makeRoadLine(p, -60, 8, 0, 1500));
-                layer.merge(makeRoadLine(p, 100, 8, 0, 140));
-                layer.merge(makeRoadLine(p, 120, 8, 0, 220));
+                layer.merge(makeRoadLine('mediumThing4', roadPath, -100, 8, 0, 200));
+                layer.merge(makeRoadLine('mediumThing5', roadPath, -60, 8, 0, 1500));
+                layer.merge(makeRoadLine('mediumThing6', roadPath, 100, 8, 0, 140));
+                layer.merge(makeRoadLine('mediumThing7', roadPath, 120, 8, 0, 220));
             }
 
             // do white lines
             if (true)
             {
-                var sh = new Form();
-                newRoad.push(sh);
+                var sh = addLayer('industrialWhiteLines');
                 sh.rgb = lines;
-                sh.merge(makeRoadLine(p, -3.5, 0.15, 60, 2));
-                sh.merge(makeRoadLine(p, 3.5, 0.15, 60, 2));
-                sh.merge(makeRoadLine(p, -0.15, 0.125, -4, 6));
-                sh.merge(makeRoadLine(p, 0.125, 0.125, 60, 0));
+                sh.merge(makeRoadLine('industrialWhiteLine1', roadPath, -3.5, 0.15, 60, 2));
+                sh.merge(makeRoadLine('industrialWhiteLine2', roadPath, 3.5, 0.15, 60, 2));
+                sh.merge(makeRoadLine('industrialWhiteLine3', roadPath, -0.15, 0.125, -4, 6));
+                sh.merge(makeRoadLine('industrialWhiteLine4', roadPath, 0.125, 0.125, 60, 0));
 
                 // do crossings
                 if (true)
                 {
                     
-                    var sh = new Form();
-                    newRoad.push(sh);
+                    var sh = addLayer('industrialCrossing');
                     sh.rgb = ground;
-                    sh.merge(makeRoadLine(p, 0, 1, -2, 200));
+                    sh.merge(makeRoadLine('industrialCrossingBase', roadPath, 0, 1, -2, 200));
                     sh.expand(1);
 
                     
-                    var sh = new Form();
-                    newRoad.push(sh);
+                    var sh = addLayer('industrialCrossingLines');
                     sh.rgb = lines;
                     for (i in 0...6)
                     {
                         var width = 6.0 / 6 * 0.5;
-                        sh.merge(makeRoadLine(p, i * 2 * width - 3 + width, width, -2, 200));
+                        sh.merge(makeRoadLine('industrialCrossingLine$i', roadPath, i * 2 * width - 3 + width, width, -2, 200));
                     }
                 }
             }
@@ -949,29 +928,26 @@ class Drivey {
                 var tall = 15;
 
                 
-                var sh = new Form();
-                newRoad.push(sh);
+                var sh = addLayer('industrialStreetLight1');
                 sh.rgb = obc;
                 sh.height = tall + thick;
                 sh.extrude = thick;
-                sh.merge(makeRoadLine(p, -5.6, 5, thick, left));
+                sh.merge(makeRoadLine('industrialStreetLight1', roadPath, -5.6, 5, thick, left));
 
                 
-                var sh = new Form();
-                newRoad.push(sh);
+                var sh = addLayer('industrialStreetLight2');
                 sh.rgb = obc;
                 sh.height = tall;
                 sh.extrude = tall;
-                sh.merge(makeRoadLine(p, -8, thick, thick, left));
-                theWalls.merge(sh);
+                sh.merge(makeRoadLine('industrialStreetLight2', roadPath, -8, thick, thick, left));
+                wallsForm.merge(sh);
 
                 
-                var sh = new Form();
-                newRoad.push(sh);
+                var sh = addLayer('industrialStreetLight3');
                 sh.rgb = 1;
                 sh.height = tall;
                 sh.extrude = thick*2;
-                sh.merge(makeRoadLine(p, -4, 2, thick, left));
+                sh.merge(makeRoadLine('industrialStreetLight3', roadPath, -4, 2, thick, left));
             }
 
             // overpasses
@@ -979,81 +955,75 @@ class Drivey {
             {
                 var depth = 8;
                 var spacing = 300;
-                var p2 = p.clone();
-                p2.scale(new Vector2(1,1.5));
+                var highwayAbove = roadPath.clone('highwayAbove');
+                highwayAbove.scale(new Vector2(1,1.5));
 
-                
-                var sh = new Form();
-                newRoad.push(sh);
+                var sh = addLayer('industrialOverpassA');
                 sh.rgb = obc;
                 sh.height = 12;
                 sh.extrude = 2;
-                sh.merge(makeRoadLine(p2, 0, 162, -depth, spacing));
+                sh.merge(makeRoadLine('industrialOverpass1', highwayAbove, 0, 162, -depth, spacing));
                 sh.scale(new Vector2(1,1/1.5));
 
                 
-                var sh = new Form();
-                newRoad.push(sh);
+                var sh = addLayer('industrialOverpassB');
                 sh.rgb = obc;
                 sh.height = 10;
                 sh.extrude = 10;
-                sh.merge(makeRoadLine(p2, -100, 42, -depth, spacing));
-                sh.merge(makeRoadLine(p2, -40, 2, -depth, spacing));
-                sh.merge(makeRoadLine(p2, -10, 2, -depth, spacing));
-                sh.merge(makeRoadLine(p2, 10, 2, -depth, spacing));
-                sh.merge(makeRoadLine(p2, 40, 2, -depth, spacing));
-                sh.merge(makeRoadLine(p2, 200, 242, -depth, spacing));
+                sh.merge(makeRoadLine('industrialOverpass2', highwayAbove, -100, 42, -depth, spacing));
+                sh.merge(makeRoadLine('industrialOverpass3', highwayAbove, -40, 2, -depth, spacing));
+                sh.merge(makeRoadLine('industrialOverpass4', highwayAbove, -10, 2, -depth, spacing));
+                sh.merge(makeRoadLine('industrialOverpass5', highwayAbove, 10, 2, -depth, spacing));
+                sh.merge(makeRoadLine('industrialOverpass6', highwayAbove, 40, 2, -depth, spacing));
+                sh.merge(makeRoadLine('industrialOverpass7', highwayAbove, 200, 242, -depth, spacing));
                 sh.scale(new Vector2(1,1/1.5));
 
-                var wall:Form = makeRoadLine(p2, -10, 2, -depth, spacing);
-                wall.merge(makeRoadLine(p2, 10, 2, -depth, spacing));
+                var wall:Form = makeRoadLine('industrialWall1', highwayAbove, -10, 2, -depth, spacing);
+                wall.merge(makeRoadLine('industrialWall2', highwayAbove, 10, 2, -depth, spacing));
                 wall.scale(new Vector2(1,1/1.5));
-                theWalls.merge(wall);
+                wallsForm.merge(wall);
             }
 
             // various poles
             if (true)
             {
-                var sh = new Form();
-                newRoad.push(sh);
+                var sh = addLayer('industrialPoles');
                 sh.rgb = obc;
 
                 sh.height = 12;
                 sh.extrude = 12;
-                sh.merge(makeRoadLine(p, -30, 0.25, 0, 90));
+                sh.merge(makeRoadLine('industrialPole1', roadPath, -30, 0.25, 0, 90));
 
-                sh.merge(makeRoadLine(p, -40, 0.25, 0, 110));
-                sh.merge(makeRoadLine(p, 60, 0.25, 0, 60));
+                sh.merge(makeRoadLine('industrialPole2', roadPath, -40, 0.25, 0, 110));
+                sh.merge(makeRoadLine('industrialPole3', roadPath, 60, 0.25, 0, 60));
 
-                sh.merge(makeRoadLine(p, -50, 0.25, 0, 60));
-                sh.merge(makeRoadLine(p, -20, 0.125, 0, 100));
-                sh.merge(makeRoadLine(p, 20, 0.25, 0, 45));
-                sh.merge(makeRoadLine(p, 50, 0.125, 0, 50));
-                sh.merge(makeRoadLine(p, 70, 0.25, 0, 75));
+                sh.merge(makeRoadLine('industrialPole4', roadPath, -50, 0.25, 0, 60));
+                sh.merge(makeRoadLine('industrialPole5', roadPath, -20, 0.125, 0, 100));
+                sh.merge(makeRoadLine('industrialPole6', roadPath, 20, 0.25, 0, 45));
+                sh.merge(makeRoadLine('industrialPole7', roadPath, 50, 0.125, 0, 50));
+                sh.merge(makeRoadLine('industrialPole8', roadPath, 70, 0.25, 0, 75));
 
                 // knobs
                 
-                var sh = new Form();
-                newRoad.push(sh);
+                var sh = addLayer('industrialKnobs');
                 sh.rgb = obc;
                 sh.height = 13;
                 sh.extrude = 1;
-                sh.merge(makeRoadLine(p, -40, 1, 0, 110));
-                sh.merge(makeRoadLine(p, 60, 1, 0, 60));
+                sh.merge(makeRoadLine('industrialKnob1', roadPath, -40, 1, 0, 110));
+                sh.merge(makeRoadLine('industrialKnob2', roadPath, 60, 1, 0, 60));
 
                 // wires
                 
-                var sh = new Form();
-                newRoad.push(sh);
+                var sh = addLayer('industrialWires');
                 sh.rgb = obc;
                 sh.height = 11.25;
                 sh.extrude = 0.025;
 
-                sh.merge(makeRoadLine(p, -50, 0.025, -60, 0));
-                sh.merge(makeRoadLine(p, -20, 0.025, -100, 0));
-                sh.merge(makeRoadLine(p, 20, 0.025, -45, 0));
-                sh.merge(makeRoadLine(p, 50, 0.025, -50, 0));
-                sh.merge(makeRoadLine(p, 70, 0.025, -75, 0));
+                sh.merge(makeRoadLine('industrialWire1', roadPath, -50, 0.025, -60, 0));
+                sh.merge(makeRoadLine('industrialWire2', roadPath, -20, 0.025, -100, 0));
+                sh.merge(makeRoadLine('industrialWire3', roadPath, 20, 0.025, -45, 0));
+                sh.merge(makeRoadLine('industrialWire4', roadPath, 50, 0.025, -50, 0));
+                sh.merge(makeRoadLine('industrialWire5', roadPath, 70, 0.025, -75, 0));
             }
             // fencing
             if (true)
@@ -1063,36 +1033,33 @@ class Drivey {
                 var dist = 25;
 
                 
-                var sh = new Form();
-                newRoad.push(sh);
+                var sh = addLayer('industrialFenceA');
                 sh.rgb = obc;
                 sh.height = tall;
                 sh.extrude = tall;
 
-                sh.merge(makeRoadLine(p, -dist, 0.1, 0, spacing));
-                sh.merge(makeRoadLine(p, dist, 0.1, 0, spacing));
+                sh.merge(makeRoadLine('industrialFence1', roadPath, -dist, 0.1, 0, spacing));
+                sh.merge(makeRoadLine('industrialFence2', roadPath, dist, 0.1, 0, spacing));
 
                 
-                var sh = new Form();
-                newRoad.push(sh);
+                var sh = addLayer('industrialFenceB');
                 sh.rgb = obc;
                 sh.height = tall-0.5;
                 sh.extrude = 0.1;
 
-                sh.merge(makeRoadLine(p, -dist, 0.1, -spacing, 0));
-                sh.merge(makeRoadLine(p, dist, 0.1, -spacing, 0));
+                sh.merge(makeRoadLine('industrialFence3', roadPath, -dist, 0.1, -spacing, 0));
+                sh.merge(makeRoadLine('industrialFence4', roadPath, dist, 0.1, -spacing, 0));
 
                 
-                var sh = new Form();
-                newRoad.push(sh);
+                var sh = addLayer('industrialFenceC');
                 sh.rgb = obc;
                 sh.alpha = 0.25;
                 sh.height = tall - 0.6;
                 sh.extrude = tall - 0.6;
 
-                sh.merge(makeRoadLine(p, -dist, 0.1, -spacing, 0));
-                sh.merge(makeRoadLine(p, dist, 0.1, -spacing, 0));
-                theWalls.merge(sh);
+                sh.merge(makeRoadLine('industrialFence5', roadPath, -dist, 0.1, -spacing, 0));
+                sh.merge(makeRoadLine('industrialFence6', roadPath, dist, 0.1, -spacing, 0));
+                wallsForm.merge(sh);
             }
         }
         else
@@ -1104,24 +1071,23 @@ class Drivey {
             skyLow = 0;
             var lines:Color = 0.75;
 
-            theRoad.scaleUniform(2);
+            roadForm.scaleUniform(2);
             layer.rgb = lines;
             layer.height = 0;
 
-            layer.merge(makeRoadLine(p, 0, 0.2, 4, 10));
-            layer.merge(makeRoadLine(p, -3, 0.15, 30, 2));
-            layer.merge(makeRoadLine(p, 3, 0.15, 30, 2));
+            layer.merge(makeRoadLine('nightLine1', roadPath, 0, 0.2, 4, 10));
+            layer.merge(makeRoadLine('nightLine2', roadPath, -3, 0.15, 30, 2));
+            layer.merge(makeRoadLine('nightLine3', roadPath, 3, 0.15, 30, 2));
 
             // posts
             if (true)
             {
-                var sh = new Form();
-                newRoad.push(sh);
+                var sh = addLayer('nightPosts');
                 sh.rgb = lines;
                 sh.height = 0.6;
                 sh.extrude = 1;
-                sh.merge(makeRoadLine(p, -6, 0.2, 0.2, 50));
-                sh.merge(makeRoadLine(p, 6, 0.2, 0.2, 50));
+                sh.merge(makeRoadLine('nightPost1', roadPath, -6, 0.2, 0.2, 50));
+                sh.merge(makeRoadLine('nightPost2', roadPath, 6, 0.2, 0.2, 50));
             }
 
             scr.setTint(0, 0.6, 1);
@@ -1129,17 +1095,17 @@ class Drivey {
 
 
         var scale = new Vector2(1.25,1.25);
-        theRoad.scale(scale);
-        theWalls.scale(scale);
-        for (i in 0...newRoad.length)
+        roadForm.scale(scale);
+        wallsForm.scale(scale);
+        for (i in 0...newLevel.length)
         {
-            newRoad[i].scale(scale);
+            newLevel[i].scale(scale);
         }
 
-        placeCar(user, theRoad.getChild(0), 0);
+        placeCar(user, roadPath, 0);
         other = [];
 
-        return newRoad;
+        return newLevel;
     }
 
     // main loop
@@ -1233,9 +1199,9 @@ class Drivey {
         }
         if (scr.isKeyHit('Digit1'))
         {
-            roadType = (roadType + 1) % 4;
+            levelID = (levelID + 1) % 4;
             user.init();
-            road = makeRoad();
+            level = buildLevel();
             lastTime = Timer.stamp();
         }
 
@@ -1365,7 +1331,7 @@ class Drivey {
         {
             auto = true;
             user.roadPos = 0;
-            placeCar(user, theRoad.getChild(0), 0);
+            placeCar(user, roadPath, 0);
             fade = 0;
             scr.showMessage('returned to road', false);
         }
@@ -1395,7 +1361,7 @@ class Drivey {
 
             if (auto)
             {
-                autoDrive(user, theRoad.getChild(0));
+                autoDrive(user, roadPath);
             }
             else
             {
@@ -1418,7 +1384,7 @@ class Drivey {
             user.advance(step);
             for (o in other)
             {
-                autoDrive(o, theRoad.getChild(0));
+                autoDrive(o, roadPath);
                 o.advance(step);
                 if (collisions)
                 {
@@ -1428,7 +1394,7 @@ class Drivey {
 
             if (collisions)
             {
-                user.collideWithForm(theWalls);
+                user.collideWithForm(wallsForm);
             }
 
             tt -= timeSlice;
@@ -1458,15 +1424,13 @@ class Drivey {
         }
 
         // draw the road itself
-        drawForms(scr, road);
+        drawForms(scr, level);
 
-        // draw the road itself
-
-        var carBodiesTop:Form = new Form();
-        var carBodiesBottom:Form = new Form();
-        var cars:Form = new Form();
-        var lights:Form = new Form();
-        var lightPaths:Form = new Form();
+        var carBodiesTop:Form = new Form('carBodiesTop');
+        var carBodiesBottom:Form = new Form('carBodiesBottom');
+        var cars:Form = new Form('cars');
+        var lights:Form = new Form('lights');
+        var lightPaths:Form = new Form('lightPaths');
 
         // scr.rgb = 1;
         for (i in (project ? 0 : -1)...other.length)
@@ -1538,7 +1502,7 @@ class Drivey {
             var shadow:Color = 0;
 
             var thick = lineThickness * 4;
-            var sh:Form = new Form();
+            var sh:Form = new Form('dashboardBacking');
             sh.makeCircle(new Vector2(0,0), 1);
             sh.scale(new Vector2(1.2,0.3) * dwidth);
             sh.move(new Vector2(dwidth * (laneOffset < 0 ? 0.2 : 0.8), dheight * 1.05));

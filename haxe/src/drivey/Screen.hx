@@ -19,6 +19,10 @@ class Screen {
     public var height(get, never):UInt;
     public var bg(get, set):Color;
 
+    var baseColor:Color;
+    var lowColor:Color;
+    var highColor:Color;
+
     public var downscale:UInt = 1;
     public var antialias:Bool = true;
 
@@ -136,12 +140,29 @@ class Screen {
         }
     }
 
+    var subjects:Array<String> = [];
+
     public function drawForm(form:Form) {
-        // TODO
+        // form.bake();
+        // drawObject(form.object);
+        subjects.push(form.id);
     }
 
+    var lastTrace = '';
+
     public function clear() {
-        // TODO
+
+        // trace(haxe.CallStack.toString(haxe.CallStack.callStack()));
+
+        for (object in displayList.children) {
+            displayList.remove(object);
+        }
+        var nextTrace = subjects.join('\n');
+        if (lastTrace != nextTrace) {
+            trace(nextTrace);
+            lastTrace = nextTrace;
+        }
+        subjects = [];
     }
 
     public function cmd(s) {
@@ -149,7 +170,10 @@ class Screen {
     }
 
     public function setTint(fw:Color, fLow:Color, fHigh:Color) {
-        // TODO
+        baseColor = fw;
+        lowColor = fLow;
+        highColor = fHigh;
+        // TODO: add these as global uniforms for tinted materials
     }
 
     inline function get_width() {
