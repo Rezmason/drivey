@@ -4,6 +4,8 @@ import drivey.Utils.*;
 
 class Car
 {
+    public var form:Form;
+
     public var pos:Vector3 = new Vector3();
     public var vel:Vector3 = new Vector3();
 
@@ -36,6 +38,7 @@ class Car
     public var cruise:Float;
 
     public function new() {
+        form = new Form('car'); // TODO: make car template
         init();
     }
 
@@ -94,11 +97,9 @@ class Car
 
     public function collideWithForm(form:Form):Float
     {
-        if (!form.hasPaths()) {
-            return Math.POSITIVE_INFINITY;
-        }
-
-        var pt = m2w(form.getNearestPoint(w2m(pos)));
+        var nearestPoint = form.getNearestPoint(w2m(pos));
+        if (nearestPoint == null) return Math.POSITIVE_INFINITY;
+        var pt = m2w(nearestPoint);
         var pd = pt - new Vector3(pos.x,0,pos.z);
         var radius = 1;
 

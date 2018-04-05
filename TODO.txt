@@ -2,6 +2,13 @@ Three.js
 
     Form should use ShapePath
 
+    Create levels in Playground
+        Level
+        DeepDarkNight
+        Tunnel
+        City
+        IndustrialZone
+
     Merging is more complicated than it seemed
         If two forms specify a height, does merging them preserve that difference? What about color?
         Can a form specify no color, so that it's inherited from a parent?
@@ -32,6 +39,9 @@ Three.js
             Screen RGB and alpha properties on Screen are unnecessary
         White on blue wireframe support
             Doesn't have to be as pretty
+
+    Zoom shouldn't affect dashboard
+        Dashboard pass?
 
 Javascript prep
     Replace operators with method calls

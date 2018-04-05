@@ -10,6 +10,8 @@ import js.three.PerspectiveCamera;
 import js.three.OrthographicCamera;
 import js.three.Scene;
 import js.three.WebGLRenderer;
+import js.three.WebGLRenderer;
+import js.three.MeshBasicMaterial;
 
 using Lambda;
 
@@ -18,6 +20,7 @@ class Screen {
     public var width(get, never):UInt;
     public var height(get, never):UInt;
     public var bg(get, set):Color;
+    public var useOrtho:Bool = false;
 
     var baseColor:Color;
     var lowColor:Color;
@@ -25,6 +28,7 @@ class Screen {
 
     public var downscale:UInt = 1;
     public var antialias:Bool = true;
+    public var wireframe(default, set):Bool = false;
 
     var element:Element;
     public var camera(default, null):PerspectiveCamera;
@@ -32,7 +36,11 @@ class Screen {
     public var scene(default, null):Scene;
     var renderer:WebGLRenderer;
     var messageBox:Element;
-    var displayList:Group;
+    var levelContentIDs:Array<String> = [];
+    var levelContents:Group;
+    var entities:Group;
+
+    var basicMaterialsByHex:Map<Int, MeshBasicMaterial> = new Map();
 
     var keysDown:Map<String, Bool> = new Map();
     var keysHit:Map<String, Bool> = new Map();
@@ -47,11 +55,14 @@ class Screen {
 
         scene = new Scene();
         camera = new PerspectiveCamera( 50, 1, 1, 1000 );
+        camera.rotation.order = 'YZX';
         scene.add(camera);
         orthoCamera = new OrthographicCamera(0, 0, 0, 0, 1, 1000);
         scene.add(orthoCamera);
-        displayList = new Group();
-        scene.add(displayList);
+        levelContents = new Group();
+        scene.add(levelContents);
+        entities = new Group();
+        scene.add(entities);
         renderer = new WebGLRenderer( { antialias: true } );
         renderer.setPixelRatio( Browser.window.devicePixelRatio );
         Browser.window.addEventListener( 'resize', onWindowResize, false );
@@ -94,7 +105,7 @@ class Screen {
             messageOpacities[message] *= 0.975;
             if (messageOpacities[message] < 0.005) {
                 messageOpacities.remove(message);
-                messageBox.removeChild(message);
+                (cast message).remove();
             } else {
                 message.style.opacity = Std.string(messageOpacities[message]);
             }
@@ -104,7 +115,7 @@ class Screen {
     }
     
     function render() {
-        renderer.render( scene, false ? orthoCamera : camera );
+        renderer.render( scene, useOrtho ? orthoCamera : camera );
     }
 
     function onKeyDown(event:KeyboardEvent) {
@@ -134,35 +145,46 @@ class Screen {
         }
     }
 
-    public function drawObject(object:Object3D) {
-        if (object.parent != displayList) {
-            displayList.add(object);
+    public function addEntity(object:Object3D) {
+        if (object.parent != entities) {
+            entities.add(object);
         }
     }
 
-    var subjects:Array<String> = [];
+    public function addLevelContent(object:Object3D, id:String) {
+        if (object.parent != levelContents) {
+            levelContents.add(object);
+            levelContentIDs.push(id);
+        }
+    }
+
+    public function drawLevel(level:Level) {
+        for (object in levelContents.children) levelContents.remove(object);
+
+        var nextTrace = levelContentIDs.join('\n');
+        if (lastTrace != nextTrace) {
+            trace(nextTrace);
+            lastTrace = nextTrace;
+        }
+        levelContentIDs = [];
+
+        for (form in level.forms)
+        {
+            // form.bake();
+            // addLevelContent(form.object, form.id);
+        }
+    }
 
     public function drawForm(form:Form) {
         // form.bake();
-        // drawObject(form.object);
-        subjects.push(form.id);
+        // addEntity(form.object);
     }
 
     var lastTrace = '';
 
     public function clear() {
-
+        for (object in entities.children) entities.remove(object);
         // trace(haxe.CallStack.toString(haxe.CallStack.callStack()));
-
-        for (object in displayList.children) {
-            displayList.remove(object);
-        }
-        var nextTrace = subjects.join('\n');
-        if (lastTrace != nextTrace) {
-            trace(nextTrace);
-            lastTrace = nextTrace;
-        }
-        subjects = [];
     }
 
     public function cmd(s) {
@@ -196,9 +218,9 @@ class Screen {
     public function showMessage(msg:String, clear:Bool, seconds:Float = 2)
     {
         if (clear) {
-            for (message in messageOpacities.keys()) {
-                messageBox.removeChild(message);
-                messageOpacities.remove(message);
+            while (messageBox.firstChild != null) {
+                messageOpacities.remove(cast messageBox.firstChild);
+                (cast messageBox.firstChild).remove();
             }
         }
 
@@ -211,7 +233,36 @@ class Screen {
         messageBox.appendChild(message);
     }
 
-    public function adjustPerspectiveCamera(pitch:Float, roll:Float, yaw:Float, pointBackwards:Bool):Void {
-        // TODO
+    public function adjustPerspectiveCamera(pitch:Float, roll:Float, yaw:Float, zoom:Float, pointBackwards:Bool):Void {
+        camera.rotation.set(
+            pitch,
+            0,// yaw,
+            roll
+        );
+        // TODO: some of the above angles may not be necessary, if camera is attached to a rotating object, ie. a car
+        // TODO: pointBackwards
+        camera.zoom = 1 / zoom;
+        camera.updateProjectionMatrix();
+
+        orthoCamera.zoom = 1 / zoom;
+        orthoCamera.updateProjectionMatrix();
+    }
+
+    public function getMaterial(colorHex:Int):MeshBasicMaterial {
+        if (!basicMaterialsByHex.exists(colorHex)) {
+            basicMaterialsByHex.set(colorHex, new MeshBasicMaterial({color:colorHex}));
+        }
+        return basicMaterialsByHex[colorHex];
+    }
+
+    function set_wireframe(val:Bool):Bool {
+        if (wireframe != val) {
+            wireframe = val;
+            for (material in basicMaterialsByHex) {
+                material.wireframe = wireframe;
+            }
+        }
+        trace(wireframe);
+        return wireframe;
     }
 }

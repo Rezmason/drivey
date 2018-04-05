@@ -46,7 +46,9 @@ class Playground
         
         dashboard = new Group();
         skybox = new Group();
-        skybox.add(makeSky());
+        var sky = makeSky();
+        skybox.add(sky);
+        // sky.material.vertexColors = cast 0;
 
         var cockpit:Group = new Group();
         cockpit.add(skybox);
@@ -121,9 +123,11 @@ class Playground
             }
         }
 
+        var color:Color = (new Color(0, 0, 0)).add(new Color(1, 1, 1)).multiplyScalar(0.5);
         var sky = new Mesh(
             skyGeom,
             new MeshBasicMaterial(cast {
+                color: color,
                 vertexColors: 2, // VertexColors
                 side: 1, // BackSide
             })
@@ -132,10 +136,10 @@ class Playground
         return sky;
     }
 
-    function makeMesh(shapePath:ShapePath, amount:Float, curveSegments:UInt, color = 0xFFFFFF) {
+    function makeMesh(shapePath:ShapePath, amount:Float, curveSegments:UInt, colorHex = 0xFFFFFF) {
         return new Mesh(
             new ExtrudeGeometry(shapePath.toShapes(false, false), {amount:amount, bevelEnabled:false, curveSegments:curveSegments}),
-            new MeshBasicMaterial( { wireframe: false, color: color } )
+            screen.getMaterial(colorHex)
         );
     }
 
