@@ -1,6 +1,8 @@
 package drivey;
 
 import drivey.Utils.*;
+import drivey.ThreeUtils.*;
+import drivey.Vector2.ThreeVector2;
 
 class Level {
     public var forms:Array<Form>;
@@ -24,23 +26,37 @@ class Level {
 
     function setup() {
         wallsForm = new Form('wallsForm');
-        roadPath = new Form('roadPath');
         roadForm = new Form('roadForm');
 
         var n = 16;
         var points = [];
+        var minX:Float = Math.POSITIVE_INFINITY;
+        var maxX:Float = Math.NEGATIVE_INFINITY;
+        var minY:Float = Math.POSITIVE_INFINITY;
+        var maxY:Float = Math.NEGATIVE_INFINITY;
         for (i in 0...n)
         {
             var theta:Float = i * Math.PI * 2 / n;
-            points.push(new Vector2(Math.cos(theta), Math.sin(theta)) * (Math.random() + 5));
+            var radius = Math.random() + 5;
+            var point = new Vector2(Math.cos(theta) * radius, Math.sin(theta) * radius);
+            points.push(point);
+            minX = Math.min(minX, point.x);
+            maxX = Math.max(maxX, point.x);
+            minY = Math.min(minY, point.y);
+            maxY = Math.max(maxY, point.y);
         }
+        var centerX = maxX - minX;
+        var centerY = maxY - minY;
+        for (point in points) {
+            point.x -= centerX;
+            point.y -= centerY;
+            point.y *= centerX / centerY;
+            point.x *= 400;
+            point.y *= 400;
+        }
+        roadPath = new Form('roadPath');
         roadPath.addSplineCurve(points, true);
-        roadPath.boxFit();
-        roadPath.scale(new Vector2(400,400));
-        roadPath.recenter();
-
-        roadForm.merge(roadPath);
-
+        
         forms = [];
 
         var layer = addLayer('sharedLayer');
@@ -66,84 +82,53 @@ class Level {
         }
     }
 
-    function makeRoadLine(id:String, p:Form, xpos:Float, width:Float, dashOn:Float, dashOff:Float)
+    function drawRoadLine(form:Form, roadPath:Form, xPos:Float, width:Float, dashOn:Float = 0, dashOff:Float = 0, start:Float = 0, end:Float = 1, divisions:UInt = Form.DIVISIONS)
     {
-        var sh:Form = new Form(id);
-        // TODO
+        width = Math.abs(width);
+        var outsideOffset = xPos - width / 2;
+        var insideOffset = xPos + width / 2;
+
+        if (start == end) {
+            return form;
+        }
+
+        var dashTotal = dashOn + dashOff;
+        if (dashTotal == 0) {
+            dashOn = 0;
+            dashOff = end;
+            dashTotal = end;
+        }
+
+        var numDashes = Math.ceil((end - start) / dashTotal);
+        var diff = 1 / divisions;
+
+        var path = roadPath.shapePath.subPaths[0];
         
-        /*
-        var smooth = dashOn > 0;
-        dashOn = abs(dashOn);
-        var on = true;
-        var begin:Float = 0;
-        var end:Float = p.length;
-        var t0:Float = begin;
-        while (t0 < end)
-        {
-            // we need to establish an interval t0-t1 of the desired length
-            var t1;
+        for (dash in 0...numDashes) {
+            var outsidePoints:Array<ThreeVector2> = [];
+            var insidePoints:Array<ThreeVector2> = [];
 
-            if (on && dashOn == 0) {
-                t1 = t0;
+            var dashStart = start + dash * dashTotal;
+            var dashEnd = Math.min(end, start + (dash + 1) * dashTotal);
+            var i = dashStart;
+            while (i < dashEnd) {
+                outsidePoints.push(cast getExtrudedPointAt(path, i, outsideOffset));
+                insidePoints.push(cast getExtrudedPointAt(path, i, insideOffset));
+                i += diff;
             }
-            else
-            {
-                t1 = p.stepInterval((on ? dashOn : dashOff), t0);
-                if (t1 < 0 || t1 > end) {
-                    t1 = end;
-                }
-            }
-        
-            var p0 = p.getPoint(t0);
-            var p1 = p.getPoint(t1);
-
-            if (on)
-            {
-                var x0 = p.getNormal(t0);
-                var x1 = p.getNormal(t1);
-                if (dashOn == 0)    // special case?
-                {
-                    var c:Form = new Form('$id point');
-                    c.makeCircle(p0 + x0 * xpos, width);
-                    sh.merge(c);
-                }
-                else
-                {
-                    // calculate how many mid points are needed
-                    var between = smooth ? dashOn * 0.5 : 0;
-
-                    sh.addVertex(p0+x0*(xpos-width*0.5));
-                    sh.addVertex(p0+x0*(xpos+width*0.5));
-
-                    for (i in 0...Std.int(between))
-                    {
-                        var t = lerp(t0,t1,(i+1)/(between+1));
-                        var pt = p.getPoint(t) + p.getNormal(t)*(xpos+width*0.5);
-                        sh.addControl(pt);
-                    }
-
-                    sh.addVertex(p1+x1*(xpos+width*0.5));
-                    sh.addVertex(p1+x1*(xpos-width*0.5));
-
-                    for (i in 0...Std.int(between))
-                    {
-                        var t = lerp(t1,t0,(i+1)/(between+1));
-                        var pt = p.getPoint(t) + p.getNormal(t)*(xpos-width*0.5);
-                        sh.addControl(pt);
-                    }
-
-                    sh.closePath();
-                }
-            }
-
-            t0 = t1;
-
-            if (dashOff > 0) {
-                on = !on;
+            outsidePoints.push(cast getExtrudedPointAt(path, dashEnd, outsideOffset));
+            insidePoints.push(cast getExtrudedPointAt(path, dashEnd, insideOffset));
+            outsidePoints.reverse();
+            
+            if (start == 0 && end == 1 && dashTotal == 0) {
+                form.shapePath.subPaths.push(makePolygonPath(outsidePoints));
+                form.shapePath.subPaths.push(makePolygonPath(insidePoints));
+            } else {
+                form.shapePath.subPaths.push(makePolygonPath(outsidePoints.concat(insidePoints)));
             }
         }
-        */
-        return sh;
+        
+        return form;
     }
 
     function addLayer(id:String):Form {

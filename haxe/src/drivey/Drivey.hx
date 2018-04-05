@@ -56,6 +56,7 @@ class Drivey {
     function new() {
 
         Playground.run(scr);
+        return;
 
         scr.showMessage([
             'DRIVEY',
@@ -96,12 +97,12 @@ class Drivey {
         speedoForm.outline(0.025);
 
         var dash:Form = new Form('dash');
-        dash.addPolyLine([
+        dash.addPolygon([
             new Vector2(-0.01,-0.49),
             new Vector2(0.01,-0.49),
             new Vector2(0.01,-0.44),
             new Vector2(-0.01,-0.44),
-        ], true);
+        ]);
         var n = 8;
         for (i in 0...n)
         {
@@ -114,12 +115,12 @@ class Drivey {
 
     function makeSpeedoNeedle():Form {
         var speedoNeedle:Form = new Form('speedoNeedle');
-        speedoNeedle.addPolyLine([
+        speedoNeedle.addPolygon([
             new Vector2(-0.02,0.1),
             new Vector2(-0.005,-0.4),
             new Vector2(0.005,-0.4),
             new Vector2(0.02,0.1),
-        ], true);
+        ]);
         return speedoNeedle;
     }
 

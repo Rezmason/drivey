@@ -1,8 +1,14 @@
 package drivey;
 
-typedef ThreeShape = js.three.Shape;
+import drivey.ThreeUtils.*;
+
+typedef ThreeShapePath = js.three.ShapePath;
 
 class Form {
+
+    public var shapePath:ThreeShapePath;
+
+    public inline static var DIVISIONS:UInt = 250;
 
     public var rgb:Color = 1;
     public var alpha:Float = 1;
@@ -11,10 +17,13 @@ class Form {
     public var length(get, never):UInt;
     public var id(default, null):String;
     
-    public function new(id:String) this.id = id;
+    public function new(id:String) {
+        this.id = id;
+        shapePath = new ThreeShapePath();
+    }
 
-    public function addSplineCurve(points:Array<Vector2>, closed:Bool) { /* TODO */ }
-    public function addPolyLine(points:Array<Vector2>, closed:Bool) { /* TODO */ }
+    public function addSplineCurve(points:Array<Vector2>, closed:Bool) shapePath.subPaths.push(makeSplinePath(cast points, closed));
+    public function addPolygon(points:Array<Vector2>) shapePath.subPaths.push(makePolygonPath(cast points));
     
     public function clone(id:String):Form { return new Form(id); /* TODO */ }
     public function merge(otherForm:Form) { /* TODO */ }
@@ -24,7 +33,7 @@ class Form {
     public function move(xy:Vector2) { /* TODO */ }
     public function rotate(amount:Float) { /* TODO */ }
     public function makeCircle(xy:Vector2, radius:Float) { /* TODO */ }
-    public function makeUnit() { /* TODO */ }
+    public function makeRectangle(xy:Vector2, width:Float, height:Float) { /* TODO */ }
     public function getRect():Rect { return new Rect(); /* TODO */ }
     public function recenter() move(-getRect().center);
 

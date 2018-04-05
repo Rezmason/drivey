@@ -1,6 +1,8 @@
 import js.Browser;
 
 import drivey.Screen;
+import drivey.Level;
+import drivey.levels.*;
 
 import js.three.BufferGeometry;
 import js.three.CatmullRomCurve3;
@@ -18,6 +20,8 @@ import js.three.Vector3;
 import js.three.Vector;
 import js.three.SphereGeometry;
 import js.three.Color;
+
+import drivey.ThreeUtils.*;
 
 class Playground
 {
@@ -83,7 +87,6 @@ class Playground
         var sidesMesh = makeMesh(sides, 21, 20);
         world.add(sidesMesh);
 
-
         function addDashboardElement(path, depth:Float, hasEdge:Bool, hasFill:Bool) {
             var element = new Group();
             if (hasEdge) {
@@ -109,6 +112,9 @@ class Playground
         headlight.subPaths.push(makeHeadlightPath());
         world.add(makeMesh(headlight, 1, 30, 0xFFFFFF));
         /**/
+
+        var level:DeepDarkNight = new DeepDarkNight();
+        screen.drawLevel(level);
     }
 
     function makeSky() {
@@ -241,37 +247,6 @@ class Playground
         form.subPaths.push(innerRim2);
 
         return form;
-    }
-
-    function makeSplinePath(pts:Array<Vector2>, closed:Bool):Path {
-        var spline:Path = new Path();
-        spline.curves.push(cast new CatmullRomCurve3([for (pt in pts) new js.three.Vector3(pt.x, pt.y)], closed));
-        return spline;
-    }
-
-    function makeCirclePath(radius:Float):Path {
-        var circle:Path = new Path();
-        circle.absarc( 0, 0, radius, 0, Math.PI * 2, true);
-        return circle;
-    }
-
-    function makePolygonPath(points:Array<Vector2>):Path {
-        return new Shape(points);
-    }
-
-    function expandPath(source:Path, thickness:Float, divisions:UInt) return new Path([for (i in 0...divisions) getExtrudedPointAt(source, i / divisions, thickness / 2)]);
-
-    function expandShapePath(shapePath:ShapePath, thickness:Float, divisions:UInt):ShapePath {
-        var expansion:ShapePath = new ShapePath();
-        for (subPath in shapePath.subPaths) expansion.subPaths.push(expandPath(subPath, thickness, divisions));
-        return expansion;
-    }
-
-    function getExtrudedPointAt(source:Path, t:Float, offset:Float):Vector2 {
-        while (t < 0) t++;
-        while (t > 1) t--;
-        var tangent:Vector2 = source.getTangent(t);
-        return cast source.getPoint(t).add(new Vector2(-tangent.y * offset, tangent.x * offset));
     }
 
     function update() {

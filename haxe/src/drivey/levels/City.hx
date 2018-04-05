@@ -49,8 +49,8 @@ class City extends Level {
             sh.rgb = ground;
             sh.height = 50;
             sh.extrude = 50;
-            sh.merge(makeRoadLine('cityLine1', roadPath, -200, 15, 0, 200));
-            sh.merge(makeRoadLine('cityLine2', roadPath, 200, 15, 0, 150));
+            sh.merge(drawRoadLine(new Form('cityLine1'), roadPath, -200, 15, 0, 200));
+            sh.merge(drawRoadLine(new Form('cityLine2'), roadPath, 200, 15, 0, 150));
             
             // do bg
             
@@ -58,9 +58,9 @@ class City extends Level {
             sh.rgb = ground;
             sh.height = 70;
             sh.extrude = 70;
-            sh.merge(makeRoadLine('cityLine3', roadPath, -160, 10, -20, 90));
-            sh.merge(makeRoadLine('cityLine4', roadPath, 160, 20, -25, 85));
-            sh.merge(makeRoadLine('cityLine5', roadPath, 260, 20, -25, 40));
+            sh.merge(drawRoadLine(new Form('cityLine3'), roadPath, -160, 10, -20, 90));
+            sh.merge(drawRoadLine(new Form('cityLine4'), roadPath, 160, 20, -25, 85));
+            sh.merge(drawRoadLine(new Form('cityLine5'), roadPath, 260, 20, -25, 40));
 
             // do bg
             
@@ -68,9 +68,9 @@ class City extends Level {
             sh.rgb = ground;
             sh.height = 40;
             sh.extrude = 40;
-            sh.merge(makeRoadLine('cityLine6', roadPath, -80, 20, -25, 150));
-            sh.merge(makeRoadLine('cityLine7', roadPath, 80, 20, -20, 200));
-            sh.merge(makeRoadLine('cityLine8', roadPath, 300, 20, -40, 100));
+            sh.merge(drawRoadLine(new Form('cityLine6'), roadPath, -80, 20, -25, 150));
+            sh.merge(drawRoadLine(new Form('cityLine7'), roadPath, 80, 20, -20, 200));
+            sh.merge(drawRoadLine(new Form('cityLine8'), roadPath, 300, 20, -40, 100));
 
             // do bg
             
@@ -78,15 +78,14 @@ class City extends Level {
             sh.rgb = ground;
             sh.height = 20;
             sh.extrude = 20;
-            sh.merge(makeRoadLine('cityLine9', roadPath, -80, 40, -20, 45));
-            sh.merge(makeRoadLine('cityLine10', roadPath, 80, 40, -25, 40));
+            sh.merge(drawRoadLine(new Form('cityLine9'), roadPath, -80, 40, -20, 45));
+            sh.merge(drawRoadLine(new Form('cityLine10'), roadPath, 80, 40, -25, 40));
         }
         else
         {
             var box:Form = new Form('cityBuilding');
-            box.makeUnit();
-            box.recenter();
-            box.scaleUniform(40);
+            var width = 40;
+            box.makeRectangle(new Vector2(-width / 2, -width / 2), width, width);
 
             var l0:Form = new Form('unused layer citySkyline1');
             l0.rgb = obc;
@@ -146,31 +145,31 @@ class City extends Level {
         sh.rgb = obc;
         sh.extrude = 10;
         sh.height = 10;
-        sh.merge(makeRoadLine('cityWall1', roadPath, -16, 0.2, -0.2, 400));
-        sh.merge(makeRoadLine('cityWall2', roadPath, -12, 0.2, -0.2, 400));
-        sh.merge(makeRoadLine('cityWall3', roadPath, 12, 0.2, -0.2, 300));
-        sh.merge(makeRoadLine('cityWall4', roadPath, 16, 0.2, -0.2, 300));
+        sh.merge(drawRoadLine(new Form('cityWall1'), roadPath, -16, 0.2, -0.2, 400));
+        sh.merge(drawRoadLine(new Form('cityWall2'), roadPath, -12, 0.2, -0.2, 400));
+        sh.merge(drawRoadLine(new Form('cityWall3'), roadPath, 12, 0.2, -0.2, 300));
+        sh.merge(drawRoadLine(new Form('cityWall4'), roadPath, 16, 0.2, -0.2, 300));
         wallsForm.merge(sh);
         
         var sh = addLayer('cityLinesA');
         sh.rgb = obc;
         sh.height = 14;
         sh.extrude = 4;
-        sh.merge(makeRoadLine('cityLine11', roadPath, -14, 6, -0.2, 400));
-        sh.merge(makeRoadLine('cityLine12', roadPath, 14, 6, -0.2, 300));
+        sh.merge(drawRoadLine(new Form('cityLine11'), roadPath, -14, 6, -0.2, 400));
+        sh.merge(drawRoadLine(new Form('cityLine12'), roadPath, 14, 6, -0.2, 300));
         
         var sh = addLayer('cityLinesB');
         sh.rgb = lines;
         sh.height = 0;
-        sh.merge(makeRoadLine('cityLine13', roadPath, 0, 0.1, 60, 0));
-        sh.merge(makeRoadLine('cityLine14', roadPath, 0.2, 0.1, 60, 0));
-        sh.merge(makeRoadLine('cityLine15', roadPath, -6, 0.15, 30, 1));
-        sh.merge(makeRoadLine('cityLine16', roadPath, 6, 0.15, 30, 1));
+        sh.merge(drawRoadLine(new Form('cityLine13'), roadPath, 0, 0.1, 60, 0));
+        sh.merge(drawRoadLine(new Form('cityLine14'), roadPath, 0.2, 0.1, 60, 0));
+        sh.merge(drawRoadLine(new Form('cityLine15'), roadPath, -6, 0.15, 30, 1));
+        sh.merge(drawRoadLine(new Form('cityLine16'), roadPath, 6, 0.15, 30, 1));
         
         var sh = addLayer('cityLinesC');
         sh.height = 0;
         sh.rgb = lines;
-        sh.merge(makeRoadLine('cityLine17', roadPath, -3, 0.15, 3, 12));
-        sh.merge(makeRoadLine('cityLine18', roadPath, 3, 0.15, 3, 12));
+        sh.merge(drawRoadLine(new Form('cityLine17'), roadPath, -3, 0.15, 3, 12));
+        sh.merge(drawRoadLine(new Form('cityLine18'), roadPath, 3, 0.15, 3, 12));
     }
 }

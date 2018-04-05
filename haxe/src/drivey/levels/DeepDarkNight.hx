@@ -15,16 +15,16 @@ class DeepDarkNight extends Level {
         layer.rgb = lines;
         layer.height = 0;
 
-        layer.merge(makeRoadLine('nightLine1', roadPath, 0, 0.2, 4, 10));
-        layer.merge(makeRoadLine('nightLine2', roadPath, -3, 0.15, 30, 2));
-        layer.merge(makeRoadLine('nightLine3', roadPath, 3, 0.15, 30, 2));
+        layer.merge(drawRoadLine(new Form('nightLine1'), roadPath, 0, 0.2, 4, 10));
+        layer.merge(drawRoadLine(new Form('nightLine2'), roadPath, -3, 0.15, 30, 2));
+        layer.merge(drawRoadLine(new Form('nightLine3'), roadPath, 3, 0.15, 30, 2));
 
         var sh = addLayer('nightPosts');
         sh.rgb = lines;
         sh.height = 0.6;
         sh.extrude = 1;
-        sh.merge(makeRoadLine('nightPost1', roadPath, -6, 0.2, 0.2, 50));
-        sh.merge(makeRoadLine('nightPost2', roadPath, 6, 0.2, 0.2, 50));
+        sh.merge(drawRoadLine(new Form('nightPost1'), roadPath, -6, 0.2, 0.2, 50));
+        sh.merge(drawRoadLine(new Form('nightPost2'), roadPath, 6, 0.2, 0.2, 50));
 
         // scr.setTint(0, 0.6, 1);
     }
