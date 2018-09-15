@@ -18,7 +18,7 @@ class Drivey {
     var showSkyGradient:Bool = true;
     var laneOffset:Float = -2.5; // north american
     var laneSpacing:Int = 4;
-    var noAA:Bool = false;
+    // var noAA:Bool = false; // UNUSED
     var rearView:Bool = false;
     var levelID:Int = 3;
     var showDashboard:Bool = true;
@@ -27,19 +27,19 @@ class Drivey {
     var xfunc:Bool = true;
     var zoom:Float = 0.6;
 
-    var appname = 'DRIVEY (graphic test)';
-    var version = '0.15';
-    var copyright = '¬© 2005 Mark Pursey';
+    // var appname = 'DRIVEY (graphic test)'; // UNUSED
+    // var version = '0.15'; // UNUSED
+    // var copyright = '¬© 2005 Mark Pursey'; // UNUSED
     var level:Level;
     var levels:Array<Level>;
     var scr:Screen = new Screen();
     var user:Car = new Car();
     var other:Array<Car> = [];
-    var message:String;
-    var tt:Float = 0;
-    var g_lastTime:Float = 0;
-    var g_lastStep:Float = 0.05;
-    var g_zoom:Float = 1;
+    // var message:String; // UNUSED
+    // var tt:Float = 0; // UNUSED
+    // var g_lastTime:Float = 0; // UNUSED
+    // var g_lastStep:Float = 0.05; // UNUSED
+    // var g_zoom:Float = 1; // UNUSED
 
     var speedoForm:Form;
     var speedoNeedle:Form;
@@ -50,9 +50,9 @@ class Drivey {
     var lastTime:Float;
     var lastStep:Float;
     var lastJoyX:Float;
-    var timer:Timer;
+    // var timer:Timer; // UNUSED
     var finishTime:Float;
-    
+
     function new() {
 
         Playground.run(scr);

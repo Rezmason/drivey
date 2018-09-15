@@ -14,9 +14,9 @@ class ThreeUtils {
         return spline;
     }
 
-    public static function makeCirclePath(radius:Float):Path {
+    public static function makeCirclePath(radius:Float, aClockwise:Bool = true):Path {
         var circle:Path = new Path();
-        circle.absarc( 0, 0, radius, 0, Math.PI * 2, true);
+        circle.absarc( 0, 0, radius, 0, Math.PI * 2, aClockwise);
         return circle;
     }
 
