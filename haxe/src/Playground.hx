@@ -30,6 +30,11 @@ class Playground
     var skybox:Group;
     var wheel:Group;
     var screen:Screen;
+    var roadPath:Path;
+    var cockpit:Group;
+    var carStuff:Group;
+    var needle1:Group;
+    var needle2:Group;
 
     public static function run(screen:Screen)
     {
@@ -41,45 +46,55 @@ class Playground
         init();
         screen.addRenderListener(update);
         // screen.bg = new drivey.Color(0.7, 0.4, 0.1);
+        screen.bg = new drivey.Color(0.0588, 0.0588, 0.0588);
     }
 
     function init() {
         world = new Group();
-        world.position.z = -100;
-        world.rotation.x = -Math.PI / 8;
-        
         dashboard = new Group();
         skybox = new Group();
         var sky = makeSky();
         skybox.add(sky);
         // sky.material.vertexColors = cast 0;
 
-        var cockpit:Group = new Group();
+        cockpit = new Group();
+        cockpit.rotation.order = "ZYX";
+        carStuff = new Group();
+        cockpit.add(carStuff);
+        // cockpit.add(new Mesh(
+        //     new SphereGeometry(1, 10, 10),
+        //     screen.getMaterial(0xFF0000)
+        // ));
         cockpit.add(skybox);
-        cockpit.add(dashboard);
-        cockpit.add(screen.camera);
-        screen.scene.add(cockpit); // For now
+        carStuff.add(screen.camera);
+        carStuff.add(dashboard);
+        screen.scene.add(cockpit);
+
+        screen.orthoCamera.position.set(0, 700, 600);
+        screen.orthoCamera.up = new Vector3(0, 0, 1);
+        screen.orthoCamera.zoom = 0.5;
+        screen.orthoCamera.updateProjectionMatrix();
 
         screen.scene.add(world);
 
-        var roadPath = makeRoadPath();
+        roadPath = makeRoadPath();
 
         var roadStripes = new ShapePath();
-        mergeShapePaths(roadStripes, drawRoadLine(roadPath, new ShapePath(),  10,  1, 0, 1.0, 250));
-        mergeShapePaths(roadStripes, drawRoadLine(roadPath, new ShapePath(), -10,  1, 0, 0.5, 250));
-        world.add(makeMesh(roadStripes, 0, 250, 0xFF8000));
+        mergeShapePaths(roadStripes, drawRoadLine(roadPath, new ShapePath(),  10,  1, 0, 1.0, 1000));
+        mergeShapePaths(roadStripes, drawRoadLine(roadPath, new ShapePath(), -10,  1, 0, 0.5, 1000));
+        world.add(makeMesh(roadStripes, 0, 1000, 0x969696));
 
         var dashedLine = new ShapePath();
-        for (i in 0...50) drawRoadLine(roadPath, dashedLine, 0, 1, i / 50, (i + 0.7) / 50, 250);
+        for (i in 0...500) drawRoadLine(roadPath, dashedLine, 0, 1, i / 500, (i + 0.5) / 500, 1000);
         mergeShapePaths(roadStripes, dashedLine);
-        world.add(makeMesh(dashedLine, 0, 3, 0xFFFF00));
+        world.add(makeMesh(dashedLine, 0, 3, 0x969696));
 
         var tops = new ShapePath();
         var sides = new ShapePath();
-        for (i in 0...5) {
-            drawRoadLine(roadPath, tops, 0, 40, i / 5, (i + 0.005) / 5, 250);
-            drawRoadLine(roadPath, sides, -20, 1, i / 5, (i + 0.005) / 5, 250);
-            drawRoadLine(roadPath, sides,  20, 1, i / 5, (i + 0.005) / 5, 250);
+        for (i in 0...50) {
+            drawRoadLine(roadPath, tops, 0, 40, i / 50, (i + 0.005) / 50, 1000);
+            drawRoadLine(roadPath, sides, -20, 1, i / 50, (i + 0.005) / 50, 1000);
+            drawRoadLine(roadPath, sides,  20, 1, i / 50, (i + 0.005) / 50, 1000);
         }
         var topsMesh = makeMesh(tops, 1, 20);
         topsMesh.position.z = 20;
@@ -87,26 +102,49 @@ class Playground
         var sidesMesh = makeMesh(sides, 21, 20);
         world.add(sidesMesh);
 
-        function addDashboardElement(path, depth:Float, hasEdge:Bool, hasFill:Bool) {
+        function addDashboardElement(path, hasEdge:Bool, hasFill:Bool) {
             var element = new Group();
+
             if (hasEdge) {
-                var edge = makeMesh(expandShapePath(path, 4, 250), 0, 240, 0x333333);
+                var edge = makeMesh(expandShapePath(path, 4.5, 250), 0, 240, 0x343434);
+                edge.position.z = -0.1;
                 element.add(edge);
-                
             }
-            if (hasFill) {
+
+            if (hasFill && hasEdge) {
                 var fill = makeMesh(expandShapePath(path, 1, 250), 0, 240, 0x000000);
-                fill.position.z = 1;
+                fill.position.z = 0;
+                element.add(fill);
+            } else if (hasFill) {
+                var fill = makeMesh(path, 0, 240, 0x343434);
+                fill.position.z = 0;
                 element.add(fill);
             }
             dashboard.add(element);
             return element;
         }
-        wheel = addDashboardElement(makeSteeringWheel(), 0, true, true);
-        wheel.position.set(-30, -50, 0);
-        
-        dashboard.position.z = -100;
-        
+
+        var backing = addDashboardElement(makeDashboardBacking(), true, true);
+        backing.position.set(-50, -60, -110);
+
+        var speedometer1 = addDashboardElement(makeSpeedometer(), false, true);
+        speedometer1.position.set(-25, -35, -105);
+
+        needle1 = addDashboardElement(makeNeedle(), false, true);
+        needle1.position.set(-25, -35, -105);
+
+        var speedometer2 = addDashboardElement(makeSpeedometer(), false, true);
+        speedometer2.position.set(-70, -35, -105);
+
+        needle2 = addDashboardElement(makeNeedle(), false, true);
+        needle2.position.set(-70, -35, -105);
+
+        wheel = addDashboardElement(makeSteeringWheel(), true, true);
+        wheel.position.set(-50, -55, -100);
+        wheel.rotation.z = Math.PI;
+
+        dashboard.scale.set(0.01, 0.01, 0.01);
+
         /*
         var headlight = new ShapePath();
         headlight.subPaths.push(makeHeadlightPath());
@@ -118,22 +156,20 @@ class Playground
     }
 
     function makeSky() {
-        var size = 1000;
+        var size = 10000;
         var skyGeom = new SphereGeometry(size, 10, 10, 0, Math.PI * 2, 0, Math.PI / 2);
         for (face in skyGeom.faces) {
             var vertices = [skyGeom.vertices[face.a], skyGeom.vertices[face.b], skyGeom.vertices[face.c]];
             for (i in 0...3) {
                 var color = new Color();
-                color.setHSL(0, 0, vertices[i].y / size * 2);
+                color.setHSL(0, 0, 0.675 * (1 - (vertices[i].y) / size * 2.25));
                 face.vertexColors[i] = color;
             }
         }
 
-        var color:Color = (new Color(0, 0, 0)).add(new Color(1, 1, 1)).multiplyScalar(0.5);
         var sky = new Mesh(
             skyGeom,
             new MeshBasicMaterial(cast {
-                color: color,
                 vertexColors: 2, // VertexColors
                 side: 1, // BackSide
             })
@@ -142,7 +178,7 @@ class Playground
         return sky;
     }
 
-    function makeMesh(shapePath:ShapePath, amount:Float, curveSegments:UInt, colorHex = 0xFFFFFF) {
+    function makeMesh(shapePath:ShapePath, amount:Float, curveSegments:UInt, colorHex = 0x0f0f0f) {
         return new Mesh(
             new ExtrudeGeometry(shapePath.toShapes(false, false), {amount:amount, bevelEnabled:false, curveSegments:curveSegments}),
             screen.getMaterial(colorHex)
@@ -161,7 +197,7 @@ class Playground
         if (start == end) {
             return form;
         }
-        
+
         var outsidePoints:Array<Vector2> = [];
         var insidePoints:Array<Vector2> = [];
         var diff = 1 / divisions;
@@ -174,7 +210,7 @@ class Playground
         outsidePoints.push(cast getExtrudedPointAt(roadPath, end, outsideOffset));
         insidePoints.push(cast getExtrudedPointAt(roadPath, end, insideOffset));
         outsidePoints.reverse();
-        
+
         if (start == 0 && end == 1) {
             form.subPaths.push(makePolygonPath(outsidePoints));
             form.subPaths.push(makePolygonPath(insidePoints));
@@ -193,8 +229,8 @@ class Playground
         for (i in 0...n)
         {
             var theta:Float = i * Math.PI * 2 / n;
-            var mag = (Math.random() + 5) * 20;
-            var pt = new Vector2(Math.cos(theta) * mag, Math.sin(theta) * mag);
+            var mag = (Math.random() + 10) * 200;
+            var pt = new Vector2(Math.cos(theta) * -mag, Math.sin(theta) * mag);
             pts.push(pt);
         }
 
@@ -208,17 +244,71 @@ class Playground
             new Vector2( 4,  15),
             new Vector2( 0,   0),
         ];
-        
+
         return makeSplinePath(pts, true);
     }
 
+    function makeDashboardBacking() {
+        var pts:Array<Vector2> = [
+            new Vector2(-170, -30),
+            new Vector2(-170,  30),
+            new Vector2( 170,  30),
+            new Vector2( 170, -30),
+        ];
+
+        var path = makeSplinePath(pts, true);
+        var form:ShapePath = new ShapePath();
+        form.subPaths.push(path);
+        return form;
+    }
+
+    function makeSpeedometer() {
+        var form:ShapePath = new ShapePath();
+
+        var outerRadius = 20;
+        var innerRadius = outerRadius - 1;
+        var dashEnd = innerRadius - 2;
+
+        var outerRim = makeCirclePath(outerRadius);
+        var innerRim = makeCirclePath(innerRadius, false);
+
+        form.subPaths.push(outerRim);
+        form.subPaths.push(innerRim);
+
+        var nudge = Math.PI * 0.0075;
+
+        for (i in 0...10) {
+            var angle = Math.PI * 2 * (i + 0.5) / 10;
+            form.subPaths.push(makePolygonPath([
+                new Vector2(Math.cos(angle - nudge) * outerRadius, Math.sin(angle - nudge) * outerRadius),
+                new Vector2(Math.cos(angle - nudge) * dashEnd, Math.sin(angle - nudge) * dashEnd),
+                new Vector2(Math.cos(angle + nudge) * dashEnd, Math.sin(angle + nudge) * dashEnd),
+                new Vector2(Math.cos(angle + nudge) * outerRadius, Math.sin(angle + nudge) * outerRadius),
+            ]));
+        }
+
+        return form;
+    }
+
+    function makeNeedle() {
+        var form:ShapePath = new ShapePath();
+        var scale = 40;
+        form.subPaths.push(makePolygonPath([
+            new Vector2(-0.02 * scale, 0.1 * scale),
+            new Vector2(-0.005 * scale, -0.4 * scale),
+            new Vector2(0.005 * scale, -0.4 * scale),
+            new Vector2(0.02 * scale, 0.1 * scale),
+        ]));
+        return form;
+    }
+
     function makeSteeringWheel() {
-        var scale = 90;
+        var scale:Float = 148;
 
         var form:ShapePath = new ShapePath();
 
         var outerRim = makeCirclePath(scale * 0.5);
-        
+
         var innerRim1Points = [];
         var n = 60;
         for (i in 0...25) {
@@ -249,12 +339,63 @@ class Playground
         return form;
     }
 
+    var carT:Float = 0;
+
     function update() {
-        world.rotation.z += 0.005;
-        wheel.rotation.z = Math.PI + Math.sin(haxe.Timer.stamp()) / 2;
-        // skybox.rotation.y += 0.05;
-        // screen.clear();
-        world.position.z = -300;
-        world.rotation.x = -0.4 * Math.PI;
+
+        var step = 0.0001;
+        var simSpeed = 1.0;
+        if (screen.isKeyDown('ShiftLeft') || screen.isKeyDown('ShiftRight')) simSpeed = 0.125;
+        else if (screen.isKeyDown('ControlLeft') || screen.isKeyDown('ControlRight')) simSpeed = 4;
+
+        // BEGIN FAKE CAR STUFF
+        var carSpeed = 2.5;
+        var roadMidOffset = -5;
+        carT = (carT + (step * simSpeed * carSpeed)) % 1;
+        var carPosition = getExtrudedPointAt(roadPath, carT, roadMidOffset);
+        var nextPosition = getExtrudedPointAt(roadPath, (carT + 0.001) % 1, roadMidOffset);
+        // END FAKE CAR STUFF
+
+        var angle = Math.atan2(nextPosition.y - carPosition.y, nextPosition.x - carPosition.x) - Math.PI / 2;
+
+        var tilt = diffAngle(angle, cockpit.rotation.z);
+        wheel.rotation.z = lerpAngle(wheel.rotation.z, Math.PI - tilt * 4, 0.1 * simSpeed);
+
+        cockpit.position.set(carPosition.x, carPosition.y, 3.0);
+        cockpit.rotation.set(Math.PI * 0.5, 0, lerpAngle(cockpit.rotation.z, angle, 0.05 * simSpeed));
+        carStuff.rotation.x = Math.PI * -0.0625;
+
+        screen.camera.rotation.z = lerpAngle(screen.camera.rotation.z, tilt, 0.1 * simSpeed);
+
+        screen.orthoCamera.lookAt(cockpit.position);
+
+        needle1.rotation.z += step * simSpeed * 100;
+        needle2.rotation.z += step * simSpeed * 100;
+
+        if (screen.isKeyHit('KeyC')) {
+            if (dashboard.parent != null) {
+                carStuff.remove(dashboard);
+            } else {
+                carStuff.add(dashboard);
+            }
+        }
+        if (screen.isKeyHit('Digit0')) screen.useOrtho = !screen.useOrtho;
+        if (screen.isKeyHit('Digit2')) screen.wireframe = !screen.wireframe;
+        if (screen.isKeyHit('Digit4')) screen.camera.rotation.y += Math.PI;
+    }
+
+    static function diffAngle(a:Float, b:Float):Float {
+        a = a % (Math.PI * 2);
+        b = b % (Math.PI * 2);
+        if (a - b > Math.PI) {
+            b += Math.PI * 2;
+        } else if (b - a > Math.PI) {
+            a += Math.PI * 2;
+        }
+        return b - a;
+    }
+
+    static function lerpAngle(from:Float, to:Float, amount:Float):Float {
+        return from + diffAngle(from, to) * amount;
     }
 }
