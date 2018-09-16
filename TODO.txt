@@ -22,6 +22,7 @@ Three.js
     Color stuff
         Background tinting
             That sky-low, sky-high stuff
+            Ground, too
 
     Car mesh
         Make one yourself, man
