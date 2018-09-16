@@ -20,17 +20,18 @@ Three.js
     Left-right lane switch
 
     Color stuff
-        Background tinting
-            That sky-low, sky-high stuff
-            Ground, too
+        Object coloration
+        Level tint, high, low, ground
+            Background tinting
 
     Car mesh
         Make one yourself, man
         Add headlights
         Add tail lights
 
-    White on blue wireframe support
-        Doesn't have to be as pretty
+    wireframe support
+        White on blue
+    Doesn't have to be as pretty
 
 Javascript prep
     Replace operators with method calls

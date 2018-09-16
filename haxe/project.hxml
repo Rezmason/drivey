@@ -1,4 +1,4 @@
 -cp src
 -cp extern
--main drivey.Drivey
+-main Main
 -js drivey.js

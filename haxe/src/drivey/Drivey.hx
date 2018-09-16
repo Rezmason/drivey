@@ -7,8 +7,6 @@ import drivey.Utils.*;
 
 class Drivey {
 
-    static function main() new Drivey();
-
     var auto:Bool = true;
     var center:Vector2 = new Vector2(0.5, 0.3);
     var collisions:Bool = true;
@@ -28,7 +26,7 @@ class Drivey {
 
     var level:Level;
     var levels:Array<Level>;
-    var scr:Screen = new Screen();
+    var scr:Screen;
     var user:Car = new Car();
     var other:Array<Car> = [];
 
@@ -43,9 +41,10 @@ class Drivey {
     var lastJoyX:Float;
     var finishTime:Float;
 
-    function new() {
+    public function new() {
+        return;
 
-        Playground.run(scr);
+        scr = new Screen();
 
         scr.showMessage([
             'DRIVEY',
@@ -63,7 +62,6 @@ class Drivey {
         levels.push(new IndustrialZone());
         levels.push(new DeepDarkNight());
 
-        setLevel(3); scr.drawLevel(level); return;
 
         // speedoForm = makeSpeedoForm();
         // speedoNeedle = makeSpeedoNeedle();

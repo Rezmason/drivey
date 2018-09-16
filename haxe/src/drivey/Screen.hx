@@ -40,8 +40,6 @@ class Screen {
     var levelContents:Group;
     var entities:Group;
 
-    var basicMaterialsByHex:Map<Int, MeshBasicMaterial> = new Map();
-
     var keysDown:Map<String, Bool> = new Map();
     var keysHit:Map<String, Bool> = new Map();
 
@@ -67,7 +65,7 @@ class Screen {
         renderer.setPixelRatio( Browser.window.devicePixelRatio );
         Browser.window.addEventListener( 'resize', onWindowResize, false );
         onWindowResize();
-        
+
         element.appendChild(renderer.domElement);
         renderer.domElement.id = 'renderer';
 
@@ -111,9 +109,9 @@ class Screen {
             }
         }
         for (key in keysHit.keys()) keysHit.remove(key);
-        
+
     }
-    
+
     function render() {
         renderer.render( scene, useOrtho ? orthoCamera : camera );
     }
@@ -229,14 +227,8 @@ class Screen {
         orthoCamera.updateProjectionMatrix();
     }
 
-    public function getMaterial(colorHex:Int):MeshBasicMaterial {
-        if (!basicMaterialsByHex.exists(colorHex)) {
-            basicMaterialsByHex.set(colorHex, new MeshBasicMaterial({color:colorHex}));
-        }
-        return basicMaterialsByHex[colorHex];
-    }
-
     function set_wireframe(val:Bool):Bool {
+        /*
         if (wireframe != val) {
             wireframe = val;
             for (material in basicMaterialsByHex) {
@@ -245,5 +237,8 @@ class Screen {
         }
         trace(wireframe);
         return wireframe;
+        */
+        // TODO
+        return val;
     }
 }
