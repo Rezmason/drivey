@@ -10,7 +10,7 @@ class DeepDarkNight extends Level {
         skyHigh = 0;
         skyLow = 0;
         var lines:Color = 0.75;
-        roadForm.scaleUniform(2);
+        roadPath.scale(2, 2); // roadForm.applyScale(2, 2);
         var layer = addLayer('nightLines');
         layer.rgb = lines;
         layer.height = 0;

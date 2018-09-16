@@ -151,28 +151,9 @@ class Screen {
         }
     }
 
-    public function addLevelContent(object:Object3D, id:String) {
-        if (object.parent != levelContents) {
-            levelContents.add(object);
-            levelContentIDs.push(id);
-        }
-    }
-
     public function drawLevel(level:Level) {
         for (object in levelContents.children) levelContents.remove(object);
-
-        var nextTrace = levelContentIDs.join('\n');
-        if (lastTrace != nextTrace) {
-            trace(nextTrace);
-            lastTrace = nextTrace;
-        }
-        levelContentIDs = [];
-
-        for (form in level.forms)
-        {
-            // form.bake();
-            // addLevelContent(form.object, form.id);
-        }
+        levelContents.add(level.object);
     }
 
     public function drawForm(form:Form) {

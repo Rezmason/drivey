@@ -13,6 +13,7 @@ class Vector3Axes {
     static inline function wrap(v:js.three.Vector):Vector3 return cast v;
     public inline function new(x:Float = 0, y:Float = 0, z:Float = 0) this = new ThreeVector3(x, y, z);
     public inline function set(x:Float, y:Float, z:Float) this.set(x, y, z);
+    public inline function copy(other:Vector3) this.set(other.x, other.y, other.z);
     public function rotateX(amount:Float):Vector3 return wrap(this.applyAxisAngle(Vector3Axes.X_AXIS, amount));
     public function rotateY(amount:Float):Vector3 return wrap(this.applyAxisAngle(Vector3Axes.Y_AXIS, amount));
     public function rotateZ(amount:Float):Vector3 return wrap(this.applyAxisAngle(Vector3Axes.Z_AXIS, amount));

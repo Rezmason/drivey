@@ -52,7 +52,7 @@ class Car
         brake = 0;
 
         angle = 0;
-        
+
         tilt = 0;
         pitch = 0;
 
@@ -97,6 +97,7 @@ class Car
 
     public function collideWithForm(form:Form):Float
     {
+        /*
         var nearestPoint = form.getNearestPoint(w2m(pos));
         if (nearestPoint == null) return Math.POSITIVE_INFINITY;
         var pt = m2w(nearestPoint);
@@ -114,6 +115,8 @@ class Car
             pos -= push;
         }
         return dist;
+        */
+        return 0; // TODO
     }
 
     public function dir()

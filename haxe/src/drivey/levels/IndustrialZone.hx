@@ -3,7 +3,7 @@ package drivey.levels;
 import drivey.Utils.*;
 
 class IndustrialZone extends Level {
-    
+
     override function build() {
         name = 'The Industrial Zone';
         tint = new Color(0.7, 0.4, 0.1);
@@ -20,7 +20,7 @@ class IndustrialZone extends Level {
         if (true)
         {
             // very tall things
-            
+
             var sh = addLayer('industrialTallThingA');
             sh.rgb = 1;
             sh.height = 62;
@@ -68,13 +68,13 @@ class IndustrialZone extends Level {
             // do crossings
             if (true)
             {
-                
+
                 var sh = addLayer('industrialCrossing');
                 sh.rgb = ground;
                 sh.merge(drawRoadLine(new Form('industrialCrossingBase'), roadPath, 0, 1, -2, 200));
                 sh.expand(1);
 
-                
+
                 var sh = addLayer('industrialCrossingLines');
                 sh.rgb = lines;
                 for (i in 0...6)
@@ -93,14 +93,14 @@ class IndustrialZone extends Level {
             var thick = 0.2;
             var tall = 15;
 
-            
+
             var sh = addLayer('industrialStreetLight1');
             sh.rgb = obc;
             sh.height = tall + thick;
             sh.extrude = thick;
             sh.merge(drawRoadLine(new Form('industrialStreetLight1'), roadPath, -5.6, 5, thick, left));
 
-            
+
             var sh = addLayer('industrialStreetLight2');
             sh.rgb = obc;
             sh.height = tall;
@@ -108,7 +108,7 @@ class IndustrialZone extends Level {
             sh.merge(drawRoadLine(new Form('industrialStreetLight2'), roadPath, -8, thick, thick, left));
             wallsForm.merge(sh);
 
-            
+
             var sh = addLayer('industrialStreetLight3');
             sh.rgb = 1;
             sh.height = tall;
@@ -121,17 +121,17 @@ class IndustrialZone extends Level {
         {
             var depth = 8;
             var spacing = 300;
-            var highwayAbove = roadPath.clone('highwayAbove');
-            highwayAbove.scale(new Vector2(1,1.5));
+            var highwayAbove = roadPath.clone();
+            highwayAbove.scale(1, 1.5);
 
             var sh = addLayer('industrialOverpassA');
             sh.rgb = obc;
             sh.height = 12;
             sh.extrude = 2;
             sh.merge(drawRoadLine(new Form('industrialOverpass1'), highwayAbove, 0, 162, -depth, spacing));
-            sh.scale(new Vector2(1,1/1.5));
+            sh.applyScale(1,1/1.5);
 
-            
+
             var sh = addLayer('industrialOverpassB');
             sh.rgb = obc;
             sh.height = 10;
@@ -142,11 +142,11 @@ class IndustrialZone extends Level {
             sh.merge(drawRoadLine(new Form('industrialOverpass5'), highwayAbove, 10, 2, -depth, spacing));
             sh.merge(drawRoadLine(new Form('industrialOverpass6'), highwayAbove, 40, 2, -depth, spacing));
             sh.merge(drawRoadLine(new Form('industrialOverpass7'), highwayAbove, 200, 242, -depth, spacing));
-            sh.scale(new Vector2(1,1/1.5));
+            sh.applyScale(1,1/1.5);
 
             var wall:Form = drawRoadLine(new Form('industrialWall1'), highwayAbove, -10, 2, -depth, spacing);
             wall.merge(drawRoadLine(new Form('industrialWall2'), highwayAbove, 10, 2, -depth, spacing));
-            wall.scale(new Vector2(1,1/1.5));
+            wall.applyScale(1,1/1.5);
             wallsForm.merge(wall);
         }
 
@@ -170,7 +170,7 @@ class IndustrialZone extends Level {
             sh.merge(drawRoadLine(new Form('industrialPole8'), roadPath, 70, 0.25, 0, 75));
 
             // knobs
-            
+
             var sh = addLayer('industrialKnobs');
             sh.rgb = obc;
             sh.height = 13;
@@ -179,7 +179,7 @@ class IndustrialZone extends Level {
             sh.merge(drawRoadLine(new Form('industrialKnob2'), roadPath, 60, 1, 0, 60));
 
             // wires
-            
+
             var sh = addLayer('industrialWires');
             sh.rgb = obc;
             sh.height = 11.25;
@@ -198,7 +198,7 @@ class IndustrialZone extends Level {
             var spacing = 30;
             var dist = 25;
 
-            
+
             var sh = addLayer('industrialFenceA');
             sh.rgb = obc;
             sh.height = tall;
@@ -207,7 +207,7 @@ class IndustrialZone extends Level {
             sh.merge(drawRoadLine(new Form('industrialFence1'), roadPath, -dist, 0.1, 0, spacing));
             sh.merge(drawRoadLine(new Form('industrialFence2'), roadPath, dist, 0.1, 0, spacing));
 
-            
+
             var sh = addLayer('industrialFenceB');
             sh.rgb = obc;
             sh.height = tall-0.5;
@@ -216,7 +216,7 @@ class IndustrialZone extends Level {
             sh.merge(drawRoadLine(new Form('industrialFence3'), roadPath, -dist, 0.1, -spacing, 0));
             sh.merge(drawRoadLine(new Form('industrialFence4'), roadPath, dist, 0.1, -spacing, 0));
 
-            
+
             var sh = addLayer('industrialFenceC');
             sh.rgb = obc;
             sh.alpha = 0.25;

@@ -1,47 +1,35 @@
 Three.js
 
-    Form should use ShapePath
-
-    Create levels in Playground
-        Level
-        DeepDarkNight
-        Tunnel
-        City
-        IndustrialZone
-
-    Merging is more complicated than it seemed
-        If two forms specify a height, does merging them preserve that difference? What about color?
-        Can a form specify no color, so that it's inherited from a parent?
-
-    Playground
-        Dashboard
-            Backing
-            Speedometers
-            Left-right switch
-        Vertex shader tinting
-        Background tinting
-        Car
-            Scaled extruded unit squares
-            headlights
-            tail lights
-
-    Build scene graph once
-        Other cars are cloned from car template
+    Just... fuck forms
+        Box up whatever Playground does
+        Make levels based on that
+            Level
+            DeepDarkNight
+            Tunnel
+            City
+            IndustrialZone
 
     They say to merge all the geometry you can
+        Use just one material, then store brightness values on vertices
         Backgrounds, meshes that don't move but have the same material
 
-    Camera
-        Replace all that projection stuff
-        Plug into tilt,pitch,zoom
-    Screen stuff
-        Everything besides skybox is a tinted solid color
-            Screen RGB and alpha properties on Screen are unnecessary
-        White on blue wireframe support
-            Doesn't have to be as pretty
+    Port car logic
+        Just stick a box around them for now
+        Replace bogus car data with real data
+        Speedometers
+    Left-right lane switch
 
-    Zoom shouldn't affect dashboard
-        Dashboard pass?
+    Color stuff
+        Background tinting
+            That sky-low, sky-high stuff
+
+    Car mesh
+        Make one yourself, man
+        Add headlights
+        Add tail lights
+
+    White on blue wireframe support
+        Doesn't have to be as pretty
 
 Javascript prep
     Replace operators with method calls
@@ -50,9 +38,9 @@ Javascript prep
 Javascript
     from Haxe, by hand
 
+Reshape it to conform to Jujuscript code
+
 Optimization
     Use the profiler to find bottlenecks
 
 Am I doing splines right?
-
-Pixelation exploration

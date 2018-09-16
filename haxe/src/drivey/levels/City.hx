@@ -7,7 +7,7 @@ class City extends Level {
         name = 'The City';
         tint = new Color(0.3, 0.3, 0.7) * 1.5;
 
-        roadPath.scaleUniform(2);
+        roadPath.scale(2, 2);
 
         ground = 0.05;
         var lines:Color = 0.6;
@@ -31,15 +31,14 @@ class City extends Level {
                 }
 
                 p *= 8000;
-                if ((p - sh.getNearestPoint(p)).length() < 200) {
-                    continue;
-                }
+                // TODO: if < 200 from any existing cloud's edge, continue
+                // if ((p - sh.getNearestPoint(p)).length() < 200) { continue; } // OLD
 
-                sh2.makeCircle(p, 500);
+                sh2.addCircle(p.x, p.y, 500);
                 sh.merge(sh2);
             }
             // sh.makeBendy(); // No idea what the hell this is
-            sh.scaleUniform(2);
+            sh.applyScale(2, 2);
             sh.height *= 2;
         }
         // do bg
@@ -51,9 +50,9 @@ class City extends Level {
             sh.extrude = 50;
             sh.merge(drawRoadLine(new Form('cityLine1'), roadPath, -200, 15, 0, 200));
             sh.merge(drawRoadLine(new Form('cityLine2'), roadPath, 200, 15, 0, 150));
-            
+
             // do bg
-            
+
             var sh = addLayer('cityBG2');
             sh.rgb = ground;
             sh.height = 70;
@@ -63,7 +62,7 @@ class City extends Level {
             sh.merge(drawRoadLine(new Form('cityLine5'), roadPath, 260, 20, -25, 40));
 
             // do bg
-            
+
             var sh = addLayer('cityBG3');
             sh.rgb = ground;
             sh.height = 40;
@@ -73,7 +72,7 @@ class City extends Level {
             sh.merge(drawRoadLine(new Form('cityLine8'), roadPath, 300, 20, -40, 100));
 
             // do bg
-            
+
             var sh = addLayer('cityBG4');
             sh.rgb = ground;
             sh.height = 20;
@@ -85,7 +84,7 @@ class City extends Level {
         {
             var box:Form = new Form('cityBuilding');
             var width = 40;
-            box.makeRectangle(new Vector2(-width / 2, -width / 2), width, width);
+            box.addRectangle(-width / 2, -width / 2, width, width);
 
             var l0:Form = new Form('unused layer citySkyline1');
             l0.rgb = obc;
@@ -117,13 +116,11 @@ class City extends Level {
                         continue;
                     }
 
-                    var pt = roadPath.getNearestPoint(pos);
-                    if ((pt - pos).length() < 60) {
-                        continue;
-                    }
+                    // TODO: mark which squares in city grid are too close, and flatten them
+                    // if ((roadPath.getNearestPoint(pos) - pos).length() < 60) { continue; } // OLD
 
                     var s:Form = box.clone('cityBuilding$i');
-                    s.move(pos);
+                    s.applyTranslation(pos.x, pos.y);
                     if (Math.random() > 0.8) {
                         l0.merge(s);
                     }
@@ -140,7 +137,7 @@ class City extends Level {
             }
         }
 
-        
+
         var sh = addLayer('cityWalls');
         sh.rgb = obc;
         sh.extrude = 10;
@@ -150,14 +147,14 @@ class City extends Level {
         sh.merge(drawRoadLine(new Form('cityWall3'), roadPath, 12, 0.2, -0.2, 300));
         sh.merge(drawRoadLine(new Form('cityWall4'), roadPath, 16, 0.2, -0.2, 300));
         wallsForm.merge(sh);
-        
+
         var sh = addLayer('cityLinesA');
         sh.rgb = obc;
         sh.height = 14;
         sh.extrude = 4;
         sh.merge(drawRoadLine(new Form('cityLine11'), roadPath, -14, 6, -0.2, 400));
         sh.merge(drawRoadLine(new Form('cityLine12'), roadPath, 14, 6, -0.2, 300));
-        
+
         var sh = addLayer('cityLinesB');
         sh.rgb = lines;
         sh.height = 0;
@@ -165,7 +162,7 @@ class City extends Level {
         sh.merge(drawRoadLine(new Form('cityLine14'), roadPath, 0.2, 0.1, 60, 0));
         sh.merge(drawRoadLine(new Form('cityLine15'), roadPath, -6, 0.15, 30, 1));
         sh.merge(drawRoadLine(new Form('cityLine16'), roadPath, 6, 0.15, 30, 1));
-        
+
         var sh = addLayer('cityLinesC');
         sh.height = 0;
         sh.rgb = lines;

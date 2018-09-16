@@ -80,12 +80,15 @@ class Playground
         roadPath = makeRoadPath();
 
         var roadStripes = new ShapePath();
-        mergeShapePaths(roadStripes, drawRoadLine(roadPath, new ShapePath(),  10,  1, 0, 1.0, 1000));
-        mergeShapePaths(roadStripes, drawRoadLine(roadPath, new ShapePath(), -10,  1, 0, 0.5, 1000));
+        mergeShapePaths(roadStripes, drawRoadLine(roadPath, new ShapePath(),  10, 0.5, 0, 1.0, 1000));
+        mergeShapePaths(roadStripes, drawRoadLine(roadPath, new ShapePath(), -10, 0.5, 0, 1.0, 1000));
         world.add(makeMesh(roadStripes, 0, 1000, 0x969696));
 
         var dashedLine = new ShapePath();
-        for (i in 0...500) drawRoadLine(roadPath, dashedLine, 0, 1, i / 500, (i + 0.5) / 500, 1000);
+        for (i in 0...200) {
+            drawRoadLine(roadPath, dashedLine,  0.25, 0.25, i / 200, (i + 0.5) / 200, 1000);
+            drawRoadLine(roadPath, dashedLine, -0.25, 0.25, i / 200, (i + 0.5) / 200, 1000);
+        }
         mergeShapePaths(roadStripes, dashedLine);
         world.add(makeMesh(dashedLine, 0, 3, 0x969696));
 
@@ -102,16 +105,16 @@ class Playground
         var sidesMesh = makeMesh(sides, 21, 20);
         world.add(sidesMesh);
 
-        function addDashboardElement(path, hasEdge:Bool, hasFill:Bool) {
+        function addDashboardElement(path, edgeAmount:Float = 0, hasFill:Bool) {
             var element = new Group();
 
-            if (hasEdge) {
-                var edge = makeMesh(expandShapePath(path, 4.5, 250), 0, 240, 0x343434);
+            if (edgeAmount != 0) {
+                var edge = makeMesh(expandShapePath(path, 1 + edgeAmount, 250), 0, 240, 0x343434);
                 edge.position.z = -0.1;
                 element.add(edge);
             }
 
-            if (hasFill && hasEdge) {
+            if (hasFill && edgeAmount != 0) {
                 var fill = makeMesh(expandShapePath(path, 1, 250), 0, 240, 0x000000);
                 fill.position.z = 0;
                 element.add(fill);
@@ -124,22 +127,24 @@ class Playground
             return element;
         }
 
-        var backing = addDashboardElement(makeDashboardBacking(), true, true);
+        var edge = 2; // 3.5
+
+        var backing = addDashboardElement(makeDashboardBacking(), edge, true);
         backing.position.set(-50, -60, -110);
 
-        var speedometer1 = addDashboardElement(makeSpeedometer(), false, true);
+        var speedometer1 = addDashboardElement(makeSpeedometer(), 0, true);
         speedometer1.position.set(-25, -35, -105);
 
-        needle1 = addDashboardElement(makeNeedle(), false, true);
+        needle1 = addDashboardElement(makeNeedle(), 0, true);
         needle1.position.set(-25, -35, -105);
 
-        var speedometer2 = addDashboardElement(makeSpeedometer(), false, true);
+        var speedometer2 = addDashboardElement(makeSpeedometer(), 0, true);
         speedometer2.position.set(-70, -35, -105);
 
-        needle2 = addDashboardElement(makeNeedle(), false, true);
+        needle2 = addDashboardElement(makeNeedle(), 0, true);
         needle2.position.set(-70, -35, -105);
 
-        wheel = addDashboardElement(makeSteeringWheel(), true, true);
+        wheel = addDashboardElement(makeSteeringWheel(), edge, true);
         wheel.position.set(-50, -55, -100);
         wheel.rotation.z = Math.PI;
 
@@ -269,8 +274,8 @@ class Playground
         var innerRadius = outerRadius - 1;
         var dashEnd = innerRadius - 2;
 
-        var outerRim = makeCirclePath(outerRadius);
-        var innerRim = makeCirclePath(innerRadius, false);
+        var outerRim = makeCirclePath(0, 0, outerRadius);
+        var innerRim = makeCirclePath(0, 0, innerRadius, false);
 
         form.subPaths.push(outerRim);
         form.subPaths.push(innerRim);
@@ -307,7 +312,7 @@ class Playground
 
         var form:ShapePath = new ShapePath();
 
-        var outerRim = makeCirclePath(scale * 0.5);
+        var outerRim = makeCirclePath(0, 0, scale * 0.5);
 
         var innerRim1Points = [];
         var n = 60;

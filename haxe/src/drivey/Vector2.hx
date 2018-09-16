@@ -7,6 +7,7 @@ typedef ThreeVector2 = js.three.Vector2;
     static inline function wrap(v:js.three.Vector):Vector2 return cast v;
 
     public inline function new(x:Float = 0, y:Float = 0) this = new ThreeVector2(x, y);
+    public inline function copy(other:Vector2) this.set(other.x, other.y);
     public inline function getAngle():Float return this.angle();
     @:op(A * B) static inline function multiplyScalar(a:Vector2, b:Float):Vector2 return wrap(a.unwrap().clone().multiplyScalar(b));
     @:op(A / B) static inline function divideScalar(a:Vector2, b:Float):Vector2 return wrap(a.unwrap().clone().divideScalar(b));

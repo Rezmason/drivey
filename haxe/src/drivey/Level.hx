@@ -5,10 +5,11 @@ import drivey.ThreeUtils.*;
 import drivey.Vector2.ThreeVector2;
 
 class Level {
+    public var object:drivey.Form.ThreeGroup;
     public var forms:Array<Form>;
-    public var roadForm:Form;
+    // public var roadForm:Form;
     public var wallsForm:Form;
-    public var roadPath:Form;
+    public var roadPath:RoadPath;
     public var name:String;
 
     var ground:Color;
@@ -26,7 +27,7 @@ class Level {
 
     function setup() {
         wallsForm = new Form('wallsForm');
-        roadForm = new Form('roadForm');
+        // roadForm = new Form('roadForm');
 
         var n = 16;
         var points = [];
@@ -54,9 +55,8 @@ class Level {
             point.x *= 400;
             point.y *= 400;
         }
-        roadPath = new Form('roadPath');
-        roadPath.addSplineCurve(points, true);
-        
+        roadPath = new RoadPath(points);
+
         forms = [];
 
         var layer = addLayer('sharedLayer');
@@ -73,16 +73,21 @@ class Level {
     }
 
     function finish() {
-        var scale = new Vector2(1.25,1.25);
-        roadForm.scale(scale);
-        wallsForm.scale(scale);
+        var scale = 1.25;
+        // roadForm.applyScale(scale, scale);
+        wallsForm.applyScale(scale, scale);
         for (i in 0...forms.length)
         {
-            forms[i].scale(scale);
+            forms[i].applyScale(scale, scale);
         }
+
+        var everything = new Form('level');
+        everything.merge(wallsForm);
+        for (form in forms) everything.merge(form);
+        object = everything.object;
     }
 
-    function drawRoadLine(form:Form, roadPath:Form, xPos:Float, width:Float, dashOn:Float = 0, dashOff:Float = 0, start:Float = 0, end:Float = 1, divisions:UInt = Form.DIVISIONS)
+    function drawRoadLine(form:Form, roadPath:RoadPath, xPos:Float, width:Float, dashOn:Float = 0, dashOff:Float = 0, start:Float = 0, end:Float = 1, divisions:UInt = Form.DIVISIONS)
     {
         width = Math.abs(width);
         var outsideOffset = xPos - width / 2;
@@ -102,11 +107,11 @@ class Level {
         var numDashes = Math.ceil((end - start) / dashTotal);
         var diff = 1 / divisions;
 
-        var path = roadPath.shapePath.subPaths[0];
-        
+        var path = roadPath.curve;
+
         for (dash in 0...numDashes) {
-            var outsidePoints:Array<ThreeVector2> = [];
-            var insidePoints:Array<ThreeVector2> = [];
+            var outsidePoints:Array<Vector2> = [];
+            var insidePoints:Array<Vector2> = [];
 
             var dashStart = start + dash * dashTotal;
             var dashEnd = Math.min(end, start + (dash + 1) * dashTotal);
@@ -119,15 +124,15 @@ class Level {
             outsidePoints.push(cast getExtrudedPointAt(path, dashEnd, outsideOffset));
             insidePoints.push(cast getExtrudedPointAt(path, dashEnd, insideOffset));
             outsidePoints.reverse();
-            
+
             if (start == 0 && end == 1 && dashTotal == 0) {
-                form.shapePath.subPaths.push(makePolygonPath(outsidePoints));
-                form.shapePath.subPaths.push(makePolygonPath(insidePoints));
+                form.addPolygonPath(outsidePoints);
+                form.addPolygonPath(insidePoints);
             } else {
-                form.shapePath.subPaths.push(makePolygonPath(outsidePoints.concat(insidePoints)));
+                form.addPolygonPath(outsidePoints.concat(insidePoints));
             }
         }
-        
+
         return form;
     }
 

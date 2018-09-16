@@ -18,7 +18,6 @@ class Drivey {
     var showSkyGradient:Bool = true;
     var laneOffset:Float = -2.5; // north american
     var laneSpacing:Int = 4;
-    // var noAA:Bool = false; // UNUSED
     var rearView:Bool = false;
     var levelID:Int = 3;
     var showDashboard:Bool = true;
@@ -27,36 +26,26 @@ class Drivey {
     var xfunc:Bool = true;
     var zoom:Float = 0.6;
 
-    // var appname = 'DRIVEY (graphic test)'; // UNUSED
-    // var version = '0.15'; // UNUSED
-    // var copyright = '¬© 2005 Mark Pursey'; // UNUSED
     var level:Level;
     var levels:Array<Level>;
     var scr:Screen = new Screen();
     var user:Car = new Car();
     var other:Array<Car> = [];
-    // var message:String; // UNUSED
-    // var tt:Float = 0; // UNUSED
-    // var g_lastTime:Float = 0; // UNUSED
-    // var g_lastStep:Float = 0.05; // UNUSED
-    // var g_zoom:Float = 1; // UNUSED
 
-    var speedoForm:Form;
-    var speedoNeedle:Form;
-    var steeringWheelForm:Form;
+    // var speedoForm:Form;
+    // var speedoNeedle:Form;
+    // var steeringWheelForm:Form;
 
     var g_startTime:Float;
     var g_frameInterval:Float;
     var lastTime:Float;
     var lastStep:Float;
     var lastJoyX:Float;
-    // var timer:Timer; // UNUSED
     var finishTime:Float;
 
     function new() {
 
         Playground.run(scr);
-        return;
 
         scr.showMessage([
             'DRIVEY',
@@ -74,9 +63,11 @@ class Drivey {
         levels.push(new IndustrialZone());
         levels.push(new DeepDarkNight());
 
-        speedoForm = makeSpeedoForm();
-        speedoNeedle = makeSpeedoNeedle();
-        steeringWheelForm = makeSteeringWheelForm();
+        setLevel(3); scr.drawLevel(level); return;
+
+        // speedoForm = makeSpeedoForm();
+        // speedoNeedle = makeSpeedoNeedle();
+        // steeringWheelForm = makeSteeringWheelForm();
         g_startTime = Timer.stamp();
         g_frameInterval = 0.01;
 
@@ -91,6 +82,7 @@ class Drivey {
         finishTime = Timer.stamp();
     }
 
+    /*
     function makeSpeedoForm():Form {
         var speedoForm:Form = new Form('speedoForm');
         speedoForm.makeCircle(new Vector2(0,0), 0.5);
@@ -148,6 +140,7 @@ class Drivey {
         steeringWheelForm.addSplineCurve(points, true);
         return steeringWheelForm;
     }
+    */
 
     function addNPCCar()
     {
@@ -157,7 +150,7 @@ class Drivey {
         placeCar(npcCar, level.roadPath, Math.random());
     }
 
-    function placeCar(car:Car, rd:Form, along:Float)
+    function placeCar(car:Car, rd:RoadPath, along:Float)
     {
         var t = along * rd.length;
         var tan = !rd.getTangent(t);
@@ -174,7 +167,7 @@ class Drivey {
         car.lastVel = car.vel.clone();
     }
 
-    function autoDrive(car:Car, aroad:Form)
+    function autoDrive(car:Car, aroad:RoadPath)
     {
         var dir = car.vel;
         if (dir.length() > 0) {
@@ -579,6 +572,7 @@ class Drivey {
             scr.drawForm(car.form);
         }
 
+        /*
         if (!scr.useOrtho && showDashboard && !rearView)    // draw dashboard
         {
             var dwidth = scr.width;
@@ -673,6 +667,7 @@ class Drivey {
             // scr.alpha = 1;
 
         }
+        */
 
         g_frameInterval = lerp(g_frameInterval, period, 0.01);
 

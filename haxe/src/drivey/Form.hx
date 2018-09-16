@@ -3,69 +3,64 @@ package drivey;
 import drivey.ThreeUtils.*;
 
 typedef ThreeShapePath = js.three.ShapePath;
+typedef ThreeGroup = js.three.Group;
 
 class Form {
 
-    public var shapePath:ThreeShapePath;
+    var shapePath:ThreeShapePath;
 
     public inline static var DIVISIONS:UInt = 250;
 
+    public var object:ThreeGroup;
     public var rgb:Color = 1;
     public var alpha:Float = 1;
     public var height:Float = 0;
     public var extrude:Float = 0;
-    public var length(get, never):UInt;
     public var id(default, null):String;
-    
+
     public function new(id:String) {
         this.id = id;
+        object = new ThreeGroup();
         shapePath = new ThreeShapePath();
     }
 
-    public function addSplineCurve(points:Array<Vector2>, closed:Bool) shapePath.subPaths.push(makeSplinePath(cast points, closed));
-    public function addPolygon(points:Array<Vector2>) shapePath.subPaths.push(makePolygonPath(cast points));
-    
-    public function clone(id:String):Form { return new Form(id); /* TODO */ }
-    public function merge(otherForm:Form) { /* TODO */ }
-    public function expand(amount:Float) { /* TODO */ }
-    public function scale(xy:Vector2) { /* TODO */ }
-    public function scaleUniform(amount:Float) { /* TODO */ }
-    public function move(xy:Vector2) { /* TODO */ }
-    public function rotate(amount:Float) { /* TODO */ }
-    public function makeCircle(xy:Vector2, radius:Float) { /* TODO */ }
-    public function makeRectangle(xy:Vector2, width:Float, height:Float) { /* TODO */ }
-    public function getRect():Rect { return new Rect(); /* TODO */ }
-    public function recenter() move(-getRect().center);
+    public function clone(id:String):Form {
+        var copy:Form = new Form(id);
+        copy.rgb = rgb;
+        copy.alpha = alpha;
+        copy.height = height;
+        copy.extrude = extrude;
+        return copy;
+    }
 
-    public function invert() { /* Probably reverses the drawing order of the vertices, etc */ }
-    public function outline(thickness:Float) { /* TODO */ }
-    public function getPoint(t:Float):Vector2 { return new Vector2(); /* TODO */ }
-    public function getNormal(t:Float):Vector2 { return new Vector2(); /* TODO */ }
-    public function getTangent(t:Float):Vector2 { return new Vector2(); /* TODO */ }
-    public function getNearest(to:Vector2):Float { /* approx[Utils.minDistSquaredIndex(approx, xy)]; */ return 0; /* TODO */ }
-    public function getNearestPoint(xy:Vector2):Vector2 { /* approx[Utils.minDistSquaredIndex(approx, xy)]; */ return new Vector2(); /* TODO */ }
-    public function resetTransform() { /* TODO */ }
-    
-    function get_length() { return 0; /* TODO */ }
+    public function merge(otherForm:Form) {
+        // TODO
+    }
 
-    public function boxFit()
-    {
-        var rc:Rect = getRect();
-        if (rc.isEmpty()) {
-            return;
-        }
+    public function expand(amount:Float) {
+        // TODO
+    }
 
-        move(-rc.lo);
-        var scaleBy = rc.hi - rc.lo;
+    public function applyScale(x:Float, y:Float) {
+        // TODO
+    }
 
-        if (scaleBy.x > 0) {
-            scaleBy.x = 1.0/scaleBy.x;
-        }
+    public function applyTranslation(x:Float, y:Float) {
+        // TODO
+    }
 
-        if (scaleBy.y > 0) {
-            scaleBy.y = 1.0/scaleBy.y;
-        }
-
-        scale(scaleBy);
+    public function addCircle(x:Float, y:Float, radius:Float) {
+        shapePath.subPaths.push(makeCirclePath(x, y, radius));
+    }
+    public function addRectangle(x:Float, y:Float, width:Float, height:Float) {
+        shapePath.subPaths.push(makePolygonPath(cast [
+            new Vector2(x, y),
+            new Vector2(x + width, y),
+            new Vector2(x + width, y + height),
+            new Vector2(x, y + height)
+        ]));
+    }
+    public function addPolygonPath(points:Array<Vector2>) {
+        shapePath.subPaths.push(makePolygonPath(cast points));
     }
 }
