@@ -88,17 +88,33 @@ class Level
 
     function makeRoadPath() {
 
-        var pts = [];
-
         var n = 16;
+        var points = [];
+        var minX:Float = Math.POSITIVE_INFINITY;
+        var maxX:Float = Math.NEGATIVE_INFINITY;
+        var minY:Float = Math.POSITIVE_INFINITY;
+        var maxY:Float = Math.NEGATIVE_INFINITY;
         for (i in 0...n)
         {
             var theta:Float = i * Math.PI * 2 / n;
-            var mag = (Math.random() + 10) * 200;
-            var pt = new Vector2(Math.cos(theta) * -mag, Math.sin(theta) * mag);
-            pts.push(pt);
+            var radius = Math.random() + 5;
+            var point = new Vector2(Math.cos(theta) * -radius, Math.sin(theta) * radius);
+            points.push(point);
+            minX = Math.min(minX, point.x);
+            maxX = Math.max(maxX, point.x);
+            minY = Math.min(minY, point.y);
+            maxY = Math.max(maxY, point.y);
+        }
+        var centerX = maxX - minX;
+        var centerY = maxY - minY;
+        for (point in points) {
+            point.x -= centerX;
+            point.y -= centerY;
+            point.y *= centerX / centerY;
+            point.x *= 400;
+            point.y *= 400;
         }
 
-        return new RoadPath(pts);
+        return new RoadPath(points);
     }
 }

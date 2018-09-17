@@ -3,10 +3,10 @@ Three.js
     Just... fuck forms
         Box up whatever Playground does
         Make levels based on that
-            Tunnel
-                Oh god, now what.
             City
             IndustrialZone
+
+    Camera FOV needs fixing
 
     They say to merge all the geometry you can
         Use just one material, then store brightness values on vertices
