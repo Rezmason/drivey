@@ -9,6 +9,7 @@ import drivey.ThreeUtils.*;
 enum RoadLineStyle {
     SOLID;
     DASH(on:Float, off:Float);
+    DOT(spacing:Float);
 }
 
 class Level
@@ -21,10 +22,10 @@ class Level
     public var name(default, null):String;
     // TODO: wall collider ShapePath
 
-    public var ground(default, null):Float = 0;
-    public var skyLow(default, null):Float = 0;
-    public var skyHigh(default, null):Float = 0;
-    public var skyGradient(default, null):Float = 0;
+    public var ground(default, null):Color = new Color(0, 0, 0);
+    public var skyLow(default, null):Color = new Color(0, 0, 0);
+    public var skyHigh(default, null):Color = new Color(0, 0, 0);
+    public var skyGradient(default, null):Color = new Color(0, 0, 0);
     public var tint(default, null):Color;
 
     var heightScale:Float = 1;
@@ -51,6 +52,14 @@ class Level
                     drawRoadLine(roadPath, shapePath, xPos, width, SOLID, dashStart, Math.min(end, dashStart + dashLength), divisions);
                     dashStart += dashSpan;
                 }
+            case DOT(spacing) :
+                var dotStart = start;
+                var dotSpan = spacing / roadPath.length;
+                while (dotStart < end) {
+                    var pos = getExtrudedPointAt(roadPath.curve, dotStart, xPos);
+                    addPath(shapePath, makeCirclePath(pos.x, pos.y, width));
+                    dotStart += dotSpan;
+                }
             case SOLID :
                 width = Math.abs(width);
                 var outsideOffset = xPos - width / 2;
@@ -72,10 +81,10 @@ class Level
                 outsidePoints.reverse();
 
                 if (start == 0 && end == 1) {
-                    shapePath.subPaths.push(makePolygonPath(outsidePoints));
-                    shapePath.subPaths.push(makePolygonPath(insidePoints));
+                    addPath(shapePath, makePolygonPath(outsidePoints));
+                    addPath(shapePath, makePolygonPath(insidePoints));
                 } else {
-                    shapePath.subPaths.push(makePolygonPath(outsidePoints.concat(insidePoints)));
+                    addPath(shapePath, makePolygonPath(outsidePoints.concat(insidePoints)));
                 }
         }
 
@@ -105,12 +114,14 @@ class Level
             minY = Math.min(minY, point.y);
             maxY = Math.max(maxY, point.y);
         }
-        var centerX = maxX - minX;
-        var centerY = maxY - minY;
+        var centerX = (maxX + minX) * 0.5;
+        var centerY = (maxY + minY) * 0.5;
+        var width = maxX - minX;
+        var height = maxY - minY;
         for (point in points) {
             point.x -= centerX;
             point.y -= centerY;
-            point.y *= centerX / centerY;
+            point.y *= width / height;
             point.x *= 400;
             point.y *= 400;
         }

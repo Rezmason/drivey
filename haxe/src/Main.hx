@@ -8,6 +8,7 @@ import js.three.ShapePath;
 import js.three.Vector2;
 import js.three.Vector3;
 import js.three.SphereGeometry;
+import js.three.PlaneGeometry;
 import js.three.Color;
 
 import drivey.ThreeUtils.*;
@@ -38,39 +39,46 @@ class Main
     }
 
     function init() {
-        level = new Tunnel(); // TestLevel, DeepDarkNight, Tunnel
+        TestLevel;
+        DeepDarkNight;
+        Tunnel;
+        City;
+        IndustrialZone;
+        level = new IndustrialZone();
         dashboard = new Dashboard();
         skybox = new Group();
         var sky = makeSky();
+        var ground = makeGround();
         skybox.add(sky);
+        skybox.add(ground);
         // sky.material.vertexColors = cast 0;
 
         playerCar = new Group();
         playerCar.rotation.order = "ZYX";
         player = new Group();
         playerCar.add(player);
-        // playerCar.add(new Mesh(
-        //     new SphereGeometry(1, 10, 10),
-        //     screen.getMaterial(0xFF0000)
-        // ));
+        playerCar.add(new Mesh(
+            new SphereGeometry(50, 10, 10),
+            getMaterial(0x00FF00, 1)
+        ));
         playerCar.add(skybox);
         player.add(screen.camera);
         player.add(dashboard.object);
         screen.scene.add(playerCar);
 
-        screen.orthoCamera.position.set(0, 700, 600);
+        screen.orthoCamera.position.set(0, 0, 1000000);
         screen.orthoCamera.up = new Vector3(0, 0, 1);
-        screen.orthoCamera.zoom = 0.5;
+        screen.orthoCamera.zoom = 1/50;
         screen.orthoCamera.updateProjectionMatrix();
 
         screen.scene.add(level.world);
 
-        dashboard.object.scale.set(0.001, 0.001, 0.001);
+        dashboard.object.scale.set(0.0018, 0.0018, 0.001);
     }
 
     function makeSky() {
-        var size = 10000;
-        var skyGeom = new SphereGeometry(size, 10, 10, 0, Math.PI * 2, 0, Math.PI / 2);
+        var size = 100000;
+        var skyGeom = new SphereGeometry(size, 50, 50, 0, Math.PI * 2, 0, Math.PI / 2);
         for (face in skyGeom.faces) {
             var vertices = [skyGeom.vertices[face.a], skyGeom.vertices[face.b], skyGeom.vertices[face.c]];
             for (i in 0...3) {
@@ -89,6 +97,18 @@ class Main
         );
         // sky.position.z = -size * 2;
         return sky;
+    }
+
+    function makeGround() {
+        var size = 100000;
+        var groundGeom = new PlaneGeometry(size, size);
+        var ground = new Mesh(
+            groundGeom,
+            new MeshBasicMaterial(cast {
+                color: new Color(0, 0, 0)
+            })
+        );
+        return ground;
     }
 
     function makeHeadlightPath() {
@@ -131,7 +151,7 @@ class Main
 
         screen.camera.rotation.z = lerpAngle(screen.camera.rotation.z, tilt, 0.1 * simSpeed);
 
-        screen.orthoCamera.lookAt(playerCar.position);
+        // screen.orthoCamera.lookAt(playerCar.position);
 
         dashboard.needle1Rotation += step * simSpeed * 100;
         dashboard.needle2Rotation += step * simSpeed * 100;

@@ -1,11 +1,5 @@
 import drivey.ThreeUtils.*;
-
-// import js.three.Group;
-// import js.three.Path;
-// import js.three.ShapePath;
 import js.three.Vector2;
-
-// import drivey.ThreeUtils.*;
 
 class RoadPath {
 
@@ -47,7 +41,10 @@ class RoadPath {
         if (approximation == null) {
             approximation = [for (i in 0...1000) getPoint(i / 1000)];
         }
-        return minDistSquaredIndex(approximation, to);
+        return minDistSquaredIndex(approximation, to) / 1000;
+    }
+    public function getNearestPoint(to:Vector2):Vector2 {
+        return getPoint(getNearest(to));
     }
 
     function get_length() return curve.getLength();

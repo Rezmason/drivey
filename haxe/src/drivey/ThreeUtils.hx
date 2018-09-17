@@ -1,6 +1,7 @@
 package drivey;
 
 import js.three.CatmullRomCurve3;
+import js.three.Color;
 import js.three.ExtrudeGeometry;
 import js.three.Mesh;
 import js.three.MeshBasicMaterial;
@@ -20,6 +21,15 @@ class ThreeUtils {
         var circle:Path = new Path();
         circle.absarc( x, y, radius, 0, Math.PI * 2, aClockwise);
         return circle;
+    }
+
+    public static function makeRectanglePath(x:Float, y:Float, width:Float, height:Float) {
+        return makePolygonPath([
+            new Vector2(x, y),
+            new Vector2(x + width, y),
+            new Vector2(x + width, y + height),
+            new Vector2(x, y + height)
+        ]);
     }
 
     public static function makePolygonPath(points:Array<Vector2>):Path {
@@ -43,20 +53,21 @@ class ThreeUtils {
         return cast source.getPoint(t).add(new Vector2(-tangent.y * offset, tangent.x * offset));
     }
 
-    public static function makeMesh(shapePath:ShapePath, amount:Float, curveSegments:UInt, colorHex = 0x0f0f0f) {
+    public static function makeMesh(shapePath:ShapePath, amount:Float, curveSegments:UInt, colorHex = 0x0f0f0f, alpha:Float = 1) {
         return new Mesh(
             new ExtrudeGeometry(shapePath.toShapes(false, false), {amount:amount, bevelEnabled:false, curveSegments:curveSegments}),
-            getMaterial(colorHex)
+            getMaterial(colorHex, alpha)
         );
     }
 
-    static var basicMaterialsByHex:Map<Int, MeshBasicMaterial> = new Map();
+    static var basicMaterialsByHex:Map<String, MeshBasicMaterial> = new Map();
 
-    public static function getMaterial(colorHex:Int):MeshBasicMaterial {
-        if (!basicMaterialsByHex.exists(colorHex)) {
-            basicMaterialsByHex.set(colorHex, new MeshBasicMaterial({color:colorHex}));
+    public static function getMaterial(colorHex:Int, alpha:Float):MeshBasicMaterial {
+        var key = '${colorHex}_$alpha';
+        if (!basicMaterialsByHex.exists(key)) {
+            basicMaterialsByHex.set(key, new MeshBasicMaterial({color:colorHex, opacity:alpha, transparent:alpha < 1}));
         }
-        return basicMaterialsByHex[colorHex];
+        return basicMaterialsByHex[key];
     }
 
     public static function minDistSquaredIndex(points:Array<Vector2>, toPoint:Vector2):UInt {
@@ -94,4 +105,21 @@ class ThreeUtils {
         for (path in other.subPaths) shapePath.subPaths.push(path.clone());
     }
 
+    public static function addPath(shapePath:ShapePath, path:Path) {
+        shapePath.subPaths.push(path.clone());
+    }
+
+    public static function averageColors(color1:Color, color2:Color):Color {
+        return new Color(
+            (color1.r + color2.r) * 0.5,
+            (color1.g + color2.g) * 0.5,
+            (color1.b + color2.b) * 0.5
+        );
+    }
+
+    public static function distance(v1:Vector2, v2:Vector2):Float {
+        var dx = v1.x - v2.x;
+        var dy = v1.y - v2.y;
+        return Math.sqrt(dx * dx + dy * dy);
+    }
 }

@@ -52,10 +52,10 @@ class Screen {
         Browser.document.body.appendChild( element );
 
         scene = new Scene();
-        camera = new PerspectiveCamera( 50, 1, 0.001, 100000 );
+        camera = new PerspectiveCamera( 90, 1, 0.001, 100000 );
         camera.rotation.order = 'YZX';
         scene.add(camera);
-        orthoCamera = new OrthographicCamera(0, 0, 0, 0, 1, 100000);
+        orthoCamera = new OrthographicCamera(0, 0, 0, 0, 1, 100000000);
         scene.add(orthoCamera);
         levelContents = new Group();
         scene.add(levelContents);
@@ -75,6 +75,9 @@ class Screen {
 
         Browser.document.addEventListener('keydown', onKeyDown);
         Browser.document.addEventListener('keyup', onKeyUp);
+
+        var win:Dynamic = Browser.window;
+        win.renderer = renderer;
 
         animate();
     }

@@ -1,12 +1,7 @@
 Three.js
 
-    Just... fuck forms
-        Box up whatever Playground does
-        Make levels based on that
-            City
-            IndustrialZone
-
-    Camera FOV needs fixing
+    Adjust divisions
+        Maybe there's a better way to make dashed lines
 
     They say to merge all the geometry you can
         Use just one material, then store brightness values on vertices
@@ -31,7 +26,6 @@ Three.js
         Level tint, high, low, ground
             Background tinting
 
-
     Car mesh
         Make one yourself, man
         Add headlights
@@ -40,6 +34,9 @@ Three.js
     wireframe support
         White on blue
     Doesn't have to be as pretty
+
+    Collision
+        "theWalls" in jj
 
 Javascript prep
     Replace operators with method calls
