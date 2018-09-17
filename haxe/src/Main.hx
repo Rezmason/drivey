@@ -38,7 +38,7 @@ class Main
     }
 
     function init() {
-        level = new Level();
+        level = new Tunnel(); // TestLevel, DeepDarkNight, Tunnel
         dashboard = new Dashboard();
         skybox = new Group();
         var sky = makeSky();
@@ -65,7 +65,7 @@ class Main
 
         screen.scene.add(level.world);
 
-        dashboard.object.scale.set(0.01, 0.01, 0.01);
+        dashboard.object.scale.set(0.001, 0.001, 0.001);
     }
 
     function makeSky() {
@@ -112,9 +112,10 @@ class Main
         else if (screen.isKeyDown('ControlLeft') || screen.isKeyDown('ControlRight')) simSpeed = 4;
 
         // BEGIN FAKE CAR STUFF
-        var carSpeed = 2.5;
-        var roadMidOffset = -5;
-        carT = (carT + (step * simSpeed * carSpeed)) % 1;
+        var carSpeed = 6000;
+        var roadMidOffset = -1.5;
+        var carHeight = 1;
+        carT = (carT + (step * simSpeed * carSpeed / level.roadPath.length)) % 1;
         var carPosition = getExtrudedPointAt(level.roadPath.curve, carT, roadMidOffset);
         var nextPosition = getExtrudedPointAt(level.roadPath.curve, (carT + 0.001) % 1, roadMidOffset);
         // END FAKE CAR STUFF
@@ -124,7 +125,7 @@ class Main
         var tilt = diffAngle(angle, playerCar.rotation.z);
         dashboard.wheelRotation = lerpAngle(dashboard.wheelRotation, Math.PI - tilt * 4, 0.1 * simSpeed);
 
-        playerCar.position.set(carPosition.x, carPosition.y, 3.0);
+        playerCar.position.set(carPosition.x, carPosition.y, carHeight);
         playerCar.rotation.set(Math.PI * 0.5, 0, lerpAngle(playerCar.rotation.z, angle, 0.05 * simSpeed));
         player.rotation.x = Math.PI * -0.0625;
 

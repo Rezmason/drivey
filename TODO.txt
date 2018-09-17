@@ -3,9 +3,8 @@ Three.js
     Just... fuck forms
         Box up whatever Playground does
         Make levels based on that
-            Level
-            DeepDarkNight
             Tunnel
+                Oh god, now what.
             City
             IndustrialZone
 
@@ -17,12 +16,21 @@ Three.js
         Just stick a box around them for now
         Replace bogus car data with real data
         Speedometers
+        Manual and auto
+            Left and right arrow keys
+            Up and down arrow keys
+
     Left-right lane switch
+        Switch cars' lanes, animate dashboard position shift
+            Really ease dashboard
+    Handbrake
+        should make you slow to a stop on YOUR SIDE OF THE ROAD
 
     Color stuff
         Object coloration
         Level tint, high, low, ground
             Background tinting
+
 
     Car mesh
         Make one yourself, man
