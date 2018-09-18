@@ -20,13 +20,13 @@ class Dashboard {
             var element = new Group();
 
             if (edgeAmount != 0) {
-                var edge = makeMesh(expandShapePath(path, 1 + edgeAmount, 250), 0, 240, 0x343434);
+                var edge = makeMesh(expandShapePath(path, 1 + edgeAmount, 250), 0, 0, 0x343434);
                 edge.position.z = -0.1;
                 element.add(edge);
             }
 
             if (hasFill && edgeAmount != 0) {
-                var fill = makeMesh(expandShapePath(path, 1, 250), 0, 240, 0x000000);
+                var fill = makeMesh(expandShapePath(path, 1, 250), 0, 0, 0x000000);
                 fill.position.z = 0;
                 element.add(fill);
             } else if (hasFill) {
@@ -41,7 +41,7 @@ class Dashboard {
         var edge = 2; // 3.5
 
         var backing = addDashboardElement(makeDashboardBacking(), edge, true);
-        backing.position.set(-50, -60, -110);
+        backing.position.set(-50, -80, -110);
 
         var speedometer1 = addDashboardElement(makeSpeedometer(), 0, true);
         speedometer1.position.set(-25, -35, -105);
@@ -62,10 +62,10 @@ class Dashboard {
 
     function makeDashboardBacking() {
         var pts:Array<Vector2> = [
-            new Vector2(-170, -30),
-            new Vector2(-170,  30),
-            new Vector2( 170,  30),
-            new Vector2( 170, -30),
+            new Vector2(-200, -40),
+            new Vector2(-200,  40),
+            new Vector2( 200,  40),
+            new Vector2( 200, -40),
         ];
 
         var path = makeSplinePath(pts, true);

@@ -83,7 +83,7 @@ class Main
             var vertices = [skyGeom.vertices[face.a], skyGeom.vertices[face.b], skyGeom.vertices[face.c]];
             for (i in 0...3) {
                 var color = new Color();
-                color.setHSL(0, 0, 0.675 * (1 - (vertices[i].y) / size * 2.25));
+                color.setHSL(0, 0, 0.675 * (1 - (vertices[i].y) / size * 1.25));
                 face.vertexColors[i] = color;
             }
         }

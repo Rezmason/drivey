@@ -109,7 +109,7 @@ class IndustrialZone extends Level {
         highwayAbove.scale(1, 1.5);
 
         var industrialOverpassAPath = new ShapePath();
-        drawRoadLine(highwayAbove, industrialOverpassAPath, 0, 648/*162*/, DASH(depth, spacing), 0, 1, DIVISIONS);
+        drawRoadLine(highwayAbove, industrialOverpassAPath, 0, 162, DASH(depth, spacing), 0, 1, DIVISIONS);
         var industrialOverpassAMesh = makeMesh(industrialOverpassAPath, 2, 10, ground.getHex());
         industrialOverpassAMesh.position.z = 10;
         industrialOverpassAMesh.scale.set(1, 1/1.5, 1);
@@ -118,15 +118,14 @@ class IndustrialZone extends Level {
         var industrialOverpassBPath = new ShapePath();
         drawRoadLine(highwayAbove, industrialOverpassBPath, -100, 42, DASH(depth, spacing), 0, 1, DIVISIONS);
         drawRoadLine(highwayAbove, industrialOverpassBPath, -40, 2, DASH(depth, spacing), 0, 1, DIVISIONS);
-        drawRoadLine(highwayAbove, industrialOverpassBPath, -10, 2, DASH(depth, spacing), 0, 1, DIVISIONS);
-        drawRoadLine(highwayAbove, industrialOverpassBPath, 10, 2, DASH(depth, spacing), 0, 1, DIVISIONS);
+        drawRoadLine(highwayAbove, industrialOverpassBPath, -15, 2, DASH(depth, spacing), 0, 1, DIVISIONS);
+        drawRoadLine(highwayAbove, industrialOverpassBPath, 15, 2, DASH(depth, spacing), 0, 1, DIVISIONS);
         drawRoadLine(highwayAbove, industrialOverpassBPath, 40, 2, DASH(depth, spacing), 0, 1, DIVISIONS);
         drawRoadLine(highwayAbove, industrialOverpassBPath, 200, 242, DASH(depth, spacing), 0, 1, DIVISIONS);
 
-        var wall = new ShapePath();
-        drawRoadLine(highwayAbove, wall, -10, 2, DASH(depth, spacing), 0, 1, DIVISIONS);
-        drawRoadLine(highwayAbove, wall, 10, 2, DASH(depth, spacing), 0, 1, DIVISIONS);
-        mergeShapePaths(industrialOverpassBPath, wall);
+        // var wall = new ShapePath();
+        // drawRoadLine(highwayAbove, wall, -15, 2, DASH(depth, spacing), 0, 1, DIVISIONS);
+        // drawRoadLine(highwayAbove, wall, 15, 2, DASH(depth, spacing), 0, 1, DIVISIONS);
 
         var industrialOverpassBMesh = makeMesh(industrialOverpassBPath, 10, 10, ground.getHex());
         industrialOverpassBMesh.scale.set(1, 1/1.5, 1);
