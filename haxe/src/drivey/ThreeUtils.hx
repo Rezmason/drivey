@@ -2,11 +2,13 @@ package drivey;
 
 import js.three.CatmullRomCurve3;
 import js.three.Color;
-import js.three.ExtrudeGeometry;
+import js.three.ExtrudeGeometry.ExtrudeBufferGeometry;
+import js.three.Geometry;
 import js.three.Mesh;
 import js.three.MeshBasicMaterial;
 import js.three.Path;
 import js.three.Shape;
+import js.three.ShapeGeometry.ShapeBufferGeometry;
 import js.three.ShapePath;
 import js.three.Vector2;
 
@@ -54,8 +56,15 @@ class ThreeUtils {
     }
 
     public static function makeMesh(shapePath:ShapePath, amount:Float, curveSegments:UInt, colorHex = 0x0f0f0f, alpha:Float = 1) {
+        var geom:Geometry;
+        if (amount == 0) {
+            geom = new ShapeBufferGeometry(shapePath.toShapes(false, false), curveSegments);
+            // geom = new ExtrudeBufferGeometry(shapePath.toShapes(false, false), {amount:amount, bevelEnabled:false, curveSegments:curveSegments});
+        } else {
+            geom = new ExtrudeBufferGeometry(shapePath.toShapes(false, false), {amount:amount, bevelEnabled:false, curveSegments:curveSegments});
+        }
         return new Mesh(
-            new ExtrudeGeometry(shapePath.toShapes(false, false), {amount:amount, bevelEnabled:false, curveSegments:curveSegments}),
+            geom,
             getMaterial(colorHex, alpha)
         );
     }
@@ -65,7 +74,7 @@ class ThreeUtils {
     public static function getMaterial(colorHex:Int, alpha:Float):MeshBasicMaterial {
         var key = '${colorHex}_$alpha';
         if (!basicMaterialsByHex.exists(key)) {
-            basicMaterialsByHex.set(key, new MeshBasicMaterial({color:colorHex, opacity:alpha, transparent:alpha < 1}));
+            basicMaterialsByHex.set(key, new MeshBasicMaterial({color:colorHex, opacity:alpha, transparent:true}));
         }
         return basicMaterialsByHex[key];
     }

@@ -1,7 +1,7 @@
 Three.js
 
-    Adjust divisions
-        Maybe there's a better way to make dashed lines
+    One material
+    Colors on vertices
 
     They say to merge all the geometry you can
         Use just one material, then store brightness values on vertices
@@ -47,7 +47,13 @@ Javascript
 
 Reshape it to conform to Jujuscript code
 
-Optimization
-    Use the profiler to find bottlenecks
 
-Am I doing splines right?
+Much, much later
+
+    Optimization
+        Use the profiler to find bottlenecks
+
+        Replace ExtrusionBufferGeometry and ShapeBufferGeometry with something custom?
+            Almost all road lines are *ribbons*
+
+    Am I doing splines right?

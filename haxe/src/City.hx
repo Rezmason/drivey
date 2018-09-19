@@ -6,8 +6,6 @@ import js.three.ShapePath;
 
 class City extends Level {
 
-    inline static var DIVISIONS = 2000;
-
     override function build() {
 
         name = 'The City';
@@ -78,27 +76,27 @@ class City extends Level {
         world.add(makeMesh(skylinePath4, 120 * 2, 1, ground.getHex()));
 
         var signpostsPath = new ShapePath();
-        drawRoadLine(roadPath, signpostsPath, -16, 0.2, DASH(0.2, 400), 0, 1, DIVISIONS);
-        drawRoadLine(roadPath, signpostsPath, -12, 0.2, DASH(0.2, 400), 0, 1, DIVISIONS);
-        drawRoadLine(roadPath, signpostsPath, 12, 0.2, DASH(0.2, 300), 0, 1, DIVISIONS);
-        drawRoadLine(roadPath, signpostsPath, 16, 0.2, DASH(0.2, 300), 0, 1, DIVISIONS);
+        drawRoadLine(roadPath, signpostsPath, -16, 0.2, DASH(0.2, 400), 0, 1, 1);
+        drawRoadLine(roadPath, signpostsPath, -12, 0.2, DASH(0.2, 400), 0, 1, 1);
+        drawRoadLine(roadPath, signpostsPath, 12, 0.2, DASH(0.2, 300), 0, 1, 1);
+        drawRoadLine(roadPath, signpostsPath, 16, 0.2, DASH(0.2, 300), 0, 1, 1);
         world.add(makeMesh(signpostsPath, 10, 0, ground.getHex()));
 
         var signsPath = new ShapePath();
-        drawRoadLine(roadPath, signsPath, -14, 6, DASH(0.2, 400), 0, 1, DIVISIONS);
-        drawRoadLine(roadPath, signsPath, 14, 6, DASH(0.2, 300), 0, 1, DIVISIONS);
+        drawRoadLine(roadPath, signsPath, -14, 6, DASH(0.2, 400), 0, 1, 1);
+        drawRoadLine(roadPath, signsPath, 14, 6, DASH(0.2, 300), 0, 1, 1);
         var signsMesh = makeMesh(signsPath, 4, 0, ground.getHex());
         signsMesh.position.z = 10;
         world.add(signsMesh);
 
         var roadLinesPath = new ShapePath();
-        drawRoadLine(roadPath, roadLinesPath, 0, 0.1, SOLID, 0, 1, 2000);
-        drawRoadLine(roadPath, roadLinesPath, 0.2, 0.1, SOLID, 0, 1, 2000);
+        drawRoadLine(roadPath, roadLinesPath, 0, 0.1, SOLID, 0, 1, 1);
+        drawRoadLine(roadPath, roadLinesPath, 0.2, 0.1, SOLID, 0, 1, 1);
 
-        drawRoadLine(roadPath, roadLinesPath, -6, 0.15, DASH(30, 1), 0, 1, 2000);
-        drawRoadLine(roadPath, roadLinesPath, 6, 0.15, DASH(30, 1), 0, 1, 2000);
-        drawRoadLine(roadPath, roadLinesPath, -3, 0.15, DASH(3, 12), 0, 1, 2000);
-        drawRoadLine(roadPath, roadLinesPath, 3, 0.15, DASH(3, 12), 0, 1, 2000);
+        drawRoadLine(roadPath, roadLinesPath, -6, 0.15, DASH(30, 1), 0, 1, 1);
+        drawRoadLine(roadPath, roadLinesPath, 6, 0.15, DASH(30, 1), 0, 1, 1);
+        drawRoadLine(roadPath, roadLinesPath, -3, 0.15, DASH(3, 12), 0, 1, 1);
+        drawRoadLine(roadPath, roadLinesPath, 3, 0.15, DASH(3, 12), 0, 1, 1);
         world.add(makeMesh(roadLinesPath, 0, 1, roadLineColor.getHex()));
     }
 }

@@ -14,3 +14,14 @@ extern class ExtrudeGeometry extends Geometry
 	function addShapeList(shapes:Array<Shape>, ?options:Dynamic) : Void;
 	function addShape(shape:Shape, ?options:Dynamic) : Void;
 }
+
+@:native("THREE.ExtrudeBufferGeometry")
+extern class ExtrudeBufferGeometry extends Geometry
+{
+    @:overload(function(?shape:haxe.extern.EitherType<Shape, Array<Shape>>,?options:Dynamic):Void{})
+    @:overload(function():Void{})
+    function new() : Void;
+    @:overload(function(?shapes:Array<Shape>,?options:Dynamic):Void{})
+    function addShapeList(shapes:Array<Shape>, ?options:Dynamic) : Void;
+    function addShape(shape:Shape, ?options:Dynamic) : Void;
+}

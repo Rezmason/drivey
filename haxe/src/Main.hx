@@ -1,5 +1,6 @@
-import drivey.Screen;
+import js.Browser;
 
+import drivey.Screen;
 import js.three.Group;
 import js.three.Mesh;
 import js.three.MeshBasicMaterial;
@@ -24,9 +25,10 @@ class Main
 
     public static function main()
     {
-        var main = new Main();
-
         new drivey.Drivey();
+        Browser.document.addEventListener("DOMContentLoaded", function(event) {
+            var main = new Main();
+        });
     }
 
     function new() {
