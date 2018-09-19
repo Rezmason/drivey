@@ -3,8 +3,7 @@ Three.js
     Merge world into one geometry
         Aw damn, gotta merge BufferGeometries
 
-    Pass tint to material
-    Switch sky to using material
+    Switch sky and ground to using silhouette material
 
     Port car logic
         Just stick a box around them for now

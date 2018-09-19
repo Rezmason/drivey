@@ -77,13 +77,18 @@ class ThreeUtils {
 
     public static var silhouette(default, null):RawShaderMaterial = new RawShaderMaterial(cast {
         vertexShader: '
+            uniform vec3 tint;
             attribute vec2 monochromeValue;
             attribute vec3 position;
             uniform mat4 projectionMatrix;
             uniform mat4 modelViewMatrix;
             varying vec4 vColor;
             void main() {
-                vColor = vec4(vec3(monochromeValue.r), monochromeValue.g);
+                float value = monochromeValue.r;
+                vec3 color = value < 0.5
+                    ? mix(vec3(0.0), tint, value * 2.0)
+                    : mix(tint, vec3(1.0), value * 2.0 - 1.0);
+                vColor = vec4(color, monochromeValue.g);
                 gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
             }
         ',

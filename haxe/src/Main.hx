@@ -75,6 +75,8 @@ class Main
 
         screen.scene.add(level.world);
 
+        silhouette.uniforms.tint = cast { value: level.tint };
+
         dashboard.object.scale.set(0.0018, 0.0018, 0.001);
     }
 
