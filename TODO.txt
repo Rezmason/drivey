@@ -1,11 +1,10 @@
 Three.js
 
-    One material
-    Colors on vertices
+    Merge world into one geometry
+        Aw damn, gotta merge BufferGeometries
 
-    They say to merge all the geometry you can
-        Use just one material, then store brightness values on vertices
-        Backgrounds, meshes that don't move but have the same material
+    Pass tint to material
+    Switch sky to using material
 
     Port car logic
         Just stick a box around them for now

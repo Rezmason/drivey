@@ -1,8 +1,10 @@
+import js.three.Color;
 import js.three.Group;
+import js.three.Mesh;
+import js.three.Object3D;
 import js.three.Path;
 import js.three.ShapePath;
 import js.three.Vector2;
-import js.three.Color;
 
 import drivey.ThreeUtils.*;
 
@@ -14,24 +16,20 @@ enum RoadLineStyle {
 
 class Level
 {
-    static var DASH_ON = Math.NaN;
-    static var DASH_OFF = Math.NaN;
-
-    public var world(default, null):Group;
+    public var world(default, null):Object3D;
+    public var meshes(default, null):Array<Mesh>;
     public var roadPath(default, null):RoadPath;
     public var name(default, null):String;
     // TODO: wall collider ShapePath
 
-    public var ground(default, null):Color = new Color(0, 0, 0);
-    public var skyLow(default, null):Color = new Color(0, 0, 0);
-    public var skyHigh(default, null):Color = new Color(0, 0, 0);
-    public var skyGradient(default, null):Color = new Color(0, 0, 0);
+    public var ground(default, null):Float = 0;
+    public var skyLow(default, null):Float = 0;
+    public var skyHigh(default, null):Float = 0;
+    public var skyGradient(default, null):Float = 0;
     public var tint(default, null):Color;
 
-    var heightScale:Float = 1;
-
     public function new() {
-        world = new Group();
+        meshes = [];
         roadPath = makeRoadPath();
         build();
         finish();
@@ -92,7 +90,8 @@ class Level
     }
 
     function finish() {
-        world.scale.z *= heightScale;
+        world = new Group();
+        for (mesh in meshes) world.add(mesh);
     }
 
     function makeRoadPath() {

@@ -61,7 +61,7 @@ class Main
         playerCar.add(player);
         playerCar.add(new Mesh(
             new SphereGeometry(50, 10, 10),
-            getMaterial(0x00FF00, 1)
+            new MeshBasicMaterial({color: 0x00FF00})
         ));
         playerCar.add(skybox);
         player.add(screen.camera);

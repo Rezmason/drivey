@@ -13,10 +13,10 @@ class City extends Level {
 
         roadPath.scale(2, 2);
 
-        ground = new Color(0.05, 0.05, 0.05);
-        var roadLineColor = new Color(0.6, 0.6, 0.6);
+        ground = 0.05;
+        var roadLineColor = 0.6;
 
-        skyLow = new Color(0.4, 0.4, 0.4);
+        skyLow = 0.4;
 
         // sky
         var cloudsPath = new ShapePath();
@@ -33,10 +33,10 @@ class City extends Level {
 
             addPath(cloudsPath, makeCirclePath(pos.x, pos.y, 500));
         }
-        var cloudsMesh = makeMesh(cloudsPath, 1, 200, averageColors(skyLow, skyHigh).getHex());
+        var cloudsMesh = makeMesh(cloudsPath, 1, 200, (skyLow + skyHigh) / 2);
         cloudsMesh.scale.multiplyScalar(2);
         cloudsMesh.position.z = 400;
-        world.add(cloudsMesh);
+        meshes.push(cloudsMesh);
 
         // do bg
         var skylinePath1:ShapePath = new ShapePath();
@@ -70,24 +70,24 @@ class City extends Level {
            x += 150 * mag;
         }
 
-        // world.add(makeMesh(skylinePath1, 15 * 2, 1, ground.getHex()));
-        world.add(makeMesh(skylinePath2, 30 * 2, 1, ground.getHex()));
-        world.add(makeMesh(skylinePath3, 50 * 2, 1, ground.getHex()));
-        world.add(makeMesh(skylinePath4, 120 * 2, 1, ground.getHex()));
+        // meshes.push(makeMesh(skylinePath1, 15 * 2, 1, ground));
+        meshes.push(makeMesh(skylinePath2, 30 * 2, 1, ground));
+        meshes.push(makeMesh(skylinePath3, 50 * 2, 1, ground));
+        meshes.push(makeMesh(skylinePath4, 120 * 2, 1, ground));
 
         var signpostsPath = new ShapePath();
         drawRoadLine(roadPath, signpostsPath, -16, 0.2, DASH(0.2, 400), 0, 1, 1);
         drawRoadLine(roadPath, signpostsPath, -12, 0.2, DASH(0.2, 400), 0, 1, 1);
         drawRoadLine(roadPath, signpostsPath, 12, 0.2, DASH(0.2, 300), 0, 1, 1);
         drawRoadLine(roadPath, signpostsPath, 16, 0.2, DASH(0.2, 300), 0, 1, 1);
-        world.add(makeMesh(signpostsPath, 10, 0, ground.getHex()));
+        meshes.push(makeMesh(signpostsPath, 10, 0, ground));
 
         var signsPath = new ShapePath();
         drawRoadLine(roadPath, signsPath, -14, 6, DASH(0.2, 400), 0, 1, 1);
         drawRoadLine(roadPath, signsPath, 14, 6, DASH(0.2, 300), 0, 1, 1);
-        var signsMesh = makeMesh(signsPath, 4, 0, ground.getHex());
+        var signsMesh = makeMesh(signsPath, 4, 0, ground);
         signsMesh.position.z = 10;
-        world.add(signsMesh);
+        meshes.push(signsMesh);
 
         var roadLinesPath = new ShapePath();
         drawRoadLine(roadPath, roadLinesPath, 0, 0.1, SOLID, 0, 1, 1);
@@ -97,6 +97,6 @@ class City extends Level {
         drawRoadLine(roadPath, roadLinesPath, 6, 0.15, DASH(30, 1), 0, 1, 1);
         drawRoadLine(roadPath, roadLinesPath, -3, 0.15, DASH(3, 12), 0, 1, 1);
         drawRoadLine(roadPath, roadLinesPath, 3, 0.15, DASH(3, 12), 0, 1, 1);
-        world.add(makeMesh(roadLinesPath, 0, 1, roadLineColor.getHex()));
+        meshes.push(makeMesh(roadLinesPath, 0, 1, roadLineColor));
     }
 }

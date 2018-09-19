@@ -20,7 +20,7 @@ class Dashboard {
             var element = new Group();
 
             if (edgeAmount != 0) {
-                var edge = makeMesh(expandShapePath(path, 1 + edgeAmount, 250), 0, 0, 0x343434);
+                var edge = makeMesh(expandShapePath(path, 1 + edgeAmount, 250), 0, 0, 0.2);
                 edge.position.z = -0.1;
                 element.add(edge);
             }
@@ -30,7 +30,7 @@ class Dashboard {
                 fill.position.z = 0;
                 element.add(fill);
             } else if (hasFill) {
-                var fill = makeMesh(path, 0, 240, 0x343434);
+                var fill = makeMesh(path, 0, 240, 0.2);
                 fill.position.z = 0;
                 element.add(fill);
             }

@@ -1,12 +1,14 @@
 package drivey;
 
+import js.three.BufferGeometry;
 import js.three.CatmullRomCurve3;
 import js.three.Color;
 import js.three.ExtrudeGeometry.ExtrudeBufferGeometry;
+import js.three.Float32BufferAttribute;
 import js.three.Geometry;
 import js.three.Mesh;
-import js.three.MeshBasicMaterial;
 import js.three.Path;
+import js.three.RawShaderMaterial;
 import js.three.Shape;
 import js.three.ShapeGeometry.ShapeBufferGeometry;
 import js.three.ShapePath;
@@ -55,29 +57,45 @@ class ThreeUtils {
         return cast source.getPoint(t).add(new Vector2(-tangent.y * offset, tangent.x * offset));
     }
 
-    public static function makeMesh(shapePath:ShapePath, amount:Float, curveSegments:UInt, colorHex = 0x0f0f0f, alpha:Float = 1) {
-        var geom:Geometry;
-        if (amount == 0) {
-            geom = new ShapeBufferGeometry(shapePath.toShapes(false, false), curveSegments);
-            // geom = new ExtrudeBufferGeometry(shapePath.toShapes(false, false), {amount:amount, bevelEnabled:false, curveSegments:curveSegments});
-        } else {
-            geom = new ExtrudeBufferGeometry(shapePath.toShapes(false, false), {amount:amount, bevelEnabled:false, curveSegments:curveSegments});
+    public static function makeMesh(shapePath:ShapePath, amount:Float, curveSegments:UInt, value:Float = 0, alpha:Float = 1) {
+        var geom:BufferGeometry = cast (amount == 0
+            ? new ShapeBufferGeometry(shapePath.toShapes(false, false), curveSegments)
+            : new ExtrudeBufferGeometry(shapePath.toShapes(false, false), {amount:amount, bevelEnabled:false, curveSegments:curveSegments}));
+
+        var numVertices = Reflect.field(geom.attributes, 'position').count;
+
+        var monochromeValues = [];
+        for (i in 0...numVertices) {
+            monochromeValues.push(value);
+            monochromeValues.push(alpha);
         }
-        return new Mesh(
-            geom,
-            getMaterial(colorHex, alpha)
-        );
+
+        geom.addAttribute('monochromeValue', new Float32BufferAttribute( monochromeValues, 2 ));
+
+        return new Mesh(geom, silhouette);
     }
 
-    static var basicMaterialsByHex:Map<String, MeshBasicMaterial> = new Map();
-
-    public static function getMaterial(colorHex:Int, alpha:Float):MeshBasicMaterial {
-        var key = '${colorHex}_$alpha';
-        if (!basicMaterialsByHex.exists(key)) {
-            basicMaterialsByHex.set(key, new MeshBasicMaterial({color:colorHex, opacity:alpha, transparent:true}));
-        }
-        return basicMaterialsByHex[key];
-    }
+    public static var silhouette(default, null):RawShaderMaterial = new RawShaderMaterial(cast {
+        vertexShader: '
+            attribute vec2 monochromeValue;
+            attribute vec3 position;
+            uniform mat4 projectionMatrix;
+            uniform mat4 modelViewMatrix;
+            varying vec4 vColor;
+            void main() {
+                vColor = vec4(vec3(monochromeValue.r), monochromeValue.g);
+                gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
+            }
+        ',
+        fragmentShader: '
+            precision highp float;
+            varying vec4 vColor;
+            void main() {
+                gl_FragColor = vColor;
+            }
+        ',
+        transparent: true
+    });
 
     public static function minDistSquaredIndex(points:Array<Vector2>, toPoint:Vector2):UInt {
         var minimum = Math.POSITIVE_INFINITY;
