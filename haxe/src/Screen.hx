@@ -1,5 +1,3 @@
-package drivey;
-
 import js.Browser;
 import js.html.Element;
 import js.html.KeyboardEvent;
@@ -19,15 +17,9 @@ class Screen {
 
     public var width(get, never):UInt;
     public var height(get, never):UInt;
-    public var bg(get, set):Color;
     public var useOrtho:Bool = false;
 
-    var baseColor:Color;
-    var lowColor:Color;
-    var highColor:Color;
-
     public var downscale:UInt = 1;
-    public var antialias:Bool = true;
     public var wireframe(default, set):Bool = false;
 
     var element:Element;
@@ -36,9 +28,6 @@ class Screen {
     public var scene(default, null):Scene;
     var renderer:WebGLRenderer;
     var messageBox:Element;
-    var levelContentIDs:Array<String> = [];
-    var levelContents:Group;
-    var entities:Group;
 
     var keysDown:Map<String, Bool> = new Map();
     var keysHit:Map<String, Bool> = new Map();
@@ -57,10 +46,6 @@ class Screen {
         scene.add(camera);
         orthoCamera = new OrthographicCamera(0, 0, 0, 0, 1, 100000000);
         scene.add(orthoCamera);
-        levelContents = new Group();
-        scene.add(levelContents);
-        entities = new Group();
-        scene.add(entities);
         renderer = new WebGLRenderer( { antialias: true } );
         renderer.setPixelRatio( Browser.window.devicePixelRatio );
         Browser.window.addEventListener( 'resize', onWindowResize, false );
@@ -77,7 +62,7 @@ class Screen {
         Browser.document.addEventListener('keyup', onKeyUp);
 
         var win:Dynamic = Browser.window;
-        win.renderer = renderer;
+    //     win.renderer = renderer;
 
         animate();
     }
@@ -146,88 +131,12 @@ class Screen {
         }
     }
 
-    public function addEntity(object:Object3D) {
-        if (object.parent != entities) {
-            entities.add(object);
-        }
-    }
-
-    public function drawLevel(level:Level) {
-        for (object in levelContents.children) levelContents.remove(object);
-        levelContents.add(level.object);
-    }
-
-    public function drawForm(form:Form) {
-        // form.bake();
-        // addEntity(form.object);
-    }
-
-    var lastTrace = '';
-
-    public function clear() {
-        for (object in entities.children) entities.remove(object);
-        // trace(haxe.CallStack.toString(haxe.CallStack.callStack()));
-    }
-
-    public function cmd(s) {
-        // TODO
-    }
-
-    public function setTint(fw:Color, fLow:Color, fHigh:Color) {
-        baseColor = fw;
-        lowColor = fLow;
-        highColor = fHigh;
-        // TODO: add these as global uniforms for tinted materials
-    }
-
     inline function get_width() {
         return Browser.window.innerWidth;
     }
 
     inline function get_height() {
         return Browser.window.innerHeight;
-    }
-
-    inline function get_bg():Color {
-        return scene.background;
-    }
-
-    inline function set_bg(color:Color):Color {
-        scene.background = color;
-        return color;
-    }
-
-    public function showMessage(msg:String, clear:Bool, seconds:Float = 2)
-    {
-        if (clear) {
-            while (messageBox.firstChild != null) {
-                messageOpacities.remove(cast messageBox.firstChild);
-                (cast messageBox.firstChild).remove();
-            }
-        }
-
-        var message = Browser.document.createElement('div');
-        message.classList.add('message');
-        message.innerHTML = ~/[\n\r]/g.replace(msg, '<br>');
-        haxe.Timer.delay(function() {
-            messageOpacities[message] = 1;
-        }, Std.int(1000 * seconds));
-        messageBox.appendChild(message);
-    }
-
-    public function adjustPerspectiveCamera(pitch:Float, roll:Float, yaw:Float, zoom:Float, pointBackwards:Bool):Void {
-        camera.rotation.set(
-            pitch,
-            0,// yaw,
-            roll
-        );
-        // TODO: some of the above angles may not be necessary, if camera is attached to a rotating object, ie. a car
-        // TODO: pointBackwards
-        camera.zoom = 1 / zoom;
-        camera.updateProjectionMatrix();
-
-        orthoCamera.zoom = 1 / zoom;
-        orthoCamera.updateProjectionMatrix();
     }
 
     function set_wireframe(val:Bool):Bool {

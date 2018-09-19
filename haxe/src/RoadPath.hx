@@ -1,4 +1,4 @@
-import drivey.ThreeUtils.*;
+import ThreeUtils.*;
 import js.three.Vector2;
 
 class RoadPath {

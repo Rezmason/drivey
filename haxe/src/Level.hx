@@ -7,7 +7,7 @@ import js.three.ShapePath;
 import js.three.Vector2;
 // import js.three.BufferGeometryUtils;
 
-import drivey.ThreeUtils.*;
+import ThreeUtils.*;
 
 enum RoadLineStyle {
     SOLID;

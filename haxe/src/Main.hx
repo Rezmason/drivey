@@ -1,6 +1,5 @@
 import js.Browser;
 
-import drivey.Screen;
 import js.three.Group;
 import js.three.Mesh;
 import js.three.MeshBasicMaterial;
@@ -12,7 +11,7 @@ import js.three.SphereGeometry;
 import js.three.PlaneGeometry;
 import js.three.Color;
 
-import drivey.ThreeUtils.*;
+import ThreeUtils.*;
 
 class Main
 {
@@ -25,7 +24,6 @@ class Main
 
     public static function main()
     {
-        new drivey.Drivey();
         Browser.document.addEventListener("DOMContentLoaded", function(event) {
             var main = new Main();
         });
@@ -35,9 +33,8 @@ class Main
         screen = new Screen();
         init();
         screen.addRenderListener(update);
-        // screen.bg = new drivey.Color(0.7, 0.4, 0.1);
-        screen.bg = new drivey.Color(0.0588, 0.0588, 0.0588);
-
+        // screen.bg = new Color(0.7, 0.4, 0.1);
+        // screen.bg = new Color(0.0588, 0.0588, 0.0588);
     }
 
     function init() {

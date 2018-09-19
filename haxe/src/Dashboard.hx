@@ -2,7 +2,7 @@ import js.three.Group;
 import js.three.ShapePath;
 import js.three.Vector2;
 
-import drivey.ThreeUtils.*;
+import ThreeUtils.*;
 
 class Dashboard {
     public var object(default, null):Group;

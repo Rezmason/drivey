@@ -1,5 +1,5 @@
 import js.three.ShapePath;
-import drivey.ThreeUtils.*;
+import ThreeUtils.*;
 import Level.RoadLineStyle;
 
 class TestLevel extends Level

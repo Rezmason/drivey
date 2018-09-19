@@ -1,5 +1,3 @@
-package drivey;
-
 import js.three.BufferGeometry;
 import js.three.CatmullRomCurve3;
 import js.three.Color;
@@ -145,14 +143,6 @@ class ThreeUtils {
 
     public static function addPath(shapePath:ShapePath, path:Path) {
         shapePath.subPaths.push(path.clone());
-    }
-
-    public static function averageColors(color1:Color, color2:Color):Color {
-        return new Color(
-            (color1.r + color2.r) * 0.5,
-            (color1.g + color2.g) * 0.5,
-            (color1.b + color2.b) * 0.5
-        );
     }
 
     public static function distance(v1:Vector2, v2:Vector2):Float {

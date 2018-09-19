@@ -1,6 +1,6 @@
 import js.three.ShapePath;
 import js.three.Color;
-import drivey.ThreeUtils.*;
+import ThreeUtils.*;
 import js.three.Vector2;
 import js.three.ShapePath;
 
