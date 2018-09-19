@@ -1,9 +1,21 @@
 Three.js
 
-    Merge world into one geometry
-        Aw damn, gotta merge BufferGeometries
+    Mesh flattening
+        Seems to lead to some stale stuff?
 
-    Switch sky and ground to using silhouette material
+    Merge world into one geometry
+        Requires BufferGeometryUtils
+
+    Transparency's a tricky one
+        You know what, replace transparency with chain link texture or something
+            Or maybe a fence made of bars
+            Use alpha channel to represent "texturedness" I guess
+
+    Replace skybox with a plane facing the camera
+        Child of playerCar
+
+    Draw world first, then cars
+        This will allow cars to have transparent stuff that doesn't fight with world transparency
 
     Port car logic
         Just stick a box around them for now
@@ -35,13 +47,6 @@ Three.js
 
     Collision
         "theWalls" in jj
-
-Javascript prep
-    Replace operators with method calls
-    Replace abstracts if you haven't already
-
-Javascript
-    from Haxe, by hand
 
 Reshape it to conform to Jujuscript code
 

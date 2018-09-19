@@ -75,6 +75,12 @@ class ThreeUtils {
         return new Mesh(geom, silhouette);
     }
 
+    public static function flattenMesh(mesh:Mesh) {
+        var geom:BufferGeometry = cast mesh.geometry;
+        geom.applyMatrix(mesh.matrix);
+        mesh.matrix.identity();
+    }
+
     public static var silhouette(default, null):RawShaderMaterial = new RawShaderMaterial(cast {
         vertexShader: '
             uniform vec3 tint;

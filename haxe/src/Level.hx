@@ -91,7 +91,12 @@ class Level
 
     function finish() {
         world = new Group();
-        for (mesh in meshes) world.add(mesh);
+        for (mesh in meshes) {
+            // flattenMesh(mesh);
+            mesh.matrix.identity();
+            trace(mesh.matrix);
+            world.add(mesh);
+        }
     }
 
     function makeRoadPath() {
