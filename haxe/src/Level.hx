@@ -5,6 +5,7 @@ import js.three.Object3D;
 import js.three.Path;
 import js.three.ShapePath;
 import js.three.Vector2;
+// import js.three.BufferGeometryUtils;
 
 import drivey.ThreeUtils.*;
 
@@ -97,6 +98,8 @@ class Level
             trace(mesh.matrix);
             world.add(mesh);
         }
+        // var geom = BufferGeometryUtils.mergeBufferGeometries(cast [for (mesh in meshes) mesh.geometry]);
+        // world.add(new Mesh(geom, silhouette));
     }
 
     function makeRoadPath() {
