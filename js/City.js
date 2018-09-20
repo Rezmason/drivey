@@ -65,8 +65,8 @@ class City extends Level {
     signsMesh.position.z = 10;
     this.meshes.push(signsMesh);
     const roadLinesPath = new THREE.ShapePath();
-    this.drawRoadLine(this.roadPath, roadLinesPath, 0, 0.1, RoadLineStyle.SOLID(), 0, 1, 1);
-    this.drawRoadLine(this.roadPath, roadLinesPath, 0.2, 0.1, RoadLineStyle.SOLID(), 0, 1, 1);
+    this.drawRoadLine(this.roadPath, roadLinesPath, 0, 0.1, RoadLineStyle.SOLID(), 0, 1, 1000);
+    this.drawRoadLine(this.roadPath, roadLinesPath, 0.2, 0.1, RoadLineStyle.SOLID(), 0, 1, 1000);
     this.drawRoadLine(this.roadPath, roadLinesPath,-6, 0.15, RoadLineStyle.DASH(30, 1), 0, 1, 1);
     this.drawRoadLine(this.roadPath, roadLinesPath, 6, 0.15, RoadLineStyle.DASH(30, 1), 0, 1, 1);
     this.drawRoadLine(this.roadPath, roadLinesPath,-3, 0.15, RoadLineStyle.DASH(3, 12), 0, 1, 1);

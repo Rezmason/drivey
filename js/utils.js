@@ -103,9 +103,10 @@ const getExtrudedPointAt = function(source, t, offset) {
 };
 
 const makeMesh = function(shapePath, depth, curveSegments, value = 0, alpha = 1) {
-  const geom = depth == 0
-    ? new THREE.ShapeBufferGeometry(shapePath.toShapes(false, false), curveSegments)
-    : new THREE.ExtrudeBufferGeometry(shapePath.toShapes(false, false), { depth, curveSegments, bevelEnabled : false });
+  const geom = new THREE.ExtrudeBufferGeometry(
+    shapePath.toShapes(false, false),
+    { depth, curveSegments, bevelEnabled : false }
+  );
   const numVertices = geom.getAttribute('position').count;
   const monochromeValues = [];
   for (let i = 0; i < numVertices; i++) {
@@ -118,8 +119,17 @@ const makeMesh = function(shapePath, depth, curveSegments, value = 0, alpha = 1)
 
 const flattenMesh = function(mesh) {
   const geom = mesh.geometry;
+  mesh.updateMatrix();
   geom.applyMatrix(mesh.matrix);
-  mesh.matrix.identity();
+  mesh.position.set(0, 0, 0);
+  mesh.rotation.set(0, 0, 0);
+  mesh.scale.set(1, 1, 1);
+  mesh.updateMatrix();
+};
+
+const mergeMeshes = function(meshes) {
+  const geom = THREE.BufferGeometryUtils.mergeBufferGeometries(meshes.map(mesh => mesh.geometry));
+  return new THREE.Mesh(geom, meshes[0].material);
 };
 
 const minDistSquaredIndex = function(points, toPoint) {

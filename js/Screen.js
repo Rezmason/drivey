@@ -30,6 +30,7 @@ class Screen {
     document.addEventListener("keydown", this.onKeyDown.bind(this));
     document.addEventListener("keyup", this.onKeyUp.bind(this));
     this.animate();
+    window.renderer = this.renderer;
   }
 
   onWindowResize() {

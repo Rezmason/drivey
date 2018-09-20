@@ -136,6 +136,6 @@ class IndustrialZone extends Level {
     this.drawRoadLine(this.roadPath, industrialFenceCPath,-dist, 0.1, RoadLineStyle.SOLID(), 0, 1, 500);
     this.drawRoadLine(this.roadPath, industrialFenceCPath, dist, 0.1, RoadLineStyle.SOLID(), 0, 1, 500);
     const industrialFenceCMesh = makeMesh(industrialFenceCPath, tall1 - 0.5, 10, this.ground, 0.25);
-    this.meshes.push(industrialFenceCMesh);
+    this.transparentMeshes.push(industrialFenceCMesh);
   }
 }

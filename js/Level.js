@@ -74,16 +74,10 @@ class Level {
 
   finish() {
     this.world = new THREE.Group();
-    for (const mesh of this.meshes) {
-      mesh.matrix.identity();
-      // console.log(mesh.matrix);
-      this.world.add(mesh);
-    }
-    for (const mesh of this.transparentMeshes) {
-      mesh.matrix.identity();
-      // console.log(mesh.matrix);
-      this.world.add(mesh);
-    }
+    this.meshes.forEach(flattenMesh);
+    if (this.meshes.length > 0) this.world.add(mergeMeshes(this.meshes));
+    this.transparentMeshes.forEach(flattenMesh);
+    if (this.transparentMeshes.length > 0) this.world.add(mergeMeshes(this.transparentMeshes));
   }
 
   makeRoadPath() {

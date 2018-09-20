@@ -1,11 +1,4 @@
-Mesh flattening
-    Seems to lead to some stale stuff?
-
-Merge world into two geometries - solid and transparent
-    Requires BufferGeometryUtils
-
-Draw world first, then cars
-    This will allow cars to have transparent stuff that doesn't fight with world transparency
+Top-down camera
 
 Port car logic
     Just stick a box around them for now

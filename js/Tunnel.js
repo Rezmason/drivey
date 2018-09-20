@@ -13,8 +13,8 @@ class Tunnel extends Level {
     const tarmacMesh = makeMesh(tarmacPath, 0, 1, tarmac);
     this.meshes.push(tarmacMesh);
     const roadLinesPath = new THREE.ShapePath();
-    this.drawRoadLine(this.roadPath, roadLinesPath,-3.5, 0.2, RoadLineStyle.DASH(30, 2), 0, 1, 5);
-    this.drawRoadLine(this.roadPath, roadLinesPath, 3.5, 0.2, RoadLineStyle.DASH(30, 2), 0, 1, 5);
+    this.drawRoadLine(this.roadPath, roadLinesPath,-3.5, 0.2, RoadLineStyle.DASH(30, 2), 0, 1, 800);
+    this.drawRoadLine(this.roadPath, roadLinesPath, 3.5, 0.2, RoadLineStyle.DASH(30, 2), 0, 1, 800);
     this.drawRoadLine(this.roadPath, roadLinesPath,-0.15, 0.15, RoadLineStyle.DASH(4, 8), 0, 1, 1);
     const roadLinesMesh = makeMesh(roadLinesPath, 0, 1, whiteLinesColor);
     roadLinesMesh.position.z = 0.01;
