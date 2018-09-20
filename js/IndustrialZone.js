@@ -110,11 +110,11 @@ class IndustrialZone extends Level {
     this.meshes.push(industrialKnobsMesh);
     const wireThickness = 0.075;
     const industrialWiresPath = new THREE.ShapePath();
-    this.drawRoadLine(this.roadPath, industrialWiresPath,-50, wireThickness, RoadLineStyle.DASH(60, 0), 0, 1, 1);
-    this.drawRoadLine(this.roadPath, industrialWiresPath,-20, wireThickness, RoadLineStyle.DASH(100, 0), 0, 1, 1);
-    this.drawRoadLine(this.roadPath, industrialWiresPath, 20, wireThickness, RoadLineStyle.DASH(45, 0), 0, 1, 1);
-    this.drawRoadLine(this.roadPath, industrialWiresPath, 50, wireThickness, RoadLineStyle.DASH(50, 0), 0, 1, 1);
-    this.drawRoadLine(this.roadPath, industrialWiresPath, 70, wireThickness, RoadLineStyle.DASH(75, 0), 0, 1, 1);
+    this.drawRoadLine(this.roadPath, industrialWiresPath,-50, wireThickness, RoadLineStyle.SOLID(), 0, 1, 500);
+    this.drawRoadLine(this.roadPath, industrialWiresPath,-20, wireThickness, RoadLineStyle.SOLID(), 0, 1, 500);
+    this.drawRoadLine(this.roadPath, industrialWiresPath, 20, wireThickness, RoadLineStyle.SOLID(), 0, 1, 500);
+    this.drawRoadLine(this.roadPath, industrialWiresPath, 50, wireThickness, RoadLineStyle.SOLID(), 0, 1, 500);
+    this.drawRoadLine(this.roadPath, industrialWiresPath, 70, wireThickness, RoadLineStyle.SOLID(), 0, 1, 500);
     const industrialWiresMesh = makeMesh(industrialWiresPath, wireThickness, 10, this.ground);
     industrialWiresMesh.position.z = 11.25;
     this.meshes.push(industrialWiresMesh);
@@ -127,14 +127,14 @@ class IndustrialZone extends Level {
     const industrialFenceAMesh = makeMesh(industrialFenceAPath, tall1, 10, this.ground);
     this.meshes.push(industrialFenceAMesh);
     const industrialFenceBPath = new THREE.ShapePath();
-    this.drawRoadLine(this.roadPath, industrialFenceBPath,-dist, 0.1, RoadLineStyle.DASH(spacing1, 0), 0, 1, 1);
-    this.drawRoadLine(this.roadPath, industrialFenceBPath, dist, 0.1, RoadLineStyle.DASH(spacing1, 0), 0, 1, 1);
+    this.drawRoadLine(this.roadPath, industrialFenceBPath,-dist, 0.1, RoadLineStyle.SOLID(), 0, 1, 500);
+    this.drawRoadLine(this.roadPath, industrialFenceBPath, dist, 0.1, RoadLineStyle.SOLID(), 0, 1, 500);
     const industrialFenceBMesh = makeMesh(industrialFenceBPath, 0.1, 10, this.ground);
     industrialFenceBMesh.position.z = tall1 - 0.5;
     this.meshes.push(industrialFenceBMesh);
     const industrialFenceCPath = new THREE.ShapePath();
-    this.drawRoadLine(this.roadPath, industrialFenceCPath,-dist, 0.1, RoadLineStyle.DASH(spacing1, 0), 0, 1, 1);
-    this.drawRoadLine(this.roadPath, industrialFenceCPath, dist, 0.1, RoadLineStyle.DASH(spacing1, 0), 0, 1, 1);
+    this.drawRoadLine(this.roadPath, industrialFenceCPath,-dist, 0.1, RoadLineStyle.SOLID(), 0, 1, 500);
+    this.drawRoadLine(this.roadPath, industrialFenceCPath, dist, 0.1, RoadLineStyle.SOLID(), 0, 1, 500);
     const industrialFenceCMesh = makeMesh(industrialFenceCPath, tall1 - 0.5, 10, this.ground, 0.25);
     this.meshes.push(industrialFenceCMesh);
   }

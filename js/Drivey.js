@@ -73,7 +73,7 @@ class Drivey {
 
   update() {
     const step = 0.0001;
-    const simSpeed = 1.0;
+    let simSpeed = 1.0;
     if (this.screen.isKeyDown("ShiftLeft") || this.screen.isKeyDown("ShiftRight")) {
       simSpeed = 0.125;
     } else if (this.screen.isKeyDown("ControlLeft") || this.screen.isKeyDown("ControlRight")) {

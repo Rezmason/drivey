@@ -46,7 +46,9 @@ Doesn't have to be as pretty
 Collision
     "theWalls" in jj
 
-Reshape Drivey class to conform to Jujuscript code
+Editorial
+    Readability pass
+    Reshape Drivey class to conform to Jujuscript code
 
 
 
