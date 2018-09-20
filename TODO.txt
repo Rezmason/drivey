@@ -1,7 +1,3 @@
-JS cleanup
-    const and let
-    Latest libs
-
 Mesh flattening
     Seems to lead to some stale stuff?
 

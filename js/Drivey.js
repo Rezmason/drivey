@@ -14,8 +14,7 @@ class Drivey {
     this.carT = 0;
     this.screen = new Screen();
     this.init(levelName);
-    // this.screen.addRenderListener(this.update.bind(this));
-
+    this.screen.addRenderListener(this.update.bind(this));
     this.update();
   }
 

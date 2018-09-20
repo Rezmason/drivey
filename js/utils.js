@@ -76,10 +76,10 @@ const getExtrudedPointAt = function(source, t, offset) {
   return source.getPoint(t).add(new THREE.Vector2(-tangent.y * offset, tangent.x * offset));
 };
 
-const makeMesh = function(shapePath, amount, curveSegments, value = 0, alpha = 1) {
-  const geom = amount == 0
+const makeMesh = function(shapePath, depth, curveSegments, value = 0, alpha = 1) {
+  const geom = depth == 0
     ? new THREE.ShapeBufferGeometry(shapePath.toShapes(false, false), curveSegments)
-    : new THREE.ExtrudeBufferGeometry(shapePath.toShapes(false, false), { amount, curveSegments, bevelEnabled : false });
+    : new THREE.ExtrudeBufferGeometry(shapePath.toShapes(false, false), { depth, curveSegments, bevelEnabled : false });
   const numVertices = geom.getAttribute('position').count;
   const monochromeValues = [];
   for (let i = 0; i < numVertices; i++) {
