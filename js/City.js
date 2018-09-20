@@ -9,9 +9,7 @@ class City extends Level {
     var roadLineColor = 0.6;
     this.skyLow = 0.4;
     var cloudsPath = new THREE.ShapePath();
-    var _g = 0;
-    while (_g < 100) {
-      var i = _g++;
+    for (let i = 0; i < 100; i++) {
       var pos = new THREE.Vector2(Math.random() - 0.5, Math.random() - 0.5);
       if (pos.length() > 0.5 || pos.length() < 0.1) {
         continue;
@@ -67,8 +65,8 @@ class City extends Level {
     signsMesh.position.z = 10;
     this.meshes.push(signsMesh);
     var roadLinesPath = new THREE.ShapePath();
-    this.drawRoadLine(this.roadPath, roadLinesPath, 0, 0.1, RoadLineStyle.SOLID, 0, 1, 1);
-    this.drawRoadLine(this.roadPath, roadLinesPath, 0.2, 0.1, RoadLineStyle.SOLID, 0, 1, 1);
+    this.drawRoadLine(this.roadPath, roadLinesPath, 0, 0.1, RoadLineStyle.SOLID(), 0, 1, 1);
+    this.drawRoadLine(this.roadPath, roadLinesPath, 0.2, 0.1, RoadLineStyle.SOLID(), 0, 1, 1);
     this.drawRoadLine(this.roadPath, roadLinesPath,-6, 0.15, RoadLineStyle.DASH(30, 1), 0, 1, 1);
     this.drawRoadLine(this.roadPath, roadLinesPath, 6, 0.15, RoadLineStyle.DASH(30, 1), 0, 1, 1);
     this.drawRoadLine(this.roadPath, roadLinesPath,-3, 0.15, RoadLineStyle.DASH(3, 12), 0, 1, 1);

@@ -11,15 +11,7 @@ class RoadPath {
   }
 
   scale(x, y) {
-    var _g = [];
-    var _g1 = 0;
-    var _g2 = this.points;
-    while (_g1 < _g2.length) {
-      var point = _g2[_g1];
-      ++_g1;
-      _g.push(new THREE.Vector2(point.x * x, point.y * y));
-    }
-    this.points = _g;
+    this.points = this.points.map(point => new THREE.Vector2(point.x * x, point.y * y));
     this.approximation = null;
     this.curve = makeSplinePath(this.points, true);
   }
@@ -42,13 +34,10 @@ class RoadPath {
 
   getNearest(to) {
     if (this.approximation == null) {
-      var _g = [];
-      var _g1 = 0;
-      while (_g1 < 1000) {
-        var i = _g1++;
-        _g.push(this.getPoint(i / 1000));
+      this.approximation = [];
+      for (let i = 0; i < 1000; i++) {
+        this.approximation.push(this.getPoint(i / 1000));
       }
-      this.approximation = _g;
     }
     return minDistSquaredIndex(this.approximation, to) / 1000;
   }

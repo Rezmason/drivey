@@ -4,6 +4,7 @@ class Drivey {
 
   constructor(levelName) {
     this.levelsByName = new Map([
+      ["empty", Level],
       ["test", TestLevel],
       ["night", DeepDarkNight],
       ["tunnel", Tunnel],
@@ -14,6 +15,8 @@ class Drivey {
     this.screen = new Screen();
     this.init(levelName);
     this.screen.addRenderListener(this.update.bind(this));
+
+    this.update();
   }
 
   init(levelName) {
@@ -45,15 +48,9 @@ class Drivey {
   makeSky() {
     var size = 100000;
     var skyGeom = new THREE.SphereGeometry(size, 50, 50, 0, Math.PI * 2, 0, Math.PI / 2);
-    var _g = 0;
-    var _g1 = skyGeom.faces;
-    while (_g < _g1.length) {
-      var face = _g1[_g];
-      ++_g;
+    for (const face of skyGeom.faces) {
       var vertices = [skyGeom.vertices[face.a], skyGeom.vertices[face.b], skyGeom.vertices[face.c]];
-      var _g2 = 0;
-      while (_g2 < 3) {
-        var i = _g2++;
+      for (let i = 0; i < 3; i++) {
         var color = new THREE.Color();
         color.setHSL(0, 0, 0.675 * (1 - vertices[i].y / size * 1.25));
         face.vertexColors[i] = color;
@@ -96,10 +93,8 @@ class Drivey {
     this.playerCar.rotation.set(Math.PI * 0.5, 0, lerpAngle(this.playerCar.rotation.z, angle, 0.05 * simSpeed));
     this.player.rotation.x = Math.PI * -0.0625;
     this.screen.camera.rotation.z = lerpAngle(this.screen.camera.rotation.z, tilt, 0.1 * simSpeed);
-    var _g = this.dashboard;
-    _g.needle1Rotation = _g.needle1Rotation + step * simSpeed * 100;
-    var _g1 = this.dashboard;
-    _g1.needle2Rotation = _g1.needle2Rotation + step * simSpeed * 100;
+    this.dashboard.needle1Rotation = this.dashboard.needle1Rotation + step * simSpeed * 100;
+    this.dashboard.needle2Rotation = this.dashboard.needle2Rotation + step * simSpeed * 100;
     if (this.screen.isKeyHit("KeyC")) {
       if (this.dashboard.object.parent != null) {
         this.player.remove(this.dashboard.object);

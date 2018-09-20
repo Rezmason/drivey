@@ -56,26 +56,21 @@ class Screen {
 
   animate() {
     requestAnimationFrame(this.animate.bind(this));
-    var _g = 0;
-    var _g1 = this.renderListeners;
-    while (_g < _g1.length) {
-      var listener = _g1[_g];
-      ++_g;
+    for (const listener of this.renderListeners) {
       listener();
     }
     this.render();
+
     for (const message of this.messageOpacities.keys()) {
-      var _g2 = message;
-      var _g11 = this.messageOpacities;
-      var v = _g11.h[_g2.__id__] * 0.975;
-      _g11.set(_g2, v);
-      if (this.messageOpacities.h[message.__id__] < 0.005) {
-        this.messageOpacities.remove(message);
+      this.messageOpacities.set(message, this.messageOpacities.get(message) * 0.975);
+      if (this.messageOpacities.get(message) < 0.005) {
+        this.messageOpacities.delete(message);
         message.remove();
       } else {
-        message.style.opacity = String(this.messageOpacities.h[message.__id__]);
+        message.style.opacity = String(this.messageOpacities[message]);
       }
     }
+
     this.keysHit.clear();
   }
 
@@ -117,23 +112,20 @@ class Screen {
     return window.innerHeight;
   }
 
-  showMessage(msg, clear, seconds) {
-    if (seconds == null) {
-      seconds = 2;
-    }
-    var _gthis = this;
+  showMessage(msg, clear, seconds = 2) {
     if (clear) {
       while (this.messageBox.firstChild != null) {
         this.messageOpacities.remove(this.messageBox.firstChild);
         this.messageBox.firstChild.remove();
       }
     }
+
     var message = document.createElement("div");
     message.classList.add("message");
     message.innerHTML = msg.replace(/[\n\r]/g,"<br>");
     setTimeout(1000 * seconds, function() {
-      _gthis.messageOpacities.set(message, 1);
-    });
+      this.messageOpacities.set(message, 1);
+    }.bind(this));
     this.messageBox.appendChild(message);
   }
 

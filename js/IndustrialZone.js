@@ -37,7 +37,7 @@ class IndustrialZone extends Level {
     this.drawRoadLine(this.roadPath, industrialWhiteLinesPath,-3.5, 0.15, RoadLineStyle.DASH(60, 2), 0, 1, 1000);
     this.drawRoadLine(this.roadPath, industrialWhiteLinesPath, 3.5, 0.15, RoadLineStyle.DASH(60, 2), 0, 1, 1000);
     this.drawRoadLine(this.roadPath, industrialWhiteLinesPath,-0.15, 0.125, RoadLineStyle.DASH(4, 6), 0, 1, 1);
-    this.drawRoadLine(this.roadPath, industrialWhiteLinesPath, 0.125, 0.125, RoadLineStyle.SOLID, 0, 1, 1000);
+    this.drawRoadLine(this.roadPath, industrialWhiteLinesPath, 0.125, 0.125, RoadLineStyle.SOLID(), 0, 1, 1000);
     var industrialWhiteLinesMesh = makeMesh(industrialWhiteLinesPath, 0, 10, whiteLinesColor);
     this.meshes.push(industrialWhiteLinesMesh);
     var industrialCrossingPath = new THREE.ShapePath();
@@ -46,11 +46,9 @@ class IndustrialZone extends Level {
     industrialCrossingMesh.position.z = 0.001;
     this.meshes.push(industrialCrossingMesh);
     var industrialCrossingLinesPath = new THREE.ShapePath();
-    var _g = 0;
-    while (_g < 6) {
-      var i = _g++;
-      var width = 0.5;
-      this.drawRoadLine(this.roadPath, industrialCrossingLinesPath, i * 2 * width - 3 + width, width, RoadLineStyle.DASH(2, 200), 0, 1, 1);
+    for (let i = 0; i < 6; i++) {
+        const width = 6.0 / 6 * 0.5;
+        this.drawRoadLine(this.roadPath, industrialCrossingLinesPath, i * 2 * width - 3 + width, width, RoadLineStyle.DASH(2, 200), 0, 1, 1);
     }
     var industrialCrossingLinesMesh = makeMesh(industrialCrossingLinesPath, 0, 10, whiteLinesColor);
     industrialCrossingLinesMesh.position.z = 0.01;

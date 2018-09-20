@@ -1,11 +1,14 @@
 "use strict";
 
-var RoadLineStyle = { __ename__ : true, __constructs__ : ["SOLID","DASH","DOT"] };
+const RoadLineStyle = {
+    type: {
+        SOLID: "SOLID",
+        DASH: "DASH",
+        DOT: "DOT",
+    },
 
-RoadLineStyle.SOLID = ["SOLID", 0];
+    SOLID: () => ({ type:"SOLID" }),
+    DASH: (on, off) => ({ type:"DASH", on, off }),
+    DOT: (spacing) => ({ type:"DOT", spacing }),
+};
 
-RoadLineStyle.SOLID.__enum__ = RoadLineStyle;
-
-RoadLineStyle.DASH = function(on, off) { var $x = ["DASH", 1, on, off]; $x.__enum__ = RoadLineStyle; return $x; };
-
-RoadLineStyle.DOT = function(spacing) { var $x = ["DOT", 2, spacing]; $x.__enum__ = RoadLineStyle; return $x; };

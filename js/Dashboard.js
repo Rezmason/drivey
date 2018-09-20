@@ -2,45 +2,45 @@
 
 class Dashboard {
   constructor() {
-    var _gthis = this;
     this.object = new THREE.Group();
-    var addDashboardElement = function(path, edgeAmount, hasFill) {
-      if (edgeAmount == null) {
-        edgeAmount = 0;
-      }
-      var element = new THREE.Group();
-      if (edgeAmount != 0) {
-        var edge = makeMesh(expandShapePath(path, 1 + edgeAmount, 250), 0, 0, 0.2);
-        edge.position.z = -0.1;
-        element.add(edge);
-      }
-      if (hasFill && edgeAmount != 0) {
-        var fill = makeMesh(expandShapePath(path, 1, 250), 0, 0, 0);
-        fill.position.z = 0;
-        element.add(fill);
-      } else if (hasFill) {
-        var fill1 = makeMesh(path, 0, 240, 0.2);
-        fill1.position.z = 0;
-        element.add(fill1);
-      }
-      _gthis.object.add(element);
-      return element;
-    };
     var edge1 = 2;
-    var backing = addDashboardElement(this.makeDashboardBacking(), edge1, true);
+    var backing = this.addDashboardElement(this.makeDashboardBacking(), edge1, true);
     backing.position.set(-50,-80,-110);
-    var speedometer1 = addDashboardElement(this.makeSpeedometer(), 0, true);
+    var speedometer1 = this.addDashboardElement(this.makeSpeedometer(), 0, true);
     speedometer1.position.set(-25,-35,-105);
-    this.needle1 = addDashboardElement(this.makeNeedle(), 0, true);
+    this.needle1 = this.addDashboardElement(this.makeNeedle(), 0, true);
     this.needle1.position.set(-25,-35,-105);
-    var speedometer2 = addDashboardElement(this.makeSpeedometer(), 0, true);
+    var speedometer2 = this.addDashboardElement(this.makeSpeedometer(), 0, true);
     speedometer2.position.set(-70,-35,-105);
-    this.needle2 = addDashboardElement(this.makeNeedle(), 0, true);
+    this.needle2 = this.addDashboardElement(this.makeNeedle(), 0, true);
     this.needle2.position.set(-70,-35,-105);
-    this.wheel = addDashboardElement(this.makeSteeringWheel(), edge1, true);
+    this.wheel = this.addDashboardElement(this.makeSteeringWheel(), edge1, true);
     this.wheel.position.set(-50,-55,-100);
     this.wheel.rotation.z = Math.PI;
   }
+
+  addDashboardElement(path, edgeAmount, hasFill) {
+    if (edgeAmount == null) {
+      edgeAmount = 0;
+    }
+    var element = new THREE.Group();
+    if (edgeAmount != 0) {
+      var edge = makeMesh(expandShapePath(path, 1 + edgeAmount, 250), 0, 0, 0.2);
+      edge.position.z = -0.1;
+      element.add(edge);
+    }
+    if (hasFill && edgeAmount != 0) {
+      var fill = makeMesh(expandShapePath(path, 1, 250), 0, 0, 0);
+      fill.position.z = 0;
+      element.add(fill);
+    } else if (hasFill) {
+      var fill1 = makeMesh(path, 0, 240, 0.2);
+      fill1.position.z = 0;
+      element.add(fill1);
+    }
+    this.object.add(element);
+    return element;
+  };
 
   makeDashboardBacking() {
     var pts = [new THREE.Vector2(-200,-40), new THREE.Vector2(-200, 40), new THREE.Vector2(200, 40), new THREE.Vector2(200,-40)];
@@ -60,9 +60,7 @@ class Dashboard {
     shapePath.subPaths.push(outerRim);
     shapePath.subPaths.push(innerRim);
     var nudge = Math.PI * 0.0075;
-    var _g = 0;
-    while (_g < 10) {
-      var i = _g++;
+    for (let i = 0; i < 10; i++) {
       var angle = Math.PI * 2 * (i + 0.5) / 10;
       shapePath.subPaths.push(makePolygonPath([new THREE.Vector2(Math.cos(angle - nudge) * outerRadius, Math.sin(angle - nudge) * outerRadius), new THREE.Vector2(Math.cos(angle - nudge) * dashEnd, Math.sin(angle - nudge) * dashEnd), new THREE.Vector2(Math.cos(angle + nudge) * dashEnd, Math.sin(angle + nudge) * dashEnd), new THREE.Vector2(Math.cos(angle + nudge) * outerRadius, Math.sin(angle + nudge) * outerRadius)]));
     }
@@ -82,9 +80,7 @@ class Dashboard {
     var outerRim = makeCirclePath(0, 0, scale * 0.5);
     var innerRim1Points = [];
     var n = 60;
-    var _g = 0;
-    while (_g < 25) {
-      var i = _g++;
+    for (let i = 0; i < 25; i++) {
       var theta = (57 - i) * Math.PI * 2 / n;
       var mag = ((i & 1) != 0 ? 0.435 : 0.45) * scale;
       innerRim1Points.push(new THREE.Vector2(Math.cos(theta) * mag, Math.sin(theta) * mag));
@@ -92,11 +88,9 @@ class Dashboard {
     innerRim1Points.reverse();
     var innerRim1 = makeSplinePath(innerRim1Points, true);
     var innerRim2Points = [];
-    var _g1 = 0;
-    while (_g1 < 29) {
-      var i1 = _g1++;
-      var theta1 = (29 - i1) * 2 * Math.PI / n;
-      var mag1 = ((i1 & 1) != 0 ? 0.435 : 0.45) * scale;
+    for (let i = 0; i < 29; i++) {
+      var theta1 = (29 - i) * 2 * Math.PI / n;
+      var mag1 = ((i & 1) != 0 ? 0.435 : 0.45) * scale;
       innerRim2Points.push(new THREE.Vector2(Math.cos(theta1) * mag1, Math.sin(theta1) * mag1));
     }
     innerRim2Points.push(new THREE.Vector2(scale * 0.25, scale * 0.075));

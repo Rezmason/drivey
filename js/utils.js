@@ -129,13 +129,7 @@ const lerpAngle = function(from, to, amount) {
 };
 
 const mergeShapePaths = function(shapePath, other) {
-  var _g = 0;
-  var _g1 = other.subPaths;
-  while (_g < _g1.length) {
-    var path = _g1[_g];
-    ++_g;
-    shapePath.subPaths.push(path.clone());
-  }
+  other.subPaths.forEach(path => shapePath.subPaths.push(path.clone()))
 };
 
 const addPath = function(shapePath, path) {
