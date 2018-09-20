@@ -17,18 +17,18 @@ class RoadPath {
   }
 
   getPoint(t) {
-    var point = this.curve.getPoint(t % 1);
+    const point = this.curve.getPoint(t % 1);
     return new THREE.Vector2(point.x, point.y);
   }
 
   getNormal(t) {
     const EPSILON = 0.00001;
-    var point = this.getPoint(t + EPSILON).sub(this.getPoint(t + 1 - EPSILON));
+    const point = this.getPoint(t + EPSILON).sub(this.getPoint(t + 1 - EPSILON));
     return point.normalize();
   }
 
   getTangent(t) {
-    var normal = this.getNormal(t);
+    const normal = this.getNormal(t);
     return new THREE.Vector2(-normal.y, normal.x);
   }
 

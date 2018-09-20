@@ -14,7 +14,7 @@ class Drivey {
     this.carT = 0;
     this.screen = new Screen();
     this.init(levelName);
-    this.screen.addRenderListener(this.update.bind(this));
+    // this.screen.addRenderListener(this.update.bind(this));
 
     this.update();
   }
@@ -23,8 +23,8 @@ class Drivey {
     this.level = new (this.levelsByName.get(levelName) || DeepDarkNight)();
     this.dashboard = new Dashboard();
     this.skybox = new THREE.Group();
-    var sky = this.makeSky();
-    var ground = this.makeGround();
+    const sky = this.makeSky();
+    const ground = this.makeGround();
     this.skybox.add(sky);
     this.skybox.add(ground);
     this.playerCar = new THREE.Group();
@@ -46,48 +46,48 @@ class Drivey {
   }
 
   makeSky() {
-    var size = 100000;
-    var skyGeom = new THREE.SphereGeometry(size, 50, 50, 0, Math.PI * 2, 0, Math.PI / 2);
+    const size = 100000;
+    const skyGeom = new THREE.SphereGeometry(size, 50, 50, 0, Math.PI * 2, 0, Math.PI / 2);
     for (const face of skyGeom.faces) {
-      var vertices = [skyGeom.vertices[face.a], skyGeom.vertices[face.b], skyGeom.vertices[face.c]];
+      const vertices = [skyGeom.vertices[face.a], skyGeom.vertices[face.b], skyGeom.vertices[face.c]];
       for (let i = 0; i < 3; i++) {
-        var color = new THREE.Color();
+        const color = new THREE.Color();
         color.setHSL(0, 0, 0.675 * (1 - vertices[i].y / size * 1.25));
         face.vertexColors[i] = color;
       }
     }
-    var sky = new THREE.Mesh(skyGeom, new THREE.MeshBasicMaterial({ vertexColors : 2, side : 1}));
+    const sky = new THREE.Mesh(skyGeom, new THREE.MeshBasicMaterial({ vertexColors : 2, side : 1}));
     return sky;
   }
 
   makeGround() {
-    var size = 100000;
-    var groundGeom = new THREE.PlaneGeometry(size, size);
-    var ground = new THREE.Mesh(groundGeom, new THREE.MeshBasicMaterial({ color : new THREE.Color(0, 0, 0)}));
+    const size = 100000;
+    const groundGeom = new THREE.PlaneGeometry(size, size);
+    const ground = new THREE.Mesh(groundGeom, new THREE.MeshBasicMaterial({ color : new THREE.Color(0, 0, 0)}));
     return ground;
   }
 
   makeHeadlightPath() {
-    var pts = [new THREE.Vector2(0, 0), new THREE.Vector2(-6, 13), new THREE.Vector2(4, 15), new THREE.Vector2(0, 0)];
+    const pts = [new THREE.Vector2(0, 0), new THREE.Vector2(-6, 13), new THREE.Vector2(4, 15), new THREE.Vector2(0, 0)];
     return makeSplinePath(pts, true);
   }
 
   update() {
-    var step = 0.0001;
-    var simSpeed = 1.0;
+    const step = 0.0001;
+    const simSpeed = 1.0;
     if (this.screen.isKeyDown("ShiftLeft") || this.screen.isKeyDown("ShiftRight")) {
       simSpeed = 0.125;
     } else if (this.screen.isKeyDown("ControlLeft") || this.screen.isKeyDown("ControlRight")) {
       simSpeed = 4;
     }
-    var carSpeed = 6000;
-    var roadMidOffset = -1.5;
-    var carHeight = 1;
+    const carSpeed = 6000;
+    const roadMidOffset = -1.5;
+    const carHeight = 1;
     this.carT = (this.carT + step * simSpeed * carSpeed / this.level.roadPath.length) % 1;
-    var carPosition = getExtrudedPointAt(this.level.roadPath.curve, this.carT, roadMidOffset);
-    var nextPosition = getExtrudedPointAt(this.level.roadPath.curve,(this.carT + 0.001) % 1, roadMidOffset);
-    var angle = Math.atan2(nextPosition.y - carPosition.y, nextPosition.x - carPosition.x) - Math.PI / 2;
-    var tilt = diffAngle(angle, this.playerCar.rotation.z);
+    const carPosition = getExtrudedPointAt(this.level.roadPath.curve, this.carT, roadMidOffset);
+    const nextPosition = getExtrudedPointAt(this.level.roadPath.curve,(this.carT + 0.001) % 1, roadMidOffset);
+    const angle = Math.atan2(nextPosition.y - carPosition.y, nextPosition.x - carPosition.x) - Math.PI / 2;
+    const tilt = diffAngle(angle, this.playerCar.rotation.z);
     this.dashboard.wheelRotation = lerpAngle(this.dashboard.wheelRotation, Math.PI - tilt * 4, 0.1 * simSpeed);
     this.playerCar.position.set(carPosition.x, carPosition.y, carHeight);
     this.playerCar.rotation.set(Math.PI * 0.5, 0, lerpAngle(this.playerCar.rotation.z, angle, 0.05 * simSpeed));

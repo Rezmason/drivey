@@ -1,57 +1,61 @@
 JS cleanup
     const and let
     Latest libs
-    Reshape Drivey class to conform to Jujuscript code
 
-Three.js
+Mesh flattening
+    Seems to lead to some stale stuff?
 
-    Mesh flattening
-        Seems to lead to some stale stuff?
+Merge world into one geometry
+    Requires BufferGeometryUtils
 
-    Merge world into one geometry
-        Requires BufferGeometryUtils
+Transparency's a tricky one
+    You know what, replace transparency with chain link texture or something
+        Or maybe a fence made of bars
+        Use alpha channel to represent "texturedness" I guess
 
-    Transparency's a tricky one
-        You know what, replace transparency with chain link texture or something
-            Or maybe a fence made of bars
-            Use alpha channel to represent "texturedness" I guess
+Replace skybox with a plane facing the camera
+    Child of playerCar
 
-    Replace skybox with a plane facing the camera
-        Child of playerCar
+Draw world first, then cars
+    This will allow cars to have transparent stuff that doesn't fight with world transparency
 
-    Draw world first, then cars
-        This will allow cars to have transparent stuff that doesn't fight with world transparency
+Port car logic
+    Just stick a box around them for now
+    Replace bogus car data with real data
+    Speedometers
+    Manual and auto
+        Left and right arrow keys
+        Up and down arrow keys
 
-    Port car logic
-        Just stick a box around them for now
-        Replace bogus car data with real data
-        Speedometers
-        Manual and auto
-            Left and right arrow keys
-            Up and down arrow keys
+Left-right lane switch
+    Switch cars' lanes, animate dashboard position shift
+        Really ease dashboard
+Handbrake
+    should make you slow to a stop on YOUR SIDE OF THE ROAD
 
-    Left-right lane switch
-        Switch cars' lanes, animate dashboard position shift
-            Really ease dashboard
-    Handbrake
-        should make you slow to a stop on YOUR SIDE OF THE ROAD
+Color stuff
+    Object coloration
+    Level tint, high, low, ground
+        Background tinting
 
-    Color stuff
-        Object coloration
-        Level tint, high, low, ground
-            Background tinting
+Car mesh
+    Make one yourself, man
+    Add headlights
+    Add tail lights
 
-    Car mesh
-        Make one yourself, man
-        Add headlights
-        Add tail lights
+wireframe support
+    White on blue
+Doesn't have to be as pretty
 
-    wireframe support
-        White on blue
-    Doesn't have to be as pretty
+Collision
+    "theWalls" in jj
 
-    Collision
-        "theWalls" in jj
+Reshape Drivey class to conform to Jujuscript code
+
+
+
+
+
 
 
 Much, much later

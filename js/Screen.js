@@ -29,27 +29,19 @@ class Screen {
     document.body.appendChild(this.messageBox);
     document.addEventListener("keydown", this.onKeyDown.bind(this));
     document.addEventListener("keyup", this.onKeyUp.bind(this));
-    var win = window;
     this.animate();
   }
 
   onWindowResize() {
-    var b = window.innerHeight;
-    var tmp = window.innerWidth / b;
-    this.camera.aspect = tmp;
+    this.camera.aspect = window.innerWidth / window.innerHeight;
     this.camera.updateProjectionMatrix();
-    var b1 = window.innerHeight;
-    var aspect = window.innerWidth / b1;
+    const aspect = window.innerWidth / window.innerHeight;
     this.orthoCamera.left = -100 * aspect / 2;
     this.orthoCamera.right = 100 * aspect / 2;
     this.orthoCamera.top = 50.;
     this.orthoCamera.bottom = -50.;
     this.orthoCamera.updateProjectionMatrix();
-    var tmp1 = this.renderer;
-    var b2 = this.downscale;
-    var tmp2 = window.innerWidth / b2;
-    var b3 = this.downscale;
-    tmp1.setSize(tmp2, window.innerHeight / b3);
+    this.renderer.setSize(window.innerWidth / this.downscale, window.innerHeight / this.downscale);
     this.renderer.domElement.style.width = "100%";
     this.renderer.domElement.style.height = "100%";
   }
@@ -79,7 +71,7 @@ class Screen {
   }
 
   onKeyDown(event) {
-    var code = event.code;
+    const code = event.code;
     if (!this.isKeyDown(code)) {
       this.keysHit.add(code);
     }
@@ -120,7 +112,7 @@ class Screen {
       }
     }
 
-    var message = document.createElement("div");
+    const message = document.createElement("div");
     message.classList.add("message");
     message.innerHTML = msg.replace(/[\n\r]/g,"<br>");
     setTimeout(1000 * seconds, function() {
