@@ -3,7 +3,7 @@
 class City extends Level {
   build() {
     this.name = "The City";
-    this.tint = new THREE.Color(0.3, 0.3, 0.7);
+    this.tint = new THREE.Color(0.3, 0.3, 0.7); // * 1.5
     this.roadPath.scale(2, 2);
     this.ground = 0.05;
     const roadLineColor = 0.6;
@@ -11,7 +11,7 @@ class City extends Level {
     const cloudsPath = new THREE.ShapePath();
     for (let i = 0; i < 100; i++) {
       const pos = new THREE.Vector2(Math.random() - 0.5, Math.random() - 0.5);
-      if (pos.length() > 0.5 || pos.length() < 0.1) {
+      if (pos.length() > 0.9 || pos.length() < 0.3) { // 0.5, 0.1
         continue;
       }
       pos.multiplyScalar(8000);
