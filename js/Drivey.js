@@ -21,19 +21,16 @@ class Drivey {
   init(levelName) {
     this.level = new (this.levelsByName.get(levelName) || DeepDarkNight)();
     this.dashboard = new Dashboard();
-    this.skybox = new THREE.Group();
-    const sky = this.makeSky();
-    const ground = this.makeGround();
-    this.skybox.add(sky);
-    this.skybox.add(ground);
+    this.sky = this.makeSky();
     this.playerCar = new THREE.Group();
     this.playerCar.rotation.order = "ZYX";
     this.player = new THREE.Group();
     this.playerCar.add(this.player);
     this.playerCar.add(new THREE.Mesh(new THREE.SphereGeometry(50, 10, 10), new THREE.MeshBasicMaterial({ color : 65280})));
-    this.playerCar.add(this.skybox);
+    this.playerCar.add(this.sky);
     this.player.add(this.screen.camera);
     this.player.add(this.dashboard.object);
+    this.screen.backgroundColor = this.level.tint.clone().multiplyScalar(this.level.ground * 2);
     this.screen.scene.add(this.playerCar);
     this.screen.orthoCamera.position.set(0, 0, 1000000);
     this.screen.orthoCamera.up = new THREE.Vector3(0, 0, 1);
@@ -46,24 +43,21 @@ class Drivey {
 
   makeSky() {
     const size = 100000;
-    const skyGeom = new THREE.SphereGeometry(size, 50, 50, 0, Math.PI * 2, 0, Math.PI / 2);
-    for (const face of skyGeom.faces) {
-      const vertices = [skyGeom.vertices[face.a], skyGeom.vertices[face.b], skyGeom.vertices[face.c]];
-      for (let i = 0; i < 3; i++) {
-        const color = new THREE.Color();
-        color.setHSL(0, 0, 0.675 * (1 - vertices[i].y / size * 1.25));
-        face.vertexColors[i] = color;
-      }
-    }
-    const sky = new THREE.Mesh(skyGeom, new THREE.MeshBasicMaterial({ vertexColors : 2, side : 1}));
-    return sky;
-  }
+    const skyGeom = new THREE.PlaneBufferGeometry(size * 20, size, 1, 10);
 
-  makeGround() {
-    const size = 100000;
-    const groundGeom = new THREE.PlaneGeometry(size, size);
-    const ground = new THREE.Mesh(groundGeom, new THREE.MeshBasicMaterial({ color : new THREE.Color(0, 0, 0)}));
-    return ground;
+    const uvs = skyGeom.getAttribute('uv');
+    const numVertices = uvs.count;
+    const monochromeValues = [];
+    for (let i = 0; i < numVertices; i++) {
+      const v = uvs.array[i * 2 + 1];
+      monochromeValues.push(this.level.skyLow * (1 - v) + this.level.skyHigh * v);
+      monochromeValues.push(1);
+    }
+    skyGeom.addAttribute("monochromeValue", new THREE.Float32BufferAttribute(monochromeValues, 2));
+
+    const sky = new THREE.Mesh(skyGeom, silhouette);
+    sky.position.set(0, size / 2, -100000);
+    return sky;
   }
 
   makeHeadlightPath() {

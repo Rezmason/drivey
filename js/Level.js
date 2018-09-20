@@ -8,6 +8,7 @@ class Level {
     this.skyLow = 0;
     this.ground = 0;
     this.meshes = [];
+    this.transparentMeshes = [];
     this.roadPath = this.makeRoadPath();
     this.build();
     this.finish();
@@ -74,6 +75,11 @@ class Level {
   finish() {
     this.world = new THREE.Group();
     for (const mesh of this.meshes) {
+      mesh.matrix.identity();
+      // console.log(mesh.matrix);
+      this.world.add(mesh);
+    }
+    for (const mesh of this.transparentMeshes) {
       mesh.matrix.identity();
       // console.log(mesh.matrix);
       this.world.add(mesh);

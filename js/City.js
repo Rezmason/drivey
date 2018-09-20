@@ -3,7 +3,7 @@
 class City extends Level {
   build() {
     this.name = "The City";
-    this.tint = new THREE.Color(0.3, 0.3, 0.7).multiplyScalar(1.5);
+    this.tint = new THREE.Color(0.3, 0.3, 0.7);
     this.roadPath.scale(2, 2);
     this.ground = 0.05;
     const roadLineColor = 0.6;

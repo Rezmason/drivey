@@ -1,16 +1,8 @@
 Mesh flattening
     Seems to lead to some stale stuff?
 
-Merge world into one geometry
+Merge world into two geometries - solid and transparent
     Requires BufferGeometryUtils
-
-Transparency's a tricky one
-    You know what, replace transparency with chain link texture or something
-        Or maybe a fence made of bars
-        Use alpha channel to represent "texturedness" I guess
-
-Replace skybox with a plane facing the camera
-    Child of playerCar
 
 Draw world first, then cars
     This will allow cars to have transparent stuff that doesn't fight with world transparency
@@ -29,16 +21,12 @@ Left-right lane switch
 Handbrake
     should make you slow to a stop on YOUR SIDE OF THE ROAD
 
-Color stuff
-    Object coloration
-    Level tint, high, low, ground
-        Background tinting
-
 Car mesh
     Make one yourself, man
     Add headlights
     Add tail lights
 
+Color contrast stuff
 wireframe support
     White on blue
 Doesn't have to be as pretty

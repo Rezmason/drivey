@@ -23,8 +23,34 @@ const silhouette = new THREE.RawShaderMaterial({
     void main() {
       gl_FragColor = vColor;
     }
+  `
+});
+
+const transparent = new THREE.RawShaderMaterial({
+  vertexShader : `
+    uniform vec3 tint;
+    attribute vec2 monochromeValue;
+    attribute vec3 position;
+    uniform mat4 projectionMatrix;
+    uniform mat4 modelViewMatrix;
+    varying vec4 vColor;
+    void main() {
+      float value = monochromeValue.r;
+      vec3 color = value < 0.5
+        ? mix(vec3(0.0), tint, value * 2.0)
+        : mix(tint, vec3(1.0), value * 2.0 - 1.0);
+      vColor = vec4(color, monochromeValue.g);
+      gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
+    }
   `,
-  transparent : true
+  fragmentShader : `
+    precision highp float;
+    varying vec4 vColor;
+    void main() {
+      gl_FragColor = vColor;
+    }
+  `,
+  transparent: true
 });
 
 const makeSplinePath = function(pts, closed) {
@@ -87,7 +113,7 @@ const makeMesh = function(shapePath, depth, curveSegments, value = 0, alpha = 1)
     monochromeValues.push(alpha);
   }
   geom.addAttribute("monochromeValue", new THREE.Float32BufferAttribute(monochromeValues, 2));
-  return new THREE.Mesh(geom, silhouette);
+  return new THREE.Mesh(geom, alpha == 1 ? silhouette : transparent);
 };
 
 const flattenMesh = function(mesh) {

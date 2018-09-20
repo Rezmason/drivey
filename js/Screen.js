@@ -124,4 +124,13 @@ class Screen {
   set wireframe(val) {
     return val;
   }
+
+  get backgroundColor() {
+      return this.scene.background;
+  }
+
+  set backgroundColor(color) {
+      this.scene.background = color;
+      return color;
+  }
 }
