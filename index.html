@@ -37,6 +37,28 @@
         <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/91/three.js"></script> -->
         <script src="./lib/three.js"></script>
         <script src="./lib/BufferGeometryUtils.js"></script>
-        <script src="./js/drivey.js"></script>
+
+        <script src="./js/utils.js"></script>
+        <script src="./js/RoadLineStyle.js"></script>
+
+        <script src="./js/RoadPath.js"></script>
+        <script src="./js/Level.js"></script>
+        <script src="./js/DeepDarkNight.js"></script>
+        <script src="./js/Tunnel.js"></script>
+        <script src="./js/City.js"></script>
+        <script src="./js/IndustrialZone.js"></script>
+
+        <script src="./js/TestLevel.js"></script>
+
+        <script src="./js/Dashboard.js"></script>
+        <script src="./js/Screen.js"></script>
+        <script src="./js/Drivey.js"></script>
+        <script>
+            document.addEventListener("DOMContentLoaded",function(event) {
+                const urlParams = new Map(window.location.href.replace(/^[^\?]+\?/, "").split("&").map(pair => pair.split("=")));
+                const getParam = (key, defaultValue) => urlParams.has(key) ? urlParams.get(key) : defaultValue;
+                new Drivey(getParam("level", "industrial"));
+            });
+        </script>
     </body>
 </html>

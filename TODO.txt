@@ -1,3 +1,8 @@
+JS cleanup
+    Why is TestLevel failing?
+    Latest libs
+    Reshape Drivey class to conform to Jujuscript code
+
 Three.js
 
     Mesh flattening
@@ -47,8 +52,6 @@ Three.js
 
     Collision
         "theWalls" in jj
-
-Reshape it to conform to Jujuscript code
 
 
 Much, much later

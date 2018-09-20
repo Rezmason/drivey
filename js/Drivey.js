@@ -1,0 +1,120 @@
+"use strict";
+
+class Drivey {
+
+  constructor(levelName) {
+    this.levelsByName = new Map([
+      ["test", TestLevel],
+      ["night", DeepDarkNight],
+      ["tunnel", Tunnel],
+      ["city", City],
+      ["industrial", IndustrialZone],
+    ]);
+    this.carT = 0;
+    this.screen = new Screen();
+    this.init(levelName);
+    this.screen.addRenderListener(this.update.bind(this));
+  }
+
+  init(levelName) {
+    this.level = new (this.levelsByName.get(levelName) || DeepDarkNight)();
+    this.dashboard = new Dashboard();
+    this.skybox = new THREE.Group();
+    var sky = this.makeSky();
+    var ground = this.makeGround();
+    this.skybox.add(sky);
+    this.skybox.add(ground);
+    this.playerCar = new THREE.Group();
+    this.playerCar.rotation.order = "ZYX";
+    this.player = new THREE.Group();
+    this.playerCar.add(this.player);
+    this.playerCar.add(new THREE.Mesh(new THREE.SphereGeometry(50, 10, 10), new THREE.MeshBasicMaterial({ color : 65280})));
+    this.playerCar.add(this.skybox);
+    this.player.add(this.screen.camera);
+    this.player.add(this.dashboard.object);
+    this.screen.scene.add(this.playerCar);
+    this.screen.orthoCamera.position.set(0, 0, 1000000);
+    this.screen.orthoCamera.up = new THREE.Vector3(0, 0, 1);
+    this.screen.orthoCamera.zoom = 0.02;
+    this.screen.orthoCamera.updateProjectionMatrix();
+    this.screen.scene.add(this.level.world);
+    silhouette.uniforms.tint = { value : this.level.tint};
+    this.dashboard.object.scale.set(0.0018, 0.0018, 0.001);
+  }
+
+  makeSky() {
+    var size = 100000;
+    var skyGeom = new THREE.SphereGeometry(size, 50, 50, 0, Math.PI * 2, 0, Math.PI / 2);
+    var _g = 0;
+    var _g1 = skyGeom.faces;
+    while (_g < _g1.length) {
+      var face = _g1[_g];
+      ++_g;
+      var vertices = [skyGeom.vertices[face.a], skyGeom.vertices[face.b], skyGeom.vertices[face.c]];
+      var _g2 = 0;
+      while (_g2 < 3) {
+        var i = _g2++;
+        var color = new THREE.Color();
+        color.setHSL(0, 0, 0.675 * (1 - vertices[i].y / size * 1.25));
+        face.vertexColors[i] = color;
+      }
+    }
+    var sky = new THREE.Mesh(skyGeom, new THREE.MeshBasicMaterial({ vertexColors : 2, side : 1}));
+    return sky;
+  }
+
+  makeGround() {
+    var size = 100000;
+    var groundGeom = new THREE.PlaneGeometry(size, size);
+    var ground = new THREE.Mesh(groundGeom, new THREE.MeshBasicMaterial({ color : new THREE.Color(0, 0, 0)}));
+    return ground;
+  }
+
+  makeHeadlightPath() {
+    var pts = [new THREE.Vector2(0, 0), new THREE.Vector2(-6, 13), new THREE.Vector2(4, 15), new THREE.Vector2(0, 0)];
+    return makeSplinePath(pts, true);
+  }
+
+  update() {
+    var step = 0.0001;
+    var simSpeed = 1.0;
+    if (this.screen.isKeyDown("ShiftLeft") || this.screen.isKeyDown("ShiftRight")) {
+      simSpeed = 0.125;
+    } else if (this.screen.isKeyDown("ControlLeft") || this.screen.isKeyDown("ControlRight")) {
+      simSpeed = 4;
+    }
+    var carSpeed = 6000;
+    var roadMidOffset = -1.5;
+    var carHeight = 1;
+    this.carT = (this.carT + step * simSpeed * carSpeed / this.level.roadPath.length) % 1;
+    var carPosition = getExtrudedPointAt(this.level.roadPath.curve, this.carT, roadMidOffset);
+    var nextPosition = getExtrudedPointAt(this.level.roadPath.curve,(this.carT + 0.001) % 1, roadMidOffset);
+    var angle = Math.atan2(nextPosition.y - carPosition.y, nextPosition.x - carPosition.x) - Math.PI / 2;
+    var tilt = diffAngle(angle, this.playerCar.rotation.z);
+    this.dashboard.wheelRotation = lerpAngle(this.dashboard.wheelRotation, Math.PI - tilt * 4, 0.1 * simSpeed);
+    this.playerCar.position.set(carPosition.x, carPosition.y, carHeight);
+    this.playerCar.rotation.set(Math.PI * 0.5, 0, lerpAngle(this.playerCar.rotation.z, angle, 0.05 * simSpeed));
+    this.player.rotation.x = Math.PI * -0.0625;
+    this.screen.camera.rotation.z = lerpAngle(this.screen.camera.rotation.z, tilt, 0.1 * simSpeed);
+    var _g = this.dashboard;
+    _g.needle1Rotation = _g.needle1Rotation + step * simSpeed * 100;
+    var _g1 = this.dashboard;
+    _g1.needle2Rotation = _g1.needle2Rotation + step * simSpeed * 100;
+    if (this.screen.isKeyHit("KeyC")) {
+      if (this.dashboard.object.parent != null) {
+        this.player.remove(this.dashboard.object);
+      } else {
+        this.player.add(this.dashboard.object);
+      }
+    }
+    if (this.screen.isKeyHit("Digit0")) {
+      this.screen.useOrtho = !this.screen.useOrtho;
+    }
+    if (this.screen.isKeyHit("Digit2")) {
+      this.screen.wireframe = !this.screen.wireframe;
+    }
+    if (this.screen.isKeyHit("Digit4")) {
+      this.screen.camera.rotation.y += Math.PI;
+    }
+  }
+}
