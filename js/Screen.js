@@ -9,15 +9,15 @@ class Screen {
     this.keysDown = new Set();
     this.wireframe = false;
     this.downscale = 1;
-    this.useOrtho = false;
+    this.useBirdseye = false;
     this.element = document.createElement("div");
     document.body.appendChild(this.element);
     this.scene = new THREE.Scene();
     this.camera = new THREE.PerspectiveCamera(90, 1, 0.001, 100000);
     this.camera.rotation.order = "YZX";
     this.scene.add(this.camera);
-    this.orthoCamera = new THREE.OrthographicCamera(0, 0, 0, 0, 1, 100000000);
-    this.scene.add(this.orthoCamera);
+    this.birdseye = new THREE.OrthographicCamera(0, 0, 0, 0, 1, 100000000);
+    this.scene.add(this.birdseye);
     this.renderer = new THREE.WebGLRenderer({ antialias : true});
     this.renderer.setPixelRatio(window.devicePixelRatio);
     window.addEventListener("resize", this.onWindowResize.bind(this), false);
@@ -34,14 +34,14 @@ class Screen {
   }
 
   onWindowResize() {
-    this.camera.aspect = window.innerWidth / window.innerHeight;
-    this.camera.updateProjectionMatrix();
     const aspect = window.innerWidth / window.innerHeight;
-    this.orthoCamera.left = -100 * aspect / 2;
-    this.orthoCamera.right = 100 * aspect / 2;
-    this.orthoCamera.top = 50.;
-    this.orthoCamera.bottom = -50.;
-    this.orthoCamera.updateProjectionMatrix();
+    this.camera.aspect = aspect;
+    this.camera.updateProjectionMatrix();
+    this.birdseye.left = -100 * aspect / 2;
+    this.birdseye.right = 100 * aspect / 2;
+    this.birdseye.top = 50.;
+    this.birdseye.bottom = -50.;
+    this.birdseye.updateProjectionMatrix();
     this.renderer.setSize(window.innerWidth / this.downscale, window.innerHeight / this.downscale);
     this.renderer.domElement.style.width = "100%";
     this.renderer.domElement.style.height = "100%";
@@ -68,7 +68,7 @@ class Screen {
   }
 
   render() {
-    this.renderer.render(this.scene, this.useOrtho ? this.orthoCamera : this.camera);
+    this.renderer.render(this.scene, this.useBirdseye ? this.birdseye : this.camera);
   }
 
   onKeyDown(event) {

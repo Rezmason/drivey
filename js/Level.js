@@ -7,14 +7,15 @@ class Level {
     this.skyHigh = 0;
     this.skyLow = 0;
     this.ground = 0;
-    this.meshes = [];
-    this.transparentMeshes = [];
     this.roadPath = this.makeRoadPath();
-    this.build();
-    this.finish();
+
+    const meshes = [];
+    const transparentMeshes = [];
+    this.build(meshes, transparentMeshes);
+    this.finish(meshes, transparentMeshes);
   }
 
-  build() {
+  build(meshes, transparentMeshes) {
 
   }
 
@@ -72,12 +73,17 @@ class Level {
     return shapePath;
   }
 
-  finish() {
+  finish(meshes, transparentMeshes) {
     this.world = new THREE.Group();
-    this.meshes.forEach(flattenMesh);
-    if (this.meshes.length > 0) this.world.add(mergeMeshes(this.meshes));
-    this.transparentMeshes.forEach(flattenMesh);
-    if (this.transparentMeshes.length > 0) this.world.add(mergeMeshes(this.transparentMeshes));
+    meshes.forEach(flattenMesh);
+    if (meshes.length > 0) this.world.add(mergeMeshes(meshes));
+    meshes.forEach(mesh => mesh.geometry.dispose());
+    meshes.length = 0;
+
+    transparentMeshes.forEach(flattenMesh);
+    if (transparentMeshes.length > 0) this.world.add(mergeMeshes(transparentMeshes));
+    transparentMeshes.forEach(mesh => mesh.geometry.dispose());
+    transparentMeshes.length = 0;
   }
 
   makeRoadPath() {
