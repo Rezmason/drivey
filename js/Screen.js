@@ -16,7 +16,7 @@ class Screen {
     this.camera = new THREE.PerspectiveCamera(90, 1, 0.001, 100000);
     this.camera.rotation.order = "YZX";
     this.scene.add(this.camera);
-    this.birdseye = new THREE.OrthographicCamera(0, 0, 0, 0, 1, 100000000);
+    this.birdseye = new THREE.PerspectiveCamera(90, 1, 0.001, 100000);
     this.scene.add(this.birdseye);
     this.renderer = new THREE.WebGLRenderer({ antialias : true});
     this.renderer.setPixelRatio(window.devicePixelRatio);

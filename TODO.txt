@@ -1,5 +1,3 @@
-Top-down camera
-
 Port car logic
     Just stick a box around them for now
     Replace bogus car data with real data
@@ -18,6 +16,8 @@ Car mesh
     Make one yourself, man
     Add headlights
     Add tail lights
+
+Pretty sure the FOV needs revisiting again
 
 Color contrast stuff
 wireframe support

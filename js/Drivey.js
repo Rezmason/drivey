@@ -21,7 +21,7 @@ class Drivey {
   init(levelName) {
     this.level = new (this.levelsByName.get(levelName) || DeepDarkNight)();
     this.dashboard = new Dashboard();
-    this.sky = this.makeSky();
+    this.sky = this.makeCylinderSky(); // makeSphereSky()
     this.playerCar = new THREE.Group();
     this.playerCar.rotation.order = "ZYX";
     this.player = new THREE.Group();
@@ -31,16 +31,17 @@ class Drivey {
     this.player.add(this.dashboard.object);
     this.screen.backgroundColor = this.level.tint.clone().multiplyScalar(this.level.ground * 2);
     this.screen.scene.add(this.playerCar);
-    this.screen.birdseye.position.set(0, 0, 1000000);
-    this.screen.birdseye.up = new THREE.Vector3(0, 0, 1);
-    this.screen.birdseye.zoom = 0.02;
-    this.screen.birdseye.updateProjectionMatrix();
+    this.playerCar.add(this.screen.birdseye);
+    this.screen.birdseye.position.set(0, 500, 0);
+    this.screen.birdseye.rotation.set(-Math.PI * 0.5, 0, 0);
+    // this.screen.birdseye.zoom = 0.02;
+    // this.screen.birdseye.updateProjectionMatrix();
     this.screen.scene.add(this.level.world);
     silhouette.uniforms.tint = { value : this.level.tint};
     this.dashboard.object.scale.set(0.0018, 0.0018, 0.001);
   }
 
-  makeSky() {
+  makeCylinderSky() {
     const geometry = new THREE.CylinderBufferGeometry( 1, 1, -100, 100, 1, true, 0, Math.PI);
     const positions = geometry.getAttribute('position');
     const numVertices = positions.count;
@@ -56,6 +57,24 @@ class Drivey {
     mesh.rotation.z = Math.PI * 0.5;
     return mesh;
   }
+
+  /*
+  makeSphereSky() {
+    const geometry = new THREE.SphereBufferGeometry(-1, 50, 50, 0, Math.PI * 2, Math.PI / 2, Math.PI / 2);
+    const positions = geometry.getAttribute('position');
+    const numVertices = positions.count;
+    const monochromeValues = [];
+    for (let i = 0; i < numVertices; i++) {
+      const y = positions.array[i * 3 + 1];
+      monochromeValues.push(this.level.skyLow * (1 - y) + this.level.skyHigh * y);
+      monochromeValues.push(1);
+    }
+    geometry.addAttribute("monochromeValue", new THREE.Float32BufferAttribute(monochromeValues, 2));
+    const mesh = new THREE.Mesh(geometry, silhouette);
+    mesh.scale.multiplyScalar(100000);
+    return mesh;
+  }
+  */
 
   makeHeadlightPath() {
     const pts = [new THREE.Vector2(0, 0), new THREE.Vector2(-6, 13), new THREE.Vector2(4, 15), new THREE.Vector2(0, 0)];
@@ -94,14 +113,21 @@ class Drivey {
     }
     if (this.screen.isKeyHit("Digit0")) {
       this.screen.useBirdseye = !this.screen.useBirdseye;
+      if (this.screen.useBirdseye) {
+        this.screen.backgroundColor = this.level.tint.clone().multiplyScalar(this.level.skyLow).addScalar(0.5);
+      } else {
+        this.screen.backgroundColor = this.level.tint.clone().multiplyScalar(this.level.ground * 2);
+      }
     }
     if (this.screen.isKeyHit("Digit2")) {
       this.screen.wireframe = !this.screen.wireframe;
     }
     if (this.screen.isKeyDown("Digit4")) {
       this.screen.camera.rotation.y = Math.PI;
+      this.sky.rotation.y = this.screen.camera.rotation.y;
     } else {
       this.screen.camera.rotation.y = 0;
+      this.sky.rotation.y = this.screen.camera.rotation.y;
     }
   }
 }
