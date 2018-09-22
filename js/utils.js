@@ -1,5 +1,15 @@
 "use strict";
 
+const rotateY = function(v, angle) {
+  const cos = Math.cos(angle);
+  const sin = Math.sin(angle);
+  return new THREE.Vector3(
+    v.x * cos - v.z * sin,
+    v.y,
+    v.x * sin + v.z * cos
+  );
+}
+
 const silhouette = new THREE.RawShaderMaterial({
   vertexShader : `
     uniform vec3 tint;

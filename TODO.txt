@@ -1,7 +1,8 @@
 Port car logic
-    Just stick a box around them for now
-    Replace bogus car data with real data
-    Speedometers
+    Get believable position and rotation out of Car::advance
+        Drivey modifies a lot of car data
+        Make an update function or something?
+    Update speedometers and steering wheel
     Manual and auto
         Left and right arrow keys
         Up and down arrow keys

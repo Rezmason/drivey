@@ -22,20 +22,18 @@ class Drivey {
     this.level = new (this.levelsByName.get(levelName) || DeepDarkNight)();
     this.dashboard = new Dashboard();
     this.sky = this.makeCylinderSky(); // makeSphereSky()
-    this.playerCar = new THREE.Group();
-    this.playerCar.rotation.order = "ZYX";
+    this.playerCar = new Car();
+    this.playerCar.object.rotation.order = "ZYX";
     this.player = new THREE.Group();
-    this.playerCar.add(this.player);
-    this.playerCar.add(this.sky);
+    this.playerCar.object.add(this.player);
+    this.playerCar.object.add(this.sky);
     this.player.add(this.screen.camera);
     this.player.add(this.dashboard.object);
     this.screen.backgroundColor = this.level.tint.clone().multiplyScalar(this.level.ground * 2);
-    this.screen.scene.add(this.playerCar);
-    this.playerCar.add(this.screen.birdseye);
+    this.screen.scene.add(this.playerCar.object);
+    this.playerCar.object.add(this.screen.birdseye);
     this.screen.birdseye.position.set(0, 500, 0);
     this.screen.birdseye.rotation.set(-Math.PI * 0.5, 0, 0);
-    // this.screen.birdseye.zoom = 0.02;
-    // this.screen.birdseye.updateProjectionMatrix();
     this.screen.scene.add(this.level.world);
     silhouette.uniforms.tint = { value : this.level.tint};
     this.dashboard.object.scale.set(0.0018, 0.0018, 0.001);
@@ -89,6 +87,7 @@ class Drivey {
     } else if (this.screen.isKeyDown("ControlLeft") || this.screen.isKeyDown("ControlRight")) {
       simSpeed = 4;
     }
+
     const carSpeed = 6000;
     const roadMidOffset = -1.5;
     const carHeight = 1;
@@ -96,14 +95,18 @@ class Drivey {
     const carPosition = getExtrudedPointAt(this.level.roadPath.curve, this.carT, roadMidOffset);
     const nextPosition = getExtrudedPointAt(this.level.roadPath.curve,(this.carT + 0.001) % 1, roadMidOffset);
     const angle = Math.atan2(nextPosition.y - carPosition.y, nextPosition.x - carPosition.x) - Math.PI / 2;
-    const tilt = diffAngle(angle, this.playerCar.rotation.z);
+    const tilt = diffAngle(angle, this.playerCar.object.rotation.z);
     this.dashboard.wheelRotation = lerpAngle(this.dashboard.wheelRotation, Math.PI - tilt * 4, 0.1 * simSpeed);
-    this.playerCar.position.set(carPosition.x, carPosition.y, carHeight);
-    this.playerCar.rotation.set(Math.PI * 0.5, 0, lerpAngle(this.playerCar.rotation.z, angle, 0.05 * simSpeed));
+    this.playerCar.object.position.set(carPosition.x, carPosition.y, carHeight);
+    this.playerCar.object.rotation.set(Math.PI * 0.5, 0, lerpAngle(this.playerCar.object.rotation.z, angle, 0.05 * simSpeed));
     this.player.rotation.x = Math.PI * -0.0625;
     this.screen.camera.rotation.z = lerpAngle(this.screen.camera.rotation.z, tilt, 0.1 * simSpeed);
     this.dashboard.needle1Rotation = this.dashboard.needle1Rotation + step * simSpeed * 100;
     this.dashboard.needle2Rotation = this.dashboard.needle2Rotation + step * simSpeed * 100;
+
+    // this.playerCar.object.position.copy(this.playerCar.pos);
+    // this.playerCar.object.rotation.set();
+
     if (this.screen.isKeyHit("KeyC")) {
       if (this.dashboard.object.parent != null) {
         this.player.remove(this.dashboard.object);
