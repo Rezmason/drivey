@@ -8,10 +8,13 @@ class Tunnel extends Level {
     const whiteLinesColor = 0.8;
     const lightColor = 1;
     const wallColor = 0;
+
     const tarmacPath = new THREE.ShapePath();
     this.drawRoadLine(this.roadPath, tarmacPath, 0, 7, RoadLineStyle.SOLID(), 0, 1, 500);
     const tarmacMesh = makeMesh(tarmacPath, 0, 1, tarmac);
     meshes.push(tarmacMesh);
+
+    // do white lines
     const roadLinesPath = new THREE.ShapePath();
     this.drawRoadLine(this.roadPath, roadLinesPath,-3.5, 0.2, RoadLineStyle.DASH(30, 2), 0, 1, 800);
     this.drawRoadLine(this.roadPath, roadLinesPath, 3.5, 0.2, RoadLineStyle.DASH(30, 2), 0, 1, 800);
@@ -19,6 +22,8 @@ class Tunnel extends Level {
     const roadLinesMesh = makeMesh(roadLinesPath, 0, 1, whiteLinesColor);
     roadLinesMesh.position.z = 0.01;
     meshes.push(roadLinesMesh);
+
+    // do crossings
     const crossingPath = new THREE.ShapePath();
     this.drawRoadLine(this.roadPath, crossingPath, 0, 1, RoadLineStyle.DASH(2, 200), 0, 1, 1);
     const crossingMesh = makeMesh(crossingPath, 0, 1, tarmac);
@@ -32,12 +37,16 @@ class Tunnel extends Level {
     const crossingLinesMesh = makeMesh(crossingLinesPath, 0, 1, whiteLinesColor);
     crossingLinesMesh.position.z = 0.01;
     meshes.push(crossingLinesMesh);
+
+    // do lights
     const lightsPath = new THREE.ShapePath();
     this.drawRoadLine(this.roadPath, lightsPath,-4, 0.1, RoadLineStyle.DASH(4, 6), 0, 1, 1);
     this.drawRoadLine(this.roadPath, lightsPath, 4, 0.1, RoadLineStyle.DASH(4, 6), 0, 1, 1);
     const lightsMesh = makeMesh(lightsPath, 0.1, 1, lightColor);
     meshes.push(lightsMesh);
     lightsMesh.position.z = 4;
+
+    // do walls
     const wallPath = new THREE.ShapePath();
     this.drawRoadLine(this.roadPath, wallPath,-5, 0.4, RoadLineStyle.SOLID(), 0, 1, 800);
     this.drawRoadLine(this.roadPath, wallPath, 5, 0.4, RoadLineStyle.SOLID(), 0, 1, 800);

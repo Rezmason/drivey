@@ -10,132 +10,172 @@ class IndustrialZone extends Level {
     this.ground = 0.05;
     const whiteLinesColor = 0.6;
     const lightColor = 1.0;
-    const industrialTallThingAPath = new THREE.ShapePath();
-    this.drawRoadLine(this.roadPath, industrialTallThingAPath, 300, 0.5, RoadLineStyle.DOT(250), 0, 1, 1);
-    this.drawRoadLine(this.roadPath, industrialTallThingAPath, 320, 0.75, RoadLineStyle.DOT(250), 0, 1, 1);
-    const industrialTallThingAMesh = makeMesh(industrialTallThingAPath, 2, 10, lightColor);
-    industrialTallThingAMesh.position.z = 60;
-    meshes.push(industrialTallThingAMesh);
-    const industrialTallThingBPath = new THREE.ShapePath();
-    this.drawRoadLine(this.roadPath, industrialTallThingBPath, 300, 0.5, RoadLineStyle.DOT(250), 0, 1, 1);
-    this.drawRoadLine(this.roadPath, industrialTallThingBPath, 320, 0.75, RoadLineStyle.DOT(250), 0, 1, 1);
-    this.drawRoadLine(this.roadPath, industrialTallThingBPath, 400, 8, RoadLineStyle.DOT(240), 0, 1, 1);
-    this.drawRoadLine(this.roadPath, industrialTallThingBPath, 500, 8, RoadLineStyle.DOT(240), 0, 1, 1);
-    const industrialTallThingBMesh = makeMesh(industrialTallThingBPath, 60, 10, this.ground);
-    meshes.push(industrialTallThingBMesh);
-    const industrialMediumThingsPath = new THREE.ShapePath();
-    this.drawRoadLine(this.roadPath, industrialMediumThingsPath,-80, 20, RoadLineStyle.DASH(40, 60), 0, 1, 1);
-    this.drawRoadLine(this.roadPath, industrialMediumThingsPath, 180, 50, RoadLineStyle.DASH(40, 30), 0, 1, 1);
-    this.drawRoadLine(this.roadPath, industrialMediumThingsPath, 300, 50, RoadLineStyle.DASH(20, 20), 0, 1, 1);
-    this.drawRoadLine(this.roadPath, industrialMediumThingsPath,-100, 8, RoadLineStyle.DOT(200), 0, 1, 1);
-    this.drawRoadLine(this.roadPath, industrialMediumThingsPath,-60, 8, RoadLineStyle.DOT(1500), 0, 1, 1);
-    this.drawRoadLine(this.roadPath, industrialMediumThingsPath, 100, 8, RoadLineStyle.DOT(140), 0, 1, 1);
-    this.drawRoadLine(this.roadPath, industrialMediumThingsPath, 120, 8, RoadLineStyle.DOT(220), 0, 1, 1);
-    const industrialMediumThingsMesh = makeMesh(industrialMediumThingsPath, 12, 10, this.ground);
-    meshes.push(industrialMediumThingsMesh);
-    const industrialWhiteLinesPath = new THREE.ShapePath();
-    this.drawRoadLine(this.roadPath, industrialWhiteLinesPath,-3.5, 0.15, RoadLineStyle.DASH(60, 2), 0, 1, 1000);
-    this.drawRoadLine(this.roadPath, industrialWhiteLinesPath, 3.5, 0.15, RoadLineStyle.DASH(60, 2), 0, 1, 1000);
-    this.drawRoadLine(this.roadPath, industrialWhiteLinesPath,-0.15, 0.125, RoadLineStyle.DASH(4, 6), 0, 1, 1);
-    this.drawRoadLine(this.roadPath, industrialWhiteLinesPath, 0.125, 0.125, RoadLineStyle.SOLID(), 0, 1, 1000);
-    const industrialWhiteLinesMesh = makeMesh(industrialWhiteLinesPath, 0, 10, whiteLinesColor);
-    meshes.push(industrialWhiteLinesMesh);
-    const industrialCrossingPath = new THREE.ShapePath();
-    this.drawRoadLine(this.roadPath, industrialCrossingPath, 0, 1, RoadLineStyle.DASH(2, 200), 0, 1, 1);
-    const industrialCrossingMesh = makeMesh(industrialCrossingPath, 0, 10, this.ground);
-    industrialCrossingMesh.position.z = 0.001;
-    meshes.push(industrialCrossingMesh);
-    const industrialCrossingLinesPath = new THREE.ShapePath();
+    const brightColor = 0.2;
+
+    // far off buildings
+    // very tall things
+    const smokestack1Path = new THREE.ShapePath();
+    this.drawRoadLine(this.roadPath, smokestack1Path, 300, 0.5, RoadLineStyle.DOT(250), 0, 1, 1);
+    this.drawRoadLine(this.roadPath, smokestack1Path, 320, 0.75, RoadLineStyle.DOT(250), 0, 1, 1);
+    const smokestack1Mesh = makeMesh(smokestack1Path, 2, 10, lightColor);
+    smokestack1Mesh.position.z = 60;
+    meshes.push(smokestack1Mesh);
+
+    const smokestack2Path = new THREE.ShapePath();
+    this.drawRoadLine(this.roadPath, smokestack2Path, 300, 0.5, RoadLineStyle.DOT(250), 0, 1, 1);
+    this.drawRoadLine(this.roadPath, smokestack2Path, 320, 0.75, RoadLineStyle.DOT(250), 0, 1, 1);
+    this.drawRoadLine(this.roadPath, smokestack2Path, 400, 8, RoadLineStyle.DOT(240), 0, 1, 1);
+    this.drawRoadLine(this.roadPath, smokestack2Path, 500, 8, RoadLineStyle.DOT(240), 0, 1, 1);
+    const smokestack2Mesh = makeMesh(smokestack2Path, 60, 10, this.ground);
+    meshes.push(smokestack2Mesh);
+
+    // medium-height buildings
+    const buildingsPath = new THREE.ShapePath();
+    this.drawRoadLine(this.roadPath, buildingsPath,-80, 20, RoadLineStyle.DASH(40, 60), 0, 1, 1);
+    this.drawRoadLine(this.roadPath, buildingsPath, 180, 50, RoadLineStyle.DASH(40, 30), 0, 1, 1);
+    this.drawRoadLine(this.roadPath, buildingsPath, 300, 50, RoadLineStyle.DASH(20, 20), 0, 1, 1);
+
+    this.drawRoadLine(this.roadPath, buildingsPath,-100, 8, RoadLineStyle.DOT(200), 0, 1, 1);
+    this.drawRoadLine(this.roadPath, buildingsPath,-60, 8, RoadLineStyle.DOT(1500), 0, 1, 1);
+    this.drawRoadLine(this.roadPath, buildingsPath, 100, 8, RoadLineStyle.DOT(140), 0, 1, 1);
+    this.drawRoadLine(this.roadPath, buildingsPath, 120, 8, RoadLineStyle.DOT(220), 0, 1, 1);
+    const buildingsMesh = makeMesh(buildingsPath, 12, 10, this.ground);
+    meshes.push(buildingsMesh);
+
+    // do white lines
+    const whiteLinesPath = new THREE.ShapePath();
+    this.drawRoadLine(this.roadPath, whiteLinesPath,-3.5, 0.15, RoadLineStyle.DASH(60, 2), 0, 1, 1000);
+    this.drawRoadLine(this.roadPath, whiteLinesPath, 3.5, 0.15, RoadLineStyle.DASH(60, 2), 0, 1, 1000);
+    this.drawRoadLine(this.roadPath, whiteLinesPath,-0.15, 0.125, RoadLineStyle.DASH(4, 6), 0, 1, 1);
+    this.drawRoadLine(this.roadPath, whiteLinesPath, 0.125, 0.125, RoadLineStyle.SOLID(), 0, 1, 1000);
+    const whiteLinesMesh = makeMesh(whiteLinesPath, 0, 10, whiteLinesColor);
+    meshes.push(whiteLinesMesh);
+
+    // do crossings
+    const crossingPath = new THREE.ShapePath();
+    this.drawRoadLine(this.roadPath, crossingPath, 0, 1, RoadLineStyle.DASH(2, 200), 0, 1, 1);
+    const crossingMesh = makeMesh(crossingPath, 0, 10, this.ground);
+    crossingMesh.position.z = 0.001;
+    meshes.push(crossingMesh);
+    const crossingLinesPath = new THREE.ShapePath();
     for (let i = 0; i < 6; i++) {
         const width = 6.0 / 6 * 0.5;
-        this.drawRoadLine(this.roadPath, industrialCrossingLinesPath, i * 2 * width - 3 + width, width, RoadLineStyle.DASH(2, 200), 0, 1, 1);
+        this.drawRoadLine(this.roadPath, crossingLinesPath, i * 2 * width - 3 + width, width, RoadLineStyle.DASH(2, 200), 0, 1, 1);
     }
-    const industrialCrossingLinesMesh = makeMesh(industrialCrossingLinesPath, 0, 10, whiteLinesColor);
-    industrialCrossingLinesMesh.position.z = 0.01;
-    meshes.push(industrialCrossingLinesMesh);
-    const left = 80;
-    const right = 80;
-    const thick = 0.2;
-    const tall = 15;
-    const industrialStreetLight1Path = new THREE.ShapePath();
-    this.drawRoadLine(this.roadPath, industrialStreetLight1Path,-5.6, 5, RoadLineStyle.DASH(thick, left), 0, 1, 1);
-    const industrialStreetLight1Mesh = makeMesh(industrialStreetLight1Path, thick, 10, this.ground);
-    industrialStreetLight1Mesh.position.z = tall + thick;
-    meshes.push(industrialStreetLight1Mesh);
-    const industrialStreetLight2Path = new THREE.ShapePath();
-    this.drawRoadLine(this.roadPath, industrialStreetLight2Path,-8, thick, RoadLineStyle.DASH(thick, left), 0, 1, 1);
-    const industrialStreetLight2Mesh = makeMesh(industrialStreetLight2Path, tall + thick, 10, this.ground);
-    meshes.push(industrialStreetLight2Mesh);
-    const industrialStreetLight3Path = new THREE.ShapePath();
-    this.drawRoadLine(this.roadPath, industrialStreetLight3Path,-4, 2, RoadLineStyle.DASH(thick, left), 0, 1, 1);
-    const industrialStreetLight3Mesh = makeMesh(industrialStreetLight3Path, thick * 2, 10, lightColor);
-    industrialStreetLight3Mesh.position.z = tall - thick;
-    meshes.push(industrialStreetLight3Mesh);
-    const depth = 8;
-    const spacing = 300;
+    const crossingLinesMesh = makeMesh(crossingLinesPath, 0, 10, whiteLinesColor);
+    crossingLinesMesh.position.z = 0.01;
+    meshes.push(crossingLinesMesh);
+
+    // street lights
+    const streetLightSpacing = 80;
+    const streetLightThickness = 0.2;
+    const streetLightHeight = 15;
+    const streetLightPolePath = new THREE.ShapePath();
+    this.drawRoadLine(this.roadPath, streetLightPolePath,-8, streetLightThickness, RoadLineStyle.DASH(streetLightThickness, streetLightSpacing), 0, 1, 1);
+    const streetLightPoleMesh = makeMesh(streetLightPolePath, streetLightHeight + streetLightThickness, 10, this.ground);
+    meshes.push(streetLightPoleMesh);
+    const streetLightArmPath = new THREE.ShapePath();
+    this.drawRoadLine(this.roadPath, streetLightArmPath,-5.6, 5, RoadLineStyle.DASH(streetLightThickness, streetLightSpacing), 0, 1, 1);
+    const streetLightArmMesh = makeMesh(streetLightArmPath, streetLightThickness, 10, this.ground);
+    streetLightArmMesh.position.z = streetLightHeight + streetLightThickness;
+    meshes.push(streetLightArmMesh);
+    const streetLightBulbPath = new THREE.ShapePath();
+    this.drawRoadLine(this.roadPath, streetLightBulbPath,-4, 2, RoadLineStyle.DASH(streetLightThickness, streetLightSpacing), 0, 1, 1);
+    const streetLightBulbMesh = makeMesh(streetLightBulbPath, streetLightThickness * 2, 10, lightColor);
+    streetLightBulbMesh.position.z = streetLightHeight - streetLightThickness;
+    meshes.push(streetLightBulbMesh);
+
+    // Light circles beneath streetlamps
+    if (false) {
+        const streetLightShinePath = new THREE.ShapePath();
+        this.drawRoadLine(this.roadPath, streetLightShinePath, -4, 10, RoadLineStyle.DOT(streetLightSpacing), 0, 1, 1);
+        const streetLightShineMesh = makeMesh(streetLightShinePath, 0, 30, brightColor);
+        streetLightShineMesh.position.z = -0.01;
+        meshes.push(streetLight4Mesh);
+        const streetLightShadowPath = new THREE.ShapePath();
+        this.drawRoadLine(this.roadPath, streetLightShadowPath, -13, 10, RoadLineStyle.DASH(streetLightThickness, streetLightSpacing), 0, 1, 1);
+        meshes.push(makeMesh(streetLightShadowPath, 0, 10, this.ground));
+    }
+
+    // overpasses
+    const overpassDepth = 8;
+    const overpassSpacing = 300;
     const highwayAbove = this.roadPath.clone();
     highwayAbove.scale(1, 1.5);
-    const industrialOverpassAPath = new THREE.ShapePath();
-    this.drawRoadLine(highwayAbove, industrialOverpassAPath, 0, 162, RoadLineStyle.DASH(depth, spacing), 0, 1, 1);
-    const industrialOverpassAMesh = makeMesh(industrialOverpassAPath, 2, 10, this.ground);
-    industrialOverpassAMesh.position.z = 10;
-    industrialOverpassAMesh.scale.set(1, 0.66666666666666663, 1);
-    meshes.push(industrialOverpassAMesh);
-    const industrialOverpassBPath = new THREE.ShapePath();
-    this.drawRoadLine(highwayAbove, industrialOverpassBPath,-100, 42, RoadLineStyle.DASH(depth, spacing), 0, 1, 1);
-    this.drawRoadLine(highwayAbove, industrialOverpassBPath,-40, 2, RoadLineStyle.DASH(depth, spacing), 0, 1, 1);
-    this.drawRoadLine(highwayAbove, industrialOverpassBPath,-15, 2, RoadLineStyle.DASH(depth, spacing), 0, 1, 1);
-    this.drawRoadLine(highwayAbove, industrialOverpassBPath, 15, 2, RoadLineStyle.DASH(depth, spacing), 0, 1, 1);
-    this.drawRoadLine(highwayAbove, industrialOverpassBPath, 40, 2, RoadLineStyle.DASH(depth, spacing), 0, 1, 1);
-    this.drawRoadLine(highwayAbove, industrialOverpassBPath, 200, 242, RoadLineStyle.DASH(depth, spacing), 0, 1, 1);
-    const industrialOverpassBMesh = makeMesh(industrialOverpassBPath, 10, 10, this.ground);
-    industrialOverpassBMesh.scale.set(1, 0.66666666666666663, 1);
-    meshes.push(industrialOverpassBMesh);
-    const industrialPolesPath = new THREE.ShapePath();
-    this.drawRoadLine(this.roadPath, industrialPolesPath,-30, 0.25, RoadLineStyle.DOT(90), 0, 1, 1);
-    this.drawRoadLine(this.roadPath, industrialPolesPath,-40, 0.25, RoadLineStyle.DOT(110), 0, 1, 1);
-    this.drawRoadLine(this.roadPath, industrialPolesPath, 60, 0.25, RoadLineStyle.DOT(60), 0, 1, 1);
-    this.drawRoadLine(this.roadPath, industrialPolesPath,-50, 0.25, RoadLineStyle.DOT(60), 0, 1, 1);
-    this.drawRoadLine(this.roadPath, industrialPolesPath,-20, 0.125, RoadLineStyle.DOT(100), 0, 1, 1);
-    this.drawRoadLine(this.roadPath, industrialPolesPath, 20, 0.25, RoadLineStyle.DOT(45), 0, 1, 1);
-    this.drawRoadLine(this.roadPath, industrialPolesPath, 50, 0.125, RoadLineStyle.DOT(50), 0, 1, 1);
-    this.drawRoadLine(this.roadPath, industrialPolesPath, 70, 0.25, RoadLineStyle.DOT(75), 0, 1, 1);
-    const industrialPolesMesh = makeMesh(industrialPolesPath, 12, 10, this.ground);
-    meshes.push(industrialPolesMesh);
-    const industrialKnobsPath = new THREE.ShapePath();
-    this.drawRoadLine(this.roadPath, industrialKnobsPath,-40, 1, RoadLineStyle.DOT(110), 0, 1, 1);
-    this.drawRoadLine(this.roadPath, industrialKnobsPath, 60, 1, RoadLineStyle.DOT(60), 0, 1, 1);
-    const industrialKnobsMesh = makeMesh(industrialKnobsPath, 1, 10, this.ground);
-    industrialKnobsMesh.position.z = 12;
-    meshes.push(industrialKnobsMesh);
+    const overpassSpanPath = new THREE.ShapePath();
+    this.drawRoadLine(highwayAbove, overpassSpanPath, 0, 162, RoadLineStyle.DASH(overpassDepth, overpassSpacing), 0, 1, 1);
+    const overpassSpanMesh = makeMesh(overpassSpanPath, 2, 10, this.ground);
+    overpassSpanMesh.position.z = 10;
+    overpassSpanMesh.scale.set(1, 1 / 1.5, 1);
+    meshes.push(overpassSpanMesh);
+    const overpassFeetPath = new THREE.ShapePath();
+    this.drawRoadLine(highwayAbove, overpassFeetPath,-100, 42, RoadLineStyle.DASH(overpassDepth, overpassSpacing), 0, 1, 1);
+    this.drawRoadLine(highwayAbove, overpassFeetPath,-40, 2, RoadLineStyle.DASH(overpassDepth, overpassSpacing), 0, 1, 1);
+    this.drawRoadLine(highwayAbove, overpassFeetPath,-15, 2, RoadLineStyle.DASH(overpassDepth, overpassSpacing), 0, 1, 1);
+    this.drawRoadLine(highwayAbove, overpassFeetPath, 15, 2, RoadLineStyle.DASH(overpassDepth, overpassSpacing), 0, 1, 1);
+    this.drawRoadLine(highwayAbove, overpassFeetPath, 40, 2, RoadLineStyle.DASH(overpassDepth, overpassSpacing), 0, 1, 1);
+    this.drawRoadLine(highwayAbove, overpassFeetPath, 200, 242, RoadLineStyle.DASH(overpassDepth, overpassSpacing), 0, 1, 1);
+
+    // var wall = new ShapePath();
+    // drawRoadLine(highwayAbove, wall, -15, 2, DASH(overpassDepth, overpassSpacing), 0, 1, 1);
+    // drawRoadLine(highwayAbove, wall, 15, 2, DASH(overpassDepth, overpassSpacing), 0, 1, 1);
+
+    const overpassFeetMesh = makeMesh(overpassFeetPath, 10, 10, this.ground);
+    overpassFeetMesh.scale.set(1, 1 / 1.5, 1);
+    meshes.push(overpassFeetMesh);
+
+    // various poles
+    const polesPath = new THREE.ShapePath();
+    this.drawRoadLine(this.roadPath, polesPath,-30, 0.25, RoadLineStyle.DOT(90), 0, 1, 1); // Nicolaus Copernicus
+    this.drawRoadLine(this.roadPath, polesPath,-40, 0.25, RoadLineStyle.DOT(110), 0, 1, 1); // Marie Curie
+    this.drawRoadLine(this.roadPath, polesPath, 60, 0.25, RoadLineStyle.DOT(60), 0, 1, 1); // Monika Soćko
+    this.drawRoadLine(this.roadPath, polesPath,-50, 0.25, RoadLineStyle.DOT(60), 0, 1, 1); // Raphael Lemkin
+    this.drawRoadLine(this.roadPath, polesPath,-20, 0.125, RoadLineStyle.DOT(100), 0, 1, 1); // Stanislaw Ulam
+    this.drawRoadLine(this.roadPath, polesPath, 20, 0.25, RoadLineStyle.DOT(45), 0, 1, 1); // Wanda Krahelska-Filipowicz
+    this.drawRoadLine(this.roadPath, polesPath, 50, 0.125, RoadLineStyle.DOT(50), 0, 1, 1); // Tamara de Lempicka
+    this.drawRoadLine(this.roadPath, polesPath, 70, 0.25, RoadLineStyle.DOT(75), 0, 1, 1); // André Citroën
+    const polesMesh = makeMesh(polesPath, 12, 10, this.ground);
+    meshes.push(polesMesh);
+
+    // knobs
+    const knobsPath = new THREE.ShapePath();
+    this.drawRoadLine(this.roadPath, knobsPath,-40, 1, RoadLineStyle.DOT(110), 0, 1, 1);
+    this.drawRoadLine(this.roadPath, knobsPath, 60, 1, RoadLineStyle.DOT(60), 0, 1, 1);
+    const knobsMesh = makeMesh(knobsPath, 1, 10, this.ground);
+    knobsMesh.position.z = 12;
+    meshes.push(knobsMesh);
+
+    // wires
     const wireThickness = 0.075;
-    const industrialWiresPath = new THREE.ShapePath();
-    this.drawRoadLine(this.roadPath, industrialWiresPath,-50, wireThickness, RoadLineStyle.SOLID(), 0, 1, 500);
-    this.drawRoadLine(this.roadPath, industrialWiresPath,-20, wireThickness, RoadLineStyle.SOLID(), 0, 1, 500);
-    this.drawRoadLine(this.roadPath, industrialWiresPath, 20, wireThickness, RoadLineStyle.SOLID(), 0, 1, 500);
-    this.drawRoadLine(this.roadPath, industrialWiresPath, 50, wireThickness, RoadLineStyle.SOLID(), 0, 1, 500);
-    this.drawRoadLine(this.roadPath, industrialWiresPath, 70, wireThickness, RoadLineStyle.SOLID(), 0, 1, 500);
-    const industrialWiresMesh = makeMesh(industrialWiresPath, wireThickness, 10, this.ground);
-    industrialWiresMesh.position.z = 11.25;
-    meshes.push(industrialWiresMesh);
-    const tall1 = 5;
-    const spacing1 = 30;
-    const dist = 25;
-    const industrialFenceAPath = new THREE.ShapePath();
-    this.drawRoadLine(this.roadPath, industrialFenceAPath,-dist, 0.1, RoadLineStyle.DOT(spacing1), 0, 1, 1);
-    this.drawRoadLine(this.roadPath, industrialFenceAPath, dist, 0.1, RoadLineStyle.DOT(spacing1), 0, 1, 1);
-    const industrialFenceAMesh = makeMesh(industrialFenceAPath, tall1, 10, this.ground);
-    meshes.push(industrialFenceAMesh);
-    const industrialFenceBPath = new THREE.ShapePath();
-    this.drawRoadLine(this.roadPath, industrialFenceBPath,-dist, 0.1, RoadLineStyle.SOLID(), 0, 1, 500);
-    this.drawRoadLine(this.roadPath, industrialFenceBPath, dist, 0.1, RoadLineStyle.SOLID(), 0, 1, 500);
-    const industrialFenceBMesh = makeMesh(industrialFenceBPath, 0.1, 10, this.ground);
-    industrialFenceBMesh.position.z = tall1 - 0.5;
-    meshes.push(industrialFenceBMesh);
-    const industrialFenceCPath = new THREE.ShapePath();
-    this.drawRoadLine(this.roadPath, industrialFenceCPath,-dist, 0.1, RoadLineStyle.SOLID(), 0, 1, 500);
-    this.drawRoadLine(this.roadPath, industrialFenceCPath, dist, 0.1, RoadLineStyle.SOLID(), 0, 1, 500);
-    const industrialFenceCMesh = makeMesh(industrialFenceCPath, tall1 - 0.5, 10, this.ground, 0.25);
-    transparentMeshes.push(industrialFenceCMesh);
+    const wiresPath = new THREE.ShapePath();
+    this.drawRoadLine(this.roadPath, wiresPath,-50, wireThickness, RoadLineStyle.SOLID(), 0, 1, 500);
+    this.drawRoadLine(this.roadPath, wiresPath,-20, wireThickness, RoadLineStyle.SOLID(), 0, 1, 500);
+    this.drawRoadLine(this.roadPath, wiresPath, 20, wireThickness, RoadLineStyle.SOLID(), 0, 1, 500);
+    this.drawRoadLine(this.roadPath, wiresPath, 50, wireThickness, RoadLineStyle.SOLID(), 0, 1, 500);
+    this.drawRoadLine(this.roadPath, wiresPath, 70, wireThickness, RoadLineStyle.SOLID(), 0, 1, 500);
+    const wiresMesh = makeMesh(wiresPath, wireThickness, 10, this.ground);
+    wiresMesh.position.z = 11.25;
+    meshes.push(wiresMesh);
+
+    // fencing
+    const fenceTall = 5;
+    const fenceSpacing = 30;
+    const fenceDist = 25;
+    const fencePolesPath = new THREE.ShapePath();
+    this.drawRoadLine(this.roadPath, fencePolesPath,-fenceDist, 0.1, RoadLineStyle.DOT(fenceSpacing), 0, 1, 1);
+    this.drawRoadLine(this.roadPath, fencePolesPath, fenceDist, 0.1, RoadLineStyle.DOT(fenceSpacing), 0, 1, 1);
+    const fencePolesMesh = makeMesh(fencePolesPath, fenceTall, 10, this.ground);
+    meshes.push(fencePolesMesh);
+    const fenceTopPath = new THREE.ShapePath();
+    this.drawRoadLine(this.roadPath, fenceTopPath,-fenceDist, 0.1, RoadLineStyle.SOLID(), 0, 1, 500);
+    this.drawRoadLine(this.roadPath, fenceTopPath, fenceDist, 0.1, RoadLineStyle.SOLID(), 0, 1, 500);
+    const fenceTopMesh = makeMesh(fenceTopPath, 0.1, 10, this.ground);
+    fenceTopMesh.position.z = fenceTall - 0.5;
+    meshes.push(fenceTopMesh);
+    const fenceAreaPath = new THREE.ShapePath();
+    this.drawRoadLine(this.roadPath, fenceAreaPath,-fenceDist, 0.1, RoadLineStyle.SOLID(), 0, 1, 500);
+    this.drawRoadLine(this.roadPath, fenceAreaPath, fenceDist, 0.1, RoadLineStyle.SOLID(), 0, 1, 500);
+    const fenceAreaMesh = makeMesh(fenceAreaPath, fenceTall - 0.5, 10, this.ground, 0.25);
+    transparentMeshes.push(fenceAreaMesh);
   }
 }

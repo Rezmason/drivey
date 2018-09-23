@@ -8,14 +8,18 @@ class TestLevel extends Level {
     this.skyLow = 0.0;
     this.skyHigh = 0.5;
     this.ground = 0.125;
+
     const roadStripesPath = new THREE.ShapePath();
     mergeShapePaths(roadStripesPath, this.drawRoadLine(this.roadPath, new THREE.ShapePath(), 3, 0.15, RoadLineStyle.SOLID(), 0, 1.0, 400));
     mergeShapePaths(roadStripesPath, this.drawRoadLine(this.roadPath, new THREE.ShapePath(),-3, 0.15, RoadLineStyle.SOLID(), 0, 1.0, 400));
     meshes.push(makeMesh(roadStripesPath, 0, 1000, 0.58));
+
     const dashedLinePath = new THREE.ShapePath();
     this.drawRoadLine(this.roadPath, dashedLinePath, 0.0625, 0.0625, RoadLineStyle.DASH(30, 30), 0, 1, 450);
     this.drawRoadLine(this.roadPath, dashedLinePath,-0.0625, 0.0625, RoadLineStyle.DASH(30, 30), 0, 1, 450);
     meshes.push(makeMesh(dashedLinePath, 0, 1000, 0.58));
+
+    // croquet hoops
     const hoopTopsPath = new THREE.ShapePath();
     const hoopSidesPath = new THREE.ShapePath();
     const hoopStyle = RoadLineStyle.DASH(1, 20);
