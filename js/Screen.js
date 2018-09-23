@@ -37,10 +37,7 @@ class Screen {
     const aspect = window.innerWidth / window.innerHeight;
     this.camera.aspect = aspect;
     this.camera.updateProjectionMatrix();
-    this.birdseye.left = -100 * aspect / 2;
-    this.birdseye.right = 100 * aspect / 2;
-    this.birdseye.top = 50.;
-    this.birdseye.bottom = -50.;
+    this.birdseye.aspect = aspect;
     this.birdseye.updateProjectionMatrix();
     this.renderer.setSize(window.innerWidth / this.downscale, window.innerHeight / this.downscale);
     this.renderer.domElement.style.width = "100%";
@@ -73,6 +70,7 @@ class Screen {
 
   onKeyDown(event) {
     const code = event.code;
+    // console.log(code);
     if (!this.isKeyDown(code)) {
       this.keysHit.add(code);
     }
@@ -108,7 +106,7 @@ class Screen {
   showMessage(msg, clear, seconds = 2) {
     if (clear) {
       while (this.messageBox.firstChild != null) {
-        this.messageOpacities.remove(this.messageBox.firstChild);
+        this.messageOpacities.delete(this.messageBox.firstChild);
         this.messageBox.firstChild.remove();
       }
     }
@@ -120,10 +118,6 @@ class Screen {
       this.messageOpacities.set(message, 1);
     }.bind(this));
     this.messageBox.appendChild(message);
-  }
-
-  set wireframe(val) {
-    return val;
   }
 
   get backgroundColor() {

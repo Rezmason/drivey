@@ -11,7 +11,6 @@ class Drivey {
       ["city", City],
       ["industrial", IndustrialZone],
     ]);
-    this.carT = 0;
     this.screen = new Screen();
     this.init(levelName);
     this.screen.addRenderListener(this.update.bind(this));
@@ -19,24 +18,52 @@ class Drivey {
   }
 
   init(levelName) {
+
+    this.laneSpacing = 4; // ???
+    this.laneOffset = -2.5;
+
+    this.showDashboard = true;
+    this.rearView = false;
+    this.autoSteer = true;
+    this.wireframe = false;
+
+    this.lastTime = NaN;
+    this.lastDelta = 0;
+
     this.level = new (this.levelsByName.get(levelName) || DeepDarkNight)();
     this.dashboard = new Dashboard();
     this.sky = this.makeCylinderSky(); // makeSphereSky()
-    this.playerCar = new Car();
-    this.playerCar.object.rotation.order = "ZYX";
-    this.player = new THREE.Group();
-    this.playerCar.object.add(this.player);
-    this.playerCar.object.add(this.sky);
-    this.player.add(this.screen.camera);
-    this.player.add(this.dashboard.object);
+
+    this.driver = new THREE.Group();
+    this.driver.name = "Ace"; // Everyone, this is my buddy, Ace.
+    this.screen.camera.rotation.x = Math.PI * (0.5 - 0.0625);
+    this.screen.camera.position.z = 1;
+    this.driver.add(this.screen.camera);
+    this.screen.birdseye.position.set(0, 0, 20);
+    this.driver.add(this.screen.birdseye);
+
+    this.car = new Car();
+    this.myCarExterior = new THREE.Group();
+    this.screen.scene.add(this.myCarExterior);
+
+    this.sky = this.makeCylinderSky(); // makeSphereSky()
+    this.myCarExterior.add(this.sky);
+
+    this.myCarInterior = new THREE.Group();
+    this.myCarExterior.add(this.myCarInterior);
+    // Hop in, Ace
+    this.myCarInterior.add(this.driver);
+
+    this.dashboard = new Dashboard();
+    this.dashboard.object.scale.set(0.0018, 0.0018, 0.001);
+    this.screen.camera.add(this.dashboard.object);
+
     this.screen.backgroundColor = this.level.tint.clone().multiplyScalar(this.level.ground * 2);
-    this.screen.scene.add(this.playerCar.object);
-    this.playerCar.object.add(this.screen.birdseye);
-    this.screen.birdseye.position.set(0, 500, 0);
-    this.screen.birdseye.rotation.set(-Math.PI * 0.5, 0, 0);
+
     this.screen.scene.add(this.level.world);
     silhouette.uniforms.tint = { value : this.level.tint};
-    this.dashboard.object.scale.set(0.0018, 0.0018, 0.001);
+
+    this.placeCar(this.car, this.level.roadPath, 0);
   }
 
   makeCylinderSky() {
@@ -52,85 +79,190 @@ class Drivey {
     geometry.addAttribute("monochromeValue", new THREE.Float32BufferAttribute(monochromeValues, 2));
     const mesh = new THREE.Mesh(geometry, silhouette);
     mesh.scale.multiplyScalar(100000);
+    mesh.rotation.x = Math.PI * 0.5;
     mesh.rotation.z = Math.PI * 0.5;
     return mesh;
   }
 
-  /*
-  makeSphereSky() {
-    const geometry = new THREE.SphereBufferGeometry(-1, 50, 50, 0, Math.PI * 2, Math.PI / 2, Math.PI / 2);
-    const positions = geometry.getAttribute('position');
-    const numVertices = positions.count;
-    const monochromeValues = [];
-    for (let i = 0; i < numVertices; i++) {
-      const y = positions.array[i * 3 + 1];
-      monochromeValues.push(this.level.skyLow * (1 - y) + this.level.skyHigh * y);
-      monochromeValues.push(1);
-    }
-    geometry.addAttribute("monochromeValue", new THREE.Float32BufferAttribute(monochromeValues, 2));
-    const mesh = new THREE.Mesh(geometry, silhouette);
-    mesh.scale.multiplyScalar(100000);
-    return mesh;
-  }
-  */
+  placeCar(car, roadPath, roadPos) {
+    this.car.roadPos = roadPos;
 
-  makeHeadlightPath() {
-    const pts = [new THREE.Vector2(0, 0), new THREE.Vector2(-6, 13), new THREE.Vector2(4, 15), new THREE.Vector2(0, 0)];
-    return makeSplinePath(pts, true);
+    const pos = roadPath.getPoint(this.car.roadPos, this.laneOffset);
+    car.pos.copy(pos);
+    car.lastPos.copy(pos);
+
+    const normal = roadPath.getNormal(this.car.roadPos, this.laneOffset);
+    car.angle = getAngle(normal);
+
+    const vel = normal.clone().multiplyScalar(car.cruise);
+    car.vel.copy(vel);
+    car.lastVel.copy(vel);
   }
 
-  update() {
-    const step = 0.0001;
-    let simSpeed = 1.0;
-    if (this.screen.isKeyDown("ShiftLeft") || this.screen.isKeyDown("ShiftRight")) {
-      simSpeed = 0.125;
-    } else if (this.screen.isKeyDown("ControlLeft") || this.screen.isKeyDown("ControlRight")) {
-      simSpeed = 4;
+  updateOptions() {
+    if (this.screen.isKeyHit('Digit5')) {
+      this.autoSteer = !this.autoSteer;
+      this.screen.showMessage(this.autoSteer ? 'automatic steering' : 'manual steering', true);
     }
-
-    const carSpeed = 6000;
-    const roadMidOffset = -1.5;
-    const carHeight = 1;
-    this.carT = (this.carT + step * simSpeed * carSpeed / this.level.roadPath.length) % 1;
-    const carPosition = getExtrudedPointAt(this.level.roadPath.curve, this.carT, roadMidOffset);
-    const nextPosition = getExtrudedPointAt(this.level.roadPath.curve,(this.carT + 0.001) % 1, roadMidOffset);
-    const angle = Math.atan2(nextPosition.y - carPosition.y, nextPosition.x - carPosition.x) - Math.PI / 2;
-    const tilt = diffAngle(angle, this.playerCar.object.rotation.z);
-    this.dashboard.wheelRotation = lerpAngle(this.dashboard.wheelRotation, Math.PI - tilt * 4, 0.1 * simSpeed);
-    this.playerCar.object.position.set(carPosition.x, carPosition.y, carHeight);
-    this.playerCar.object.rotation.set(Math.PI * 0.5, 0, lerpAngle(this.playerCar.object.rotation.z, angle, 0.05 * simSpeed));
-    this.player.rotation.x = Math.PI * -0.0625;
-    this.screen.camera.rotation.z = lerpAngle(this.screen.camera.rotation.z, tilt, 0.1 * simSpeed);
-    this.dashboard.needle1Rotation = this.dashboard.needle1Rotation + step * simSpeed * 100;
-    this.dashboard.needle2Rotation = this.dashboard.needle2Rotation + step * simSpeed * 100;
-
-    // this.playerCar.object.position.copy(this.playerCar.pos);
-    // this.playerCar.object.rotation.set();
-
-    if (this.screen.isKeyHit("KeyC")) {
-      if (this.dashboard.object.parent != null) {
-        this.player.remove(this.dashboard.object);
-      } else {
-        this.player.add(this.dashboard.object);
-      }
+    if (this.screen.isKeyHit('KeyC')) {
+      this.showDashboard = !this.showDashboard;
+      this.screen.showMessage('dashboard ' + (this.showDashboard ? 'on' : 'off' ), true);
     }
-    if (this.screen.isKeyHit("Digit0")) {
+    if (this.screen.isKeyHit('Digit0')) {
       this.screen.useBirdseye = !this.screen.useBirdseye;
       if (this.screen.useBirdseye) {
         this.screen.backgroundColor = this.level.tint.clone().multiplyScalar(this.level.skyLow).addScalar(0.5);
       } else {
         this.screen.backgroundColor = this.level.tint.clone().multiplyScalar(this.level.ground * 2);
       }
+      this.screen.showMessage('bird\'s eye view: ' + (this.screen.useBirdseye ? 'on' : 'off' ), true);
     }
-    if (this.screen.isKeyHit("Digit2")) {
-      this.screen.wireframe = !this.screen.wireframe;
+    if (this.screen.isKeyHit('Digit2')) {
+      this.wireframe = !this.wireframe;
+      // TODO: wireframe
+      this.screen.showMessage('wireframe ' + (this.wireframe ? 'on' : 'off'), true);
     }
-    if (this.screen.isKeyDown("Digit4")) {
-      this.screen.camera.rotation.y = Math.PI;
-      this.sky.rotation.y = this.screen.camera.rotation.y;
+    if (this.screen.isKeyHit('Digit4')) {
+      this.rearView = !this.rearView;
+      this.driver.rotation.z = this.rearView ? Math.PI : 0;
+      this.screen.showMessage('rear view ' + (this.rearView ? 'on' : 'off'), true);
+    }
+
+    if (this.showDashboard && !this.rearView) {
+      if (this.dashboard.object.parent == null) this.screen.camera.add(this.dashboard.object);
     } else {
-      this.screen.camera.rotation.y = 0;
-      this.sky.rotation.y = this.screen.camera.rotation.y;
+      if (this.dashboard.object.parent != null) this.screen.camera.remove(this.dashboard.object);
     }
+  }
+
+  update() {
+    this.updateOptions();
+
+    // now let's get the time delta
+    const now = Date.now();
+    let delta = Math.min(0.1, isNaN(this.lastTime) ? 0 : ((now - this.lastTime)) / 1000); // maximum frame delta is 0.1 seconds
+    delta = lerp(this.lastDelta, delta, 0.5); // soften it to deal with coarse timing issues
+    this.lastTime = now;
+    this.lastDelta = delta;
+
+    const simSpeed =
+      (this.screen.isKeyDown('ShiftLeft') || this.screen.isKeyDown('ShiftRight')) ? 0.125 :
+      (this.screen.isKeyDown('ControlLeft') || this.screen.isKeyDown('ControlRight')) ? 4 :
+      1;
+
+    // this.driving(delta, simSpeed);
+    // this.fakeDriving(delta, simSpeed);
+    // this.fakeWalk(delta, simSpeed);
+
+    this.myCarExterior.position.set(this.car.pos.x, this.car.pos.y, 0);
+    this.myCarExterior.rotation.z = this.car.angle - Math.PI / 2;
+    this.screen.camera.rotation.y = this.car.tilt;
+
+    this.dashboard.wheelRotation = Math.PI - this.car.tilt * 4;
+    this.dashboard.needle1Rotation = this.dashboard.needle1Rotation + delta * simSpeed * 0.1;
+    this.dashboard.needle2Rotation = this.dashboard.needle2Rotation + delta * simSpeed * 0.1;
+  }
+
+  driving(delta, simSpeed) {
+    let acc = 0;
+    let manualSteerAmount = 0;
+
+    if (this.screen.isKeyDown('ArrowUp')) acc += 1;
+    if (this.screen.isKeyDown('ArrowDown')) acc -= 2;
+
+    if (this.screen.isKeyDown('ArrowLeft')) {
+      if (this.autoSteer) this.car.roadPos += 3 * delta * simSpeed;
+      else manualSteerAmount -= 1;
+    }
+
+    if (this.screen.isKeyDown('ArrowRight')) {
+      if (this.autoSteer) this.car.roadPos += -3 * delta * simSpeed;
+      else manualSteerAmount += 1;
+    }
+
+    if (this.autoSteer) {
+      if (this.car.roadPos > 0.1) this.car.roadPos -= delta * simSpeed;
+      else if (this.car.roadPos < -0.1) this.car.roadPos += delta * simSpeed;
+    }
+
+    this.car.brake = this.screen.isKeyDown('Space') ? 1 : 0;
+    this.car.accelerate = 0;
+
+    const TIME_SLICE = 0.05;
+
+    let totalTime = delta * simSpeed;
+    while (totalTime > 0) {
+      const step = Math.min(totalTime, TIME_SLICE);
+
+      if (this.autoSteer) {
+        this.autoSteerDrive(this.car, this.level.roadPath);
+      } else {
+        const diff = -sign(this.car.steerTo) * 0.0002 * this.car.vel.length() * step;
+        if (Math.abs(diff) >= Math.abs(this.car.steerTo)) this.car.steerTo = 0;
+        else this.car.steerTo += diff;
+        this.car.steerTo = this.car.steerTo + manualSteerAmount * 0.025 * step;
+      }
+
+      this.car.accelerate += acc;
+      this.car.advance(step);
+      totalTime -= TIME_SLICE;
+    }
+  }
+
+  autoSteerDrive(car, roadPath) {
+
+    const dir = (car.vel.length() > 0 )
+      ? car.vel.clone().normalize()
+      : rotateY(new THREE.Vector3(0, 0, 1), -car.angle);
+
+    // get position on road for 1 second ahead of now
+
+    const lookAhead = 20; // basic direction stuff
+    let futurePos = car.pos.clone().add(dir.clone().multiplyScalar(lookAhead));
+    let t = roadPath.getNearest(futurePos);
+
+    let targetDir = roadPath.getPoint(t).sub(car.pos);
+    let tangent = roadPath.getTangent(t);//.normalize();
+
+    if (car.roadDir < 0) tangent.multiplyScalar(-1);
+
+    let normal = rotateY(tangent, Math.PI * 0.5);
+    targetDir.add(normal.multiplyScalar(this.laneSpacing * car.roadPos + this.laneOffset));
+
+    if (targetDir.length() > 0) tangent.lerp(targetDir, 0.05);
+
+    let newAngle = Math.atan2(tangent.y, tangent.x) - Math.PI * 0.5;
+    newAngle = -newAngle;
+    newAngle -= car.angle;
+    while (newAngle > Math.PI) newAngle -= Math.PI * 2;
+    while (newAngle < -Math.PI) newAngle += Math.PI * 2;
+
+    if (Math.abs(newAngle) > 1) newAngle /= Math.abs(newAngle);
+    car.steerTo = newAngle / (Math.min(targetDir.length() * 0.5, 50) + 1);
+    if (Math.abs(car.steerTo) > 0.02) car.steerTo *= 0.02 / Math.abs(car.steerTo);
+
+    if (car.vel.length() < car.cruise) car.accelerate = 1;
+    else car.accelerate = car.cruise / car.vel.length();
+  }
+
+  fakeDriving(delta, simSpeed) {
+    this.car.roadPos = (this.car.roadPos + delta * simSpeed * this.car.cruise / this.level.roadPath.length) % 1;
+    this.car.pos.copy(this.level.roadPath.getPoint(this.car.roadPos, this.laneOffset));
+    const nextPosition = this.level.roadPath.getPoint((this.car.roadPos + 0.001) % 1, this.laneOffset);
+    const angle = Math.atan2(nextPosition.y - this.car.pos.y, nextPosition.x - this.car.pos.x);
+    const tilt = diffAngle(angle, this.car.angle);
+    this.car.tilt = lerpAngle(this.screen.camera.rotation.y, tilt, 0.1 * simSpeed)
+    this.car.angle = lerpAngle(this.car.angle, angle, 0.05 * simSpeed);
+  }
+
+  fakeWalk(delta, simSpeed) {
+    if (this.screen.isKeyDown('ArrowUp')) {
+      this.car.pos.add(rotate(new THREE.Vector2(simSpeed, 0), this.car.angle));
+    }
+    if (this.screen.isKeyDown('ArrowDown')) {
+      this.car.pos.add(rotate(new THREE.Vector2(-simSpeed, 0), this.car.angle));
+    }
+    if (this.screen.isKeyDown('ArrowLeft')) this.car.angle += 0.05;
+    if (this.screen.isKeyDown('ArrowRight')) this.car.angle -= 0.05;
   }
 }

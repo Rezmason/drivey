@@ -16,19 +16,18 @@ class RoadPath {
     this.curve = makeSplinePath(this.points, true);
   }
 
-  getPoint(t) {
-    const point = this.curve.getPoint(t % 1);
-    return new THREE.Vector2(point.x, point.y);
+  getPoint(t, offset = 0) {
+    return getExtrudedPointAt(this.curve, t, offset);
   }
 
-  getNormal(t) {
+  getNormal(t, offset = 0) {
     const EPSILON = 0.00001;
-    const point = this.getPoint(t + EPSILON).sub(this.getPoint(t + 1 - EPSILON));
+    const point = this.getPoint(t + EPSILON, offset).sub(this.getPoint(t + 1 - EPSILON, offset));
     return point.normalize();
   }
 
-  getTangent(t) {
-    const normal = this.getNormal(t);
+  getTangent(t, offset = 0) {
+    const normal = this.getNormal(t, offset);
     return new THREE.Vector2(-normal.y, normal.x);
   }
 

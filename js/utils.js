@@ -1,12 +1,37 @@
 "use strict";
 
-const rotateY = function(v, angle) {
+const sign = input => input < 0 ? -1 : 1;
+
+const mod = (a, b) => (a % b + b) % b
+
+const getAngle = v2 => Math.atan2(v2.y, v2.x);
+
+const rotate = (v2, angle) => {
+  const cos = Math.cos(angle);
+  const sin = Math.sin(angle);
+  return new THREE.Vector2(
+    v2.x * cos - v2.y * sin,
+    v2.x * sin + v2.y * cos
+  );
+}
+
+const rotateY = (v3, angle) => {
   const cos = Math.cos(angle);
   const sin = Math.sin(angle);
   return new THREE.Vector3(
-    v.x * cos - v.z * sin,
-    v.y,
-    v.x * sin + v.z * cos
+    v3.x * cos - v3.z * sin,
+    v3.y,
+    v3.x * sin + v3.z * cos
+  );
+}
+
+const rotateZ = (v3, angle) => {
+  const cos = Math.cos(angle);
+  const sin = Math.sin(angle);
+  return new THREE.Vector3(
+    v3.x * cos - v3.y * sin,
+    v3.x * sin + v3.y * cos,
+    v3.z
   );
 }
 
@@ -63,7 +88,7 @@ const transparent = new THREE.RawShaderMaterial({
   transparent: true
 });
 
-const makeSplinePath = function(pts, closed) {
+const makeSplinePath = (pts, closed) => {
   const spline = new THREE.Path();
   spline.curves.push(
     new THREE.CatmullRomCurve3(pts.map(({x, y}) => new THREE.Vector3(x, y)), closed)
@@ -71,13 +96,13 @@ const makeSplinePath = function(pts, closed) {
   return spline;
 };
 
-const makeCirclePath = function(x, y, radius, aClockwise = true) {
+const makeCirclePath = (x, y, radius, aClockwise = true) => {
   const circle = new THREE.Path();
   circle.absarc(x, y, radius, 0, Math.PI * 2, aClockwise);
   return circle;
 };
 
-const makeRectanglePath = function(x, y, width, height) {
+const makeRectanglePath = (x, y, width, height) => {
   return makePolygonPath([
     new THREE.Vector2(x, y),
     new THREE.Vector2(x + width, y),
@@ -86,18 +111,18 @@ const makeRectanglePath = function(x, y, width, height) {
   ]);
 };
 
-const makePolygonPath = function(points) {
+const makePolygonPath = (points) => {
   return new THREE.Shape(points);
 };
 
-const expandPath = function(source, thickness, divisions) {
+const expandPath = (source, thickness, divisions) => {
   return new THREE.Path(
     Array(divisions).fill().map((_, i) =>
       getExtrudedPointAt(source, i / divisions, thickness / 2))
   );
 };
 
-const expandShapePath = function(shapePath, thickness, divisions) {
+const expandShapePath = (shapePath, thickness, divisions) => {
   const expansion = new THREE.ShapePath();
   shapePath.subPaths.forEach(subPath =>
     expansion.subPaths.push(expandPath(subPath, thickness, divisions))
@@ -105,14 +130,13 @@ const expandShapePath = function(shapePath, thickness, divisions) {
   return expansion;
 };
 
-const getExtrudedPointAt = function(source, t, offset) {
-  while (t < 0) ++t;
-  while (t > 1) --t;
+const getExtrudedPointAt = (source, t, offset) => {
+  t = mod(t, 1);
   const tangent = source.getTangent(t);
   return source.getPoint(t).add(new THREE.Vector2(-tangent.y * offset, tangent.x * offset));
 };
 
-const makeMesh = function(shapePath, depth, curveSegments, value = 0, alpha = 1) {
+const makeMesh = (shapePath, depth, curveSegments, value = 0, alpha = 1) => {
   const geom = new THREE.ExtrudeBufferGeometry(
     shapePath.toShapes(false, false),
     { depth, curveSegments, bevelEnabled : false }
@@ -127,7 +151,7 @@ const makeMesh = function(shapePath, depth, curveSegments, value = 0, alpha = 1)
   return new THREE.Mesh(geom, alpha == 1 ? silhouette : transparent);
 };
 
-const flattenMesh = function(mesh) {
+const flattenMesh = (mesh) => {
   const geom = mesh.geometry;
   mesh.updateMatrix();
   geom.applyMatrix(mesh.matrix);
@@ -137,12 +161,12 @@ const flattenMesh = function(mesh) {
   mesh.updateMatrix();
 };
 
-const mergeMeshes = function(meshes) {
+const mergeMeshes = (meshes) => {
   const geom = THREE.BufferGeometryUtils.mergeBufferGeometries(meshes.map(mesh => mesh.geometry));
   return new THREE.Mesh(geom, meshes[0].material);
 };
 
-const minDistSquaredIndex = function(points, toPoint) {
+const minDistSquaredIndex = (points, toPoint) => {
   let minimum = Infinity;
   let minimumPoint = -1;
 
@@ -159,7 +183,7 @@ const minDistSquaredIndex = function(points, toPoint) {
   return minimumPoint;
 };
 
-const diffAngle = function(a, b) {
+const diffAngle = (a, b) => {
   a %= Math.PI * 2;
   b %= Math.PI * 2;
   if (a - b > Math.PI) {
@@ -170,19 +194,23 @@ const diffAngle = function(a, b) {
   return b - a;
 };
 
-const lerpAngle = function(from, to, amount) {
+const lerp = (from, to, amount) => {
+  return from * (1 - amount) + to * amount;
+}
+
+const lerpAngle = (from, to, amount) => {
   return from + diffAngle(from, to) * amount;
 };
 
-const mergeShapePaths = function(shapePath, other) {
+const mergeShapePaths = (shapePath, other) => {
   other.subPaths.forEach(path => shapePath.subPaths.push(path.clone()))
 };
 
-const addPath = function(shapePath, path) {
+const addPath = (shapePath, path) => {
   shapePath.subPaths.push(path.clone());
 };
 
-const distance = function(v1, v2) {
+const distance = (v1, v2) => {
   const dx = v1.x - v2.x;
   const dy = v1.y - v2.y;
   return Math.sqrt(dx * dx + dy * dy);

@@ -7,6 +7,11 @@ Port car logic
         Left and right arrow keys
         Up and down arrow keys
 
+Menu
+    Text links, at first, in a div on top of the canvas
+    On and off states
+    Switch to SVG icons
+
 Left-right lane switch
     Switch cars' lanes, animate dashboard position shift
         Really ease dashboard
