@@ -1,10 +1,10 @@
 class Car {
 
   constructor() {
-    this.lastPos = new THREE.Vector3(0, 1, 0);
-    this.pos = new THREE.Vector3(0, 1, 0);
-    this.vel = new THREE.Vector3(0, 0, 0);
-    this.lastVel = new THREE.Vector3(0, 0, 0);
+    this.lastPos = new THREE.Vector2(0, 0);
+    this.pos = new THREE.Vector2(0, 0);
+    this.vel = new THREE.Vector2(0, 0);
+    this.lastVel = new THREE.Vector2(0, 0);
 
     this.accelerate = 0;
     this.brake = 0;
@@ -31,8 +31,44 @@ class Car {
     this.cruise = 120 * 1000 / 3600; // 50 kph
   }
 
+  autoSteer(roadPath) {
+
+    const dir = (this.vel.length() > 0 )
+      ? this.vel.clone().normalize()
+      : rotate(new THREE.Vector2(0, 1), -this.angle);
+
+    // get position on road for 1 second ahead of now
+
+    const lookAhead = 20; // basic direction stuff
+    let futurePos = this.pos.clone().add(dir.clone().multiplyScalar(lookAhead));
+    let t = roadPath.getNearest(futurePos);
+
+    let targetDir = roadPath.getPoint(t).sub(this.pos);
+    let tangent = roadPath.getTangent(t);//.normalize();
+
+    if (this.roadDir < 0) tangent.multiplyScalar(-1);
+
+    let normal = rotateY(tangent, Math.PI * 0.5);
+    targetDir.add(normal.multiplyScalar(this.laneSpacing * this.roadPos + this.laneOffset));
+
+    if (targetDir.length() > 0) tangent.lerp(targetDir, 0.05);
+
+    let newAngle = Math.atan2(tangent.y, tangent.x) - Math.PI * 0.5;
+    newAngle = -newAngle;
+    newAngle -= this.angle;
+    while (newAngle > Math.PI) newAngle -= Math.PI * 2;
+    while (newAngle < -Math.PI) newAngle += Math.PI * 2;
+
+    if (Math.abs(newAngle) > 1) newAngle /= Math.abs(newAngle);
+    this.steerTo = newAngle / (Math.min(targetDir.length() * 0.5, 50) + 1);
+    if (Math.abs(this.steerTo) > 0.02) this.steerTo *= 0.02 / Math.abs(this.steerTo);
+
+    if (this.vel.length() < this.cruise) this.accelerate = 1;
+    else this.accelerate = this.cruise / this.vel.length();
+  }
+
   dir() {
-    return rotateY(new THREE.Vector3(0,0,1), -this.angle);
+    return rotate(new THREE.Vector2(0,1), -this.angle);
   }
 
   advance(t) {
@@ -41,42 +77,38 @@ class Car {
       return;
     }
 
-    var dir = rotateY(new THREE.Vector3(0,0,1), -this.angle);
+    var dir = rotate(new THREE.Vector2(0,1), -this.angle);
     var acc = dir
-      .clone().multiplyScalar(this.accelerate)
-      .clone().multiplyScalar(10)
-      .clone().add(
-        this.vel.clone().multiplyScalar(-0.1)
-    );
-    var oldSpin = this.spin;
-    var newVel = dir.clone().multiplyScalar(this.vel.clone().add(acc.clone().multiplyScalar(t)).clone().dot(dir));
+      .clone()
+      .multiplyScalar(this.accelerate)
+      .multiplyScalar(10)
+      .add(this.vel
+        .clone()
+        .multiplyScalar(-0.1)
+      );
+    var newVel = dir
+      .clone()
+      .multiplyScalar(this.vel
+        .clone()
+        .add(acc
+          .clone()
+          .multiplyScalar(t)
+        )
+        .dot(dir)
+      );
     if (this.brake >= 0.9) newVel.set(0,0,0);
-    var tmp;
 
-    if (!this.sliding) {
-      tmp = newVel.clone().sub(this.vel).length() / t > 750;
-    } else {
-      tmp = false;
-    }
-
-    if (tmp) {
+    if (!this.sliding && newVel.clone().sub(this.vel).length() / t > 750) { // maximum acceleration allowable?
       this.sliding = true;
-    } else {
-      var tmp1;
-      if (this.sliding) {
-        tmp1 = newVel.clone().sub(this.vel).length() / t < 50;
-      } else {
-        tmp1 = false;
-      }
-      if (tmp1) {
-        this.sliding = false;
-      }
+    } else if (this.sliding && newVel.clone().sub(this.vel).length() / t < 50) {
+      this.sliding = false;
     }
 
     if (this.sliding) {
       var friction = newVel.clone().sub(this.vel).clone().normalize().clone().multiplyScalar(20);
       this.vel = this.vel.clone().add(friction.clone().multiplyScalar(t));
     }
+
     if (!this.sliding) {
       this.vel = newVel;
     }
@@ -94,13 +126,7 @@ class Car {
       diff *= t * 0.05 / (diff < 0 ? -diff : diff);
     }
     this.steerPos += diff;
-    var grav = -10;
-    this.pos.y = this.lastPos.y + this.lastVel.y * t + 0.5 * grav * t * t;
-    this.vel.y = this.lastVel.y + grav * t;
-    if (this.pos.y < 1.5) {
-      this.pos.y = 1.5;
-      this.vel.y = 0;
-    }
+
     this.lastVel = this.vel;
     this.lastPos = this.pos;
   }

@@ -195,7 +195,7 @@ class Drivey {
       const step = Math.min(totalTime, TIME_SLICE);
 
       if (this.autoSteer) {
-        this.autoSteerDrive(this.car, this.level.roadPath);
+        this.car.autoSteer(this.level.roadPath);
       } else {
         const diff = -sign(this.car.steerTo) * 0.0002 * this.car.vel.length() * step;
         if (Math.abs(diff) >= Math.abs(this.car.steerTo)) this.car.steerTo = 0;
@@ -207,42 +207,6 @@ class Drivey {
       this.car.advance(step);
       totalTime -= TIME_SLICE;
     }
-  }
-
-  autoSteerDrive(car, roadPath) {
-
-    const dir = (car.vel.length() > 0 )
-      ? car.vel.clone().normalize()
-      : rotateY(new THREE.Vector3(0, 0, 1), -car.angle);
-
-    // get position on road for 1 second ahead of now
-
-    const lookAhead = 20; // basic direction stuff
-    let futurePos = car.pos.clone().add(dir.clone().multiplyScalar(lookAhead));
-    let t = roadPath.getNearest(futurePos);
-
-    let targetDir = roadPath.getPoint(t).sub(car.pos);
-    let tangent = roadPath.getTangent(t);//.normalize();
-
-    if (car.roadDir < 0) tangent.multiplyScalar(-1);
-
-    let normal = rotateY(tangent, Math.PI * 0.5);
-    targetDir.add(normal.multiplyScalar(this.laneSpacing * car.roadPos + this.laneOffset));
-
-    if (targetDir.length() > 0) tangent.lerp(targetDir, 0.05);
-
-    let newAngle = Math.atan2(tangent.y, tangent.x) - Math.PI * 0.5;
-    newAngle = -newAngle;
-    newAngle -= car.angle;
-    while (newAngle > Math.PI) newAngle -= Math.PI * 2;
-    while (newAngle < -Math.PI) newAngle += Math.PI * 2;
-
-    if (Math.abs(newAngle) > 1) newAngle /= Math.abs(newAngle);
-    car.steerTo = newAngle / (Math.min(targetDir.length() * 0.5, 50) + 1);
-    if (Math.abs(car.steerTo) > 0.02) car.steerTo *= 0.02 / Math.abs(car.steerTo);
-
-    if (car.vel.length() < car.cruise) car.accelerate = 1;
-    else car.accelerate = car.cruise / car.vel.length();
   }
 
   fakeDriving(delta, simSpeed) {
@@ -257,10 +221,10 @@ class Drivey {
 
   fakeWalk(delta, simSpeed) {
     if (this.screen.isKeyDown('ArrowUp')) {
-      this.car.pos.add(rotate(new THREE.Vector2(simSpeed, 0), this.car.angle));
+      this.car.pos.add(rotate(new THREE.Vector2(0, simSpeed), this.car.angle));
     }
     if (this.screen.isKeyDown('ArrowDown')) {
-      this.car.pos.add(rotate(new THREE.Vector2(-simSpeed, 0), this.car.angle));
+      this.car.pos.add(rotate(new THREE.Vector2(0, -simSpeed), this.car.angle));
     }
     if (this.screen.isKeyDown('ArrowLeft')) this.car.angle += 0.05;
     if (this.screen.isKeyDown('ArrowRight')) this.car.angle -= 0.05;
