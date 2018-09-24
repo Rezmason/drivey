@@ -94,7 +94,7 @@ class Drivey {
     const normal = roadPath.getNormal(this.car.roadPos, this.laneOffset);
     car.angle = getAngle(normal);
 
-    const vel = normal.clone().multiplyScalar(car.cruise);
+    const vel = roadPath.getTangent(this.car.roadPos, this.laneOffset).multiplyScalar(car.cruise);
     car.vel.copy(vel);
     car.lastVel.copy(vel);
   }
@@ -150,7 +150,8 @@ class Drivey {
       (this.screen.isKeyDown('ControlLeft') || this.screen.isKeyDown('ControlRight')) ? 4 :
       1;
 
-    // this.driving(delta, simSpeed);
+    this.driving(delta, simSpeed);
+    // this.oldDriving(delta, simSpeed);
     // this.fakeDriving(delta, simSpeed);
     // this.fakeWalk(delta, simSpeed);
 
@@ -164,6 +165,10 @@ class Drivey {
   }
 
   driving(delta, simSpeed) {
+
+  }
+
+  oldDriving(delta, simSpeed) {
     let acc = 0;
     let manualSteerAmount = 0;
 
@@ -221,10 +226,10 @@ class Drivey {
 
   fakeWalk(delta, simSpeed) {
     if (this.screen.isKeyDown('ArrowUp')) {
-      this.car.pos.add(rotate(new THREE.Vector2(0, simSpeed), this.car.angle));
+      this.car.pos.add(rotate(new THREE.Vector2(simSpeed, 0), this.car.angle));
     }
     if (this.screen.isKeyDown('ArrowDown')) {
-      this.car.pos.add(rotate(new THREE.Vector2(0, -simSpeed), this.car.angle));
+      this.car.pos.add(rotate(new THREE.Vector2(-simSpeed, 0), this.car.angle));
     }
     if (this.screen.isKeyDown('ArrowLeft')) this.car.angle += 0.05;
     if (this.screen.isKeyDown('ArrowRight')) this.car.angle -= 0.05;
