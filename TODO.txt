@@ -1,5 +1,22 @@
 Auto steering
 
+New levels
+    Cliffside
+        Teal
+        Ground is ocean
+        Use tarmac to create ground
+        Create cliff top on left, cliff on right
+            Alternate colors to give rocky appearance
+    Spectre
+        purple
+        Grid of dots
+        White flags on opposite sides
+        Maybe primitives from the game?
+    Tube
+        red
+        Lines in circle surrounding road path
+
+
 Menu
     Text links, at first, in a div on top of the canvas
     On and off states

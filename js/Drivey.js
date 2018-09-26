@@ -29,6 +29,7 @@ class Drivey {
 
     this.lastTime = NaN;
     this.lastDelta = 0;
+    this.defaultTilt = Math.PI * (0.5 - 0.0625);
 
     this.level = new (this.levelsByName.get(levelName) || DeepDarkNight)();
     this.dashboard = new Dashboard();
@@ -36,7 +37,7 @@ class Drivey {
 
     this.driver = new THREE.Group();
     this.driver.name = "Ace"; // Everyone, this is my buddy, Ace.
-    this.screen.camera.rotation.x = Math.PI * (0.5 - 0.0625);
+    this.screen.camera.rotation.x = this.defaultTilt;
     this.screen.camera.position.z = 1;
     this.driver.add(this.screen.camera);
     this.screen.birdseye.position.set(0, 0, 20);
@@ -84,15 +85,15 @@ class Drivey {
     return mesh;
   }
 
-  placeCar(car, roadPath, roadPos) {
-    this.car.roadPos = roadPos;
+  placeCar(car, roadPath, along) {
+    this.car.roadPos = 0;
 
-    const pos = roadPath.getPoint(this.car.roadPos, this.laneOffset);
+    const pos = roadPath.getPoint(along, this.laneOffset);
     car.pos.copy(pos);
     car.lastPos.copy(pos);
 
-    const normal = roadPath.getNormal(this.car.roadPos, this.laneOffset);
-    const tangent = roadPath.getTangent(this.car.roadPos, this.laneOffset);
+    const normal = roadPath.getNormal(along, this.laneOffset);
+    const tangent = roadPath.getTangent(along, this.laneOffset);
 
     car.angle = getAngle(tangent);
 
@@ -152,8 +153,7 @@ class Drivey {
       (this.screen.isKeyDown('ControlLeft') || this.screen.isKeyDown('ControlRight')) ? 4 :
       1;
 
-    this.driving(delta, simSpeed);
-    // this.oldDriving(delta, simSpeed);
+    this.oldDriving(delta, simSpeed);
     // this.fakeDriving(delta, simSpeed);
     // this.fakeWalk(delta, simSpeed);
 
@@ -161,7 +161,7 @@ class Drivey {
     this.myCarExterior.position.y = this.car.pos.y;
     this.myCarExterior.rotation.z = this.car.angle - Math.PI * 0.5;
     this.myCarInterior.rotation.x = this.car.pitch * Math.PI;
-    this.screen.camera.rotation.y = this.car.tilt * Math.PI;
+    this.screen.camera.rotation.x = this.car.tilt * Math.PI + this.defaultTilt;
 
     this.dashboard.wheelRotation = lerp(this.dashboard.wheelRotation, Math.PI + this.car.steerPos * 50, 0.3);
 
@@ -170,10 +170,6 @@ class Drivey {
 
     const speed2 = lerp(Math.PI * (1 + 0.8), Math.PI * (1 - 0.8), Math.min(this.screen.frameRate / 80, 1));
     this.dashboard.needle2Rotation = lerp(this.dashboard.needle2Rotation, speed2, 0.005);
-  }
-
-  driving(delta, simSpeed) {
-
   }
 
   oldDriving(delta, simSpeed) {
@@ -223,13 +219,13 @@ class Drivey {
   }
 
   fakeDriving(delta, simSpeed) {
-    this.car.roadPos = (this.car.roadPos + delta * simSpeed * this.car.cruise / this.level.roadPath.length) % 1;
-    this.car.pos.copy(this.level.roadPath.getPoint(this.car.roadPos, this.laneOffset));
-    const nextPosition = this.level.roadPath.getPoint((this.car.roadPos + 0.001) % 1, this.laneOffset);
-    const angle = Math.atan2(nextPosition.y - this.car.pos.y, nextPosition.x - this.car.pos.x);
-    const tilt = diffAngle(angle, this.car.angle);
-    this.car.tilt = lerpAngle(this.screen.camera.rotation.y, tilt, 0.1 * simSpeed)
+    if (this.car.along == null) this.car.along = 0;
+    this.car.along = (this.car.along + delta * simSpeed * this.car.cruise / this.level.roadPath.length) % 1;
+    this.car.pos.copy(this.level.roadPath.getPoint(this.car.along, this.laneOffset));
+    const angle = getAngle(this.level.roadPath.getTangent(this.car.along, this.laneOffset));
+    const tilt = diffAngle(this.car.angle, angle) * 4;
     this.car.angle = lerpAngle(this.car.angle, angle, 0.05 * simSpeed);
+    this.car.tilt = lerpAngle(this.car.tilt, tilt, 0.05 * simSpeed)
   }
 
   fakeWalk(delta, simSpeed) {

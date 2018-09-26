@@ -35,7 +35,7 @@ class Car {
 
     const dir = (this.vel.length() > 0 )
       ? this.vel.clone().normalize()
-      : rotate(new THREE.Vector2(0, 1), -this.angle);
+      : this.dir();
 
     // get position on road for 1 second ahead of now
 
@@ -44,11 +44,11 @@ class Car {
     let t = roadPath.getNearest(futurePos);
 
     let targetDir = roadPath.getPoint(t).sub(this.pos);
-    let tangent = roadPath.getTangent(t);//.normalize();
+    let tangent = roadPath.getTangent(t)//.normalize();
 
     if (this.roadDir < 0) tangent.multiplyScalar(-1);
 
-    let normal = rotateY(tangent, Math.PI * 0.5);
+    let normal = roadPath.getNormal(t);
     targetDir.add(normal.multiplyScalar(this.laneSpacing * this.roadPos + this.laneOffset));
 
     if (targetDir.length() > 0) tangent.lerp(targetDir, 0.05);
@@ -68,7 +68,7 @@ class Car {
   }
 
   dir() {
-    return rotate(new THREE.Vector2(1,0), this.angle);
+    return rotate(new THREE.Vector2(1, 0), this.angle);
   }
 
   advance(t) {
@@ -77,9 +77,9 @@ class Car {
       return;
     }
 
-    var dir = this.dir();
+    let dir = this.dir();
 
-    var acc = dir
+    const acc = dir
       .clone()
       .multiplyScalar(this.accelerate)
       .multiplyScalar(10)
@@ -87,7 +87,7 @@ class Car {
         .clone()
         .multiplyScalar(-0.1)
       );
-    var newVel = dir
+    const newVel = dir
       .clone()
       .multiplyScalar(this.vel
         .clone()
@@ -97,7 +97,7 @@ class Car {
         )
         .dot(dir)
       );
-    if (this.brake >= 0.9) newVel.set(0,0,0);
+    if (this.brake >= 0.9) newVel.set(0, 0, 0);
 
     if (!this.sliding && newVel.clone().sub(this.vel).length() / t > 750) { // maximum acceleration allowable?
       this.sliding = true;
@@ -106,7 +106,7 @@ class Car {
     }
 
     if (this.sliding) {
-      var friction = newVel.clone().sub(this.vel).clone().normalize().clone().multiplyScalar(20);
+      const friction = newVel.clone().sub(this.vel).clone().normalize().clone().multiplyScalar(20);
       this.vel = this.vel.clone().add(friction.clone().multiplyScalar(t));
     }
 
@@ -117,12 +117,12 @@ class Car {
     this.spin = this.vel.clone().dot(dir) * this.steerPos * (this.sliding ? 0.5 : 1.0);
     this.angle += this.spin * t;
     this.pos = this.pos.clone().add(this.vel.clone().multiplyScalar(t));
-    var velDiff = this.vel.clone().sub(this.lastVel);
-    this.tiltV = this.tiltV + (this.tiltV * -0.2 + velDiff.clone().dot(rotateY(dir,Math.PI * -0.5)) * 0.001 / t - this.tilt) * t * 20;
+    const velDiff = this.vel.clone().sub(this.lastVel);
+    this.tiltV = this.tiltV + (this.tiltV * -0.2 + velDiff.clone().dot(rotateY(dir, Math.PI * -0.5)) * 0.001 / t - this.tilt) * t * 20;
     this.tilt += this.tiltV * t;
     this.pitchV += (this.pitchV * -0.2 + velDiff.clone().dot(dir) * 0.001 / t - this.pitch) * t * 20;
     this.pitch += this.pitchV * t;
-    var diff = this.steerTo - this.steerPos;
+    let diff = this.steerTo - this.steerPos;
     if ((diff < 0 ? -diff : diff) > t * 0.05) {
       diff *= t * 0.05 / (diff < 0 ? -diff : diff);
     }
