@@ -16,7 +16,6 @@ New levels
         red
         Lines in circle surrounding road path
 
-
 Menu
     Text links, at first, in a div on top of the canvas
     On and off states
@@ -56,6 +55,11 @@ Editorial
 Much, much later
 
     Optimization
+
+        Stop instantiating vectors in computations
+            optionalTarget model
+            Helper function "return optionalTarget || new THREE.Vector2" etc
+
         Use the profiler to find bottlenecks
 
         Replace ExtrusionBufferGeometry and ShapeBufferGeometry with something custom?

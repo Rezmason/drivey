@@ -31,7 +31,7 @@ class Car {
     this.cruise = 120 * 1000 / 3600; // 50 kph
   }
 
-  autoSteer(roadPath) {
+  autoSteer(roadPath, laneSpacing, laneOffset) {
 
     const dir = (this.vel.length() > 0 )
       ? this.vel.clone().normalize()
@@ -49,7 +49,7 @@ class Car {
     if (this.roadDir < 0) tangent.multiplyScalar(-1);
 
     let normal = roadPath.getNormal(t);
-    targetDir.add(normal.multiplyScalar(this.laneSpacing * this.roadPos + this.laneOffset));
+    targetDir.add(normal.multiplyScalar(laneSpacing * this.roadPos + laneOffset));
 
     if (targetDir.length() > 0) tangent.lerp(targetDir, 0.05);
 

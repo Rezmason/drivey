@@ -132,8 +132,14 @@ const expandShapePath = (shapePath, thickness, divisions) => {
 
 const getExtrudedPointAt = (source, t, offset) => {
   t = mod(t, 1);
+  // These are Vector3, but we need a Vector2
   const tangent = source.getTangent(t);
-  return source.getPoint(t).add(new THREE.Vector2(-tangent.y * offset, tangent.x * offset));
+  const pos = source.getPoint(t);
+
+  return new THREE.Vector2(
+    pos.x - tangent.y * offset,
+    pos.y + tangent.x * offset
+  );
 };
 
 const makeMesh = (shapePath, depth, curveSegments, value = 0, alpha = 1) => {
