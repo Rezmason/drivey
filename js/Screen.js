@@ -2,7 +2,7 @@
 
 class Screen {
 
-  constructor() {
+  constructor(animate = true) {
     this.messageOpacities = new Map();
     this.renderListeners = [];
     this.keysHit = new Set();
@@ -29,8 +29,12 @@ class Screen {
     document.body.appendChild(this.messageBox);
     document.addEventListener("keydown", this.onKeyDown.bind(this));
     document.addEventListener("keyup", this.onKeyUp.bind(this));
-    this.animate();
+    if (animate) this.animate();
     window.renderer = this.renderer;
+    this.frameRate = 1;
+
+    this.startFrameTime = Date.now();
+    this.lastFrameTime = this.startFrameTime;
   }
 
   onWindowResize() {
@@ -62,6 +66,11 @@ class Screen {
     }
 
     this.keysHit.clear();
+
+    const frameTime = Date.now() - this.startFrameTime;
+    const frameDuration = frameTime - this.lastFrameTime;
+    this.frameRate = 1000 / frameDuration;
+    this.lastFrameTime = frameTime;
   }
 
   render() {

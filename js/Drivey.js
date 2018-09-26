@@ -92,9 +92,11 @@ class Drivey {
     car.lastPos.copy(pos);
 
     const normal = roadPath.getNormal(this.car.roadPos, this.laneOffset);
-    car.angle = getAngle(normal);
+    const tangent = roadPath.getTangent(this.car.roadPos, this.laneOffset);
 
-    const vel = roadPath.getTangent(this.car.roadPos, this.laneOffset).multiplyScalar(car.cruise);
+    car.angle = getAngle(tangent);
+
+    const vel = tangent.multiplyScalar(car.cruise);
     car.vel.copy(vel);
     car.lastVel.copy(vel);
   }
@@ -155,13 +157,19 @@ class Drivey {
     // this.fakeDriving(delta, simSpeed);
     // this.fakeWalk(delta, simSpeed);
 
-    this.myCarExterior.position.set(this.car.pos.x, this.car.pos.y, 0);
-    this.myCarExterior.rotation.z = this.car.angle - Math.PI / 2;
-    this.screen.camera.rotation.y = this.car.tilt;
+    this.myCarExterior.position.x = this.car.pos.x;
+    this.myCarExterior.position.y = this.car.pos.y;
+    this.myCarExterior.rotation.z = this.car.angle - Math.PI * 0.5;
+    this.myCarInterior.rotation.x = this.car.pitch * Math.PI;
+    this.screen.camera.rotation.y = this.car.tilt * Math.PI;
 
-    this.dashboard.wheelRotation = Math.PI - this.car.tilt * 4;
-    this.dashboard.needle1Rotation = this.dashboard.needle1Rotation + delta * simSpeed * 0.1;
-    this.dashboard.needle2Rotation = this.dashboard.needle2Rotation + delta * simSpeed * 0.1;
+    this.dashboard.wheelRotation = lerp(this.dashboard.wheelRotation, Math.PI + this.car.steerPos * 50, 0.3);
+
+    const speed1 = lerp(Math.PI * (1 + 0.8), Math.PI * (1 - 0.8), Math.min(this.car.vel.length() * 0.009, 1));
+    this.dashboard.needle1Rotation = lerp(this.dashboard.needle1Rotation, speed1, 0.05);
+
+    const speed2 = lerp(Math.PI * (1 + 0.8), Math.PI * (1 - 0.8), Math.min(this.screen.frameRate / 80, 1));
+    this.dashboard.needle2Rotation = lerp(this.dashboard.needle2Rotation, speed2, 0.005);
   }
 
   driving(delta, simSpeed) {
@@ -177,12 +185,12 @@ class Drivey {
 
     if (this.screen.isKeyDown('ArrowLeft')) {
       if (this.autoSteer) this.car.roadPos += 3 * delta * simSpeed;
-      else manualSteerAmount -= 1;
+      else manualSteerAmount += 1;
     }
 
     if (this.screen.isKeyDown('ArrowRight')) {
       if (this.autoSteer) this.car.roadPos += -3 * delta * simSpeed;
-      else manualSteerAmount += 1;
+      else manualSteerAmount -= 1;
     }
 
     if (this.autoSteer) {
@@ -226,12 +234,20 @@ class Drivey {
 
   fakeWalk(delta, simSpeed) {
     if (this.screen.isKeyDown('ArrowUp')) {
+      // this.car.pos.y += 10;
       this.car.pos.add(rotate(new THREE.Vector2(simSpeed, 0), this.car.angle));
     }
     if (this.screen.isKeyDown('ArrowDown')) {
+      // this.car.pos.y -= 10;
       this.car.pos.add(rotate(new THREE.Vector2(-simSpeed, 0), this.car.angle));
     }
-    if (this.screen.isKeyDown('ArrowLeft')) this.car.angle += 0.05;
-    if (this.screen.isKeyDown('ArrowRight')) this.car.angle -= 0.05;
+    if (this.screen.isKeyDown('ArrowLeft')) {
+      // this.car.pos.x -= 10;
+      this.car.angle += 0.05;
+    }
+    if (this.screen.isKeyDown('ArrowRight')) {
+      // this.car.pos.x += 10;
+      this.car.angle -= 0.05;
+    }
   }
 }

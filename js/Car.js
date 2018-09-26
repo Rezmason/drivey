@@ -68,7 +68,7 @@ class Car {
   }
 
   dir() {
-    return rotate(new THREE.Vector2(0,1), -this.angle);
+    return rotate(new THREE.Vector2(1,0), this.angle);
   }
 
   advance(t) {
@@ -77,7 +77,8 @@ class Car {
       return;
     }
 
-    var dir = rotate(new THREE.Vector2(0,1), -this.angle);
+    var dir = this.dir();
+
     var acc = dir
       .clone()
       .multiplyScalar(this.accelerate)

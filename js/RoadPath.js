@@ -20,14 +20,14 @@ class RoadPath {
     return getExtrudedPointAt(this.curve, t, offset);
   }
 
-  getNormal(t, offset = 0) {
+  getTangent(t, offset = 0) {
     const EPSILON = 0.00001;
-    const point = this.getPoint(t + EPSILON, offset).sub(this.getPoint(t + 1 - EPSILON, offset));
+    const point = this.getPoint(t + EPSILON, offset).sub(this.getPoint(t - EPSILON, offset));
     return point.normalize();
   }
 
-  getTangent(t, offset = 0) {
-    const normal = this.getNormal(t, offset);
+  getNormal(t, offset = 0) {
+    const normal = this.getTangent(t, offset);
     return new THREE.Vector2(-normal.y, normal.x);
   }
 

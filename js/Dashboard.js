@@ -10,10 +10,12 @@ class Dashboard {
     speedometer1.position.set(-25,-35,-105);
     this.needle1 = this.addDashboardElement(this.makeNeedle(), 0, true);
     this.needle1.position.set(-25,-35,-105);
+    this.needle1.rotation.z = Math.PI * 1.5;
     const speedometer2 = this.addDashboardElement(this.makeSpeedometer(), 0, true);
     speedometer2.position.set(-70,-35,-105);
     this.needle2 = this.addDashboardElement(this.makeNeedle(), 0, true);
     this.needle2.position.set(-70,-35,-105);
+    this.needle2.rotation.z = Math.PI * 1.5;
     this.wheel = this.addDashboardElement(this.makeSteeringWheel(), edge1, true);
     this.wheel.position.set(-50,-55,-100);
     this.wheel.rotation.z = Math.PI;
