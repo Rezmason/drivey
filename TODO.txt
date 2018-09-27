@@ -1,12 +1,9 @@
-Auto steering
+Smoother auto steer with delta, simSpeed
+Faster, more precise RoadPath approximation code
+NPC cars
 
-New levels
-    Cliffside
-        Teal
-        Ground is ocean
-        Use tarmac to create ground
-        Create cliff top on left, cliff on right
-            Alternate colors to give rocky appearance
+The old Drivey levels seem much much smaller than the new ones...
+    Is the level smaller, or is the camera zoomed in?
 
 Menu
     Text links, at first, in a div on top of the canvas
@@ -36,6 +33,7 @@ Collision
 
 Editorial
     Readability pass
+    Run prettier, eslint
     Reshape Drivey class to conform to Jujuscript code
 
 

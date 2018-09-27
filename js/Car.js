@@ -32,37 +32,33 @@ class Car {
   }
 
   autoSteer(roadPath, laneSpacing, laneOffset) {
+    // get goal position, based on position on road 1 second in the future
+    const dir = (this.vel.length() > 0 ) ? this.vel.clone().normalize() : this.dir();
+    const lookAhead = 20;
+    const futurePos = this.pos.clone().add(dir.clone().multiplyScalar(lookAhead));
+    const along = roadPath.getNearest(futurePos);
+    const targetDir = roadPath.getPoint(along).sub(this.pos).add(roadPath.getNormal(along).multiplyScalar(laneSpacing * this.roadPos + laneOffset));
 
-    const dir = (this.vel.length() > 0 )
-      ? this.vel.clone().normalize()
-      : this.dir();
-
-    // get position on road for 1 second ahead of now
-
-    const lookAhead = 20; // basic direction stuff
-    let futurePos = this.pos.clone().add(dir.clone().multiplyScalar(lookAhead));
-    let t = roadPath.getNearest(futurePos);
-
-    let targetDir = roadPath.getPoint(t).sub(this.pos);
-    let tangent = roadPath.getTangent(t)//.normalize();
-
-    if (this.roadDir < 0) tangent.multiplyScalar(-1);
-
-    let normal = roadPath.getNormal(t);
-    targetDir.add(normal.multiplyScalar(laneSpacing * this.roadPos + laneOffset));
-
+    // mix it with the slope of the road at that point
+    let tangent = roadPath.getTangent(along);
+    if (this.roadDir > 0) tangent.multiplyScalar(-1);
     if (targetDir.length() > 0) tangent.lerp(targetDir, 0.05);
 
-    let newAngle = Math.atan2(tangent.y, tangent.x) - Math.PI * 0.5;
-    newAngle = -newAngle;
-    newAngle -= this.angle;
+    // measure the difference in angle to that point and car's current angle
+    let newAngle = Math.atan2(tangent.y, tangent.x) - this.angle;
+    // represent it as an angle between -π and π
     while (newAngle > Math.PI) newAngle -= Math.PI * 2;
     while (newAngle < -Math.PI) newAngle += Math.PI * 2;
-
+    // "normalize" it, so it is no larger than 1 radian
     if (Math.abs(newAngle) > 1) newAngle /= Math.abs(newAngle);
-    this.steerTo = newAngle / (Math.min(targetDir.length() * 0.5, 50) + 1);
-    if (Math.abs(this.steerTo) > 0.02) this.steerTo *= 0.02 / Math.abs(this.steerTo);
+    // Generate a steerTo value (these are pretty small)
 
+    let steerTo = newAngle / (Math.min(targetDir.length() * 0.5, 50) + 1);
+    if (Math.abs(steerTo) > 0.02) steerTo *= 0.02 / Math.abs(steerTo);
+    this.steerTo = steerTo;
+
+
+    // Unrelatedly, step on the gas until the car's speed is at cruising speed
     if (this.vel.length() < this.cruise) this.accelerate = 1;
     else this.accelerate = this.cruise / this.vel.length();
   }
@@ -80,22 +76,22 @@ class Car {
     let dir = this.dir();
 
     const acc = dir
+    .clone()
+    .multiplyScalar(this.accelerate)
+    .multiplyScalar(10)
+    .add(this.vel
       .clone()
-      .multiplyScalar(this.accelerate)
-      .multiplyScalar(10)
-      .add(this.vel
-        .clone()
-        .multiplyScalar(-0.1)
+      .multiplyScalar(-0.1)
       );
     const newVel = dir
+    .clone()
+    .multiplyScalar(this.vel
       .clone()
-      .multiplyScalar(this.vel
+      .add(acc
         .clone()
-        .add(acc
-          .clone()
-          .multiplyScalar(t)
+        .multiplyScalar(t)
         )
-        .dot(dir)
+      .dot(dir)
       );
     if (this.brake >= 0.9) newVel.set(0, 0, 0);
 
@@ -122,6 +118,7 @@ class Car {
     this.tilt += this.tiltV * t;
     this.pitchV += (this.pitchV * -0.2 + velDiff.clone().dot(dir) * 0.001 / t - this.pitch) * t * 20;
     this.pitch += this.pitchV * t;
+
     let diff = this.steerTo - this.steerPos;
     if ((diff < 0 ? -diff : diff) > t * 0.05) {
       diff *= t * 0.05 / (diff < 0 ? -diff : diff);

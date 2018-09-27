@@ -1,0 +1,57 @@
+"use strict";
+
+class CliffsideBeach extends Level {
+  build(meshes, transparentMeshes) {
+    this.tint = new THREE.Color(0, 0.7, 0.7);
+    this.skyLow = 0.8;
+    this.skyHigh = 1.8;
+    this.ground = 0.4;
+
+    const beach = 0.9;
+    const tarmac = 0;
+    const cliffs = 0.3;
+    const waves = 1;
+
+    const beachPath = new THREE.ShapePath();
+    this.drawRoadLine(this.roadPath, beachPath, 0, 25, RoadLineStyle.SOLID(), 0, 1, 500);
+    this.drawRoadLine(this.roadPath, beachPath, 0, 28, RoadLineStyle.DASH(10, 10), 0, 1, 500);
+    this.drawRoadLine(this.roadPath, beachPath, -20, 20, RoadLineStyle.SOLID(), 0, 1, 500);
+    const beachMesh = makeMesh(beachPath, -0.1, 1, beach);
+    meshes.push(beachMesh);
+
+    const wavesPath = new THREE.ShapePath();
+    this.drawRoadLine(this.roadPath, wavesPath, 25, 10, RoadLineStyle.DASH(1, 100), 0, 1, 500);
+    this.drawRoadLine(this.roadPath, wavesPath, 35, 5, RoadLineStyle.DASH(1, 50), 0, 1, 500);
+    this.drawRoadLine(this.roadPath, wavesPath, 45, 5, RoadLineStyle.DASH(2, 70), 0, 1, 500);
+    const wavesMesh = makeMesh(wavesPath, 0, 1, waves);
+    wavesMesh.position.z = 0.5;
+    meshes.push(wavesMesh);
+
+    const cliffsPath1 = new THREE.ShapePath();
+    this.drawRoadLine(this.roadPath, cliffsPath1, -25, 20, RoadLineStyle.DASH(6, 6), 0, 1, 0);
+    this.drawRoadLine(this.roadPath, cliffsPath1, -27, 20, RoadLineStyle.SOLID(), 0, 1, 100);
+    const cliffsMesh1 = makeMesh(cliffsPath1, 10, 3, cliffs + 0.0);
+    meshes.push(cliffsMesh1);
+
+    const cliffsPath2 = new THREE.ShapePath();
+    this.drawRoadLine(this.roadPath, cliffsPath2, -30, 20, RoadLineStyle.DASH(6, 12), 0, 1, 0);
+    const cliffsMesh2 = makeMesh(cliffsPath2, 18, 3, cliffs + 0.05);
+    meshes.push(cliffsMesh2);
+
+    const tarmacPath = new THREE.ShapePath();
+    this.drawRoadLine(this.roadPath, tarmacPath, 0, 14, RoadLineStyle.SOLID(), 0, 1, 1000);
+    const tarmacMesh = makeMesh(tarmacPath, 0, 100, tarmac);
+    meshes.push(tarmacMesh);
+
+    const roadLinesPath = new THREE.ShapePath();
+    this.drawRoadLine(this.roadPath, roadLinesPath, 0, 0.1, RoadLineStyle.SOLID(), 0, 1, 1000);
+    this.drawRoadLine(this.roadPath, roadLinesPath, 0.2, 0.1, RoadLineStyle.SOLID(), 0, 1, 1000);
+    this.drawRoadLine(this.roadPath, roadLinesPath,-6, 0.15, RoadLineStyle.DASH(30, 1), 0, 1, 1);
+    this.drawRoadLine(this.roadPath, roadLinesPath, 6, 0.15, RoadLineStyle.DASH(30, 1), 0, 1, 1);
+    this.drawRoadLine(this.roadPath, roadLinesPath,-3, 0.15, RoadLineStyle.DASH(3, 12), 0, 1, 1);
+    this.drawRoadLine(this.roadPath, roadLinesPath, 3, 0.15, RoadLineStyle.DASH(3, 12), 0, 1, 1);
+    const roadLinesMesh = makeMesh(roadLinesPath, 0, 1, 1);
+    roadLinesMesh.position.z = 0.1;
+    meshes.push(roadLinesMesh);
+  }
+}

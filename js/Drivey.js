@@ -12,6 +12,7 @@ class Drivey {
       ["industrial", IndustrialZone],
       ["warp", WarpGate],
       ["spectre", Spectre],
+      ["beach", CliffsideBeach],
     ]);
     this.screen = new Screen();
     this.init(levelName);
@@ -90,12 +91,11 @@ class Drivey {
   placeCar(car, roadPath, along) {
     this.car.roadPos = 0;
 
-    const pos = roadPath.getPoint(along, this.laneOffset);
+    const pos = roadPath.getPoint(along).add(roadPath.getNormal(along).multiplyScalar(this.laneOffset));
     car.pos.copy(pos);
     car.lastPos.copy(pos);
 
-    const normal = roadPath.getNormal(along, this.laneOffset);
-    const tangent = roadPath.getTangent(along, this.laneOffset);
+    const tangent = roadPath.getTangent(along);
 
     car.angle = getAngle(tangent);
 
@@ -155,9 +155,7 @@ class Drivey {
       (this.screen.isKeyDown('ControlLeft') || this.screen.isKeyDown('ControlRight')) ? 4 :
       1;
 
-    this.oldDriving(delta, simSpeed);
-    // this.fakeDriving(delta, simSpeed);
-    // this.fakeWalk(delta, simSpeed);
+    this.drive(delta, simSpeed);
 
     this.myCarExterior.position.x = this.car.pos.x;
     this.myCarExterior.position.y = this.car.pos.y;
@@ -174,7 +172,7 @@ class Drivey {
     this.dashboard.needle2Rotation = lerp(this.dashboard.needle2Rotation, speed2, 0.005);
   }
 
-  oldDriving(delta, simSpeed) {
+  drive(delta, simSpeed) {
     let acc = 0;
     let manualSteerAmount = 0;
 
@@ -217,35 +215,6 @@ class Drivey {
       this.car.accelerate += acc;
       this.car.advance(step);
       totalTime -= TIME_SLICE;
-    }
-  }
-
-  fakeDriving(delta, simSpeed) {
-    if (this.car.along == null) this.car.along = 0;
-    this.car.along = (this.car.along + delta * simSpeed * this.car.cruise / this.level.roadPath.length) % 1;
-    this.car.pos.copy(this.level.roadPath.getPoint(this.car.along, this.laneOffset));
-    const angle = getAngle(this.level.roadPath.getTangent(this.car.along, this.laneOffset));
-    const tilt = diffAngle(this.car.angle, angle) * 4;
-    this.car.angle = lerpAngle(this.car.angle, angle, 0.05 * simSpeed);
-    this.car.tilt = lerpAngle(this.car.tilt, tilt, 0.05 * simSpeed)
-  }
-
-  fakeWalk(delta, simSpeed) {
-    if (this.screen.isKeyDown('ArrowUp')) {
-      // this.car.pos.y += 10;
-      this.car.pos.add(rotate(new THREE.Vector2(simSpeed, 0), this.car.angle));
-    }
-    if (this.screen.isKeyDown('ArrowDown')) {
-      // this.car.pos.y -= 10;
-      this.car.pos.add(rotate(new THREE.Vector2(-simSpeed, 0), this.car.angle));
-    }
-    if (this.screen.isKeyDown('ArrowLeft')) {
-      // this.car.pos.x -= 10;
-      this.car.angle += 0.05;
-    }
-    if (this.screen.isKeyDown('ArrowRight')) {
-      // this.car.pos.x += 10;
-      this.car.angle -= 0.05;
     }
   }
 }
