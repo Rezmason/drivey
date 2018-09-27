@@ -10,6 +10,7 @@ class Drivey {
       ["tunnel", Tunnel],
       ["city", City],
       ["industrial", IndustrialZone],
+      ["warp", WarpGate],
     ]);
     this.screen = new Screen();
     this.init(levelName);

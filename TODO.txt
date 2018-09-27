@@ -12,9 +12,6 @@ New levels
         Grid of dots
         White flags on opposite sides
         Maybe primitives from the game?
-    Tube
-        red
-        Lines in circle surrounding road path
 
 Menu
     Text links, at first, in a div on top of the canvas
