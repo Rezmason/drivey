@@ -116,7 +116,7 @@ class Drivey {
       this.autoSteer = !this.autoSteer;
       this.screen.showMessage(this.autoSteer ? 'automatic steering' : 'manual steering', true);
     }
-    if (this.screen.isKeyHit('Digit4')) {
+    if (this.screen.isKeyHit('Digit3')) {
       this.showDashboard = !this.showDashboard;
       this.screen.showMessage('dashboard ' + (this.showDashboard ? 'on' : 'off' ), true);
     }
@@ -144,6 +144,11 @@ class Drivey {
       this.screen.showMessage('rear view ' + (this.rearView ? 'on' : 'off'), true);
     }
 
+    if (this.screen.isKeyHit('Digit8')) {
+      this.laneOffset *= -1;
+      this.screen.showMessage('Driving style: ' + (this.laneOffset < 0 ? 'North American': 'Australian'));
+    }
+
     if (this.showDashboard && !this.rearView) {
       if (this.dashboard.object.parent == null) this.screen.camera.add(this.dashboard.object);
     } else {
@@ -153,6 +158,7 @@ class Drivey {
 
   update() {
     this.updateOptions();
+    this.dashboard.driversSide = this.laneOffset < 0 ? 1 : -1;
 
     // now let's get the time delta
     const now = Date.now();

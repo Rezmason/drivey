@@ -4,15 +4,15 @@ class Dashboard {
   constructor() {
     this.object = new THREE.Group();
     const edge1 = 2;
-    const backing = this.addDashboardElement(this.makeDashboardBacking(), edge1, true);
-    backing.position.set(-50,-80,-110);
-    const speedometer1 = this.addDashboardElement(this.makeSpeedometer(), 0, true);
-    speedometer1.position.set(-25,-35,-105);
+    this.backing = this.addDashboardElement(this.makeDashboardBacking(), edge1, true);
+    this.backing.position.set(-50,-80,-110);
+    this.speedometer1 = this.addDashboardElement(this.makeSpeedometer(), 0, true);
+    this.speedometer1.position.set(-25,-35,-105);
     this.needle1 = this.addDashboardElement(this.makeNeedle(), 0, true);
     this.needle1.position.set(-25,-35,-105);
     this.needle1.rotation.z = Math.PI * 1.5;
-    const speedometer2 = this.addDashboardElement(this.makeSpeedometer(), 0, true);
-    speedometer2.position.set(-70,-35,-105);
+    this.speedometer2 = this.addDashboardElement(this.makeSpeedometer(), 0, true);
+    this.speedometer2.position.set(-70,-35,-105);
     this.needle2 = this.addDashboardElement(this.makeNeedle(), 0, true);
     this.needle2.position.set(-70,-35,-105);
     this.needle2.rotation.z = Math.PI * 1.5;
@@ -132,5 +132,18 @@ class Dashboard {
   set needle2Rotation(value) {
     this.needle2.rotation.z = value;
     return value;
+  }
+
+  set driversSide(side) {
+    side = sign(side);
+    const lerpAmount = 0.05;
+    this.backing.position.x = lerp(this.backing.position.x, -50 * side, lerpAmount);
+    this.wheel.position.x = lerp(this.wheel.position.x, -50 * side, lerpAmount);
+    const speedometerPositions = [-25 * side, -70 * side];
+    this.speedometer1.position.x = lerp(this.speedometer1.position.x, Math.max(...speedometerPositions), lerpAmount);
+    this.speedometer2.position.x = lerp(this.speedometer2.position.x, Math.min(...speedometerPositions), lerpAmount);
+
+    this.needle1.position.x = this.speedometer1.position.x;
+    this.needle2.position.x = this.speedometer2.position.x;
   }
 }

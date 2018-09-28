@@ -1,5 +1,3 @@
-Implement quadtree for approximations
-
 The old Drivey levels seem much much smaller than the new ones...
     Is the level smaller, or is the camera zoomed in?
 
@@ -7,12 +5,6 @@ Menu
     Text links, at first, in a div on top of the canvas
     On and off states
     Switch to SVG icons
-
-Left-right lane switch
-    Switch cars' lanes, animate dashboard position shift
-        Really ease dashboard
-Handbrake
-    should make you slow to a stop on YOUR SIDE OF THE ROAD
 
 Car mesh
     Make one yourself, man
@@ -41,6 +33,8 @@ Editorial
 
 
 Much, much later
+
+    Road path approximation data structure improvement
 
     Optimization
 
