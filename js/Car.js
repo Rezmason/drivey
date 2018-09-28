@@ -19,7 +19,7 @@ class Car {
 
     this.roadPos = 0;
     this.stepVel = 0;
-    this.roadDir = -1;
+    this.roadDir = 1;
 
     this.steer = 0;
     this.steerPos = 0;
@@ -37,11 +37,11 @@ class Car {
     const lookAhead = 20;
     const futurePos = this.pos.clone().add(dir.clone().multiplyScalar(lookAhead));
     const along = roadPath.getNearest(futurePos);
-    const targetDir = roadPath.getPoint(along).sub(this.pos).add(roadPath.getNormal(along).multiplyScalar(laneSpacing * this.roadPos + laneOffset));
+    const targetDir = roadPath.getPoint(along).sub(this.pos).add(roadPath.getNormal(along).multiplyScalar(laneSpacing * this.roadPos + this.roadDir * laneOffset));
 
     // mix it with the slope of the road at that point
     let tangent = roadPath.getTangent(along);
-    if (this.roadDir > 0) tangent.multiplyScalar(-1);
+    tangent.multiplyScalar(this.roadDir);
     if (targetDir.length() > 0) tangent.lerp(targetDir, 0.05);
 
     // measure the difference in angle to that point and car's current angle

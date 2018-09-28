@@ -46,9 +46,13 @@ class Drivey {
     this.screen.birdseye.position.set(0, 0, 20);
     this.driver.add(this.screen.birdseye);
 
-    this.car = new Car();
-    this.myCarExterior = new THREE.Group();
+    this.myCar = new Car();
+    this.myCarExterior = this.makeCarExterior();
     this.screen.scene.add(this.myCarExterior);
+
+    this.otherCars = [];
+    this.otherCarExteriors = [];
+    this.numOtherCars = 0;
 
     this.sky = this.makeCylinderSky(); // makeSphereSky()
     this.myCarExterior.add(this.sky);
@@ -67,7 +71,7 @@ class Drivey {
     this.screen.scene.add(this.level.world);
     silhouette.uniforms.tint = { value : this.level.tint};
 
-    this.placeCar(this.car, this.level.roadPath, 0);
+    this.placeCar(this.myCar, this.level.roadPath, 0);
   }
 
   makeCylinderSky() {
@@ -88,15 +92,17 @@ class Drivey {
     return mesh;
   }
 
-  placeCar(car, roadPath, along) {
-    this.car.roadPos = 0;
+  placeCar(car, roadPath, along, oppositeDirection = false) {
+    car.roadPos = 0;
 
-    const pos = roadPath.getPoint(along).add(roadPath.getNormal(along).multiplyScalar(this.laneOffset));
+    const direction = oppositeDirection ? -1 : 1;
+    car.roadDir = direction;
+
+    const pos = roadPath.getPoint(along).add(roadPath.getNormal(along).multiplyScalar(this.laneOffset * direction));
     car.pos.copy(pos);
     car.lastPos.copy(pos);
 
-    const tangent = roadPath.getTangent(along);
-
+    const tangent = roadPath.getTangent(along).multiplyScalar(direction);
     car.angle = getAngle(tangent);
 
     const vel = tangent.multiplyScalar(car.cruise);
@@ -109,9 +115,13 @@ class Drivey {
       this.autoSteer = !this.autoSteer;
       this.screen.showMessage(this.autoSteer ? 'automatic steering' : 'manual steering', true);
     }
-    if (this.screen.isKeyHit('KeyC')) {
+    if (this.screen.isKeyHit('Digit4')) {
       this.showDashboard = !this.showDashboard;
       this.screen.showMessage('dashboard ' + (this.showDashboard ? 'on' : 'off' ), true);
+    }
+    if (this.screen.isKeyHit('KeyC')) {
+      this.changeNumOtherCars((this.numOtherCars + 8) % 32);
+      this.screen.showMessage(this.numOtherCars + ' cars on the road', true);
     }
     if (this.screen.isKeyHit('Digit0')) {
       this.screen.useBirdseye = !this.screen.useBirdseye;
@@ -155,47 +165,87 @@ class Drivey {
       (this.screen.isKeyDown('ControlLeft') || this.screen.isKeyDown('ControlRight')) ? 4 :
       1;
 
-    this.drive(delta, simSpeed);
+    this.drive(this.myCar, delta, simSpeed, true);
+    this.myCarExterior.position.x = this.myCar.pos.x;
+    this.myCarExterior.position.y = this.myCar.pos.y;
+    this.myCarExterior.rotation.z = this.myCar.angle - Math.PI * 0.5;
+    this.myCarInterior.rotation.x = this.myCar.pitch * Math.PI;
+    this.screen.camera.rotation.x = this.myCar.tilt * Math.PI + this.defaultTilt;
 
-    this.myCarExterior.position.x = this.car.pos.x;
-    this.myCarExterior.position.y = this.car.pos.y;
-    this.myCarExterior.rotation.z = this.car.angle - Math.PI * 0.5;
-    this.myCarInterior.rotation.x = this.car.pitch * Math.PI;
-    this.screen.camera.rotation.x = this.car.tilt * Math.PI + this.defaultTilt;
+    for (let i = 0; i < this.numOtherCars; i++) {
+      const car = this.otherCars[i];
+      const otherCarExterior = this.otherCarExteriors[i];
+      this.drive(car, delta, simSpeed, true);
+      otherCarExterior.position.x = car.pos.x;
+      otherCarExterior.position.y = car.pos.y;
+      otherCarExterior.rotation.z = car.angle - Math.PI * 0.5;
+    }
 
-    this.dashboard.wheelRotation = lerp(this.dashboard.wheelRotation, Math.PI + this.car.steerPos * 50, 0.3);
+    this.dashboard.wheelRotation = lerp(this.dashboard.wheelRotation, Math.PI + this.myCar.steerPos * 50, 0.3);
 
-    const speed1 = lerp(Math.PI * (1 + 0.8), Math.PI * (1 - 0.8), Math.min(this.car.vel.length() * 0.009, 1));
+    const speed1 = lerp(Math.PI * (1 + 0.8), Math.PI * (1 - 0.8), Math.min(this.myCar.vel.length() * 0.009, 1));
     this.dashboard.needle1Rotation = lerp(this.dashboard.needle1Rotation, speed1, 0.05);
 
     const speed2 = lerp(Math.PI * (1 + 0.8), Math.PI * (1 - 0.8), Math.min(this.screen.frameRate / 80, 1));
     this.dashboard.needle2Rotation = lerp(this.dashboard.needle2Rotation, speed2, 0.005);
   }
 
-  drive(delta, simSpeed) {
+  changeNumOtherCars(num) {
+    this.numOtherCars = num;
+
+    while (this.otherCars.length < this.numOtherCars) {
+      this.otherCars.push(new Car());
+      const otherCarExterior = this.makeCarExterior();
+      this.otherCarExteriors.push(otherCarExterior);
+    }
+
+    for (let i = 0; i < this.otherCars.length; i++) {
+      if (i < this.numOtherCars) {
+        if (this.otherCarExteriors[i].parent == null) {
+          this.screen.scene.add(this.otherCarExteriors[i]);
+          this.placeCar(this.otherCars[i], this.level.roadPath, Math.random(), true);
+        }
+      } else {
+        if (this.otherCarExteriors[i].parent != null) {
+          this.screen.scene.remove(this.otherCarExteriors[i]);
+        }
+      }
+    }
+  }
+
+  makeCarExterior() {
+    return new THREE.Mesh(
+      new THREE.SphereGeometry(2, 10, 10),
+      new THREE.MeshBasicMaterial({color: Math.floor(0xFFFFFF * Math.random())})
+    );
+  }
+
+  drive(car, delta, simSpeed, interactive) {
     let acc = 0;
     let manualSteerAmount = 0;
 
-    if (this.screen.isKeyDown('ArrowUp')) acc += 1;
-    if (this.screen.isKeyDown('ArrowDown')) acc -= 2;
+    if (interactive) {
+      if (this.screen.isKeyDown('ArrowUp')) acc += 1;
+      if (this.screen.isKeyDown('ArrowDown')) acc -= 2;
 
-    if (this.screen.isKeyDown('ArrowLeft')) {
-      if (this.autoSteer) this.car.roadPos += 3 * delta * simSpeed;
-      else manualSteerAmount += 1;
+      if (this.screen.isKeyDown('ArrowLeft')) {
+        if (this.autoSteer) car.roadPos += 3 * delta * simSpeed;
+        else manualSteerAmount += 1;
+      }
+
+      if (this.screen.isKeyDown('ArrowRight')) {
+        if (this.autoSteer) car.roadPos += -3 * delta * simSpeed;
+        else manualSteerAmount -= 1;
+      }
     }
 
-    if (this.screen.isKeyDown('ArrowRight')) {
-      if (this.autoSteer) this.car.roadPos += -3 * delta * simSpeed;
-      else manualSteerAmount -= 1;
+    if (this.autoSteer || !interactive) {
+      if (car.roadPos > 0.1) car.roadPos -= delta * simSpeed;
+      else if (car.roadPos < -0.1) car.roadPos += delta * simSpeed;
     }
 
-    if (this.autoSteer) {
-      if (this.car.roadPos > 0.1) this.car.roadPos -= delta * simSpeed;
-      else if (this.car.roadPos < -0.1) this.car.roadPos += delta * simSpeed;
-    }
-
-    this.car.brake = this.screen.isKeyDown('Space') ? 1 : 0;
-    this.car.accelerate = 0;
+    car.brake = this.screen.isKeyDown('Space') ? 1 : 0;
+    car.accelerate = 0;
 
     const TIME_SLICE = 0.05;
 
@@ -203,17 +253,17 @@ class Drivey {
     while (totalTime > 0) {
       const step = Math.min(totalTime, TIME_SLICE);
 
-      if (this.autoSteer) {
-        this.car.autoSteer(this.level.roadPath, this.laneSpacing, this.laneOffset);
+      if (this.autoSteer || !interactive) {
+        car.autoSteer(this.level.roadPath, this.laneSpacing, this.laneOffset);
       } else {
-        const diff = -sign(this.car.steerTo) * 0.0002 * this.car.vel.length() * step;
-        if (Math.abs(diff) >= Math.abs(this.car.steerTo)) this.car.steerTo = 0;
-        else this.car.steerTo += diff;
-        this.car.steerTo = this.car.steerTo + manualSteerAmount * 0.025 * step;
+        const diff = -sign(car.steerTo) * 0.0002 * car.vel.length() * step;
+        if (Math.abs(diff) >= Math.abs(car.steerTo)) car.steerTo = 0;
+        else car.steerTo += diff;
+        car.steerTo = car.steerTo + manualSteerAmount * 0.025 * step;
       }
 
-      this.car.accelerate += acc;
-      this.car.advance(step);
+      car.accelerate += acc;
+      car.advance(step);
       totalTime -= TIME_SLICE;
     }
   }

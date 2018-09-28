@@ -1,6 +1,5 @@
-Smoother auto steer with delta, simSpeed
 Faster, more precise RoadPath approximation code
-NPC cars
+    Hundred thousand samples, quadtreed
 
 The old Drivey levels seem much much smaller than the new ones...
     Is the level smaller, or is the camera zoomed in?
