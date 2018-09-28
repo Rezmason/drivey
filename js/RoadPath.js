@@ -12,7 +12,6 @@ class RoadPath {
 
   scale(x, y) {
     this.points = this.points.map(point => new THREE.Vector2(point.x * x, point.y * y));
-    this.approximation = null;
     this.curve = makeSplinePath(this.points, true);
   }
 
@@ -35,21 +34,30 @@ class RoadPath {
     return new THREE.Vector2(-normal.y, normal.x);
   }
 
-  getNearest(to) {
-    if (this.approximation == null) {
-      this.approximation = [];
-      for (let i = 0; i < 1000; i++) {
-        this.approximation.push(this.getPoint(i / 1000));
-      }
-    }
-    return minDistSquaredIndex(this.approximation, to) / 1000;
-  }
-
-  getNearestPoint(to) {
-    return this.getPoint(this.getNearest(to));
+  approximate(resolution = 1000) {
+    return new Approximation(this, resolution);
   }
 
   get length() {
     return this.curve.getLength();
   }
 };
+
+class Approximation {
+  constructor(roadPath, resolution) {
+    this.roadPath = roadPath;
+    this.resolution = resolution;
+    this.points = [];
+    for (let i = 0; i < resolution; i++) {
+      this.points.push(roadPath.getPoint(i / resolution));
+    }
+  }
+
+  getNearest(to) {
+    return minDistSquaredIndex(this.points, to) / this.resolution;
+  }
+
+  getNearestPoint(to) {
+    return this.roadPath.getPoint(this.getNearest(to));
+  }
+}

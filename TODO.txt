@@ -1,5 +1,4 @@
-Faster, more precise RoadPath approximation code
-    Hundred thousand samples, quadtreed
+Implement quadtree for approximations
 
 The old Drivey levels seem much much smaller than the new ones...
     Is the level smaller, or is the camera zoomed in?

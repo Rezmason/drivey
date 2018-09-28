@@ -31,12 +31,12 @@ class Car {
     this.cruise = 120 * 1000 / 3600; // 50 kph
   }
 
-  autoSteer(roadPath, laneSpacing, laneOffset) {
+  autoSteer(roadPath, approximation, laneSpacing, laneOffset) {
     // get goal position, based on position on road 1 second in the future
     const dir = (this.vel.length() > 0 ) ? this.vel.clone().normalize() : this.dir();
     const lookAhead = 20;
     const futurePos = this.pos.clone().add(dir.clone().multiplyScalar(lookAhead));
-    const along = roadPath.getNearest(futurePos);
+    const along = approximation.getNearest(futurePos);
     const targetDir = roadPath.getPoint(along).sub(this.pos).add(roadPath.getNormal(along).multiplyScalar(laneSpacing * this.roadPos + this.roadDir * laneOffset));
 
     // mix it with the slope of the road at that point

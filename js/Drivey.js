@@ -35,6 +35,7 @@ class Drivey {
     this.defaultTilt = Math.PI * (0.5 - 0.0625);
 
     this.level = new (this.levelsByName.get(levelName) || DeepDarkNight)();
+    this.autoSteerApproximation = this.level.roadPath.approximate(10000);
     this.dashboard = new Dashboard();
     this.sky = this.makeCylinderSky(); // makeSphereSky()
 
@@ -254,7 +255,7 @@ class Drivey {
       const step = Math.min(totalTime, TIME_SLICE);
 
       if (this.autoSteer || !interactive) {
-        car.autoSteer(this.level.roadPath, this.laneSpacing, this.laneOffset);
+        car.autoSteer(this.level.roadPath, this.autoSteerApproximation, this.laneSpacing, this.laneOffset);
       } else {
         const diff = -sign(car.steerTo) * 0.0002 * car.vel.length() * step;
         if (Math.abs(diff) >= Math.abs(car.steerTo)) car.steerTo = 0;

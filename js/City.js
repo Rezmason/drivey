@@ -37,12 +37,13 @@ class City extends Level {
     const mag = 4;
     const width = 40 * mag;
     const radius = 1800 * mag;
+    const approximation = roadPath.approximate();
     let x = -radius;
     while (x < radius) {
       let y = -radius;
       while (y < radius) {
         const pos1 = new THREE.Vector2(x, y);
-        if (pos1.length() < radius && distance(this.roadPath.getNearestPoint(pos1), pos1) > 60 * mag) {
+        if (pos1.length() < radius && distance(approximation.getNearestPoint(pos1), pos1) > 60 * mag) {
           const building = makeRectanglePath(pos1.x + -width / 2, pos1.y + -width / 2, width, width);
           if (Math.random() > 0.8) {
             addPath(shorterBuildings, building);

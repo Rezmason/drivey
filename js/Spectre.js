@@ -20,12 +20,13 @@ class Spectre extends Level {
     const mag = 0.3;
     const width = 30 * mag;
     const radius = 1500 * mag;
+    const approximation = roadPath.approximate();
     let x = -radius;
     while (x < radius) {
       let y = -radius;
       while (y < radius) {
         const pos = new THREE.Vector2(x, y);
-        if (pos.length() < radius && distance(this.roadPath.getNearestPoint(pos), pos) > 30 * mag) {
+        if (pos.length() < radius && distance(approximation.getNearestPoint(pos), pos) > 30 * mag) {
           addPath(dotsPath, makeRectanglePath(pos.x + -width / 2, pos.y + -width / 2, width, width));
         }
         y += 1000 * mag;
