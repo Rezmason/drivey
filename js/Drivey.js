@@ -221,10 +221,14 @@ class Drivey {
   }
 
   makeCarExterior() {
-    return new THREE.Mesh(
-      new THREE.SphereGeometry(2, 10, 10),
+    const group = new THREE.Group();
+    const mesh = new THREE.Mesh(
+      new THREE.SphereGeometry(1, 10, 10),
       new THREE.MeshBasicMaterial({color: Math.floor(0xFFFFFF * Math.random())})
     );
+    mesh.position.z = 1;
+    group.add(mesh);
+    return group;
   }
 
   drive(car, delta, simSpeed, interactive) {

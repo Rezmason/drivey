@@ -31,7 +31,6 @@ class Level {
         const outsidePoints = [];
         const insidePoints = [];
         const coverage = end - start;
-        const coveredDivisions = Math.ceil(divisions * coverage / roadPath.length) | 0;
         const diff = 1 / divisions;
         let i = start;
         while (i < end) {

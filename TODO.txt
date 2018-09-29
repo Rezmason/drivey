@@ -11,12 +11,7 @@ Car mesh
     Add headlights
     Add tail lights
 
-Pretty sure the FOV needs revisiting again
-
 Color contrast stuff
-wireframe support
-    White on blue
-Doesn't have to be as pretty
 
 Collision
     "theWalls" in jj

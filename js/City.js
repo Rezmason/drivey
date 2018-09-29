@@ -37,7 +37,7 @@ class City extends Level {
     const mag = 4;
     const width = 40 * mag;
     const radius = 1800 * mag;
-    const approximation = roadPath.approximate();
+    const approximation = this.roadPath.approximate();
     let x = -radius;
     while (x < radius) {
       let y = -radius;
@@ -60,10 +60,10 @@ class City extends Level {
       x += 150 * mag;
     }
 
-    // meshes.push(makeMesh(shorterBuildings, 15 * 2, 1, ground));
-    meshes.push(makeMesh(shortBuildings, 30 * 2, 1, ground));
-    meshes.push(makeMesh(tallBuildings, 50 * 2, 1, ground));
-    meshes.push(makeMesh(tallerBuildings, 120 * 2, 1, ground));
+    // meshes.push(makeMesh(shorterBuildings, 15 * 2, 1, this.ground));
+    meshes.push(makeMesh(shortBuildings, 30 * 2, 1, this.ground));
+    meshes.push(makeMesh(tallBuildings, 50 * 2, 1, this.ground));
+    meshes.push(makeMesh(tallerBuildings, 120 * 2, 1, this.ground));
 
     const signpostsPath = new THREE.ShapePath();
     this.drawRoadLine(this.roadPath, signpostsPath,-16, 0.2, RoadLineStyle.DASH(0.2, 400), 0, 1, 1);

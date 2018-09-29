@@ -20,7 +20,7 @@ class Spectre extends Level {
     const mag = 0.3;
     const width = 30 * mag;
     const radius = 1500 * mag;
-    const approximation = roadPath.approximate();
+    const approximation = this.roadPath.approximate();
     let x = -radius;
     while (x < radius) {
       let y = -radius;
