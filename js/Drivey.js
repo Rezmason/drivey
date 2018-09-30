@@ -13,7 +13,7 @@ class Drivey {
       ["warp", WarpGate],
       ["spectre", Spectre],
       ["beach", CliffsideBeach],
-    ]);
+      ]);
     this.screen = new Screen();
     this.buttons = new Buttons();
     this.buttons.addListener(this.onButtonClick.bind(this));
@@ -89,11 +89,21 @@ class Drivey {
       monochromeValues[i * 2 + 1] = 1;
     }
     monochromeAttribute.needsUpdate = true;
-    this.screen.backgroundColor = this.level.tint.clone().multiplyScalar(this.level.ground * 2);
+    this.updateBackgroundColor();
     this.screen.scene.add(this.level.world);
     silhouette.uniforms.tint = { value : this.level.tint};
     this.placeCar(this.myCar, this.level.roadPath, 0);
     this.setNumOtherCars(this.numOtherCars);
+  }
+
+  updateBackgroundColor() {
+    let backgroundColor = this.level.tint.clone();
+    if (this.screen.camera == this.screen.firstPerson) {
+      backgroundColor.multiplyScalar(this.level.ground * 2);
+    } else {
+      backgroundColor.multiplyScalar(this.level.skyLow).addScalar(0.5);
+    }
+    this.screen.backgroundColor = backgroundColor;
   }
 
   makeCylinderSky() {
@@ -125,43 +135,45 @@ class Drivey {
     car.lastVel.copy(vel);
   }
 
-  onButtonClick(button, options) {
+  onButtonClick(button, value) {
     switch (button) {
       case "steering" :
-        this.autoSteer = !this.autoSteer;
-        break;
+      this.autoSteer = value === "true";
+      break;
       case "dashboard" :
-        this.showDashboard = !this.showDashboard;
-        break;
+      this.showDashboard = value === "true";
+      break;
       case "npcCars" :
-        this.setNumOtherCars((this.numOtherCars + 8) % 32);
-        break;
+      console.log(value);
+      this.setNumOtherCars(parseInt(value));
+      break;
       case "camera" :
-        switch (options.cameraName) {
-          case "firstPerson" :
-          this.screen.camera = this.screen.firstPerson;
-          break;
-          case "birdseye" :
-          this.screen.camera = this.screen.birdseye;
-          break;
-        }
-        let backgroundColor = this.level.tint.clone();
-        if (this.screen.camera == this.screen.firstPerson) {
-          backgroundColor.multiplyScalar(this.level.ground * 2);
-        } else {
-          backgroundColor.multiplyScalar(this.level.skyLow).addScalar(0.5);
-        }
-        this.screen.backgroundColor = backgroundColor;
+      switch (value) {
+        case "firstPerson" :
+        this.screen.camera = this.screen.firstPerson;
         break;
+        case "birdseye" :
+        this.screen.camera = this.screen.birdseye;
+        break;
+      }
+      this.updateBackgroundColor();
+      break;
       case "rearView" :
-        this.rearView = !this.rearView;
-        break;
+      this.rearView = value === "true";
+      break;
       case "drivingSide" :
-        this.laneOffset *= -1;
+      switch (value) {
+        case "left":
+        this.laneOffset = Math.abs(this.laneOffset);
         break;
+        case "right":
+        this.laneOffset = -Math.abs(this.laneOffset);
+        break;
+      }
+      break;
       case "level":
-        this.setLevel(options.levelName);
-        break;
+      this.setLevel(value);
+      break;
     }
   }
 
@@ -170,7 +182,7 @@ class Drivey {
     this.driver.rotation.z = lerp(this.driver.rotation.z, this.rearView ? Math.PI : 0, 0.2);
     this.sky.rotation.y = this.driver.rotation.z;
 
-    if (this.showDashboard && !this.rearView) {
+    if (this.showDashboard && !this.rearView && this.screen.camera == this.screen.firstPerson) {
       if (this.dashboard.object.parent == null) this.screen.firstPerson.add(this.dashboard.object);
     } else {
       if (this.dashboard.object.parent != null) this.screen.firstPerson.remove(this.dashboard.object);
@@ -185,9 +197,9 @@ class Drivey {
     this.lastDelta = delta;
 
     const simSpeed =
-      (this.screen.isKeyDown('ShiftLeft'  ) || this.screen.isKeyDown('ShiftRight'  )) ? 0.125 :
-      (this.screen.isKeyDown('ControlLeft') || this.screen.isKeyDown('ControlRight')) ? 4 :
-      1;
+    (this.screen.isKeyDown('ShiftLeft'  ) || this.screen.isKeyDown('ShiftRight'  )) ? 0.125 :
+    (this.screen.isKeyDown('ControlLeft') || this.screen.isKeyDown('ControlRight')) ? 4 :
+    1;
 
     this.drive(this.myCar, delta, simSpeed, true);
     this.myCarExterior.position.x = this.myCar.pos.x;
@@ -242,7 +254,7 @@ class Drivey {
     const mesh = new THREE.Mesh(
       new THREE.SphereGeometry(1, 10, 10),
       new THREE.MeshBasicMaterial({color: Math.floor(0xFFFFFF * Math.random())})
-    );
+      );
     mesh.position.z = 1;
     group.add(mesh);
     return group;

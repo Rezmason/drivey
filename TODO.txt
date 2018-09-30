@@ -2,6 +2,7 @@ Menu
     Text links, at first, in a div on top of the canvas
     On and off states
     Switch to SVG icons
+    Access keys
 
 Car mesh
     Make one yourself, man
