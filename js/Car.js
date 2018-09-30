@@ -42,7 +42,7 @@ class Car {
     // mix it with the slope of the road at that point
     let tangent = roadPath.getTangent(along);
     tangent.multiplyScalar(this.roadDir);
-    if (targetDir.length() > 0) tangent.lerp(targetDir, 0.05);
+    if (targetDir.length() > 0) tangent.lerp(targetDir, 0.9); // 0.05
 
     // measure the difference in angle to that point and car's current angle
     let newAngle = Math.atan2(tangent.y, tangent.x) - this.angle;

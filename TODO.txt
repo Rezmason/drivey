@@ -1,6 +1,3 @@
-The old Drivey levels seem much much smaller than the new ones...
-    Is the level smaller, or is the camera zoomed in?
-
 Menu
     Text links, at first, in a div on top of the canvas
     On and off states
