@@ -7,8 +7,7 @@ const RoadLineStyle = {
         DOT: "DOT",
     },
 
-    SOLID: () => ({ type:"SOLID" }),
-    DASH: (on, off) => ({ type:"DASH", on, off }),
+    SOLID: (pointSpacing) => ({ type:"SOLID", pointSpacing }),
+    DASH: (on, off, pointSpacing) => ({ type:"DASH", on, off, pointSpacing }),
     DOT: (spacing) => ({ type:"DOT", spacing }),
 };
-

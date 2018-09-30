@@ -19,24 +19,29 @@ class Level {
 
   }
 
-  drawRoadLine(roadPath, shapePath, xPos, width, style, start, end, divisions) {
+  drawRoadLine(roadPath, shapePath, xPos, width, style, start, end) {
     if (start == end) {
       return shapePath;
     }
     switch(style.type) {
-      case RoadLineStyle.type.SOLID:
+      case RoadLineStyle.type.SOLID: {
+        const [pointSpacing] = [style.pointSpacing];
         width = Math.abs(width);
         const outsideOffset = xPos - width / 2;
         const insideOffset = xPos + width / 2;
         const outsidePoints = [];
         const insidePoints = [];
-        const coverage = end - start;
-        const diff = 1 / divisions;
-        let i = start;
-        while (i < end) {
-          outsidePoints.push(getExtrudedPointAt(roadPath.curve, i, outsideOffset));
-          insidePoints.push(getExtrudedPointAt(roadPath.curve, i, insideOffset));
-          i += diff;
+        outsidePoints.push(getExtrudedPointAt(roadPath.curve, start, outsideOffset));
+        insidePoints.push(getExtrudedPointAt(roadPath.curve, start, insideOffset));
+        if (pointSpacing > 0) {
+          const psFraction = pointSpacing / roadPath.length;
+          let i = Math.ceil(start / psFraction ) * psFraction;
+          if (i == start) i += psFraction;
+          while (i < end) {
+            outsidePoints.push(getExtrudedPointAt(roadPath.curve, i, outsideOffset));
+            insidePoints.push(getExtrudedPointAt(roadPath.curve, i, insideOffset));
+            i += psFraction;
+          }
         }
         outsidePoints.push(getExtrudedPointAt(roadPath.curve, end, outsideOffset));
         insidePoints.push(getExtrudedPointAt(roadPath.curve, end, insideOffset));
@@ -47,18 +52,19 @@ class Level {
         } else {
           addPath(shapePath, makePolygonPath(outsidePoints.concat(insidePoints)));
         }
-        break;
-      case RoadLineStyle.type.DASH:
-        const [off, on] = [style.off, style.on];
+      }
+      break;
+      case RoadLineStyle.type.DASH: {
+        const [off, on, pointSpacing] = [style.off, style.on, style.pointSpacing];
         let dashStart = start;
         const dashSpan = (on + off) / roadPath.length;
         const dashLength = dashSpan * on / (on + off);
         while (dashStart < end) {
-          this.drawRoadLine(roadPath, shapePath, xPos, width, RoadLineStyle.SOLID(), dashStart, Math.min(end, dashStart + dashLength), divisions);
+          this.drawRoadLine(roadPath, shapePath, xPos, width, RoadLineStyle.SOLID(pointSpacing), dashStart, Math.min(end, dashStart + dashLength));
           dashStart += dashSpan;
         }
-        break;
-      case RoadLineStyle.type.DOT:
+      }        break;
+      case RoadLineStyle.type.DOT: {
         const [spacing] = [style.spacing];
         let dotStart = start;
         const dotSpan = spacing / roadPath.length;
@@ -67,7 +73,8 @@ class Level {
           addPath(shapePath, makeCirclePath(pos.x, pos.y, width));
           dotStart += dotSpan;
         }
-        break;
+      }
+      break;
     }
     return shapePath;
   }
