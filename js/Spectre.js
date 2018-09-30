@@ -4,7 +4,6 @@ class Spectre extends Level {
   build(meshes, transparentMeshes) {
     this.name = "The Deep Dark Night";
     this.tint = new THREE.Color(1, 0, 1);
-    this.roadPath.scale(0.1, 0.1);
     this.skyLow = 0.35;
     this.skyHigh = -1;
     const postPath = new THREE.ShapePath();
