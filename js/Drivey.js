@@ -15,6 +15,8 @@ class Drivey {
       ["beach", CliffsideBeach],
     ]);
     this.screen = new Screen();
+    this.buttons = new Buttons();
+    this.buttons.addListener(this.onButtonClick.bind(this));
     this.init(levelName);
     this.screen.addRenderListener(this.update.bind(this));
     this.update();
@@ -28,7 +30,6 @@ class Drivey {
     this.showDashboard = true;
     this.rearView = false;
     this.autoSteer = true;
-    this.wireframe = false;
 
     this.lastTime = NaN;
     this.lastDelta = 0;
@@ -41,9 +42,9 @@ class Drivey {
 
     this.driver = new THREE.Group();
     this.driver.name = "Ace"; // Everyone, this is my buddy, Ace.
-    this.screen.camera.rotation.x = this.defaultTilt;
-    this.screen.camera.position.z = 1;
-    this.driver.add(this.screen.camera);
+    this.screen.firstPerson.rotation.x = this.defaultTilt;
+    this.screen.firstPerson.position.z = 1;
+    this.driver.add(this.screen.firstPerson);
     this.screen.birdseye.position.set(0, 0, 20);
     this.driver.add(this.screen.birdseye);
 
@@ -65,7 +66,7 @@ class Drivey {
 
     this.dashboard = new Dashboard();
     this.dashboard.object.scale.set(0.0018, 0.0018, 0.001);
-    this.screen.camera.add(this.dashboard.object);
+    this.screen.firstPerson.add(this.dashboard.object);
 
     this.screen.backgroundColor = this.level.tint.clone().multiplyScalar(this.level.ground * 2);
 
@@ -111,53 +112,53 @@ class Drivey {
     car.lastVel.copy(vel);
   }
 
-  updateOptions() {
-    if (this.screen.isKeyHit('Digit5')) {
-      this.autoSteer = !this.autoSteer;
-      this.screen.showMessage(this.autoSteer ? 'automatic steering' : 'manual steering', true);
-    }
-    if (this.screen.isKeyHit('Digit3')) {
-      this.showDashboard = !this.showDashboard;
-      this.screen.showMessage('dashboard ' + (this.showDashboard ? 'on' : 'off' ), true);
-    }
-    if (this.screen.isKeyHit('KeyC')) {
-      this.changeNumOtherCars((this.numOtherCars + 8) % 32);
-      this.screen.showMessage(this.numOtherCars + ' cars on the road', true);
-    }
-    if (this.screen.isKeyHit('Digit0')) {
-      this.screen.useBirdseye = !this.screen.useBirdseye;
-      if (this.screen.useBirdseye) {
-        this.screen.backgroundColor = this.level.tint.clone().multiplyScalar(this.level.skyLow).addScalar(0.5);
-      } else {
-        this.screen.backgroundColor = this.level.tint.clone().multiplyScalar(this.level.ground * 2);
-      }
-      this.screen.showMessage('bird\'s eye view: ' + (this.screen.useBirdseye ? 'on' : 'off' ), true);
-    }
-    if (this.screen.isKeyHit('Digit2')) {
-      this.wireframe = !this.wireframe;
-      // TODO: wireframe
-      this.screen.showMessage('wireframe ' + (this.wireframe ? 'on' : 'off'), true);
-    }
-    if (this.screen.isKeyHit('Digit4')) {
-      this.rearView = !this.rearView;
-      this.driver.rotation.z = this.rearView ? Math.PI : 0;
-      this.screen.showMessage('rear view ' + (this.rearView ? 'on' : 'off'), true);
-    }
-
-    if (this.screen.isKeyHit('Digit8')) {
-      this.laneOffset *= -1;
-      this.screen.showMessage('Driving style: ' + (this.laneOffset < 0 ? 'North American': 'Australian'));
-    }
-
-    if (this.showDashboard && !this.rearView) {
-      if (this.dashboard.object.parent == null) this.screen.camera.add(this.dashboard.object);
-    } else {
-      if (this.dashboard.object.parent != null) this.screen.camera.remove(this.dashboard.object);
+  onButtonClick(button, options) {
+    switch (button) {
+      case "steering" :
+        this.autoSteer = !this.autoSteer;
+        break;
+      case "dashboard" :
+        this.showDashboard = !this.showDashboard;
+        break;
+      case "npcCars" :
+        this.changeNumOtherCars((this.numOtherCars + 8) % 32);
+        break;
+      case "camera" :
+        switch (options.cameraName) {
+          case "firstPerson" :
+          this.screen.camera = this.screen.firstPerson;
+          break;
+          case "birdseye" :
+          this.screen.camera = this.screen.birdseye;
+          break;
+        }
+        let backgroundColor = this.level.tint.clone();
+        if (this.screen.camera == this.screen.firstPerson) {
+          backgroundColor.multiplyScalar(this.level.ground * 2);
+        } else {
+          backgroundColor.multiplyScalar(this.level.skyLow).addScalar(0.5);
+        }
+        this.screen.backgroundColor = backgroundColor;
+        break;
+      case "rearView" :
+        this.rearView = !this.rearView;
+        break;
+      case "drivingSide" :
+        this.laneOffset *= -1;
+        break;
     }
   }
 
   update() {
-    this.updateOptions();
+
+    this.driver.rotation.z = lerp(this.driver.rotation.z, this.rearView ? Math.PI : 0, 0.2);
+    this.sky.rotation.y = this.driver.rotation.z;
+
+    if (this.showDashboard && !this.rearView) {
+      if (this.dashboard.object.parent == null) this.screen.firstPerson.add(this.dashboard.object);
+    } else {
+      if (this.dashboard.object.parent != null) this.screen.firstPerson.remove(this.dashboard.object);
+    }
     this.dashboard.driversSide = this.laneOffset < 0 ? 1 : -1;
 
     // now let's get the time delta
@@ -168,7 +169,7 @@ class Drivey {
     this.lastDelta = delta;
 
     const simSpeed =
-      (this.screen.isKeyDown('ShiftLeft') || this.screen.isKeyDown('ShiftRight')) ? 0.125 :
+      (this.screen.isKeyDown('ShiftLeft'  ) || this.screen.isKeyDown('ShiftRight'  )) ? 0.125 :
       (this.screen.isKeyDown('ControlLeft') || this.screen.isKeyDown('ControlRight')) ? 4 :
       1;
 
@@ -177,7 +178,7 @@ class Drivey {
     this.myCarExterior.position.y = this.myCar.pos.y;
     this.myCarExterior.rotation.z = this.myCar.angle - Math.PI * 0.5;
     this.myCarInterior.rotation.x = this.myCar.pitch * Math.PI;
-    this.screen.camera.rotation.x = this.myCar.tilt * Math.PI + this.defaultTilt;
+    this.screen.firstPerson.rotation.x = this.myCar.tilt * Math.PI + this.defaultTilt;
 
     for (let i = 0; i < this.numOtherCars; i++) {
       const car = this.otherCars[i];

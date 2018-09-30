@@ -3,19 +3,15 @@
 class Screen {
 
   constructor(animate = true) {
-    this.messageOpacities = new Map();
     this.renderListeners = [];
     this.keysHit = new Set();
     this.keysDown = new Set();
-    this.wireframe = false;
-    this.downscale = 1;
-    this.useBirdseye = false;
     this.element = document.createElement("div");
     document.body.appendChild(this.element);
     this.scene = new THREE.Scene();
-    this.camera = new THREE.PerspectiveCamera(90, 1, 0.001, 100000);
-    this.camera.rotation.order = "YZX";
-    this.scene.add(this.camera);
+    this.firstPerson = new THREE.PerspectiveCamera(90, 1, 0.001, 100000);
+    this.firstPerson.rotation.order = "YZX";
+    this.scene.add(this.firstPerson);
     this.birdseye = new THREE.PerspectiveCamera(90, 1, 0.001, 100000);
     this.scene.add(this.birdseye);
     this.renderer = new THREE.WebGLRenderer({ antialias : true});
@@ -24,13 +20,11 @@ class Screen {
     this.onWindowResize();
     this.element.appendChild(this.renderer.domElement);
     this.renderer.domElement.id = "renderer";
-    this.messageBox = document.createElement("div");
-    this.messageBox.id = "messageBox";
-    document.body.appendChild(this.messageBox);
     document.addEventListener("keydown", this.onKeyDown.bind(this));
     document.addEventListener("keyup", this.onKeyUp.bind(this));
     if (animate) this.animate();
     window.renderer = this.renderer;
+    this.camera = this.firstPerson;
     this.frameRate = 1;
 
     this.startFrameTime = Date.now();
@@ -39,11 +33,11 @@ class Screen {
 
   onWindowResize() {
     const aspect = window.innerWidth / window.innerHeight;
-    this.camera.aspect = aspect;
-    this.camera.updateProjectionMatrix();
+    this.firstPerson.aspect = aspect;
+    this.firstPerson.updateProjectionMatrix();
     this.birdseye.aspect = aspect;
     this.birdseye.updateProjectionMatrix();
-    this.renderer.setSize(window.innerWidth / this.downscale, window.innerHeight / this.downscale);
+    this.renderer.setSize(window.innerWidth, window.innerHeight);
     this.renderer.domElement.style.width = "100%";
     this.renderer.domElement.style.height = "100%";
   }
@@ -55,15 +49,6 @@ class Screen {
     }
     this.render();
 
-    for (const message of this.messageOpacities.keys()) {
-      this.messageOpacities.set(message, this.messageOpacities.get(message) * 0.975);
-      if (this.messageOpacities.get(message) < 0.005) {
-        this.messageOpacities.delete(message);
-        message.remove();
-      } else {
-        message.style.opacity = String(this.messageOpacities[message]);
-      }
-    }
 
     this.keysHit.clear();
 
@@ -74,7 +59,9 @@ class Screen {
   }
 
   render() {
-    this.renderer.render(this.scene, this.useBirdseye ? this.birdseye : this.camera);
+    if (this.camera != null) {
+      this.renderer.render(this.scene, this.camera);
+    }
   }
 
   onKeyDown(event) {
@@ -110,23 +97,6 @@ class Screen {
 
   get height() {
     return window.innerHeight;
-  }
-
-  showMessage(msg, clear, seconds = 2) {
-    if (clear) {
-      while (this.messageBox.firstChild != null) {
-        this.messageOpacities.delete(this.messageBox.firstChild);
-        this.messageBox.firstChild.remove();
-      }
-    }
-
-    const message = document.createElement("div");
-    message.classList.add("message");
-    message.innerHTML = msg.replace(/[\n\r]/g,"<br>");
-    setTimeout(1000 * seconds, function() {
-      this.messageOpacities.set(message, 1);
-    }.bind(this));
-    this.messageBox.appendChild(message);
   }
 
   get backgroundColor() {
