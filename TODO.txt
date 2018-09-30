@@ -1,43 +1,29 @@
 Menu
-    Text links, at first, in a div on top of the canvas
-    On and off states
-    Switch to SVG icons
-    Access keys
+  CSS, so they look like climate control
+  Access keys
 
 Car mesh
-    Make one yourself, man
-    Add headlights
-    Add tail lights
-
-Color contrast stuff
-
-Collision
-    "theWalls" in jj
+  Generate them procedurally!
+    One box, two box or three box?
+    Greenhouse width, height
+    Greenhouse roof width, height and vertical offset
+  Remember to add headlights and tail lights
+    Headlights are white
+    Tail lights are a little dimmer
 
 Editorial
-    Readability pass
-    Run prettier, eslint
-    Reshape Drivey class to conform to Jujuscript code
-
-
+  Readability pass
+  Run prettier, eslint
+  Reshape Drivey class to conform to Jujuscript code
 
 
 
 
 
 Much, much later
-
+  Localization
+  Collision
+    "theWalls" in jj
+  Optimization
     Road path approximation data structure improvement
-
-    Optimization
-
-        Stop instantiating vectors in computations
-            optionalTarget model
-            Helper function "return optionalTarget || new THREE.Vector2" etc
-
-        Use the profiler to find bottlenecks
-
-        Replace ExtrusionBufferGeometry and ShapeBufferGeometry with something custom?
-            Almost all road lines are *ribbons*
-
-    Am I doing splines right?
+    Use the profiler to find bottlenecks
