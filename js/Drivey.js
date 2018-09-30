@@ -35,8 +35,6 @@ class Drivey {
     this.lastDelta = 0;
     this.defaultTilt = Math.PI * (0.5 - 0.0625);
 
-    this.level = new (this.levelsByName.get(levelName) || DeepDarkNight)();
-    this.autoSteerApproximation = this.level.roadPath.approximate(10000);
     this.dashboard = new Dashboard();
     this.sky = this.makeCylinderSky(); // makeSphereSky()
 
@@ -68,24 +66,39 @@ class Drivey {
     this.dashboard.object.scale.set(0.0018, 0.0018, 0.001);
     this.screen.firstPerson.add(this.dashboard.object);
 
-    this.screen.backgroundColor = this.level.tint.clone().multiplyScalar(this.level.ground * 2);
+    this.setLevel(levelName);
+  }
 
+  setLevel(levelName) {
+    if (this.level != null) {
+      this.screen.scene.remove(this.level.world);
+      // TODO: properly dispose of level
+    }
+
+    this.level = new (this.levelsByName.get(levelName) || DeepDarkNight)();
+    this.autoSteerApproximation = this.level.roadPath.approximate(10000);
+
+    const geometry = this.sky.geometry;
+    const positions = geometry.getAttribute('position');
+    const numVertices = positions.count;
+    const monochromeAttribute = geometry.getAttribute("monochromeValue");
+    const monochromeValues = monochromeAttribute.array;
+    for (let i = 0; i < numVertices; i++) {
+      const y = positions.array[i * 3 + 0];
+      monochromeValues[i * 2 + 0] = this.level.skyLow * (1 - y) + this.level.skyHigh * y;
+      monochromeValues[i * 2 + 1] = 1;
+    }
+    monochromeAttribute.needsUpdate = true;
+    this.screen.backgroundColor = this.level.tint.clone().multiplyScalar(this.level.ground * 2);
     this.screen.scene.add(this.level.world);
     silhouette.uniforms.tint = { value : this.level.tint};
-
     this.placeCar(this.myCar, this.level.roadPath, 0);
+    this.setNumOtherCars(this.numOtherCars);
   }
 
   makeCylinderSky() {
     const geometry = new THREE.CylinderBufferGeometry( 1, 1, -100, 100, 1, true, 0, Math.PI);
-    const positions = geometry.getAttribute('position');
-    const numVertices = positions.count;
-    const monochromeValues = [];
-    for (let i = 0; i < numVertices; i++) {
-      const y = positions.array[i * 3 + 0];
-      monochromeValues.push(this.level.skyLow * (1 - y) + this.level.skyHigh * y);
-      monochromeValues.push(1);
-    }
+    const monochromeValues = Array(geometry.getAttribute('position').count * 2);
     geometry.addAttribute("monochromeValue", new THREE.Float32BufferAttribute(monochromeValues, 2));
     const mesh = new THREE.Mesh(geometry, silhouette);
     mesh.scale.multiplyScalar(100000);
@@ -121,7 +134,7 @@ class Drivey {
         this.showDashboard = !this.showDashboard;
         break;
       case "npcCars" :
-        this.changeNumOtherCars((this.numOtherCars + 8) % 32);
+        this.setNumOtherCars((this.numOtherCars + 8) % 32);
         break;
       case "camera" :
         switch (options.cameraName) {
@@ -145,6 +158,9 @@ class Drivey {
         break;
       case "drivingSide" :
         this.laneOffset *= -1;
+        break;
+      case "level":
+        this.setLevel(options.levelName);
         break;
     }
   }
@@ -198,7 +214,7 @@ class Drivey {
     this.dashboard.needle2Rotation = lerp(this.dashboard.needle2Rotation, speed2, 0.005);
   }
 
-  changeNumOtherCars(num) {
+  setNumOtherCars(num) {
     this.numOtherCars = num;
 
     while (this.otherCars.length < this.numOtherCars) {
