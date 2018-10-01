@@ -298,7 +298,7 @@ class Drivey {
       const step = Math.min(totalTime, TIME_SLICE);
 
       if (this.autoSteer || !interactive) {
-        car.autoSteer(this.level.roadPath, this.autoSteerApproximation, this.laneSpacing, this.laneOffset);
+        car.autoSteer(step, this.level.roadPath, this.autoSteerApproximation, this.laneSpacing, this.laneOffset);
       } else {
         const diff = -sign(car.steerTo) * 0.0002 * car.vel.length() * step;
         if (Math.abs(diff) >= Math.abs(car.steerTo)) car.steerTo = 0;

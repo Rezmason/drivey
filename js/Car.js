@@ -28,10 +28,13 @@ class Car {
 
     this.sliding = false;
     this.spin = 0;
-    this.cruise = 120 * 1000 / 3600; // 50 kph
+    this.cruise = 60 * 1000 / 3600; // 50 kph
   }
 
-  autoSteer(roadPath, approximation, laneSpacing, laneOffset) {
+  autoSteer(step, roadPath, approximation, laneSpacing, laneOffset) {
+    // It would probably help to factor step into all this math somehow,
+    // but I'm not sure where or how.
+
     // get goal position, based on position on road 1 second in the future
     const dir = (this.vel.length() > 0 ) ? this.vel.clone().normalize() : this.dir();
     const lookAhead = 20;
