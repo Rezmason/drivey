@@ -2,7 +2,7 @@
 
 class Drivey {
 
-  constructor(levelName) {
+  constructor() {
     this.levelsByName = new Map([
       ["empty", Level],
       ["test", TestLevel],
@@ -17,12 +17,12 @@ class Drivey {
     this.screen = new Screen();
     this.buttons = new Buttons();
     this.buttons.addListener(this.onButtonClick.bind(this));
-    this.init(levelName);
+    this.init();
     this.screen.addRenderListener(this.update.bind(this));
     this.update();
   }
 
-  init(levelName) {
+  init() {
 
     this.laneSpacing = 4; // ???
     this.laneOffset = -2.5;
@@ -66,7 +66,7 @@ class Drivey {
     this.dashboard.object.scale.set(0.0018, 0.0018, 0.001);
     this.screen.firstPerson.add(this.dashboard.object);
 
-    this.setLevel(levelName);
+    this.setLevel("industrial");
   }
 
   setLevel(levelName) {
@@ -90,6 +90,7 @@ class Drivey {
     }
     monochromeAttribute.needsUpdate = true;
     this.updateBackgroundColor();
+    this.buttons.setTint(this.level.tint);
     this.screen.scene.add(this.level.world);
     silhouette.uniforms.tint = { value : this.level.tint};
     this.placeCar(this.myCar, this.level.roadPath, 0);
@@ -129,6 +130,8 @@ class Drivey {
 
     const tangent = roadPath.getTangent(along).multiplyScalar(direction);
     car.angle = getAngle(tangent);
+    car.steerPos = 0;
+    car.steerTo = 0;
 
     const vel = tangent.multiplyScalar(car.cruise);
     car.vel.copy(vel);
@@ -144,15 +147,14 @@ class Drivey {
       this.showDashboard = value === "true";
       break;
       case "npcCars" :
-      console.log(value);
       this.setNumOtherCars(parseInt(value));
       break;
       case "camera" :
       switch (value) {
-        case "firstPerson" :
+        case "driver" :
         this.screen.camera = this.screen.firstPerson;
         break;
-        case "birdseye" :
+        case "overhead" :
         this.screen.camera = this.screen.birdseye;
         break;
       }
@@ -178,6 +180,8 @@ class Drivey {
   }
 
   update() {
+
+    this.buttons.update();
 
     this.driver.rotation.z = lerp(this.driver.rotation.z, this.rearView ? Math.PI : 0, 0.2);
     this.sky.rotation.y = this.driver.rotation.z;
@@ -239,8 +243,8 @@ class Drivey {
       if (i < this.numOtherCars) {
         if (this.otherCarExteriors[i].parent == null) {
           this.screen.scene.add(this.otherCarExteriors[i]);
-          this.placeCar(this.otherCars[i], this.level.roadPath, Math.random(), true);
         }
+        this.placeCar(this.otherCars[i], this.level.roadPath, Math.random(), true);
       } else {
         if (this.otherCarExteriors[i].parent != null) {
           this.screen.scene.remove(this.otherCarExteriors[i]);

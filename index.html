@@ -3,9 +3,75 @@
     <head>
         <meta charset="utf-8">
         <link rel="stylesheet" type="text/css" href="./reset.css"/>
-        <style>
+        <style title="main">
+
+            body {
+              --dashboard-color: #888;
+              --lit-color: #fff;
+            }
+
             canvas#renderer {
                 display: block;
+            }
+            div#buttonsContainer {
+                position: absolute;
+                top: 1em;
+                width: 100%;
+                text-align: center;
+            }
+            div#buttons {
+                display: inline-block;
+                color: white;
+                font-weight: bolder;
+                text-transform: uppercase;
+                font-size: 1vw;
+                font-family: sans-serif;
+                text-align: center;
+                background-color: var(--dashboard-color);
+                border-radius: 8em;
+            }
+            div#buttons button, div#buttons select {
+                display: inline-block;
+                margin: 0.5em 0.25em;
+                background-color: black;
+                width: 7em;
+                height: 7em;
+            }
+
+            span.indicator {
+                color: var(--lit-color);
+                text-shadow: 0 0 0.5em var(--lit-color);
+            }
+
+            span.accesskey {
+                text-decoration: underline;
+            }
+
+            span.light {
+                display: inline-block;
+                width: 1.5em;
+                height: 1em;
+                background-color: var(--lit-color);
+                box-shadow: 0 0 1em var(--lit-color);
+            }
+
+            span.light.off {
+                background-color: var(--dashboard-color);
+                box-shadow: unset;
+            }
+
+            #buttons button:first-of-type, #buttons select:first-of-type {
+                width: 9em;
+                border-top-left-radius: 6em;
+                border-bottom-left-radius: 6em;
+                margin-left: 0.5em;
+            }
+
+            #buttons button:last-of-type, #buttons select:last-of-type {
+                width: 9em;
+                border-top-right-radius: 6em;
+                border-bottom-right-radius: 6em;
+                margin-right: 0.5em;
             }
         </style>
     </head>
@@ -36,12 +102,6 @@
         <script src="./js/Drivey.js"></script>
         <script src="./js/CliffsideBeach.js"></script>
 
-        <script>
-            document.addEventListener("DOMContentLoaded",function(event) {
-                const urlParams = new Map(window.location.href.replace(/^[^\?]+\?/, "").split("&").map(pair => pair.split("=")));
-                const getParam = (key, defaultValue) => urlParams.has(key) ? urlParams.get(key) : defaultValue;
-                new Drivey(getParam("level", "industrial"));
-            });
-        </script>
+        <script> document.addEventListener("DOMContentLoaded", () => new Drivey()); </script>
     </body>
 </html>

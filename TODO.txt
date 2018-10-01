@@ -1,7 +1,3 @@
-Menu
-  CSS, so they look like climate control
-  Access keys
-
 Car mesh
   Generate them procedurally!
     One box, two box or three box?
@@ -21,6 +17,7 @@ Editorial
 
 
 Much, much later
+  Access keys
   Localization
   Collision
     "theWalls" in jj
