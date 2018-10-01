@@ -2,23 +2,7 @@
 
 An ECMAScript port of the graphics demo "Drivey". More info soon.
 
-### Levels
-
-**Classic**
-
-- [Industrial Zone](https://rezmason.github.io/drivey/?level=industrial)
-- [City](https://rezmason.github.io/drivey/?level=city)
-- [Tunnel](https://rezmason.github.io/drivey/?level=tunnel)
-- [Deep, Dark Night](https://rezmason.github.io/drivey/?level=night)
-
-
-**New**
-
-- [Warp Gate](https://rezmason.github.io/drivey/?level=warp)
-- [Spectre](https://rezmason.github.io/drivey/?level=spectre)
-- [Cliffside Beach](https://rezmason.github.io/drivey/?level=beach)
-
-
+### [Try it here](https://rezmason.github.io/drivey/)
 ### From the Drivey demo code:
 
 ```
