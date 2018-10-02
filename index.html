@@ -6,9 +6,19 @@
         <style title="main">
 
             body {
+              overflow: hidden;
+              margin: 0;
+            }
+
+            body, colors {
               --dashboard-color: #888;
               --lit-color: #fff;
             }
+
+            u {
+                text-decoration: none;
+                border-bottom: 0.2ex solid white;
+            }​
 
             canvas#renderer {
                 display: block;
@@ -20,6 +30,7 @@
                 text-align: center;
             }
             div#buttons {
+                vertical-align: middle;
                 display: inline-block;
                 color: white;
                 font-weight: bolder;
@@ -28,13 +39,15 @@
                 font-family: sans-serif;
                 text-align: center;
                 background-color: var(--dashboard-color);
-                border-radius: 8em;
+                border-radius: 3em;
+                height: 8em;
             }
-            div#buttons button, div#buttons select {
+            div#buttons button {
                 display: inline-block;
                 margin: 0.5em 0.25em;
                 text-transform: uppercase;
                 background-color: black;
+                line-height: 1.2;
                 width: 7em;
                 height: 7em;
             }
@@ -50,7 +63,7 @@
 
             span.light {
                 display: inline-block;
-                width: 1.5em;
+                width: 1.25em;
                 height: 1em;
                 background-color: var(--lit-color);
                 box-shadow: 0 0 1em var(--lit-color);
@@ -61,17 +74,17 @@
                 box-shadow: unset;
             }
 
-            #buttons button:first-of-type, #buttons select:first-of-type {
+            #buttons button:first-of-type {
                 width: 9em;
-                border-top-left-radius: 6em;
-                border-bottom-left-radius: 6em;
+                border-top-left-radius: 2.5em;
+                border-bottom-left-radius: 2.5em;
                 margin-left: 0.5em;
             }
 
-            #buttons button:last-of-type, #buttons select:last-of-type {
+            #buttons button:last-of-type {
                 width: 9em;
-                border-top-right-radius: 6em;
-                border-bottom-right-radius: 6em;
+                border-top-right-radius: 2.5em;
+                border-bottom-right-radius: 2.5em;
                 margin-right: 0.5em;
             }
         </style>

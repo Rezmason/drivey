@@ -193,6 +193,9 @@ class Drivey {
         break;
       }
       break;
+      case "music":
+      window.open("https://open.spotify.com/user/rezmason/playlist/4ukrs3cTKjTbLoFcxqssXi?si=0y3WoBw1TMyUzK8F9WMbLw", "_blank");
+      break;
       case "level":
       this.setLevel(value);
       break;
@@ -230,7 +233,7 @@ class Drivey {
     this.myCarExterior.position.y = this.myCar.pos.y;
     this.myCarExterior.rotation.z = this.myCar.angle - Math.PI * 0.5;
     this.myCarInterior.rotation.x = this.myCar.pitch * Math.PI;
-    this.screen.driverCamera.rotation.x = this.myCar.tilt * Math.PI + this.defaultTilt;
+    this.driver.rotation.y = this.myCar.tilt * Math.PI;
 
     for (let i = 0; i < this.numOtherCars; i++) {
       const car = this.otherCars[i];
@@ -311,24 +314,16 @@ class Drivey {
     car.brake = this.screen.isKeyDown('Space') ? 1 : 0;
     car.accelerate = 0;
 
-    const TIME_SLICE = 0.05;
-
-    let totalTime = delta * simSpeed;
-    while (totalTime > 0) {
-      const step = Math.min(totalTime, TIME_SLICE);
-
-      if (this.autoSteer || !interactive) {
-        car.autoSteer(step, this.level.roadPath, this.autoSteerApproximation, this.laneSpacing, this.laneOffset);
-      } else {
-        const diff = -sign(car.steerTo) * 0.0002 * car.vel.length() * step;
-        if (Math.abs(diff) >= Math.abs(car.steerTo)) car.steerTo = 0;
-        else car.steerTo += diff;
-        car.steerTo = car.steerTo + manualSteerAmount * 0.025 * step;
-      }
-
-      car.accelerate += acc;
-      car.advance(step);
-      totalTime -= TIME_SLICE;
+    if (this.autoSteer || !interactive) {
+      car.autoSteer(delta * simSpeed, this.level.roadPath, this.autoSteerApproximation, this.laneSpacing, this.laneOffset);
+    } else {
+      const diff = -sign(car.steerTo) * 0.0002 * car.vel.length() * delta * simSpeed;
+      if (Math.abs(diff) >= Math.abs(car.steerTo)) car.steerTo = 0;
+      else car.steerTo += diff;
+      car.steerTo = car.steerTo + manualSteerAmount * 0.025 * delta * simSpeed;
     }
+
+    car.accelerate += acc;
+    car.advance(delta * simSpeed);
   }
 }

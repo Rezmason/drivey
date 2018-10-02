@@ -36,12 +36,13 @@ class Buttons {
     this.addButton("drivingSide", value => {
       return `drive<br>on<br><br><span class="indicator">${value}</span>`;
     }, "right", ["left", "right"]);
+    this.addButton("music", value => `mix<br>tape<br><br><span class="indicator">play</span><br>`, "", [""]);
     this.addButton("level", value => {
       return `current<br>level<br><br><span class="indicator">${value}</span>`;
     }, "industrial", ["night", "tunnel", "city", "industrial", "warp", "spectre", "beach"]);
 
     const stylesheet = Array.from(document.styleSheets).find(sheet => sheet.title === "main");
-    this.bodyRule = Array.from(stylesheet.cssRules).find(rule => rule.selectorText === "body");
+    this.bodyRule = Array.from(stylesheet.cssRules).find(rule => rule.selectorText === "body, colors");
 
     this.buttonsContainer.style.opacity = "1";
     window.addEventListener("mousemove", this.onMouse.bind(this), false);

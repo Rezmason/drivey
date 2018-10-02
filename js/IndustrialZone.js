@@ -88,10 +88,10 @@ class IndustrialZone extends Level {
     // Light circles beneath streetlamps
     if (false) {
         const streetLightShinePath = new THREE.ShapePath();
-        this.drawRoadLine(this.roadPath, streetLightShinePath, -4, 10, RoadLineStyle.DOT(streetLightSpacing, 0), 0, 1);
+        this.drawRoadLine(this.roadPath, streetLightShinePath, -4, 8, RoadLineStyle.DOT(streetLightSpacing, 0), 0, 1);
         const streetLightShineMesh = makeMesh(streetLightShinePath, 0, 30, brightColor);
         streetLightShineMesh.position.z = -0.01;
-        meshes.push(streetLight4Mesh);
+        meshes.push(streetLightShineMesh);
         const streetLightShadowPath = new THREE.ShapePath();
         this.drawRoadLine(this.roadPath, streetLightShadowPath, -13, 10, RoadLineStyle.DASH(streetLightThickness, streetLightSpacing, 0), 0, 1);
         meshes.push(makeMesh(streetLightShadowPath, 0, 10, this.ground));

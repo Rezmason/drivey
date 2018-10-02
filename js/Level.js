@@ -121,8 +121,8 @@ class Level {
       point.x -= centerX;
       point.y -= centerY;
       point.y *= width / height;
-      point.x *= 40; // 400
-      point.y *= 40; // 400
+      point.x *= 80; // 400
+      point.y *= 80; // 400
     }
     return new RoadPath(points);
   }

@@ -43,7 +43,7 @@ class Car {
     // mix it with the slope of the road at that point
     let tangent = roadPath.getTangent(along);
     tangent.multiplyScalar(this.roadDir);
-    if (targetDir.length() > 0) tangent.lerp(targetDir, 0.05);
+    if (targetDir.length() > 0) tangent.lerp(targetDir, 0.1);
 
     // measure the difference in angle to that point and car's current angle
     let newAngle = Math.atan2(tangent.y, tangent.x) - this.angle;
@@ -120,12 +120,7 @@ class Car {
     this.pitchV += (this.pitchV * -0.2 + velDiff.clone().dot(dir) * 0.001 / t - this.pitch) * t * 20;
     this.pitch += this.pitchV * t;
 
-    let diff = this.steerTo - this.steerPos;
-    if ((diff < 0 ? -diff : diff) > t * 0.05) {
-      diff *= t * 0.05 / (diff < 0 ? -diff : diff);
-    }
-    this.steerPos += diff;
-
+    this.steerPos = this.steerTo;
     this.lastVel = this.vel;
     this.lastPos = this.pos;
   }
