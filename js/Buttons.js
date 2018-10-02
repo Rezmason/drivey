@@ -8,9 +8,14 @@ class Buttons {
     document.body.appendChild(this.buttonsContainer);
     this.buttonsContainer.appendChild(this.element);
 
-    this.addButton("steering", value => {
-      return `<u>s</u>elf<br>drive<br><br><span class="light ${value === "true" ? "on" : "off"}"></span>`;
-    }, true, [true, false]);
+    this.addButton("cruise", value => {
+      const numLights = parseInt(value);
+      return `auto<br>drive<br><br>${
+        Array(3).fill().map((_, index) => {
+          return `<span class="light ${numLights > index ? "on" : "off"}"></span>`;
+        }).join(" ")
+      }`;
+    }, 3, [0, 1, 2, 3]);
     this.addButton("dashboard", value => {
       return `show<br>dash<br><br><span class="light ${value === "true" ? "on" : "off"}"></span>`;
     }, true, [true, false]);

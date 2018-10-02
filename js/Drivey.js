@@ -135,15 +135,30 @@ class Drivey {
     car.steerPos = 0;
     car.steerTo = 0;
 
-    const vel = tangent.multiplyScalar(car.cruise);
+    const vel = tangent.multiplyScalar(car.cruiseSpeed);
     car.vel.copy(vel);
     car.lastVel.copy(vel);
   }
 
   onButtonClick(button, value) {
     switch (button) {
-      case "steering" :
-      this.autoSteer = value === "true";
+      case "cruise" :
+      const cruise = parseInt(value);
+      this.autoSteer = cruise !== 0;
+      switch (cruise) {
+        case 0:
+        this.myCar.cruiseSpeed = 0;
+        break;
+        case 1:
+        this.myCar.cruiseSpeed = this.myCar.defaultCruiseSpeed * 0.5;
+        break;
+        case 2:
+        this.myCar.cruiseSpeed = this.myCar.defaultCruiseSpeed * 0.5;
+        break;
+        case 3:
+        this.myCar.cruiseSpeed = this.myCar.defaultCruiseSpeed * 1.5;
+        break;
+      }
       break;
       case "dashboard" :
       this.showDashboard = value === "true";

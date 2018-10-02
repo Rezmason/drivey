@@ -28,7 +28,8 @@ class Car {
 
     this.sliding = false;
     this.spin = 0;
-    this.cruise = 60 * 1000 / 3600; // 50 kph
+    this.defaultCruiseSpeed = 60 * 1000 / 3600; // 50 kph
+    this.cruiseSpeed = this.defaultCruiseSpeed;
   }
 
   autoSteer(step, roadPath, approximation, laneSpacing, laneOffset) {
@@ -59,8 +60,8 @@ class Car {
 
 
     // Unrelatedly, step on the gas until the car's speed is at cruising speed
-    if (this.vel.length() < this.cruise) this.accelerate = 1;
-    else this.accelerate = this.cruise / this.vel.length();
+    if (this.vel.length() < this.cruiseSpeed) this.accelerate = 1;
+    else this.accelerate = this.cruiseSpeed / this.vel.length();
   }
 
   dir() {
