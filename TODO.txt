@@ -1,11 +1,7 @@
-Car mesh
-  Generate them procedurally!
-    One box, two box or three box?
-    Greenhouse width, height
-    Greenhouse roof width, height and vertical offset
-  Remember to add headlights and tail lights
-    Headlights are white
-    Tail lights are a little dimmer
+Car generation
+
+Spotify playlist embed?
+About box?
 
 Editorial
   Readability pass

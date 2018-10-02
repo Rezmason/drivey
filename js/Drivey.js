@@ -47,7 +47,7 @@ class Drivey {
     this.driver.add(this.screen.overheadCamera);
 
     this.myCar = new Car();
-    this.myCarExterior = this.makeCarExterior();
+    this.myCarExterior = CarMeshMaker.generate();
     this.screen.scene.add(this.myCarExterior);
 
     this.otherCars = [];
@@ -260,7 +260,7 @@ class Drivey {
 
     while (this.otherCars.length < this.numOtherCars) {
       this.otherCars.push(new Car());
-      const otherCarExterior = this.makeCarExterior();
+      const otherCarExterior = CarMeshMaker.generate();
       this.otherCarExteriors.push(otherCarExterior);
     }
 
@@ -276,17 +276,6 @@ class Drivey {
         }
       }
     }
-  }
-
-  makeCarExterior() {
-    const group = new THREE.Group();
-    const mesh = new THREE.Mesh(
-      new THREE.SphereGeometry(1, 10, 10),
-      new THREE.MeshBasicMaterial({color: Math.floor(0xFFFFFF * Math.random())})
-      );
-    mesh.position.z = 1;
-    group.add(mesh);
-    return group;
   }
 
   drive(car, delta, simSpeed, interactive) {
