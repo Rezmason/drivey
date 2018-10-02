@@ -17,16 +17,16 @@ class City extends Level {
       if (pos.length() > 0.9 || pos.length() < 0.3) { // 0.5, 0.1
         continue;
       }
-      pos.multiplyScalar(8000);
+      pos.multiplyScalar(1000);
 
       // TODO: more efficient distance test
       // if ((pos - cloudsPath.getNearestPoint(pos)).length() < 200) continue;
 
-      addPath(cloudsPath, makeCirclePath(pos.x, pos.y, 500));
+      addPath(cloudsPath, makeCirclePath(pos.x, pos.y, 50));
     }
     const cloudsMesh = makeMesh(cloudsPath, 1, 200,(this.skyLow + this.skyHigh) / 2);
     cloudsMesh.scale.multiplyScalar(2);
-    cloudsMesh.position.z = 400;
+    cloudsMesh.position.z = 80;
     meshes.push(cloudsMesh);
 
     // do bg
@@ -34,7 +34,7 @@ class City extends Level {
     const shortBuildings = new THREE.ShapePath();
     const tallBuildings = new THREE.ShapePath();
     const tallerBuildings = new THREE.ShapePath();
-    const mag = 4;
+    const mag = 0.4;
     const width = 40 * mag;
     const radius = 1800 * mag;
     const approximation = this.roadPath.approximate();
@@ -60,10 +60,10 @@ class City extends Level {
       x += 150 * mag;
     }
 
-    // meshes.push(makeMesh(shorterBuildings, 15 * 2, 1, this.ground));
-    meshes.push(makeMesh(shortBuildings, 30 * 2, 1, this.ground));
-    meshes.push(makeMesh(tallBuildings, 50 * 2, 1, this.ground));
-    meshes.push(makeMesh(tallerBuildings, 120 * 2, 1, this.ground));
+    // meshes.push(makeMesh(shorterBuildings, 15 * mag, 1, this.ground));
+    meshes.push(makeMesh(shortBuildings, 30 * mag, 1, this.ground));
+    meshes.push(makeMesh(tallBuildings, 50 * mag, 1, this.ground));
+    meshes.push(makeMesh(tallerBuildings, 120 * mag, 1, this.ground));
 
     const signpostsPath = new THREE.ShapePath();
     this.drawRoadLine(this.roadPath, signpostsPath,-16, 0.2, RoadLineStyle.DASH(0.2, 400, 0), 0, 1);

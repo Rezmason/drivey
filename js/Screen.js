@@ -9,11 +9,13 @@ class Screen {
     this.element = document.createElement("div");
     document.body.appendChild(this.element);
     this.scene = new THREE.Scene();
-    this.firstPerson = new THREE.PerspectiveCamera(90, 1, 0.001, 100000);
-    this.firstPerson.rotation.order = "YZX";
-    this.scene.add(this.firstPerson);
-    this.birdseye = new THREE.PerspectiveCamera(90, 1, 0.001, 100000);
-    this.scene.add(this.birdseye);
+    this.driverCamera = new THREE.PerspectiveCamera(90, 1, 0.001, 100000);
+    this.driverCamera.rotation.order = "YZX";
+    this.scene.add(this.driverCamera);
+    this.overheadCamera = new THREE.PerspectiveCamera(90, 1, 0.001, 100000);
+    this.scene.add(this.overheadCamera);
+    this.worldCamera = new THREE.PerspectiveCamera(90, 1, 0.001, 100000);
+    this.scene.add(this.worldCamera);
     this.renderer = new THREE.WebGLRenderer({ antialias : true});
     this.renderer.setPixelRatio(window.devicePixelRatio);
     window.addEventListener("resize", this.onWindowResize.bind(this), false);
@@ -24,7 +26,7 @@ class Screen {
     document.addEventListener("keyup", this.onKeyUp.bind(this));
     if (animate) this.animate();
     window.renderer = this.renderer;
-    this.camera = this.firstPerson;
+    this.camera = this.driverCamera;
     this.frameRate = 1;
 
     this.startFrameTime = Date.now();
@@ -33,10 +35,12 @@ class Screen {
 
   onWindowResize() {
     const aspect = window.innerWidth / window.innerHeight;
-    this.firstPerson.aspect = aspect;
-    this.firstPerson.updateProjectionMatrix();
-    this.birdseye.aspect = aspect;
-    this.birdseye.updateProjectionMatrix();
+    this.driverCamera.aspect = aspect;
+    this.driverCamera.updateProjectionMatrix();
+    this.overheadCamera.aspect = aspect;
+    this.overheadCamera.updateProjectionMatrix();
+    this.worldCamera.aspect = aspect;
+    this.worldCamera.updateProjectionMatrix();
     this.renderer.setSize(window.innerWidth, window.innerHeight);
     this.renderer.domElement.style.width = "100%";
     this.renderer.domElement.style.height = "100%";

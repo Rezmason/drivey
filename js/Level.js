@@ -82,7 +82,10 @@ class Level {
   finish(meshes, transparentMeshes) {
     this.world = new THREE.Group();
     meshes.forEach(flattenMesh);
-    if (meshes.length > 0) this.world.add(mergeMeshes(meshes));
+    const combinedMesh = mergeMeshes(meshes);
+    combinedMesh.geometry.computeBoundingSphere();
+    this.worldRadius = combinedMesh.geometry.boundingSphere.radius;
+    if (meshes.length > 0) this.world.add(combinedMesh);
     meshes.forEach(mesh => mesh.geometry.dispose());
     meshes.length = 0;
 

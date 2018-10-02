@@ -24,7 +24,7 @@ class Buttons {
     }, 0, [0, 8, 16, 24]);
     this.addButton("camera", value => {
       return `view<br>from<br><br><span class="indicator">${value}</span>`;
-    }, "driver", ["driver", "overhead"]);
+    }, "driver", ["driver", "overhead", "world"]);
     this.addButton("rearView", value => {
       return `rear<br>view<br><br><span class="light ${value === "true" ? "on" : "off"}"></span>`;
     }, false, [true, false]);

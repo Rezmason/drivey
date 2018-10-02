@@ -40,11 +40,11 @@ class Drivey {
 
     this.driver = new THREE.Group();
     this.driver.name = "Ace"; // Everyone, this is my buddy, Ace.
-    this.screen.firstPerson.rotation.x = this.defaultTilt;
-    this.screen.firstPerson.position.z = 1;
-    this.driver.add(this.screen.firstPerson);
-    this.screen.birdseye.position.set(0, 0, 20);
-    this.driver.add(this.screen.birdseye);
+    this.screen.driverCamera.rotation.x = this.defaultTilt;
+    this.screen.driverCamera.position.z = 1;
+    this.driver.add(this.screen.driverCamera);
+    this.screen.overheadCamera.position.set(0, 0, 20);
+    this.driver.add(this.screen.overheadCamera);
 
     this.myCar = new Car();
     this.myCarExterior = this.makeCarExterior();
@@ -64,7 +64,7 @@ class Drivey {
 
     this.dashboard = new Dashboard();
     this.dashboard.object.scale.set(0.0018, 0.0018, 0.001);
-    this.screen.firstPerson.add(this.dashboard.object);
+    this.screen.driverCamera.add(this.dashboard.object);
 
     this.setLevel("industrial");
   }
@@ -95,11 +95,13 @@ class Drivey {
     silhouette.uniforms.tint = { value : this.level.tint};
     this.placeCar(this.myCar, this.level.roadPath, 0);
     this.setNumOtherCars(this.numOtherCars);
+
+    this.screen.worldCamera.position.set(0, 0, this.level.worldRadius);
   }
 
   updateBackgroundColor() {
     let backgroundColor = this.level.tint.clone();
-    if (this.screen.camera == this.screen.firstPerson) {
+    if (this.screen.camera == this.screen.driverCamera) {
       backgroundColor.multiplyScalar(this.level.ground * 2);
     } else {
       backgroundColor.multiplyScalar(this.level.skyLow).addScalar(0.5);
@@ -152,10 +154,13 @@ class Drivey {
       case "camera" :
       switch (value) {
         case "driver" :
-        this.screen.camera = this.screen.firstPerson;
+        this.screen.camera = this.screen.driverCamera;
         break;
         case "overhead" :
-        this.screen.camera = this.screen.birdseye;
+        this.screen.camera = this.screen.overheadCamera;
+        break;
+        case "world" :
+        this.screen.camera = this.screen.worldCamera;
         break;
       }
       this.updateBackgroundColor();
@@ -186,10 +191,10 @@ class Drivey {
     this.driver.rotation.z = lerp(this.driver.rotation.z, this.rearView ? Math.PI : 0, 0.2);
     this.sky.rotation.y = this.driver.rotation.z;
 
-    if (this.showDashboard && !this.rearView && this.screen.camera == this.screen.firstPerson) {
-      if (this.dashboard.object.parent == null) this.screen.firstPerson.add(this.dashboard.object);
+    if (this.showDashboard && !this.rearView && this.screen.camera == this.screen.driverCamera) {
+      if (this.dashboard.object.parent == null) this.screen.driverCamera.add(this.dashboard.object);
     } else {
-      if (this.dashboard.object.parent != null) this.screen.firstPerson.remove(this.dashboard.object);
+      if (this.dashboard.object.parent != null) this.screen.driverCamera.remove(this.dashboard.object);
     }
     this.dashboard.driversSide = this.laneOffset < 0 ? 1 : -1;
 
@@ -210,7 +215,7 @@ class Drivey {
     this.myCarExterior.position.y = this.myCar.pos.y;
     this.myCarExterior.rotation.z = this.myCar.angle - Math.PI * 0.5;
     this.myCarInterior.rotation.x = this.myCar.pitch * Math.PI;
-    this.screen.firstPerson.rotation.x = this.myCar.tilt * Math.PI + this.defaultTilt;
+    this.screen.driverCamera.rotation.x = this.myCar.tilt * Math.PI + this.defaultTilt;
 
     for (let i = 0; i < this.numOtherCars; i++) {
       const car = this.otherCars[i];
@@ -244,7 +249,7 @@ class Drivey {
         if (this.otherCarExteriors[i].parent == null) {
           this.screen.scene.add(this.otherCarExteriors[i]);
         }
-        this.placeCar(this.otherCars[i], this.level.roadPath, Math.random(), true);
+        this.placeCar(this.otherCars[i], this.level.roadPath, Math.random(), Math.random() < 0.5);
       } else {
         if (this.otherCarExteriors[i].parent != null) {
           this.screen.scene.remove(this.otherCarExteriors[i]);
