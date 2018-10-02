@@ -32,9 +32,6 @@ class Car {
   }
 
   autoSteer(step, roadPath, approximation, laneSpacing, laneOffset) {
-    // It would probably help to factor step into all this math somehow,
-    // but I'm not sure where or how.
-
     // get goal position, based on position on road 1 second in the future
     const dir = (this.vel.length() > 0 ) ? this.vel.clone().normalize() : this.dir();
     const lookAhead = 20;
@@ -45,7 +42,7 @@ class Car {
     // mix it with the slope of the road at that point
     let tangent = roadPath.getTangent(along);
     tangent.multiplyScalar(this.roadDir);
-    if (targetDir.length() > 0) tangent.lerp(targetDir, 0.9); // 0.05
+    if (targetDir.length() > 0) tangent.lerp(targetDir, 0.05);
 
     // measure the difference in angle to that point and car's current angle
     let newAngle = Math.atan2(tangent.y, tangent.x) - this.angle;
@@ -58,7 +55,7 @@ class Car {
 
     let steerTo = newAngle / (Math.min(targetDir.length() * 0.5, 50) + 1);
     if (Math.abs(steerTo) > 0.02) steerTo *= 0.02 / Math.abs(steerTo);
-    this.steerTo = steerTo;
+    this.steerTo = lerp(this.steerTo, steerTo, Math.min(1, step * 10));
 
 
     // Unrelatedly, step on the gas until the car's speed is at cruising speed
