@@ -3,12 +3,13 @@
 class City extends Level {
   build(meshes, transparentMeshes) {
     this.name = "The City";
-    this.tint = new THREE.Color(0.3, 0.3, 0.7); // * 1.5
+    this.tint = new THREE.Color(0.33, 0.33, 1); // * 1.5
 
     this.roadPath.scale(2, 2);
     this.ground = 0.05;
     const roadLineColor = 0.6;
     this.skyLow = 0.4;
+    this.skyHigh = 0;
 
     // sky
     const cloudsPath = new THREE.ShapePath();
@@ -24,7 +25,7 @@ class City extends Level {
 
       addPath(cloudsPath, makeCirclePath(pos.x, pos.y, 50));
     }
-    const cloudsMesh = makeMesh(cloudsPath, 1, 200,(this.skyLow + this.skyHigh) / 2);
+    const cloudsMesh = makeMesh(cloudsPath, 1, 200, (this.skyLow + this.skyHigh) / 2);
     cloudsMesh.scale.multiplyScalar(2);
     cloudsMesh.position.z = 80;
     meshes.push(cloudsMesh);

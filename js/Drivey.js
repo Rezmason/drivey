@@ -93,7 +93,7 @@ class Drivey {
     this.buttons.setTint(this.level.tint);
     this.screen.scene.add(this.level.world);
     silhouette.uniforms.tint = { value : this.level.tint};
-    this.placeCar(this.myCar, this.level.roadPath, 0);
+    this.placeCar(this.myCar, this.level.roadPath, 0, false, this.autoSteer);
     this.setNumOtherCars(this.numOtherCars);
 
     this.screen.worldCamera.position.set(0, 0, this.level.worldRadius);
@@ -120,8 +120,8 @@ class Drivey {
     return mesh;
   }
 
-  placeCar(car, roadPath, along, oppositeDirection = false) {
-    car.roadPos = 0;
+  placeCar(car, roadPath, along, oppositeDirection = false, go = false) {
+    car.reset();
 
     const direction = oppositeDirection ? -1 : 1;
     car.roadDir = direction;
@@ -132,12 +132,12 @@ class Drivey {
 
     const tangent = roadPath.getTangent(along).multiplyScalar(direction);
     car.angle = getAngle(tangent);
-    car.steerPos = 0;
-    car.steerTo = 0;
 
-    const vel = tangent.multiplyScalar(car.cruiseSpeed);
-    car.vel.copy(vel);
-    car.lastVel.copy(vel);
+    if (go) {
+      const vel = tangent.multiplyScalar(car.cruiseSpeed);
+      car.vel.copy(vel);
+      car.lastVel.copy(vel);
+    }
   }
 
   onButtonClick(button, value) {
@@ -233,12 +233,14 @@ class Drivey {
     this.myCarExterior.position.y = this.myCar.pos.y;
     this.myCarExterior.rotation.z = this.myCar.angle - Math.PI * 0.5;
     this.myCarInterior.rotation.x = this.myCar.pitch * Math.PI;
+
     this.driver.rotation.y = this.myCar.tilt * Math.PI;
+    this.dashboard.object.rotation.z = this.driver.rotation.y;
 
     for (let i = 0; i < this.numOtherCars; i++) {
       const car = this.otherCars[i];
       const otherCarExterior = this.otherCarExteriors[i];
-      this.drive(car, delta, simSpeed, true);
+      this.drive(car, delta, simSpeed);
       otherCarExterior.position.x = car.pos.x;
       otherCarExterior.position.y = car.pos.y;
       otherCarExterior.rotation.z = car.angle - Math.PI * 0.5;
@@ -267,7 +269,7 @@ class Drivey {
         if (this.otherCarExteriors[i].parent == null) {
           this.screen.scene.add(this.otherCarExteriors[i]);
         }
-        this.placeCar(this.otherCars[i], this.level.roadPath, Math.random(), Math.random() < 0.5);
+        this.placeCar(this.otherCars[i], this.level.roadPath, Math.random(), Math.random() < 0.5, true);
       } else {
         if (this.otherCarExteriors[i].parent != null) {
           this.screen.scene.remove(this.otherCarExteriors[i]);
@@ -311,7 +313,7 @@ class Drivey {
       else if (car.roadPos < -0.1) car.roadPos += delta * simSpeed;
     }
 
-    car.brake = this.screen.isKeyDown('Space') ? 1 : 0;
+    car.brake = (interactive && this.screen.isKeyDown('Space')) ? 1 : 0;
     car.accelerate = 0;
 
     if (this.autoSteer || !interactive) {

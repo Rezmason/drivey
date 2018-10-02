@@ -1,10 +1,21 @@
 class Car {
 
   constructor() {
-    this.lastPos = new THREE.Vector2(0, 0);
-    this.pos = new THREE.Vector2(0, 0);
-    this.vel = new THREE.Vector2(0, 0);
-    this.lastVel = new THREE.Vector2(0, 0);
+    this.lastPos = new THREE.Vector2();
+    this.pos = new THREE.Vector2();
+    this.vel = new THREE.Vector2();
+    this.lastVel = new THREE.Vector2();
+
+    this.defaultCruiseSpeed = 60 * 1000 / 3600; // 50 kph
+
+    this.reset();
+  }
+
+  reset() {
+    this.lastPos.set(0, 0);
+    this.pos.set(0, 0);
+    this.vel.set(0, 0);
+    this.lastVel.set(0, 0);
 
     this.accelerate = 0;
     this.brake = 0;
@@ -28,7 +39,6 @@ class Car {
 
     this.sliding = false;
     this.spin = 0;
-    this.defaultCruiseSpeed = 60 * 1000 / 3600; // 50 kph
     this.cruiseSpeed = this.defaultCruiseSpeed;
   }
 
@@ -115,9 +125,9 @@ class Car {
     this.angle += this.spin * t;
     this.pos = this.pos.clone().add(this.vel.clone().multiplyScalar(t));
     const velDiff = this.vel.clone().sub(this.lastVel);
-    this.tiltV = this.tiltV + (this.tiltV * -0.2 + velDiff.clone().dot(rotateY(dir, Math.PI * -0.5)) * 0.001 / t - this.tilt) * t * 20;
-    this.tilt += this.tiltV * t;
-    this.pitchV += (this.pitchV * -0.2 + velDiff.clone().dot(dir) * 0.001 / t - this.pitch) * t * 20;
+    this.tiltV  = this.tiltV  + (this.tiltV  * -0.2 + velDiff.clone().dot(rotateY(dir, Math.PI * -0.5)) * 0.001 / t - this.tilt ) * t * 20;
+    this.tilt +=  this.tiltV  * t;
+    this.pitchV = this.pitchV + (this.pitchV * -0.2 + velDiff.clone().dot(                         dir) * 0.001 / t - this.pitch) * t * 20;
     this.pitch += this.pitchV * t;
 
     this.steerPos = this.steerTo;

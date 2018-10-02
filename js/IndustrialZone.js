@@ -3,8 +3,8 @@
 class IndustrialZone extends Level {
   build(meshes, transparentMeshes) {
     this.name = "The Industrial Zone";
-    this.tint = new THREE.Color(0.7, 0.4, 0.1);
-    this.skyHigh = 0.15;
+    this.tint = new THREE.Color(1, 0.5, 0.1);
+    this.skyHigh = -0.25;
     this.skyLow = 0.7; // 1.0
     this.skyGradient = 0.25;
     this.ground = 0.05;
