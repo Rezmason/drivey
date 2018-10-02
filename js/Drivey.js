@@ -150,13 +150,13 @@ class Drivey {
         this.myCar.cruiseSpeed = 0;
         break;
         case 1:
-        this.myCar.cruiseSpeed = this.myCar.defaultCruiseSpeed * 0.5;
+        this.myCar.cruiseSpeed = this.myCar.defaultCruiseSpeed * 0.1;
         break;
         case 2:
         this.myCar.cruiseSpeed = this.myCar.defaultCruiseSpeed * 0.5;
         break;
         case 3:
-        this.myCar.cruiseSpeed = this.myCar.defaultCruiseSpeed * 1.5;
+        this.myCar.cruiseSpeed = this.myCar.defaultCruiseSpeed * 1.0;
         break;
       }
       break;
