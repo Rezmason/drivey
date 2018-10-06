@@ -47,7 +47,8 @@ class Drivey {
     this.driver.add(this.screen.overheadCamera);
 
     this.myCar = new Car();
-    this.myCarExterior = CarMeshMaker.generate();
+    this.myCarExterior = new THREE.Group();
+    this.myCarMesh = CarMeshMaker.generate();
     this.screen.scene.add(this.myCarExterior);
 
     this.otherCars = [];
@@ -213,6 +214,12 @@ class Drivey {
       if (this.dashboard.object.parent == null) this.screen.driverCamera.add(this.dashboard.object);
     } else {
       if (this.dashboard.object.parent != null) this.screen.driverCamera.remove(this.dashboard.object);
+    }
+
+    if (this.screen.camera == this.screen.driverCamera) {
+      if (this.myCarMesh.parent != null) this.myCarExterior.remove(this.myCarMesh);
+    } else {
+      if (this.myCarMesh.parent == null) this.myCarExterior.add(this.myCarMesh);
     }
     this.dashboard.driversSide = this.laneOffset < 0 ? 1 : -1;
 
