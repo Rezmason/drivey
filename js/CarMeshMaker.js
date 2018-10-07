@@ -30,7 +30,7 @@ const generate = () => {
   const pillarSpacings = [
     rand(0.1, wheelRadius * 2 + 0.1), // front windshield
     rand(isTwoDoor ? 0.2 : 0.1, 0.7), // front seats
-    isTwoDoor ? 0 : rand(0.1, 0.5), // back seats
+    isTwoDoor ? 0 : rand(0.1, 0.5), // rear seats
     rand((hasPillarD && !isTwoDoor) ? 0.2 : 0.1, wheelRadius * 2 + 0.1) // rear windshield
   ];
   const cabinWidth = rand(1, 0);
@@ -194,23 +194,21 @@ const generate = () => {
 
   /*
   TODO: Details
-    Wheel wells and wheels
-      Hub caps
     License plates
     Fenders (black)
-    Character lines
     Headlights (white)
     Tail lights
+    Character lines
   */
 
   const mesh = new THREE.Mesh(
     mergedGeometry,
-    new THREE.MeshBasicMaterial({color: 0xFFFFFF, wireframe: false}) // silhouette
+    new THREE.MeshBasicMaterial({side: THREE.DoubleSide, color: 0xFFFFFF, wireframe: false}) // silhouette
   );
 
   const windowMesh = new THREE.Mesh(
     mergedTransparentGeometry,
-    new THREE.MeshBasicMaterial({color: 0xFF0000, transparent: true, blending: THREE.MultiplyBlending})
+    new THREE.MeshBasicMaterial({side: THREE.DoubleSide, color: 0xFF0000, transparent: true, blending: THREE.MultiplyBlending})
   );
 
   const whole = new THREE.Group();
@@ -221,17 +219,37 @@ const generate = () => {
   whole.rotation.x = Math.PI * 0.5;
   whole.scale.multiplyScalar(1.5);
 
-  const frontWheels = new THREE.Mesh(
-    new THREE.CylinderGeometry(wheelRadius, wheelRadius, 1.0625, 30),
+  const frontLeftWheel = new THREE.Mesh(
+    new THREE.CylinderGeometry(wheelRadius, wheelRadius, wheelRadius * 0.5, 30),
+    new THREE.MeshBasicMaterial({color: 0xFF0000, wireframe: false})
+  );
+  const hubcap = new THREE.Mesh(
+    new THREE.CylinderGeometry(wheelRadius * 0.6, wheelRadius * 0.6, wheelRadius * 0.55, 30),
     new THREE.MeshBasicMaterial({color: 0xFFFFFF, wireframe: false})
   );
-  frontWheels.rotation.z = Math.PI * 0.5;
-  frontWheels.position.y = wheelRadius;
-  const rearWheels = frontWheels.clone();
-  frontWheels.position.z = frontAxle.x;
-  rearWheels.position.z = rearAxle.x;
-  mesh.add(frontWheels);
-  mesh.add(rearWheels);
+  frontLeftWheel.add(hubcap);
+
+  frontLeftWheel.rotation.z = Math.PI * 0.5;
+  frontLeftWheel.position.y = wheelRadius;
+
+  const frontRightWheel = frontLeftWheel.clone();
+  const rearLeftWheel = frontLeftWheel.clone();
+  const rearRightWheel = frontLeftWheel.clone();
+
+  frontLeftWheel.position.x = 0.5;
+  rearLeftWheel.position.x = 0.5;
+  frontRightWheel.position.x = -0.5;
+  rearRightWheel.position.x = -0.5;
+
+  frontLeftWheel.position.z = frontAxle.x;
+  frontRightWheel.position.z = frontAxle.x;
+  rearLeftWheel.position.z = rearAxle.x;
+  rearRightWheel.position.z = rearAxle.x;
+
+  mesh.add(frontLeftWheel);
+  mesh.add(frontRightWheel);
+  mesh.add(rearLeftWheel);
+  mesh.add(rearRightWheel);
 
   const group = new THREE.Group();
   group.add(whole);
