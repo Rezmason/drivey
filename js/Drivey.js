@@ -112,8 +112,7 @@ class Drivey {
 
   makeCylinderSky() {
     const geometry = new THREE.CylinderBufferGeometry( 1, 1, -100, 100, 1, true, 0, Math.PI);
-    const monochromeValues = Array(geometry.getAttribute('position').count * 2);
-    geometry.addAttribute("monochromeValue", new THREE.Float32BufferAttribute(monochromeValues, 2));
+    shadeGeometry(geometry, 0);
     const mesh = new THREE.Mesh(geometry, silhouette);
     mesh.scale.multiplyScalar(100000);
     mesh.rotation.x = Math.PI * 0.5;

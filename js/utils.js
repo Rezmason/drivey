@@ -126,15 +126,20 @@ const makeMesh = (shapePath, depth, curveSegments, value = 0, alpha = 1) => {
     shapePath.toShapes(false, false),
     { depth, curveSegments, bevelEnabled : false }
   );
-  const numVertices = geom.getAttribute('position').count;
+  shadeGeometry(geom, value, alpha);
+  return new THREE.Mesh(geom, alpha == 1 ? silhouette : transparent);
+};
+
+const shadeGeometry = (geometry, value, alpha = 1) => {
+  const numVertices = geometry.getAttribute('position').count;
   const monochromeValues = [];
   for (let i = 0; i < numVertices; i++) {
     monochromeValues.push(value);
     monochromeValues.push(alpha);
   }
-  geom.addAttribute("monochromeValue", new THREE.Float32BufferAttribute(monochromeValues, 2));
-  return new THREE.Mesh(geom, alpha == 1 ? silhouette : transparent);
-};
+  geometry.addAttribute("monochromeValue", new THREE.Float32BufferAttribute(monochromeValues, 2));
+  return geometry;
+}
 
 const flattenMesh = (mesh) => {
   const geom = mesh.geometry;
@@ -147,8 +152,16 @@ const flattenMesh = (mesh) => {
 };
 
 const mergeMeshes = (meshes) => {
-  const geom = THREE.BufferGeometryUtils.mergeBufferGeometries(meshes.map(mesh => mesh.geometry));
+  const geom = mergeGeometries(meshes.map(mesh => mesh.geometry));
   return new THREE.Mesh(geom, meshes[0].material);
+};
+
+const mergeGeometries = (geometries) => {
+  const numIndexed = geometries.filter(geometry => geometry.index != null).length;
+  if (numIndexed > 0 && numIndexed < geometries.length) {
+    throw new Error("You can't merge indexed and non-indexed buffer geometries.");
+  }
+  return THREE.BufferGeometryUtils.mergeBufferGeometries(geometries);
 };
 
 const minDistSquaredIndex = (points, toPoint) => {

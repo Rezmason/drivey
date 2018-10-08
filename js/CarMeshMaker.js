@@ -1,26 +1,35 @@
-const createVolume = (topFront, bottomFront, topBack, bottomBack, outerSlope, innerSlope) => {
+const createVolumes = (topFront, bottomFront, topRear, bottomRear, outerSlope, innerSlope, reflect = false) => {
   if (outerSlope == null) outerSlope = v => 0.5;
-  if (innerSlope == null) innerSlope = v => 0;
-
-  const geometry = new THREE.CubeGeometry();
-  geometry.vertices[0].set(outerSlope(topFront), topFront.y, topFront.x);
-  geometry.vertices[1].set(outerSlope(bottomFront), bottomFront.y, bottomFront.x);
-  geometry.vertices[2].set(outerSlope(topBack), topBack.y, topBack.x);
-  geometry.vertices[3].set(outerSlope(bottomBack), bottomBack.y, bottomBack.x);
-  geometry.vertices[4].set(innerSlope(bottomFront), bottomFront.y, bottomFront.x);
-  geometry.vertices[5].set(innerSlope(topFront), topFront.y, topFront.x);
-  geometry.vertices[6].set(innerSlope(bottomBack), bottomBack.y, bottomBack.x);
-  geometry.vertices[7].set(innerSlope(topBack), topBack.y, topBack.x);
-  // geometry.verticesNeedUpdate = true;
-  return geometry;
+  if (innerSlope == null) innerSlope = v => -outerSlope(v);
+  const boxGeometry = new THREE.BoxGeometry();
+  boxGeometry.vertices[0].set(outerSlope(topFront), topFront.y, topFront.x);
+  boxGeometry.vertices[1].set(outerSlope(bottomFront), bottomFront.y, bottomFront.x);
+  boxGeometry.vertices[2].set(outerSlope(topRear), topRear.y, topRear.x);
+  boxGeometry.vertices[3].set(outerSlope(bottomRear), bottomRear.y, bottomRear.x);
+  boxGeometry.vertices[4].set(innerSlope(bottomFront), bottomFront.y, bottomFront.x);
+  boxGeometry.vertices[5].set(innerSlope(topFront), topFront.y, topFront.x);
+  boxGeometry.vertices[6].set(innerSlope(bottomRear), bottomRear.y, bottomRear.x);
+  boxGeometry.vertices[7].set(innerSlope(topRear), topRear.y, topRear.x);
+  const geometry = new THREE.BufferGeometry();
+  geometry.fromGeometry(boxGeometry);
+  boxGeometry.dispose();
+  const geometries = [geometry];
+  if (reflect) {
+    geometries.push(
+      createVolumes(topFront, bottomFront, topRear, bottomRear, v => -innerSlope(v), v => -outerSlope(v), false)
+      .pop()
+    );
+  }
+  return geometries;
 }
 
 const generate = () => {
 
+  const carColor = 0.075;
   const rand = (mag, offset) => offset + mag * Math.random();
 
   const wheelRadius = rand(0.05, 0.25);
-  const groundClearance = wheelRadius * 0.5;
+  const groundClearance = wheelRadius * 0.8;
   const columnNudge = new THREE.Vector2(0.05, 0);
   const roofThickness = 0.05;
 
@@ -36,7 +45,7 @@ const generate = () => {
   const cabinWidth = rand(1, 0);
   const roofWidth = rand(1, 0);
   const hoodHeight = rand(0.0125, 0);
-  const cabinHeight1 = rand(0.0125, 0.05 + wheelRadius * 2 - groundClearance);
+  const cabinHeight1 = rand(0.0125, 0.02 + wheelRadius * 2 - groundClearance);
   const cabinHeight2 = rand(0.0125, 0.1);
   const roofHeight = rand(0.025, 0.3);
   const frontWindshieldTaper = rand(0.8, 0.05);
@@ -133,102 +142,127 @@ const generate = () => {
   const r2 = hasPillarD ? r.clone().add(columnNudge) : r.clone().sub(columnNudge);
   const s2 = s.clone().sub(columnNudge);
 
+  // undercarriage
+  const frontWheelPos = a.clone(); frontWheelPos.x += wheelRadius + frontOverhang * (pillarSpacings[0] - wheelRadius * 2);
+  const rearWheelPos = e.clone(); rearWheelPos.x -= wheelRadius + rearOverhang * (pillarSpacings[3] - wheelRadius * 2 - bottomTaper);
+  const undercarriageTF = a.clone();
+  const undercarriageBF = frontWheelPos.clone(); undercarriageBF.y -= 0.1;
+  const undercarriageTR = e.clone();
+  const undercarriageBR = rearWheelPos.clone(); undercarriageBR.y -= 0.1;
+
+  // front fender
+  const frontFenderTF = f.clone(); frontFenderTF.x -= 0.02; frontFenderTF.y -= cabinHeight1 * 0.5;
+  const frontFenderBF = a.clone(); frontFenderBF.x -= 0.02; frontFenderBF.y -= 0.01;
+  const frontFenderTR = f.clone(); frontFenderTR.x += 0.05; frontFenderTR.y -= cabinHeight1 * 0.5;
+  const frontFenderBR = a.clone(); frontFenderBR.x += 0.05; frontFenderBR.y -= 0.01;
+
+  // rear fender
+  const rearFenderTF = j.clone(); rearFenderTF.x -= 0.05; rearFenderTF.y -= cabinHeight1 * 0.5;
+  const rearFenderBF = e.clone(); rearFenderBF.x -= 0.05; rearFenderBF.y -= 0.01;
+  const rearFenderTR = j.clone(); rearFenderTR.x += 0.02; rearFenderTR.y -= cabinHeight1 * 0.5;
+  const rearFenderBR = e.clone(); rearFenderBR.x += 0.02; rearFenderBR.y -= 0.01;
+
   // mirrors
   const mirrorBF = l.clone();
   const mirrorTF = l.clone(); mirrorTF.y += 0.1;
-  const mirrorBB = l2.clone();
-  const mirrorTB = l2.clone(); mirrorTB.y += 0.1;
+  const mirrorBR = l2.clone();
+  const mirrorTR = l2.clone(); mirrorTR.y += 0.1;
 
-  const mergedGeometry = new THREE.Geometry();
-  const mergedTransparentGeometry = new THREE.Geometry();
-  const volumes = [];
-  const transparentVolumes = [];
+  // headlights
+  const frontLightTF = k.clone(); frontLightTF.x -= 0.01; frontLightTF.y -= cabinHeight1 * 0.5;
+  const frontLightBF = f.clone(); frontLightBF.x -= 0.01; frontLightBF.y -= 0.01;
+  const frontLightTR = k.clone(); frontLightTR.x += 0.05; frontLightTR.y -= cabinHeight1 * 0.5;
+  const frontLightBR = f.clone(); frontLightBR.x += 0.05; frontLightBR.y -= 0.01;
 
-  volumes.push(createVolume(mirrorTF, mirrorBF, mirrorTB, mirrorBB, v => 0.5 + 0.15, v => 0.5));
+  // tail lights
+  const rearLightTF = o.clone(); rearLightTF.x -= 0.05; rearLightTF.y -= cabinHeight1 * 0.5;
+  const rearLightBF = j.clone(); rearLightBF.x -= 0.05; rearLightBF.y -= 0.01;
+  const rearLightTR = o.clone(); rearLightTR.x += 0.01; rearLightTR.y -= cabinHeight1 * 0.5;
+  const rearLightBR = j.clone(); rearLightBR.x += 0.01; rearLightBR.y -= 0.01;
 
-  volumes.push(createVolume(f, a, g, b));
-  volumes.push(createVolume(g, b, h, c));
-  volumes.push(createVolume(h, c, i, d));
-  volumes.push(createVolume(i, d, j, e));
+  // license plates
+  const frontPlateTF = frontFenderTF.clone();
+  const frontPlateBF = frontFenderTF.clone(); frontPlateBF.y -= 0.1;
+  const rearPlateTF = j.clone(); rearPlateTF.x += 0.01; rearPlateTF.y -= 0.15;
+  const rearPlateBF = j.clone(); rearPlateBF.x += 0.01; rearPlateBF.y -= 0.05;
 
-  volumes.push(createVolume(k, f, l, g));
-  volumes.push(createVolume(l, g, m, h));
-  volumes.push(createVolume(m, h, n, i));
-  volumes.push(createVolume(n, i, o, j));
+  const frame = [];
+  const windows = [];
 
-  volumes.push(createVolume(p, l, p2, l2, v => 0.5, v => 0.5 - columnNudge.x));
+  frame.push(...createVolumes(mirrorTF, mirrorBF, mirrorTR, mirrorBR, v => 0.5 + 0.15, v => 0.5, true));
+  frame.push(...createVolumes(undercarriageTF, undercarriageBF, undercarriageTR, undercarriageBR, v => 0.35));
 
-  transparentVolumes.push(createVolume(p2, l2, p2, l2, v => 0.5 - columnNudge.x));
+  frame.push(...createVolumes(f, a, g, b));
+  frame.push(...createVolumes(g, b, h, c));
+  frame.push(...createVolumes(h, c, i, d));
+  frame.push(...createVolumes(i, d, j, e));
+
+  frame.push(...createVolumes(k, f, l, g));
+  frame.push(...createVolumes(l, g, m, h));
+  frame.push(...createVolumes(m, h, n, i));
+  frame.push(...createVolumes(n, i, o, j));
+
+  frame.push(...createVolumes(p, l, p2, l2, v => 0.5, v => 0.5 - columnNudge.x, true));
+  windows.push(...createVolumes(p2, l2, p2, l2, v => 0.5 - columnNudge.x));
 
   if (isConvertible) {
-    volumes.push(createVolume(p, t, p2, t /*, outerSlope, innerSlope*/));
+    frame.push(...createVolumes(p, t, p2, t /*, outerSlope, innerSlope*/));
   } else {
-    volumes.push(createVolume(q, m, q2, m2, v => 0.5, v => 0.5 - columnNudge.x));
-    volumes.push(createVolume(r, n, r2, n2, v => 0.5, v => 0.5 - columnNudge.x));
-    volumes.push(createVolume(s, o, s2, o2, v => 0.5, v => 0.5 - columnNudge.x));
+    frame.push(...createVolumes(q, m, q2, m2, v => 0.5, v => 0.5 - columnNudge.x, true));
+    frame.push(...createVolumes(r, n, r2, n2, v => 0.5, v => 0.5 - columnNudge.x, true));
+    frame.push(...createVolumes(s, o, s2, o2, v => 0.5, v => 0.5 - columnNudge.x, true));
 
-    transparentVolumes.push(createVolume(p2, l2, q, m, v => 0.5 - columnNudge.x, v => 0.5 - columnNudge.x));
-    transparentVolumes.push(createVolume(q2, m2, r, n, v => 0.5 - columnNudge.x, v => 0.5 - columnNudge.x));
+    windows.push(...createVolumes(p2, l2, q, m, v => 0.5 - columnNudge.x, v => 0.5 - columnNudge.x, true));
+    windows.push(...createVolumes(q2, m2, r, n, v => 0.5 - columnNudge.x, v => 0.5 - columnNudge.x, true));
 
     if (hasPillarD) {
-      volumes.push(createVolume(t, p, w, s /*, outerSlope, innerSlope*/));
-      transparentVolumes.push(createVolume(s, o, s, o, v => 0.5 - columnNudge.x));
-      transparentVolumes.push(createVolume(r2, n2, s2, o2, v => 0.5 - columnNudge.x, v => 0.5 - columnNudge.x));
+      frame.push(...createVolumes(t, p, w, s /*, outerSlope, innerSlope*/));
+      windows.push(...createVolumes(s, o, s, o, v => 0.5 - columnNudge.x));
+      windows.push(...createVolumes(r2, n2, s2, o2, v => 0.5 - columnNudge.x, v => 0.5 - columnNudge.x, true));
     } else {
-      volumes.push(createVolume(t, p, v, r /*, outerSlope, innerSlope*/));
-      transparentVolumes.push(createVolume(r, n, r, n, v => 0.5 - columnNudge.x));
+      frame.push(...createVolumes(t, p, v, r /*, outerSlope, innerSlope*/));
+      windows.push(...createVolumes(r, n, r, n, v => 0.5 - columnNudge.x));
     }
   }
 
-  volumes.forEach(geom => mergedGeometry.merge(geom));
-  transparentVolumes.forEach(geom => mergedTransparentGeometry.merge(geom));
+  const fenders = [];
+  fenders.push(...createVolumes(frontFenderTF, frontFenderBF, frontFenderTR, frontFenderBR, v => 0.51));
+  fenders.push(...createVolumes(rearFenderTF, rearFenderBF, rearFenderTR, rearFenderBR, v => 0.51));
+  const frontLights = createVolumes(frontLightTF, frontLightBF, frontLightTR, frontLightBR, v => 0.35, v => 0.51, true);
+  const rearLights = createVolumes(rearLightTF, rearLightBF, rearLightTR, rearLightBR, v => 0.35, v => 0.51, true);
+  const plates = [];
+  plates.push(...createVolumes(frontPlateTF, frontPlateBF, frontPlateTF, frontPlateBF, v => 0.1));
+  plates.push(...createVolumes(rearPlateTF, rearPlateBF, rearPlateTF, rearPlateBF, v => 0.1));
 
-  const flip = new THREE.Matrix4().scale(new THREE.Vector3(-1, 1, 1));
-  mergedGeometry.merge(mergedGeometry.clone(), flip);
-  mergedTransparentGeometry.merge(mergedTransparentGeometry.clone(), flip);
+  ///////
 
-  const frontAxle = a.clone(); frontAxle.x += wheelRadius + frontOverhang * (pillarSpacings[0] - wheelRadius * 2);
-  const rearAxle = e.clone(); rearAxle.x -= wheelRadius + rearOverhang * (pillarSpacings[3] - wheelRadius * 2 - bottomTaper);
+  frame.forEach(volume => shadeGeometry(volume, carColor));
+  windows.forEach(volume => shadeGeometry(volume, carColor, 0.4));
+  fenders.forEach(fender => shadeGeometry(fender, carColor + 0.05));
+  frontLights.forEach(frontLight => shadeGeometry(frontLight, 1));
+  rearLights.forEach(rearLight => shadeGeometry(rearLight, 0.75));
+  plates.forEach(plate => shadeGeometry(plate, 0.2));
 
-  // TODO: horizontal differences
+  ///////
 
-  /*
-  TODO: Details
-    License plates
-    Fenders (black)
-    Headlights (white)
-    Tail lights
-    Character lines
-  */
-
-  const mesh = new THREE.Mesh(
-    mergedGeometry,
-    new THREE.MeshBasicMaterial({side: THREE.DoubleSide, color: 0xFFFFFF, wireframe: false}) // silhouette
+  const allGeometries = [].concat(
+    frame,
+    fenders,
+    frontLights,
+    rearLights,
+    plates
   );
+  const mesh = new THREE.Mesh(mergeGeometries(allGeometries), silhouette);
+  allGeometries.forEach(geometry => geometry.dispose());
 
-  const windowMesh = new THREE.Mesh(
-    mergedTransparentGeometry,
-    new THREE.MeshBasicMaterial({side: THREE.DoubleSide, color: 0xFF0000, transparent: true, blending: THREE.MultiplyBlending})
-  );
+  const windowMesh = new THREE.Mesh(mergeGeometries(windows), transparent);
+  mesh.add(windowMesh);
+  mesh.rotation.x = Math.PI * 0.5;
+  mesh.scale.multiplyScalar(1.5);
 
-  const whole = new THREE.Group();
-
-  whole.add(mesh);
-  whole.add(windowMesh);
-  whole.position.y = e.x / 2; // temporary
-  whole.rotation.x = Math.PI * 0.5;
-  whole.scale.multiplyScalar(1.5);
-
-  const frontLeftWheel = new THREE.Mesh(
-    new THREE.CylinderGeometry(wheelRadius, wheelRadius, wheelRadius * 0.5, 30),
-    new THREE.MeshBasicMaterial({color: 0xFF0000, wireframe: false})
-  );
-  const hubcap = new THREE.Mesh(
-    new THREE.CylinderGeometry(wheelRadius * 0.6, wheelRadius * 0.6, wheelRadius * 0.55, 30),
-    new THREE.MeshBasicMaterial({color: 0xFFFFFF, wireframe: false})
-  );
-  frontLeftWheel.add(hubcap);
-
+  const tireGeometry = shadeGeometry(new THREE.CylinderBufferGeometry(wheelRadius, wheelRadius, wheelRadius * 0.5, 30), 0.1);
+  const hubcapGeometry = shadeGeometry(new THREE.CylinderBufferGeometry(wheelRadius * 0.6, wheelRadius * 0.6, wheelRadius * 0.55, 30), carColor);
+  const frontLeftWheel = new THREE.Mesh(mergeGeometries([tireGeometry, hubcapGeometry]), silhouette);
   frontLeftWheel.rotation.z = Math.PI * 0.5;
   frontLeftWheel.position.y = wheelRadius;
 
@@ -236,15 +270,15 @@ const generate = () => {
   const rearLeftWheel = frontLeftWheel.clone();
   const rearRightWheel = frontLeftWheel.clone();
 
-  frontLeftWheel.position.x = 0.5;
-  rearLeftWheel.position.x = 0.5;
-  frontRightWheel.position.x = -0.5;
-  rearRightWheel.position.x = -0.5;
+  frontLeftWheel.position.x = 0.45;
+  rearLeftWheel.position.x = 0.45;
+  frontRightWheel.position.x = -0.45;
+  rearRightWheel.position.x = -0.45;
 
-  frontLeftWheel.position.z = frontAxle.x;
-  frontRightWheel.position.z = frontAxle.x;
-  rearLeftWheel.position.z = rearAxle.x;
-  rearRightWheel.position.z = rearAxle.x;
+  frontLeftWheel.position.z = frontWheelPos.x;
+  frontRightWheel.position.z = frontWheelPos.x;
+  rearLeftWheel.position.z = rearWheelPos.x;
+  rearRightWheel.position.z = rearWheelPos.x;
 
   mesh.add(frontLeftWheel);
   mesh.add(frontRightWheel);
@@ -252,7 +286,7 @@ const generate = () => {
   mesh.add(rearRightWheel);
 
   const group = new THREE.Group();
-  group.add(whole);
+  group.add(mesh);
   return group;
 };
 
