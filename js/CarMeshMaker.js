@@ -1,5 +1,5 @@
 const createVolumes = (topFront, bottomFront, topRear, bottomRear, outerSlope, innerSlope, reflect = false) => {
-  if (outerSlope == null) outerSlope = v => 0.5;
+  if (outerSlope == null) throw new Error('Unspecified outer slope');
   if (innerSlope == null) innerSlope = v => -outerSlope(v);
   const boxGeometry = new THREE.BoxGeometry();
   boxGeometry.vertices[0].set(outerSlope(topFront), topFront.y, topFront.x);
@@ -31,7 +31,7 @@ const generate = () => {
   const wheelRadius = rand(0.05, 0.25);
   const groundClearance = wheelRadius * 0.8;
   const columnNudge = new THREE.Vector2(0.05, 0);
-  const roofThickness = 0.05;
+  const roofThickness = 0.025;
 
   const isTwoDoor = Math.random() > 0.5;
   const hasPillarD = isTwoDoor || Math.random() > 0.5;
@@ -42,8 +42,8 @@ const generate = () => {
     isTwoDoor ? 0 : rand(0.1, 0.5), // rear seats
     rand((hasPillarD && !isTwoDoor) ? 0.2 : 0.1, wheelRadius * 2 + 0.1) // rear windshield
   ];
-  const cabinWidth = rand(1, 0);
-  const roofWidth = rand(1, 0);
+  const cabinWidth = rand(0.4, 0.8);
+  const roofWidth = rand(0.3, 0.7) * cabinWidth;
   const hoodHeight = rand(0.0125, 0);
   const cabinHeight1 = rand(0.0125, 0.02 + wheelRadius * 2 - groundClearance);
   const cabinHeight2 = rand(0.0125, 0.1);
@@ -189,47 +189,53 @@ const generate = () => {
   const frame = [];
   const windows = [];
 
-  frame.push(...createVolumes(mirrorTF, mirrorBF, mirrorTR, mirrorBR, v => 0.5 + 0.15, v => 0.5, true));
-  frame.push(...createVolumes(undercarriageTF, undercarriageBF, undercarriageTR, undercarriageBR, v => 0.35));
+  const bodySlope = v => cabinWidth / 2;
+  const roofSlope = v => roofWidth / 2;
+  const greenhouseOuterSlope = v => lerp(cabinWidth, roofWidth, (v.y - l.y) / roofHeight) / 2;
+  const greenhouseInnerSlope = v => greenhouseOuterSlope(v) - columnNudge.x;
 
-  frame.push(...createVolumes(f, a, g, b));
-  frame.push(...createVolumes(g, b, h, c));
-  frame.push(...createVolumes(h, c, i, d));
-  frame.push(...createVolumes(i, d, j, e));
+  frame.push(...createVolumes(mirrorTF, mirrorBF, mirrorTR, mirrorBR, v => (cabinWidth / 2) + 0.15, bodySlope, true));
+  frame.push(...createVolumes(undercarriageTF, undercarriageBF, undercarriageTR, undercarriageBR, v => (cabinWidth / 2 * 0.7)));
 
-  frame.push(...createVolumes(k, f, l, g));
-  frame.push(...createVolumes(l, g, m, h));
-  frame.push(...createVolumes(m, h, n, i));
-  frame.push(...createVolumes(n, i, o, j));
+  frame.push(...createVolumes(f, a, g, b, bodySlope));
+  frame.push(...createVolumes(g, b, h, c, bodySlope));
+  frame.push(...createVolumes(h, c, i, d, bodySlope));
+  frame.push(...createVolumes(i, d, j, e, bodySlope));
 
-  frame.push(...createVolumes(p, l, p2, l2, v => 0.5, v => 0.5 - columnNudge.x, true));
-  windows.push(...createVolumes(p2, l2, p2, l2, v => 0.5 - columnNudge.x));
+  frame.push(...createVolumes(k, f, l, g, bodySlope));
+  frame.push(...createVolumes(l, g, m, h, bodySlope));
+  frame.push(...createVolumes(m, h, n, i, bodySlope));
+  frame.push(...createVolumes(n, i, o, j, bodySlope));
+
+
+  frame.push(...createVolumes(p, l, p2, l2, greenhouseOuterSlope, greenhouseInnerSlope, true));
+  windows.push(...createVolumes(p2, l2, p2, l2, greenhouseInnerSlope));
 
   if (isConvertible) {
-    frame.push(...createVolumes(p, t, p2, t /*, outerSlope, innerSlope*/));
+    frame.push(...createVolumes(p, t, p2, t, greenhouseOuterSlope));
   } else {
-    frame.push(...createVolumes(q, m, q2, m2, v => 0.5, v => 0.5 - columnNudge.x, true));
-    frame.push(...createVolumes(r, n, r2, n2, v => 0.5, v => 0.5 - columnNudge.x, true));
-    frame.push(...createVolumes(s, o, s2, o2, v => 0.5, v => 0.5 - columnNudge.x, true));
+    frame.push(...createVolumes(q, m, q2, m2, greenhouseOuterSlope, greenhouseInnerSlope, true));
+    frame.push(...createVolumes(r, n, r2, n2, greenhouseOuterSlope, greenhouseInnerSlope, true));
+    frame.push(...createVolumes(s, o, s2, o2, greenhouseOuterSlope, greenhouseInnerSlope, true));
 
-    windows.push(...createVolumes(p2, l2, q, m, v => 0.5 - columnNudge.x, v => 0.5 - columnNudge.x, true));
-    windows.push(...createVolumes(q2, m2, r, n, v => 0.5 - columnNudge.x, v => 0.5 - columnNudge.x, true));
+    windows.push(...createVolumes(p2, l2, q, m, greenhouseInnerSlope, greenhouseInnerSlope, true));
+    windows.push(...createVolumes(q2, m2, r, n, greenhouseInnerSlope, greenhouseInnerSlope, true));
 
     if (hasPillarD) {
-      frame.push(...createVolumes(t, p, w, s /*, outerSlope, innerSlope*/));
-      windows.push(...createVolumes(s, o, s, o, v => 0.5 - columnNudge.x));
-      windows.push(...createVolumes(r2, n2, s2, o2, v => 0.5 - columnNudge.x, v => 0.5 - columnNudge.x, true));
+      frame.push(...createVolumes(t, p, w, s, roofSlope));
+      windows.push(...createVolumes(s, o, s, o, greenhouseInnerSlope));
+      windows.push(...createVolumes(r2, n2, s2, o2, greenhouseInnerSlope, greenhouseInnerSlope, true));
     } else {
-      frame.push(...createVolumes(t, p, v, r /*, outerSlope, innerSlope*/));
-      windows.push(...createVolumes(r, n, r, n, v => 0.5 - columnNudge.x));
+      frame.push(...createVolumes(t, p, v, r, roofSlope));
+      windows.push(...createVolumes(r, n, r, n, greenhouseInnerSlope));
     }
   }
 
   const fenders = [];
-  fenders.push(...createVolumes(frontFenderTF, frontFenderBF, frontFenderTR, frontFenderBR, v => 0.51));
-  fenders.push(...createVolumes(rearFenderTF, rearFenderBF, rearFenderTR, rearFenderBR, v => 0.51));
-  const frontLights = createVolumes(frontLightTF, frontLightBF, frontLightTR, frontLightBR, v => 0.35, v => 0.51, true);
-  const rearLights = createVolumes(rearLightTF, rearLightBF, rearLightTR, rearLightBR, v => 0.35, v => 0.51, true);
+  fenders.push(...createVolumes(frontFenderTF, frontFenderBF, frontFenderTR, frontFenderBR, v => (cabinWidth / 2) + 0.01));
+  fenders.push(...createVolumes(rearFenderTF, rearFenderBF, rearFenderTR, rearFenderBR, v => (cabinWidth / 2) + 0.01));
+  const frontLights = createVolumes(frontLightTF, frontLightBF, frontLightTR, frontLightBR, v => (cabinWidth / 2 * 0.7), v => (cabinWidth / 2) + 0.01, true);
+  const rearLights = createVolumes(rearLightTF, rearLightBF, rearLightTR, rearLightBR, v => (cabinWidth / 2 * 0.7), v => (cabinWidth / 2) + 0.01, true);
   const plates = [];
   plates.push(...createVolumes(frontPlateTF, frontPlateBF, frontPlateTF, frontPlateBF, v => 0.1));
   plates.push(...createVolumes(rearPlateTF, rearPlateBF, rearPlateTF, rearPlateBF, v => 0.1));
@@ -270,10 +276,10 @@ const generate = () => {
   const rearLeftWheel = frontLeftWheel.clone();
   const rearRightWheel = frontLeftWheel.clone();
 
-  frontLeftWheel.position.x = 0.45;
-  rearLeftWheel.position.x = 0.45;
-  frontRightWheel.position.x = -0.45;
-  rearRightWheel.position.x = -0.45;
+  frontLeftWheel.position.x = (cabinWidth / 2 - 0.05);
+  rearLeftWheel.position.x = (cabinWidth / 2 - 0.05);
+  frontRightWheel.position.x = -(cabinWidth / 2 - 0.05);
+  rearRightWheel.position.x = -(cabinWidth / 2 - 0.05);
 
   frontLeftWheel.position.z = frontWheelPos.x;
   frontRightWheel.position.z = frontWheelPos.x;
