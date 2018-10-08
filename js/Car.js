@@ -1,3 +1,5 @@
+"use strict";
+
 class Car {
   constructor() {
     this.lastPos = new THREE.Vector2();

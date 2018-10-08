@@ -1,10 +1,15 @@
 "use strict";
 
+/*
+
+Screen is responsible for initializing the three.js renderer, scene, cameras,
+as well as establishing an animation loop and handling window resizing events.
+
+*/
+
 class Screen {
   constructor(animate = true) {
     this.renderListeners = [];
-    this.keysHit = new Set();
-    this.keysDown = new Set();
     this.element = document.createElement("div");
     document.body.appendChild(this.element);
     this.scene = new THREE.Scene();
@@ -21,8 +26,6 @@ class Screen {
     this.onWindowResize();
     this.element.appendChild(this.renderer.domElement);
     this.renderer.domElement.id = "renderer";
-    document.addEventListener("keydown", this.onKeyDown.bind(this));
-    document.addEventListener("keyup", this.onKeyUp.bind(this));
     if (animate) this.animate();
     window.renderer = this.renderer;
     this.camera = this.driverCamera;
@@ -52,8 +55,6 @@ class Screen {
     }
     this.render();
 
-    this.keysHit.clear();
-
     const frameTime = Date.now() - this.startFrameTime;
     const frameDuration = frameTime - this.lastFrameTime;
     this.frameRate = 1000 / frameDuration;
@@ -64,27 +65,6 @@ class Screen {
     if (this.camera != null) {
       this.renderer.render(this.scene, this.camera);
     }
-  }
-
-  onKeyDown(event) {
-    const code = event.code;
-    // console.log(code);
-    if (!this.isKeyDown(code)) {
-      this.keysHit.add(code);
-    }
-    this.keysDown.add(code);
-  }
-
-  onKeyUp(event) {
-    this.keysDown.delete(event.code);
-  }
-
-  isKeyDown(code) {
-    return this.keysDown.has(code);
-  }
-
-  isKeyHit(code) {
-    return this.keysHit.has(code);
   }
 
   addRenderListener(func) {

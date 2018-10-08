@@ -15,6 +15,14 @@ class Level {
     this.finish(meshes, transparentMeshes);
   }
 
+  dispose() {
+    if (this.world.parent != null) {
+      this.world.parent.remove(this.world);
+    }
+    this.world.children.forEach(child => child.geometry.dispose());
+    this.world = null;
+  }
+
   build(meshes, transparentMeshes) {}
 
   drawRoadLine(roadPath, shapePath, xPos, width, style, start, end) {

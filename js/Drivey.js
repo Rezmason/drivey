@@ -1,5 +1,22 @@
 "use strict";
 
+/*
+
+  DRIVEY: a driving demo written in ECMAScript.
+
+  Original project Copyright © 2007 Mark Pursey.
+  ECMAScript port by rezmason, 2018.
+
+  Free to use and modify for non-profit purposes only.
+  A GPLv3 license is being actively considered.
+
+  This code is provided AS IS. You are encouraged to make (and contribute)
+  modifications, if you're feeling inspired.
+
+  Subscribe to the repo at https://github.com/Rezmason/drivey to learn of any major changes.
+
+*/
+
 class Drivey {
   constructor() {
     this.levelsByName = new Map([
@@ -13,6 +30,7 @@ class Drivey {
       ["spectre", Spectre],
       ["beach", CliffsideBeach]
     ]);
+    this.input = new Input();
     this.screen = new Screen();
     this.buttons = new Buttons();
     this.buttons.addListener(this.onButtonClick.bind(this));
@@ -22,65 +40,82 @@ class Drivey {
   }
 
   init() {
-    this.laneSpacing = 4; // ???
+    this.laneSpacing = 4;
     this.laneOffset = -2.5;
+    this.defaultTilt = Math.PI * (0.5 - 0.0625);
 
     this.showDashboard = true;
     this.rearView = false;
     this.autoSteer = true;
 
+    // Used to determine time delta between frames
     this.lastTime = NaN;
     this.lastDelta = 0;
-    this.defaultTilt = Math.PI * (0.5 - 0.0625);
 
-    this.dashboard = new Dashboard();
-    this.sky = this.makeCylinderSky(); // makeSphereSky()
+    /*
+      The organization of the scene is as follows:
 
-    this.driver = new THREE.Group();
-    this.driver.name = "Ace"; // Everyone, this is my buddy, Ace.
-    this.screen.driverCamera.rotation.x = this.defaultTilt;
-    this.screen.driverCamera.position.z = 1;
-    this.driver.add(this.screen.driverCamera);
-    this.screen.overheadCamera.position.set(0, 0, 20);
-    this.driver.add(this.screen.overheadCamera);
+      scene
+        <worldCamera>
+        myCarExterior
+          sky
+          myCarInterior
+            myCarMesh
+            driver
+              <driverCamera>
+                dashboard
+              <overheadCamera>
+        world (level contents)
+        [otherCarExteriors]
+    */
 
     this.myCar = new Car();
-    this.myCarExterior = new THREE.Group();
     this.myCarMesh = CarMeshMaker.generate();
-    this.screen.scene.add(this.myCarExterior);
-
     this.otherCars = [];
     this.otherCarExteriors = [];
     this.numOtherCars = 0;
 
-    this.sky = this.makeCylinderSky(); // makeSphereSky()
-    this.myCarExterior.add(this.sky);
+    this.myCarExterior = new THREE.Group();
+    this.screen.scene.add(this.myCarExterior);
 
     this.myCarInterior = new THREE.Group();
     this.myCarExterior.add(this.myCarInterior);
-    // Hop in, Ace
+
+    this.sky = this.makeSky();
+    this.myCarExterior.add(this.sky);
+
+    this.driver = new THREE.Group();
+    this.driver.name = "Ace";
     this.myCarInterior.add(this.driver);
+
+    this.screen.driverCamera.rotation.x = this.defaultTilt;
+    this.screen.driverCamera.position.z = 1;
+    this.driver.add(this.screen.driverCamera);
+
+    this.screen.overheadCamera.position.set(0, 0, 20);
+    this.driver.add(this.screen.overheadCamera);
 
     this.dashboard = new Dashboard();
     this.dashboard.object.scale.set(0.0018, 0.0018, 0.001);
     this.screen.driverCamera.add(this.dashboard.object);
 
+    // Initial level is Industrial Zone
     this.setLevel("industrial");
   }
 
   setLevel(levelName) {
     if (this.level != null) {
-      this.screen.scene.remove(this.level.world);
-      // TODO: properly dispose of level
+      this.level.dispose();
     }
 
     this.level = new (this.levelsByName.get(levelName) || DeepDarkNight)();
-    this.autoSteerApproximation = this.level.roadPath.approximate(10000);
+    this.autoSteerApproximation = this.level.roadPath.approximate(10000); // Used by car steering logic
 
-    const geometry = this.sky.geometry;
-    const positions = geometry.getAttribute("position");
+    // Retint the sky
+    const skyGeometry = this.sky.geometry;
+    const positions = skyGeometry.getAttribute("position");
     const numVertices = positions.count;
-    const monochromeAttribute = geometry.getAttribute("monochromeValue");
+    const monochromeAttribute = skyGeometry.getAttribute("monochromeValue");
     const monochromeValues = monochromeAttribute.array;
     for (let i = 0; i < numVertices; i++) {
       const y = positions.array[i * 3 + 0];
@@ -88,13 +123,19 @@ class Drivey {
       monochromeValues[i * 2 + 1] = 1;
     }
     monochromeAttribute.needsUpdate = true;
+
+    // Retint the background, UI and materials
     this.updateBackgroundColor();
     this.buttons.setTint(this.level.tint);
-    this.screen.scene.add(this.level.world);
     silhouette.uniforms.tint = { value: this.level.tint };
+    transparent.uniforms.tint = { value: this.level.tint };
+
+    // Build the level scene graph
+    this.screen.scene.add(this.level.world);
     this.placeCar(this.myCar, this.level.roadPath, 0, false, this.autoSteer);
     this.setNumOtherCars(this.numOtherCars);
 
+    // The height of the world camera depends on the size of the level
     this.screen.worldCamera.position.set(0, 0, this.level.worldRadius);
   }
 
@@ -108,7 +149,23 @@ class Drivey {
     this.screen.backgroundColor = backgroundColor;
   }
 
-  makeCylinderSky() {
+  makeSky() {
+    /*
+
+    The sky is half a cylindrical shell with a gradient
+    based on the y position of its vertices
+
+        :::::::---------------::        skyHigh
+      :::     :::               ::        .
+     ::         ::               ::       .
+    ::           ::               ::      .
+    ::           ::_______________::    skyLow
+
+    It needs to be wide enough to reach the edges
+    of the driver camera frustum most of the time
+
+    */
+
     const geometry = new THREE.CylinderBufferGeometry(1, 1, -100, 100, 1, true, 0, Math.PI);
     shadeGeometry(geometry, 0);
     const mesh = new THREE.Mesh(geometry, silhouette);
@@ -121,6 +178,7 @@ class Drivey {
   placeCar(car, roadPath, along, oppositeDirection = false, go = false) {
     car.reset();
 
+    // Cars on the opposite side of the road get some of their initial values inverted
     const direction = oppositeDirection ? -1 : 1;
     car.roadDir = direction;
 
@@ -190,6 +248,7 @@ class Drivey {
             this.laneOffset = -Math.abs(this.laneOffset);
             break;
         }
+        this.dashboard.driversSide = this.laneOffset < 0 ? 1 : -1;
         break;
       case "music":
         window.open("https://open.spotify.com/user/rezmason/playlist/4ukrs3cTKjTbLoFcxqssXi?si=0y3WoBw1TMyUzK8F9WMbLw", "_blank");
@@ -202,60 +261,53 @@ class Drivey {
 
   update() {
     this.buttons.update();
+    this.dashboard.update();
 
+    // The direction the driver is looking - forwards, or backwards
     this.driver.rotation.z = lerp(this.driver.rotation.z, this.rearView ? Math.PI : 0, 0.2);
     this.sky.rotation.y = this.driver.rotation.z;
 
+    // The dashboard only appears if the driver is facing forward and the camera is the driver camera
     if (this.showDashboard && !this.rearView && this.screen.camera == this.screen.driverCamera) {
       if (this.dashboard.object.parent == null) this.screen.driverCamera.add(this.dashboard.object);
     } else {
       if (this.dashboard.object.parent != null) this.screen.driverCamera.remove(this.dashboard.object);
     }
 
+    // Only show my car if the camera is not the driver camera
     if (this.screen.camera == this.screen.driverCamera) {
       if (this.myCarMesh.parent != null) this.myCarExterior.remove(this.myCarMesh);
     } else {
       if (this.myCarMesh.parent == null) this.myCarExterior.add(this.myCarMesh);
     }
-    this.dashboard.driversSide = this.laneOffset < 0 ? 1 : -1;
 
-    // now let's get the time delta
+    // now let's get the time delta here
     const now = Date.now();
-    let delta = Math.min(0.1, isNaN(this.lastTime) ? 0 : (now - this.lastTime) / 1000); // maximum frame delta is 0.1 seconds
+    let delta = Math.min(0.1, isNaN(this.lastTime) ? 0 : (now - this.lastTime) / 1000); // maximum delta is 0.1 seconds
     delta = lerp(this.lastDelta, delta, 0.5); // soften it to deal with coarse timing issues
     this.lastTime = now;
     this.lastDelta = delta;
 
     const simSpeed =
-      this.screen.isKeyDown("ShiftLeft") || this.screen.isKeyDown("ShiftRight")
+      this.input.isKeyDown("ShiftLeft") || this.input.isKeyDown("ShiftRight")
         ? 0.125
-        : this.screen.isKeyDown("ControlLeft") || this.screen.isKeyDown("ControlRight")
+        : this.input.isKeyDown("ControlLeft") || this.input.isKeyDown("ControlRight")
           ? 4
           : 1;
 
-    this.drive(this.myCar, delta, simSpeed, true);
-    this.myCarExterior.position.x = this.myCar.pos.x;
-    this.myCarExterior.position.y = this.myCar.pos.y;
-    this.myCarExterior.rotation.z = this.myCar.angle - Math.PI * 0.5;
-    this.myCarInterior.rotation.x = this.myCar.pitch * Math.PI;
-
-    this.driver.rotation.y = this.myCar.tilt * Math.PI;
-    this.dashboard.object.rotation.z = this.driver.rotation.y;
-
+    // Drive all the cars and update their positions/rotations
     for (let i = 0; i < this.numOtherCars; i++) {
-      const car = this.otherCars[i];
-      const otherCarExterior = this.otherCarExteriors[i];
-      this.drive(car, delta, simSpeed);
-      otherCarExterior.position.x = car.pos.x;
-      otherCarExterior.position.y = car.pos.y;
-      otherCarExterior.rotation.z = car.angle - Math.PI * 0.5;
+      this.drive(this.otherCars[i], this.otherCarExteriors[i], delta, simSpeed);
     }
+    this.drive(this.myCar, this.myCarExterior, delta, simSpeed, true);
+    this.myCarInterior.rotation.x = this.myCar.pitch * Math.PI;
+    this.driver.rotation.y = this.myCar.tilt * Math.PI;
 
+    // Update the dashboard
+    this.dashboard.object.rotation.z = this.driver.rotation.y;
     this.dashboard.wheelRotation = lerp(this.dashboard.wheelRotation, Math.PI + this.myCar.steerPos * 50, 0.3);
-
     const speed1 = lerp(Math.PI * (1 + 0.8), Math.PI * (1 - 0.8), Math.min(this.myCar.vel.length() * 0.009, 1));
     this.dashboard.needle1Rotation = lerp(this.dashboard.needle1Rotation, speed1, 0.05);
-
     const speed2 = lerp(Math.PI * (1 + 0.8), Math.PI * (1 - 0.8), Math.min(this.screen.frameRate / 80, 1));
     this.dashboard.needle2Rotation = lerp(this.dashboard.needle2Rotation, speed2, 0.005);
   }
@@ -263,6 +315,7 @@ class Drivey {
   setNumOtherCars(num) {
     this.numOtherCars = num;
 
+    // Other cars are procedurally generated as needed
     while (this.otherCars.length < this.numOtherCars) {
       this.otherCars.push(new Car());
       const otherCarExterior = CarMeshMaker.generate();
@@ -283,20 +336,21 @@ class Drivey {
     }
   }
 
-  drive(car, delta, simSpeed, interactive) {
+  drive(car, object, delta, simSpeed, interactive) {
     let acc = 0;
     let manualSteerAmount = 0;
 
+    // Respond to user input if this car is user controlled
     if (interactive) {
-      if (this.screen.isKeyDown("ArrowUp")) acc += 1;
-      if (this.screen.isKeyDown("ArrowDown")) acc -= 2;
+      if (this.input.isKeyDown("ArrowUp")) acc += 1;
+      if (this.input.isKeyDown("ArrowDown")) acc -= 2;
 
-      if (this.screen.isKeyDown("ArrowLeft")) {
+      if (this.input.isKeyDown("ArrowLeft")) {
         if (this.autoSteer) car.roadPos += 3 * delta * simSpeed;
         else manualSteerAmount += 1;
       }
 
-      if (this.screen.isKeyDown("ArrowRight")) {
+      if (this.input.isKeyDown("ArrowRight")) {
         if (this.autoSteer) car.roadPos += -3 * delta * simSpeed;
         else manualSteerAmount -= 1;
       }
@@ -307,7 +361,7 @@ class Drivey {
       else if (car.roadPos < -0.1) car.roadPos += delta * simSpeed;
     }
 
-    car.brake = interactive && this.screen.isKeyDown("Space") ? 1 : 0;
+    car.brake = interactive && this.input.isKeyDown("Space") ? 1 : 0;
     car.accelerate = 0;
 
     if (this.autoSteer || !interactive) {
@@ -321,5 +375,9 @@ class Drivey {
 
     car.accelerate += acc;
     car.advance(delta * simSpeed);
+
+    object.position.x = car.pos.x;
+    object.position.y = car.pos.y;
+    object.rotation.z = car.angle - Math.PI * 0.5;
   }
 }

@@ -1,3 +1,5 @@
+"use strict";
+
 class Buttons {
   constructor() {
     this.listeners = [];
@@ -8,38 +10,45 @@ class Buttons {
     document.body.appendChild(this.buttonsContainer);
     this.buttonsContainer.appendChild(this.element);
 
-    this.addButton("cruise", value => {
+    this.addButton("cruise", 3, [0, 1, 2, 3], value => {
       const numLights = parseInt(value);
       return `auto<br>drive<br><br>${
         Array(3).fill().map((_, index) => {
           return `<span class="light ${numLights > index ? "on" : "off"}"></span>`;
         }).join(" ")
       }`;
-    }, 3, [0, 1, 2, 3]);
-    this.addButton("dashboard", value => {
+    });
+
+    this.addButton("dashboard", true, [true, false], value => {
       return `show<br>dash<br><br><span class="light ${value === "true" ? "on" : "off"}"></span>`;
-    }, true, [true, false]);
-    this.addButton("npcCars", value => {
+    });
+
+    this.addButton("npcCars", 0, [0, 8, 16, 24], value => {
       const numLights = parseInt(value) / 8;
       return `other<br>cars<br><br>${
         Array(3).fill().map((_, index) => {
           return `<span class="light ${numLights > index ? "on" : "off"}"></span>`;
         }).join(" ")
       }`;
-    }, 0, [0, 8, 16, 24]);
-    this.addButton("camera", value => {
+    });
+
+    this.addButton("camera", "driver", ["driver", "overhead", "world"], value => {
       return `view<br>from<br><br><span class="indicator">${value}</span>`;
-    }, "driver", ["driver", "overhead", "world"]);
-    this.addButton("rearView", value => {
+    });
+
+    this.addButton("rearView", false, [true, false], value => {
       return `rear<br>view<br><br><span class="light ${value === "true" ? "on" : "off"}"></span>`;
-    }, false, [true, false]);
-    this.addButton("drivingSide", value => {
+    });
+
+    this.addButton("drivingSide", "right", ["left", "right"], value => {
       return `drive<br>on<br><br><span class="indicator">${value}</span>`;
-    }, "right", ["left", "right"]);
-    this.addButton("music", value => `mix<br>tape<br><br><span class="indicator">play</span><br>`, "", [""]);
-    this.addButton("level", value => {
+    });
+
+    this.addButton("music", "", [""], value => `mix<br>tape<br><br><span class="indicator">play</span><br>`);
+
+    this.addButton("level", "industrial", ["night", "tunnel", "city", "industrial", "warp", "spectre", "beach"], value => {
       return `current<br>level<br><br><span class="indicator">${value}</span>`;
-    }, "industrial", ["night", "tunnel", "city", "industrial", "warp", "spectre", "beach"]);
+    });
 
     const stylesheet = Array.from(document.styleSheets).find(sheet => sheet.title === "main");
     this.bodyRule = Array.from(stylesheet.cssRules).find(rule => rule.selectorText === "body, colors");
@@ -66,19 +75,19 @@ class Buttons {
     }
   }
 
-  addButton(id, label, defaultValue, allValues) {
+  addButton(id, defaultValue, allValues, labelMaker) {
     allValues = allValues.map(value => value.toString());
     let value = defaultValue.toString();
     let index = allValues.indexOf(value);
     let button = document.createElement("button");
     button.name = id;
     button.type = "button";
-    button.innerHTML = label(value);
+    button.innerHTML = labelMaker(value);
     this.element.appendChild(button);
     button.addEventListener("click", () => {
       index = (index + 1) % allValues.length;
       value = allValues[index];
-      button.innerHTML = label(value);
+      button.innerHTML = labelMaker(value);
       this.dispatch(id, value);
     });
   }
