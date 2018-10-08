@@ -1,7 +1,6 @@
 "use strict";
 
 class Drivey {
-
   constructor() {
     this.levelsByName = new Map([
       ["empty", Level],
@@ -12,8 +11,8 @@ class Drivey {
       ["industrial", IndustrialZone],
       ["warp", WarpGate],
       ["spectre", Spectre],
-      ["beach", CliffsideBeach],
-      ]);
+      ["beach", CliffsideBeach]
+    ]);
     this.screen = new Screen();
     this.buttons = new Buttons();
     this.buttons.addListener(this.onButtonClick.bind(this));
@@ -23,7 +22,6 @@ class Drivey {
   }
 
   init() {
-
     this.laneSpacing = 4; // ???
     this.laneOffset = -2.5;
 
@@ -80,7 +78,7 @@ class Drivey {
     this.autoSteerApproximation = this.level.roadPath.approximate(10000);
 
     const geometry = this.sky.geometry;
-    const positions = geometry.getAttribute('position');
+    const positions = geometry.getAttribute("position");
     const numVertices = positions.count;
     const monochromeAttribute = geometry.getAttribute("monochromeValue");
     const monochromeValues = monochromeAttribute.array;
@@ -93,7 +91,7 @@ class Drivey {
     this.updateBackgroundColor();
     this.buttons.setTint(this.level.tint);
     this.screen.scene.add(this.level.world);
-    silhouette.uniforms.tint = { value : this.level.tint};
+    silhouette.uniforms.tint = { value: this.level.tint };
     this.placeCar(this.myCar, this.level.roadPath, 0, false, this.autoSteer);
     this.setNumOtherCars(this.numOtherCars);
 
@@ -111,7 +109,7 @@ class Drivey {
   }
 
   makeCylinderSky() {
-    const geometry = new THREE.CylinderBufferGeometry( 1, 1, -100, 100, 1, true, 0, Math.PI);
+    const geometry = new THREE.CylinderBufferGeometry(1, 1, -100, 100, 1, true, 0, Math.PI);
     shadeGeometry(geometry, 0);
     const mesh = new THREE.Mesh(geometry, silhouette);
     mesh.scale.multiplyScalar(100000);
@@ -142,68 +140,67 @@ class Drivey {
 
   onButtonClick(button, value) {
     switch (button) {
-      case "cruise" :
-      const cruise = parseInt(value);
-      this.autoSteer = cruise !== 0;
-      switch (cruise) {
-        case 0:
-        this.myCar.cruiseSpeed = 0;
+      case "cruise":
+        const cruise = parseInt(value);
+        this.autoSteer = cruise !== 0;
+        switch (cruise) {
+          case 0:
+            this.myCar.cruiseSpeed = 0;
+            break;
+          case 1:
+            this.myCar.cruiseSpeed = this.myCar.defaultCruiseSpeed * 0.1;
+            break;
+          case 2:
+            this.myCar.cruiseSpeed = this.myCar.defaultCruiseSpeed * 0.5;
+            break;
+          case 3:
+            this.myCar.cruiseSpeed = this.myCar.defaultCruiseSpeed * 1.0;
+            break;
+        }
         break;
-        case 1:
-        this.myCar.cruiseSpeed = this.myCar.defaultCruiseSpeed * 0.1;
+      case "dashboard":
+        this.showDashboard = value === "true";
         break;
-        case 2:
-        this.myCar.cruiseSpeed = this.myCar.defaultCruiseSpeed * 0.5;
+      case "npcCars":
+        this.setNumOtherCars(parseInt(value));
         break;
-        case 3:
-        this.myCar.cruiseSpeed = this.myCar.defaultCruiseSpeed * 1.0;
+      case "camera":
+        switch (value) {
+          case "driver":
+            this.screen.camera = this.screen.driverCamera;
+            break;
+          case "overhead":
+            this.screen.camera = this.screen.overheadCamera;
+            break;
+          case "world":
+            this.screen.camera = this.screen.worldCamera;
+            break;
+        }
+        this.updateBackgroundColor();
         break;
-      }
-      break;
-      case "dashboard" :
-      this.showDashboard = value === "true";
-      break;
-      case "npcCars" :
-      this.setNumOtherCars(parseInt(value));
-      break;
-      case "camera" :
-      switch (value) {
-        case "driver" :
-        this.screen.camera = this.screen.driverCamera;
+      case "rearView":
+        this.rearView = value === "true";
         break;
-        case "overhead" :
-        this.screen.camera = this.screen.overheadCamera;
+      case "drivingSide":
+        switch (value) {
+          case "left":
+            this.laneOffset = Math.abs(this.laneOffset);
+            break;
+          case "right":
+            this.laneOffset = -Math.abs(this.laneOffset);
+            break;
+        }
         break;
-        case "world" :
-        this.screen.camera = this.screen.worldCamera;
-        break;
-      }
-      this.updateBackgroundColor();
-      break;
-      case "rearView" :
-      this.rearView = value === "true";
-      break;
-      case "drivingSide" :
-      switch (value) {
-        case "left":
-        this.laneOffset = Math.abs(this.laneOffset);
-        break;
-        case "right":
-        this.laneOffset = -Math.abs(this.laneOffset);
-        break;
-      }
-      break;
       case "music":
-      window.open("https://open.spotify.com/user/rezmason/playlist/4ukrs3cTKjTbLoFcxqssXi?si=0y3WoBw1TMyUzK8F9WMbLw", "_blank");
-      break;
+        window.open("https://open.spotify.com/user/rezmason/playlist/4ukrs3cTKjTbLoFcxqssXi?si=0y3WoBw1TMyUzK8F9WMbLw", "_blank");
+        break;
       case "level":
-      this.setLevel(value);
-      break;
+        this.setLevel(value);
+        break;
     }
   }
 
   update() {
-
     this.buttons.update();
 
     this.driver.rotation.z = lerp(this.driver.rotation.z, this.rearView ? Math.PI : 0, 0.2);
@@ -224,15 +221,17 @@ class Drivey {
 
     // now let's get the time delta
     const now = Date.now();
-    let delta = Math.min(0.1, isNaN(this.lastTime) ? 0 : ((now - this.lastTime)) / 1000); // maximum frame delta is 0.1 seconds
+    let delta = Math.min(0.1, isNaN(this.lastTime) ? 0 : (now - this.lastTime) / 1000); // maximum frame delta is 0.1 seconds
     delta = lerp(this.lastDelta, delta, 0.5); // soften it to deal with coarse timing issues
     this.lastTime = now;
     this.lastDelta = delta;
 
     const simSpeed =
-    (this.screen.isKeyDown('ShiftLeft'  ) || this.screen.isKeyDown('ShiftRight'  )) ? 0.125 :
-    (this.screen.isKeyDown('ControlLeft') || this.screen.isKeyDown('ControlRight')) ? 4 :
-    1;
+      this.screen.isKeyDown("ShiftLeft") || this.screen.isKeyDown("ShiftRight")
+        ? 0.125
+        : this.screen.isKeyDown("ControlLeft") || this.screen.isKeyDown("ControlRight")
+          ? 4
+          : 1;
 
     this.drive(this.myCar, delta, simSpeed, true);
     this.myCarExterior.position.x = this.myCar.pos.x;
@@ -289,15 +288,15 @@ class Drivey {
     let manualSteerAmount = 0;
 
     if (interactive) {
-      if (this.screen.isKeyDown('ArrowUp')) acc += 1;
-      if (this.screen.isKeyDown('ArrowDown')) acc -= 2;
+      if (this.screen.isKeyDown("ArrowUp")) acc += 1;
+      if (this.screen.isKeyDown("ArrowDown")) acc -= 2;
 
-      if (this.screen.isKeyDown('ArrowLeft')) {
+      if (this.screen.isKeyDown("ArrowLeft")) {
         if (this.autoSteer) car.roadPos += 3 * delta * simSpeed;
         else manualSteerAmount += 1;
       }
 
-      if (this.screen.isKeyDown('ArrowRight')) {
+      if (this.screen.isKeyDown("ArrowRight")) {
         if (this.autoSteer) car.roadPos += -3 * delta * simSpeed;
         else manualSteerAmount -= 1;
       }
@@ -308,7 +307,7 @@ class Drivey {
       else if (car.roadPos < -0.1) car.roadPos += delta * simSpeed;
     }
 
-    car.brake = (interactive && this.screen.isKeyDown('Space')) ? 1 : 0;
+    car.brake = interactive && this.screen.isKeyDown("Space") ? 1 : 0;
     car.accelerate = 0;
 
     if (this.autoSteer || !interactive) {

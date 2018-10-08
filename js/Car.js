@@ -1,12 +1,11 @@
 class Car {
-
   constructor() {
     this.lastPos = new THREE.Vector2();
     this.pos = new THREE.Vector2();
     this.vel = new THREE.Vector2();
     this.lastVel = new THREE.Vector2();
 
-    this.defaultCruiseSpeed = 60 * 1000 / 3600; // 50 kph
+    this.defaultCruiseSpeed = (60 * 1000) / 3600; // 50 kph
 
     this.reset();
   }
@@ -44,11 +43,14 @@ class Car {
 
   autoSteer(step, roadPath, approximation, laneSpacing, laneOffset) {
     // get goal position, based on position on road 1 second in the future
-    const dir = (this.vel.length() > 0 ) ? this.vel.clone().normalize() : this.dir();
+    const dir = this.vel.length() > 0 ? this.vel.clone().normalize() : this.dir();
     const lookAhead = 20;
     const futurePos = this.pos.clone().add(dir.clone().multiplyScalar(lookAhead));
     const along = approximation.getNearest(futurePos);
-    const targetDir = roadPath.getPoint(along).sub(this.pos).add(roadPath.getNormal(along).multiplyScalar(laneSpacing * this.roadPos + this.roadDir * laneOffset));
+    const targetDir = roadPath
+      .getPoint(along)
+      .sub(this.pos)
+      .add(roadPath.getNormal(along).multiplyScalar(laneSpacing * this.roadPos + this.roadDir * laneOffset));
 
     // mix it with the slope of the road at that point
     let tangent = roadPath.getTangent(along);
@@ -68,7 +70,6 @@ class Car {
     if (Math.abs(steerTo) > 0.02) steerTo *= 0.02 / Math.abs(steerTo);
     this.steerTo = lerp(this.steerTo, steerTo, Math.min(1, step * 10));
 
-
     // Unrelatedly, step on the gas until the car's speed is at cruising speed
     if (this.vel.length() < this.cruiseSpeed) this.accelerate = 1;
     else this.accelerate = this.cruiseSpeed / this.vel.length();
@@ -79,7 +80,6 @@ class Car {
   }
 
   advance(t) {
-
     if (t <= 0) {
       return;
     }
@@ -87,33 +87,49 @@ class Car {
     let dir = this.dir();
 
     const acc = dir
-    .clone()
-    .multiplyScalar(this.accelerate)
-    .multiplyScalar(10)
-    .add(this.vel
       .clone()
-      .multiplyScalar(-0.1)
-      );
-    const newVel = dir
-    .clone()
-    .multiplyScalar(this.vel
-      .clone()
-      .add(acc
+      .multiplyScalar(this.accelerate)
+      .multiplyScalar(10)
+      .add(this.vel.clone().multiplyScalar(-0.1));
+    const newVel = dir.clone().multiplyScalar(
+      this.vel
         .clone()
-        .multiplyScalar(t)
-        )
-      .dot(dir)
-      );
+        .add(acc.clone().multiplyScalar(t))
+        .dot(dir)
+    );
     if (this.brake >= 0.9) newVel.set(0, 0, 0);
 
-    if (!this.sliding && newVel.clone().sub(this.vel).length() / t > 750) { // maximum acceleration allowable?
+    if (
+      !this.sliding &&
+      newVel
+        .clone()
+        .sub(this.vel)
+        .length() /
+        t >
+        750
+    ) {
+      // maximum acceleration allowable?
       this.sliding = true;
-    } else if (this.sliding && newVel.clone().sub(this.vel).length() / t < 50) {
+    } else if (
+      this.sliding &&
+      newVel
+        .clone()
+        .sub(this.vel)
+        .length() /
+        t <
+        50
+    ) {
       this.sliding = false;
     }
 
     if (this.sliding) {
-      const friction = newVel.clone().sub(this.vel).clone().normalize().clone().multiplyScalar(20);
+      const friction = newVel
+        .clone()
+        .sub(this.vel)
+        .clone()
+        .normalize()
+        .clone()
+        .multiplyScalar(20);
       this.vel = this.vel.clone().add(friction.clone().multiplyScalar(t));
     }
 
@@ -125,9 +141,9 @@ class Car {
     this.angle += this.spin * t;
     this.pos = this.pos.clone().add(this.vel.clone().multiplyScalar(t));
     const velDiff = this.vel.clone().sub(this.lastVel);
-    this.tiltV  = this.tiltV  + (this.tiltV  * -0.2 + velDiff.clone().dot(rotateY(dir, Math.PI * -0.5)) * 0.001 / t - this.tilt ) * t * 20;
-    this.tilt +=  this.tiltV  * t;
-    this.pitchV = this.pitchV + (this.pitchV * -0.2 + velDiff.clone().dot(                         dir) * 0.001 / t - this.pitch) * t * 20;
+    this.tiltV = this.tiltV + (this.tiltV * -0.2 + (velDiff.clone().dot(rotateY(dir, Math.PI * -0.5)) * 0.001) / t - this.tilt) * t * 20;
+    this.tilt += this.tiltV * t;
+    this.pitchV = this.pitchV + (this.pitchV * -0.2 + (velDiff.clone().dot(dir) * 0.001) / t - this.pitch) * t * 20;
     this.pitch += this.pitchV * t;
 
     this.steerPos = this.steerTo;

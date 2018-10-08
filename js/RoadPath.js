@@ -41,7 +41,7 @@ class RoadPath {
   get length() {
     return this.curve.getLength();
   }
-};
+}
 
 class Approximation {
   constructor(roadPath, resolution) {

@@ -1,7 +1,6 @@
 "use strict";
 
 class Screen {
-
   constructor(animate = true) {
     this.renderListeners = [];
     this.keysHit = new Set();
@@ -16,7 +15,7 @@ class Screen {
     this.scene.add(this.overheadCamera);
     this.worldCamera = new THREE.PerspectiveCamera(90, 1, 0.001, 100000);
     this.scene.add(this.worldCamera);
-    this.renderer = new THREE.WebGLRenderer({ antialias : true});
+    this.renderer = new THREE.WebGLRenderer({ antialias: true });
     this.renderer.setPixelRatio(window.devicePixelRatio);
     window.addEventListener("resize", this.onWindowResize.bind(this), false);
     this.onWindowResize();
@@ -52,7 +51,6 @@ class Screen {
       listener();
     }
     this.render();
-
 
     this.keysHit.clear();
 
@@ -104,11 +102,11 @@ class Screen {
   }
 
   get backgroundColor() {
-      return this.scene.background;
+    return this.scene.background;
   }
 
   set backgroundColor(color) {
-      this.scene.background = color;
-      return color;
+    this.scene.background = color;
+    return color;
   }
 }

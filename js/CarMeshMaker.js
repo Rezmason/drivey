@@ -1,5 +1,5 @@
 const createVolumes = (topFront, bottomFront, topRear, bottomRear, outerSlope, innerSlope, reflect = false) => {
-  if (outerSlope == null) throw new Error('Unspecified outer slope');
+  if (outerSlope == null) throw new Error("Unspecified outer slope");
   if (innerSlope == null) innerSlope = v => -outerSlope(v);
   const boxGeometry = new THREE.BoxGeometry();
   boxGeometry.vertices[0].set(outerSlope(topFront), topFront.y, topFront.x);
@@ -15,16 +15,12 @@ const createVolumes = (topFront, bottomFront, topRear, bottomRear, outerSlope, i
   boxGeometry.dispose();
   const geometries = [geometry];
   if (reflect) {
-    geometries.push(
-      createVolumes(topFront, bottomFront, topRear, bottomRear, v => -innerSlope(v), v => -outerSlope(v), false)
-      .pop()
-    );
+    geometries.push(createVolumes(topFront, bottomFront, topRear, bottomRear, v => -innerSlope(v), v => -outerSlope(v), false).pop());
   }
   return geometries;
-}
+};
 
 const generate = () => {
-
   const carColor = 0.075;
   const rand = (mag, offset) => offset + mag * Math.random();
 
@@ -40,7 +36,7 @@ const generate = () => {
     rand(0.1, wheelRadius * 2 + 0.1), // front windshield
     rand(isTwoDoor ? 0.2 : 0.1, 0.7), // front seats
     isTwoDoor ? 0 : rand(0.1, 0.5), // rear seats
-    rand((hasPillarD && !isTwoDoor) ? 0.2 : 0.1, wheelRadius * 2 + 0.1) // rear windshield
+    rand(hasPillarD && !isTwoDoor ? 0.2 : 0.1, wheelRadius * 2 + 0.1) // rear windshield
   ];
   const cabinWidth = rand(0.4, 0.8);
   const roofWidth = rand(0.3, 0.7) * cabinWidth;
@@ -207,7 +203,6 @@ const generate = () => {
   frame.push(...createVolumes(m, h, n, i, bodySlope));
   frame.push(...createVolumes(n, i, o, j, bodySlope));
 
-
   frame.push(...createVolumes(p, l, p2, l2, greenhouseOuterSlope, greenhouseInnerSlope, true));
   windows.push(...createVolumes(p2, l2, p2, l2, greenhouseInnerSlope));
 
@@ -232,10 +227,10 @@ const generate = () => {
   }
 
   const fenders = [];
-  fenders.push(...createVolumes(frontFenderTF, frontFenderBF, frontFenderTR, frontFenderBR, v => (cabinWidth / 2) + 0.01));
-  fenders.push(...createVolumes(rearFenderTF, rearFenderBF, rearFenderTR, rearFenderBR, v => (cabinWidth / 2) + 0.01));
-  const frontLights = createVolumes(frontLightTF, frontLightBF, frontLightTR, frontLightBR, v => (cabinWidth / 2 * 0.7), v => (cabinWidth / 2) + 0.01, true);
-  const rearLights = createVolumes(rearLightTF, rearLightBF, rearLightTR, rearLightBR, v => (cabinWidth / 2 * 0.7), v => (cabinWidth / 2) + 0.01, true);
+  fenders.push(...createVolumes(frontFenderTF, frontFenderBF, frontFenderTR, frontFenderBR, v => cabinWidth / 2 + 0.01));
+  fenders.push(...createVolumes(rearFenderTF, rearFenderBF, rearFenderTR, rearFenderBR, v => cabinWidth / 2 + 0.01));
+  const frontLights = createVolumes(frontLightTF, frontLightBF, frontLightTR, frontLightBR, v => (cabinWidth / 2) * 0.7, v => cabinWidth / 2 + 0.01, true);
+  const rearLights = createVolumes(rearLightTF, rearLightBF, rearLightTR, rearLightBR, v => (cabinWidth / 2) * 0.7, v => cabinWidth / 2 + 0.01, true);
   const plates = [];
   plates.push(...createVolumes(frontPlateTF, frontPlateBF, frontPlateTF, frontPlateBF, v => 0.1));
   plates.push(...createVolumes(rearPlateTF, rearPlateBF, rearPlateTF, rearPlateBF, v => 0.1));
@@ -276,8 +271,8 @@ const generate = () => {
   const rearLeftWheel = frontLeftWheel.clone();
   const rearRightWheel = frontLeftWheel.clone();
 
-  frontLeftWheel.position.x = (cabinWidth / 2 - 0.05);
-  rearLeftWheel.position.x = (cabinWidth / 2 - 0.05);
+  frontLeftWheel.position.x = cabinWidth / 2 - 0.05;
+  rearLeftWheel.position.x = cabinWidth / 2 - 0.05;
   frontRightWheel.position.x = -(cabinWidth / 2 - 0.05);
   rearRightWheel.position.x = -(cabinWidth / 2 - 0.05);
 

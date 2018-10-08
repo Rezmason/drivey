@@ -67,14 +67,14 @@ class City extends Level {
     meshes.push(makeMesh(tallerBuildings, 120 * mag, 1, this.ground));
 
     const signpostsPath = new THREE.ShapePath();
-    this.drawRoadLine(this.roadPath, signpostsPath,-16, 0.2, RoadLineStyle.DASH(0.2, 400, 0), 0, 1);
-    this.drawRoadLine(this.roadPath, signpostsPath,-12, 0.2, RoadLineStyle.DASH(0.2, 400, 0), 0, 1);
+    this.drawRoadLine(this.roadPath, signpostsPath, -16, 0.2, RoadLineStyle.DASH(0.2, 400, 0), 0, 1);
+    this.drawRoadLine(this.roadPath, signpostsPath, -12, 0.2, RoadLineStyle.DASH(0.2, 400, 0), 0, 1);
     this.drawRoadLine(this.roadPath, signpostsPath, 12, 0.2, RoadLineStyle.DASH(0.2, 300, 0), 0, 1);
     this.drawRoadLine(this.roadPath, signpostsPath, 16, 0.2, RoadLineStyle.DASH(0.2, 300, 0), 0, 1);
     meshes.push(makeMesh(signpostsPath, 10, 0, this.ground));
 
     const signsPath = new THREE.ShapePath();
-    this.drawRoadLine(this.roadPath, signsPath,-14, 6, RoadLineStyle.DASH(0.2, 400, 0), 0, 1);
+    this.drawRoadLine(this.roadPath, signsPath, -14, 6, RoadLineStyle.DASH(0.2, 400, 0), 0, 1);
     this.drawRoadLine(this.roadPath, signsPath, 14, 6, RoadLineStyle.DASH(0.2, 300, 0), 0, 1);
     const signsMesh = makeMesh(signsPath, 4, 0, this.ground);
     signsMesh.position.z = 10;
@@ -83,9 +83,9 @@ class City extends Level {
     const roadLinesPath = new THREE.ShapePath();
     this.drawRoadLine(this.roadPath, roadLinesPath, 0, 0.1, RoadLineStyle.SOLID(10), 0, 1);
     this.drawRoadLine(this.roadPath, roadLinesPath, 0.2, 0.1, RoadLineStyle.SOLID(10), 0, 1);
-    this.drawRoadLine(this.roadPath, roadLinesPath,-6, 0.15, RoadLineStyle.DASH(30, 1, 10), 0, 1);
+    this.drawRoadLine(this.roadPath, roadLinesPath, -6, 0.15, RoadLineStyle.DASH(30, 1, 10), 0, 1);
     this.drawRoadLine(this.roadPath, roadLinesPath, 6, 0.15, RoadLineStyle.DASH(30, 1, 10), 0, 1);
-    this.drawRoadLine(this.roadPath, roadLinesPath,-3, 0.15, RoadLineStyle.DASH(3, 12, 0), 0, 1);
+    this.drawRoadLine(this.roadPath, roadLinesPath, -3, 0.15, RoadLineStyle.DASH(3, 12, 0), 0, 1);
     this.drawRoadLine(this.roadPath, roadLinesPath, 3, 0.15, RoadLineStyle.DASH(3, 12, 0), 0, 1);
     meshes.push(makeMesh(roadLinesPath, 0, 1, roadLineColor));
   }

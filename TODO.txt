@@ -1,11 +1,9 @@
-Spotify playlist embed?
-About box?
-
 Editorial
   Readability pass
-  Run prettier, eslint
   Reshape Drivey class to conform to Jujuscript code
 
+Spotify playlist embed?
+About box?
 
 
 

@@ -1,8 +1,8 @@
 "use strict";
 
-const sign = input => input < 0 ? -1 : 1;
+const sign = input => (input < 0 ? -1 : 1);
 
-const mod = (a, b) => (a % b + b) % b
+const mod = (a, b) => ((a % b) + b) % b;
 
 const getAngle = v2 => Math.atan2(v2.y, v2.x);
 
@@ -36,7 +36,7 @@ const rotateZ = (v3, angle) => {
 }
 
 const silhouette = new THREE.RawShaderMaterial({
-  vertexShader : `
+  vertexShader: `
     uniform vec3 tint;
     attribute vec2 monochromeValue;
     attribute vec3 position;
@@ -52,7 +52,7 @@ const silhouette = new THREE.RawShaderMaterial({
       gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
     }
   `,
-  fragmentShader : `
+  fragmentShader: `
     precision lowp float;
     varying vec4 vColor;
     void main() {
@@ -62,8 +62,8 @@ const silhouette = new THREE.RawShaderMaterial({
 });
 
 const transparent = new THREE.RawShaderMaterial({
-  vertexShader : silhouette.vertexShader,
-  fragmentShader : silhouette.fragmentShader,
+  vertexShader: silhouette.vertexShader,
+  fragmentShader: silhouette.fragmentShader,
   transparent: true
 });
 
@@ -90,14 +90,15 @@ const makeRectanglePath = (x, y, width, height) => {
   ]);
 };
 
-const makePolygonPath = (points) => {
+const makePolygonPath = points => {
   return new THREE.Shape(points);
 };
 
 const expandPath = (source, thickness, divisions) => {
   return new THREE.Path(
-    Array(divisions).fill().map((_, i) =>
-      getExtrudedPointAt(source, i / divisions, thickness / 2))
+    Array(divisions)
+      .fill()
+      .map((_, i) => getExtrudedPointAt(source, i / divisions, thickness / 2))
   );
 };
 
@@ -131,7 +132,7 @@ const makeMesh = (shapePath, depth, curveSegments, value = 0, alpha = 1) => {
 };
 
 const shadeGeometry = (geometry, value, alpha = 1) => {
-  const numVertices = geometry.getAttribute('position').count;
+  const numVertices = geometry.getAttribute("position").count;
   const monochromeValues = [];
   for (let i = 0; i < numVertices; i++) {
     monochromeValues.push(value);
@@ -139,9 +140,9 @@ const shadeGeometry = (geometry, value, alpha = 1) => {
   }
   geometry.addAttribute("monochromeValue", new THREE.Float32BufferAttribute(monochromeValues, 2));
   return geometry;
-}
+};
 
-const flattenMesh = (mesh) => {
+const flattenMesh = mesh => {
   const geom = mesh.geometry;
   mesh.updateMatrix();
   geom.applyMatrix(mesh.matrix);
@@ -151,12 +152,12 @@ const flattenMesh = (mesh) => {
   mesh.updateMatrix();
 };
 
-const mergeMeshes = (meshes) => {
+const mergeMeshes = meshes => {
   const geom = mergeGeometries(meshes.map(mesh => mesh.geometry));
   return new THREE.Mesh(geom, meshes[0].material);
 };
 
-const mergeGeometries = (geometries) => {
+const mergeGeometries = geometries => {
   const numIndexed = geometries.filter(geometry => geometry.index != null).length;
   if (numIndexed > 0 && numIndexed < geometries.length) {
     throw new Error("You can't merge indexed and non-indexed buffer geometries.");
@@ -194,14 +195,14 @@ const diffAngle = (a, b) => {
 
 const lerp = (from, to, amount) => {
   return from * (1 - amount) + to * amount;
-}
+};
 
 const lerpAngle = (from, to, amount) => {
   return from + diffAngle(from, to) * amount;
 };
 
 const mergeShapePaths = (shapePath, other) => {
-  other.subPaths.forEach(path => shapePath.subPaths.push(path.clone()))
+  other.subPaths.forEach(path => shapePath.subPaths.push(path.clone()));
 };
 
 const addPath = (shapePath, path) => {

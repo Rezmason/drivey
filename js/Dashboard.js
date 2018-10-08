@@ -5,19 +5,19 @@ class Dashboard {
     this.object = new THREE.Group();
     const edge1 = 2;
     this.backing = this.addDashboardElement(this.makeDashboardBacking(), edge1, true);
-    this.backing.position.set(-50,-80,-110);
+    this.backing.position.set(-50, -80, -110);
     this.speedometer1 = this.addDashboardElement(this.makeSpeedometer(), 0, true);
-    this.speedometer1.position.set(-25,-35,-105);
+    this.speedometer1.position.set(-25, -35, -105);
     this.needle1 = this.addDashboardElement(this.makeNeedle(), 0, true);
-    this.needle1.position.set(-25,-35,-105);
+    this.needle1.position.set(-25, -35, -105);
     this.needle1.rotation.z = Math.PI * 1.5;
     this.speedometer2 = this.addDashboardElement(this.makeSpeedometer(), 0, true);
-    this.speedometer2.position.set(-70,-35,-105);
+    this.speedometer2.position.set(-70, -35, -105);
     this.needle2 = this.addDashboardElement(this.makeNeedle(), 0, true);
-    this.needle2.position.set(-70,-35,-105);
+    this.needle2.position.set(-70, -35, -105);
     this.needle2.rotation.z = Math.PI * 1.5;
     this.wheel = this.addDashboardElement(this.makeSteeringWheel(), edge1, true);
-    this.wheel.position.set(-50,-55,-100);
+    this.wheel.position.set(-50, -55, -100);
     this.wheel.rotation.z = Math.PI;
   }
 
@@ -42,10 +42,10 @@ class Dashboard {
     }
     this.object.add(element);
     return element;
-  };
+  }
 
   makeDashboardBacking() {
-    const pts = [new THREE.Vector2(-200,-40), new THREE.Vector2(-200, 40), new THREE.Vector2(200, 40), new THREE.Vector2(200,-40)];
+    const pts = [new THREE.Vector2(-200, -40), new THREE.Vector2(-200, 40), new THREE.Vector2(200, 40), new THREE.Vector2(200, -40)];
     const path = makeSplinePath(pts, true);
     const shapePath = new THREE.ShapePath();
     shapePath.subPaths.push(path);
@@ -63,8 +63,15 @@ class Dashboard {
     shapePath.subPaths.push(innerRim);
     const nudge = Math.PI * 0.0075;
     for (let i = 0; i < 10; i++) {
-      const angle = Math.PI * 2 * (i + 0.5) / 10;
-      shapePath.subPaths.push(makePolygonPath([new THREE.Vector2(Math.cos(angle - nudge) * outerRadius, Math.sin(angle - nudge) * outerRadius), new THREE.Vector2(Math.cos(angle - nudge) * dashEnd, Math.sin(angle - nudge) * dashEnd), new THREE.Vector2(Math.cos(angle + nudge) * dashEnd, Math.sin(angle + nudge) * dashEnd), new THREE.Vector2(Math.cos(angle + nudge) * outerRadius, Math.sin(angle + nudge) * outerRadius)]));
+      const angle = (Math.PI * 2 * (i + 0.5)) / 10;
+      shapePath.subPaths.push(
+        makePolygonPath([
+          new THREE.Vector2(Math.cos(angle - nudge) * outerRadius, Math.sin(angle - nudge) * outerRadius),
+          new THREE.Vector2(Math.cos(angle - nudge) * dashEnd, Math.sin(angle - nudge) * dashEnd),
+          new THREE.Vector2(Math.cos(angle + nudge) * dashEnd, Math.sin(angle + nudge) * dashEnd),
+          new THREE.Vector2(Math.cos(angle + nudge) * outerRadius, Math.sin(angle + nudge) * outerRadius)
+        ])
+      );
     }
     return shapePath;
   }
@@ -72,7 +79,14 @@ class Dashboard {
   makeNeedle() {
     const shapePath = new THREE.ShapePath();
     const scale = 40;
-    shapePath.subPaths.push(makePolygonPath([new THREE.Vector2(-0.02 * scale, 0.1 * scale), new THREE.Vector2(-0.005 * scale,-0.4 * scale), new THREE.Vector2(0.005 * scale,-0.4 * scale), new THREE.Vector2(0.02 * scale, 0.1 * scale)]));
+    shapePath.subPaths.push(
+      makePolygonPath([
+        new THREE.Vector2(-0.02 * scale, 0.1 * scale),
+        new THREE.Vector2(-0.005 * scale, -0.4 * scale),
+        new THREE.Vector2(0.005 * scale, -0.4 * scale),
+        new THREE.Vector2(0.02 * scale, 0.1 * scale)
+      ])
+    );
     return shapePath;
   }
 
@@ -83,7 +97,7 @@ class Dashboard {
     const innerRim1Points = [];
     const n = 60;
     for (let i = 0; i < 25; i++) {
-      const theta = (57 - i) * Math.PI * 2 / n;
+      const theta = ((57 - i) * Math.PI * 2) / n;
       const mag = ((i & 1) != 0 ? 0.435 : 0.45) * scale;
       innerRim1Points.push(new THREE.Vector2(Math.cos(theta) * mag, Math.sin(theta) * mag));
     }
@@ -91,7 +105,7 @@ class Dashboard {
     const innerRim1 = makeSplinePath(innerRim1Points, true);
     const innerRim2Points = [];
     for (let i = 0; i < 29; i++) {
-      const theta1 = (29 - i) * 2 * Math.PI / n;
+      const theta1 = ((29 - i) * 2 * Math.PI) / n;
       const mag1 = ((i & 1) != 0 ? 0.435 : 0.45) * scale;
       innerRim2Points.push(new THREE.Vector2(Math.cos(theta1) * mag1, Math.sin(theta1) * mag1));
     }
