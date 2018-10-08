@@ -35,7 +35,7 @@ class City extends Level {
     const shortBuildings = new THREE.ShapePath();
     const tallBuildings = new THREE.ShapePath();
     const tallerBuildings = new THREE.ShapePath();
-    const mag = 0.4;
+    const mag = 0.6;
     const width = 40 * mag;
     const radius = 1800 * mag;
     const approximation = this.roadPath.approximate();
