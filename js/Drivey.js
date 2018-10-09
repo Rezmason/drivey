@@ -2,10 +2,12 @@
 
 /*
 
-  DRIVEY: a driving demo written in ECMAScript.
+  Drivey.js
+
+  This is a 2018 ECMAScript port of the [graphics demo **Drivey** from 2007](http://drivey.com).
 
   Original project Copyright © 2007 Mark Pursey.
-  ECMAScript port by rezmason, 2018.
+  ported by rezmason, 2018.
 
   Free to use and modify for non-profit purposes only.
   A GPLv3 license is being actively considered.
