@@ -32,13 +32,9 @@ class Buttons {
       }`;
     });
 
-    this.addButton("camera", "driver", ["driver", "overhead", "world"], value => `
+    this.addButton("camera", "driver", ["rear","driver", "overhead", "world"], value => `
       <span class='label'>view</span>
       <span class="indicator">${value}</span>`);
-
-    this.addButton("rearView", false, [true, false], value => `
-      <span class='label'>rear</span>
-      <span class="light ${value === "true" ? "on" : "off"}"></span>`);
 
     this.addButton("drivingSide", "right", ["left", "right"], value => `
       <span class='label'>lane</span>
