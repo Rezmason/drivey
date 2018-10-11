@@ -19,9 +19,9 @@ class Buttons {
       }`;
     });
 
-    this.addButton("controls", "touch_screen", ["touch_screen", "arrow_keys", "one_switch", "eye_gaze"], value => {
-      return `controls<br><br><span class="indicator">${value.replace("_", "<br>")}</span>`;
-    });
+    this.addButton("controls", "touch_screen", ["touch_screen", "arrow_keys", "one_switch", "eye_gaze"], value => `
+      <span class='label'>controls</span>
+      <span class="indicator">${value.replace("_", "<br>")}</span>`);
 
     this.addButton("npcCars", 0, [0, 1, 2, 3], value => {
       const numLights = parseInt(value);
