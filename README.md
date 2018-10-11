@@ -4,6 +4,7 @@ This is a 2018 ECMAScript port of the [graphics demo **Drivey** from 2007](http:
 
 ## [Try it online here](https://rezmason.github.io/drivey/)
 #### [Hear the mixtape here](https://open.spotify.com/user/rezmason/playlist/4ukrs3cTKjTbLoFcxqssXi?si=0y3WoBw1TMyUzK8F9WMbLw)
+#### [Download the project here](https://github.com/Rezmason/drivey/archive/master.zip) for offline access: open *index.html* in your browser
 
 ### Purpose
 
@@ -40,7 +41,7 @@ I feel nostalgia for his driving demo, so here we are.
 
 ### History
 
-Back in 2001, JavaScript was a slow, underpowered, interpreted scripting language meant for adding simple behaviors to web pages. Still, it showed enormous potential, and lots of money went into various efforts to make more expressive variations of it. Mark Pursey, Drivey's author, invested his free time and creative energy writing his own variant, which he called JujuScript.
+Back in 2000, JavaScript was a slow, underpowered, interpreted scripting language meant for adding simple behaviors to web pages. Still, it showed enormous potential, and lots of money went into various efforts to make more expressive variations of it. Mark Pursey, Drivey's author, invested his free time and creative energy writing his own variant, which he called JujuScript.
 
 JujuScript is very similar to JavaScript, but adds strong type support and operator overloading. Furthermore, Pursey embedded a graphics API in JujuScript's interpreter that specializes in composing and rendering text and font-like graphics. When he decided in 2004 (I believe) to make a driving simulator, naturally it had a high legibility and visual fidelity. And he had the foresight to share the code for free.
 
