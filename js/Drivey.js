@@ -262,7 +262,6 @@ class Drivey {
   }
 
   update() {
-    this.buttons.update();
     this.dashboard.update();
 
     // The direction the driver is looking - forwards, or backwards

@@ -3,6 +3,7 @@
 class Buttons {
   constructor() {
     this.listeners = [];
+    this.awakeTimer = null;
     this.buttonsContainer = document.createElement("div");
     this.buttonsContainer.id = "buttonsContainer";
     this.element = document.createElement("div");
@@ -53,14 +54,20 @@ class Buttons {
     const stylesheet = Array.from(document.styleSheets).find(sheet => sheet.title === "main");
     this.bodyRule = Array.from(stylesheet.cssRules).find(rule => rule.selectorText === "body, colors");
 
-    this.buttonsContainer.style.opacity = "1";
     window.addEventListener("mousemove", this.onMouse.bind(this), false);
     window.addEventListener("mousedown", this.onMouse.bind(this), false);
     window.addEventListener("mouseup", this.onMouse.bind(this), false);
   }
 
   onMouse() {
-    this.buttonsContainer.style.opacity = "1";
+    this.wakeUp()
+  }
+
+  wakeUp() {
+    if(this.buttonsContainer.className == "awake"){ return; }
+    clearTimeout(this.awakeTimer)
+    this.buttonsContainer.className = "awake"  
+    this.awakeTimer = setTimeout(() => { this.buttonsContainer.className = ""; }, 1000)
   }
 
   addListener(func) {
@@ -97,9 +104,5 @@ class Buttons {
     let litColor = tint.clone().lerp(new THREE.Color(1, 1, 1), 0.25);
     this.bodyRule.style.setProperty("--dashboard-color", `#${dashboardColor.getHex().toString(16).padStart(6, "0")}`);
     this.bodyRule.style.setProperty("--lit-color", `#${litColor.getHex().toString(16).padStart(6, "0")}`);
-  }
-
-  update() {
-    this.buttonsContainer.style.opacity = parseFloat(this.buttonsContainer.style.opacity) * 0.995;
   }
 }

@@ -24,12 +24,21 @@
             canvas#renderer {
                 display: block;
             }
+            
             div#buttonsContainer {
                 position: absolute;
                 top: 1em;
                 width: 100%;
                 text-align: center;
+                opacity: 0;
+                transition: opacity 4000ms;
             }
+
+            div#buttonsContainer.awake {
+                opacity: 1;
+                transition: opacity 250ms;
+            }
+
             div#buttons {
                 vertical-align: middle;
                 display: inline-block;
@@ -43,6 +52,7 @@
                 border-radius: 3em;
                 height: 8em;
             }
+
             div#buttons button {
                 display: inline-block;
                 margin: 0.5em 0.25em;
