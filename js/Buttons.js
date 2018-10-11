@@ -62,7 +62,7 @@ class Buttons {
       </div>`);
 
     this.addButton("level", "industrial", ["night", "tunnel", "city", "industrial", "warp", "spectre", "beach"], value => `
-      <div class='label'>level</div>
+      <div class='label'>level select</div>
       <div class='option'>
         <span class="indicator">${value}</span>
       </div>`);
