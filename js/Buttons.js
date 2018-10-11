@@ -11,46 +11,61 @@ class Buttons {
     this.buttonsContainer.appendChild(this.element);
 
     this.addButton("cruise", 3, [0, 1, 2, 3], value => {
-      const numLights = parseInt(value);
-      return `<span class='label'>autopilot</span>${
-        Array(3).fill().map((_, index) => {
-          return `<span class="light ${numLights > index ? "on" : "off"}"></span>`;
+      const index = parseInt(value);
+      return `<div class='label'>autopilot</div>
+      <div class='option'>${
+        Array(3).fill().map((_, id) => {
+          return `<span class="light ${index > id ? "on" : "off"}"></span>`;
         }).join(" ")
-      }`;
+      }</div>`;
     });
-
-    this.addButton("controls", "touch_screen", ["touch_screen", "arrow_keys", "one_switch", "eye_gaze"], value => `
-      <span class='label'>controls</span>
-      <span class="indicator">${value.replace("_", "<br>")}</span>`);
 
     this.addButton("npcCars", 0, [0, 1, 2, 3], value => {
-      const numLights = parseInt(value);
-      return `<span class='label'>cars</span>${
-        Array(3).fill().map((_, index) => {
-          return `<span class="light ${numLights > index ? "on" : "off"}"></span>`;
+      const index = parseInt(value);
+      return `<div class='label'>cars</div>
+      <div class='option'>${
+        Array(3).fill().map((_, id) => {
+          return `<span class="light ${index > id ? "on" : "off"}"></span>`;
         }).join(" ")
-      }`;
+      }</div>`;
     });
 
-    this.addButton("camera", "driver", ["driver", "rear", "overhead", "world"], value => `
-      <span class='label'>camera</span>
-      <span class="indicator">${value}</span>`);
-
     this.addButton("drivingSide", "right", ["left", "right"], value => `
-      <span class='label'>lane</span>
-      <span class="indicator">${value}</span>`);
+      <div class='label'>lane</div>
+      <div class='option'>
+        <span class="indicator">${value}</span>
+      </div>`);
+
+    this.addButton("camera", "driver", ["driver", "rear", "overhead", "world"], value => `
+      <div class='label'>camera</div>
+      <div class='option'>
+        <span class="indicator">${value}</span>
+      </div>`);
+
+
+    this.addButton("controls", "touch", ["touch", "arrows", "switch", "eyes"], value => `
+      <div class='label'>controls</div>
+      <div class='option'>
+        <span class="indicator">${value.replace("_", "<br>")}</span>
+      </div>`);
 
     this.addButton("quality", "high", ["high", "medium", "low"], value =>  `
-      <span class='label'>quality</span>
-      <span class="indicator">${value}</span>`);
+      <div class='label'>quality</div>
+      <div class='option'>
+        <span class="indicator">${value}</span>
+      </div>`);
 
     this.addButton("music", "", [""], value => `
-      <span class='label'>mixtape</span>
-      <span class="indicator">play</span><br>`);
+      <div class='label'>mixtape</div>
+      <div class='option'>
+        <span class="indicator">play</span>
+      </div>`);
 
     this.addButton("level", "industrial", ["night", "tunnel", "city", "industrial", "warp", "spectre", "beach"], value => `
-      <span class='label'>level</span>
-      <span class="indicator">${value}</span>`);
+      <div class='label'>level</div>
+      <div class='option'>
+        <span class="indicator">${value}</span>
+      </div>`);
 
     const stylesheet = Array.from(document.styleSheets).find(sheet => sheet.title === "main");
     this.bodyRule = Array.from(stylesheet.cssRules).find(rule => rule.selectorText === "body, colors");
