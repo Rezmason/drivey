@@ -1,10 +1,6 @@
 # Drivey.js
 
-This is a 2018 ECMAScript port of the [graphics demo **Drivey** from 2007](http://drivey.com).
-
-## [Try it online here](https://rezmason.github.io/drivey/)
-#### [Hear the mixtape here](https://open.spotify.com/user/rezmason/playlist/4ukrs3cTKjTbLoFcxqssXi?si=0y3WoBw1TMyUzK8F9WMbLw)
-#### [Download the project here](https://github.com/Rezmason/drivey/archive/master.zip) for offline access: open *index.html* in your browser
+This is a 2018 ECMAScript port of the **graphics demo** [Drivey](http://drivey.com), from 2007. You can see it online [here](https://rezmason.github.io/drivey/), or [download it](https://github.com/Rezmason/drivey/archive/master.zip) for offline play.
 
 ### Purpose
 
@@ -12,6 +8,22 @@ Driving down the open road elicits nostalgia in some people. A couple of them ma
 Old driving games triggered nostalgia in [Mark Pursey](https://github.com/MarkPursey), so he made a graphics demo about driving games.
 I feel nostalgia for his driving demo, so here we are.
 
+### Controls
+#### Touch
+You can use any combination of fingers (or the mouse): 
+- `Up-Down`, adjust the driving speed.
+- `Left-right`, turn the steering wheel.
+#### Keyboard
+- `Up Arrow`, gas.
+- `Down Arrow`, brake.
+- `Space Bar`, handbrake.
+- `Left Arrow`, steer left.
+- `Right Arrow`, steer right.
+- `Shift and Control keys`, slow down and speed up the demo.
+#### 1 Switch
+Constantly drives with a slight turn. Click to switch between left turns and right turns.
+#### Eye Gaze
+Constantly drives straight. The car turns left and right if the mouse is on the far left or far right of the window.
 ### Original features
 
 - [x] Stylized 3D Rendering
