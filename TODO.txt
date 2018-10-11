@@ -1,3 +1,4 @@
+Prevent scrolling issue on mobile
 Spotify playlist embed?
 About box?
 
@@ -5,7 +6,6 @@ About box?
 
 
 Much, much later
-  Access keys
   Localization
   Collision
     "theWalls" in jj

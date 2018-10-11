@@ -32,7 +32,13 @@ class Drivey {
       ["spectre", Spectre],
       ["beach", CliffsideBeach]
     ]);
-    this.input = new Input();
+    this.controlSchemes = new Map([
+      ["touch_screen", new TouchInput()],
+      ["arrow_keys", new KeyboardInput()],
+      ["one_switch", new OneSwitchInput()],
+      ["eye_gaze", new EyeGazeInput()],
+    ]);
+    this.controlScheme = this.controlSchemes.get("touch_screen");
     this.screen = new Screen();
     this.buttons = new Buttons();
     this.buttons.addListener(this.onButtonClick.bind(this));
@@ -218,11 +224,14 @@ class Drivey {
             break;
         }
         break;
+      case "controls":
+        this.controlScheme = this.controlSchemes.get(value);
+        break;
       case "dashboard":
         this.showDashboard = value === "true";
         break;
       case "npcCars":
-        this.setNumOtherCars(parseInt(value));
+        this.setNumOtherCars(parseInt(value) * 8);
         break;
       case "camera":
         switch (value) {
@@ -265,6 +274,7 @@ class Drivey {
 
   update() {
     this.dashboard.update();
+    this.controlScheme.update();
 
     // The direction the driver is looking - forwards, or backwards
     this.driver.rotation.z = lerp(this.driver.rotation.z, this.rearView ? Math.PI : 0, 0.2);
@@ -291,12 +301,7 @@ class Drivey {
     this.lastTime = now;
     this.lastDelta = delta;
 
-    const simSpeed =
-      this.input.isKeyDown("ShiftLeft") || this.input.isKeyDown("ShiftRight")
-        ? 0.125
-        : this.input.isKeyDown("ControlLeft") || this.input.isKeyDown("ControlRight")
-          ? 4
-          : 1;
+    const simSpeed = this.controlScheme.slow ? 0.125 : this.controlScheme.fast ? 4 : 1;
 
     // Drive all the cars and update their positions/rotations
     for (let i = 0; i < this.numOtherCars; i++) {
@@ -340,40 +345,25 @@ class Drivey {
   }
 
   drive(car, object, delta, simSpeed, interactive) {
-    let acc = 0;
-    let manualSteerAmount = 0;
-
-    // Respond to user input if this car is user controlled
-    if (interactive) {
-      if (this.input.isKeyDown("ArrowUp")) acc += 1;
-      if (this.input.isKeyDown("ArrowDown")) acc -= 2;
-
-      if (this.input.isKeyDown("ArrowLeft")) {
-        if (this.autoSteer) car.roadPos += 3 * delta * simSpeed;
-        else manualSteerAmount += 1;
-      }
-
-      if (this.input.isKeyDown("ArrowRight")) {
-        if (this.autoSteer) car.roadPos += -3 * delta * simSpeed;
-        else manualSteerAmount -= 1;
-      }
-    }
-
-    if (this.autoSteer || !interactive) {
-      if (car.roadPos > 0.1) car.roadPos -= delta * simSpeed;
-      else if (car.roadPos < -0.1) car.roadPos += delta * simSpeed;
-    }
-
-    car.brake = interactive && this.input.isKeyDown("Space") ? 1 : 0;
+    const acc = interactive ? this.controlScheme.brake * -2 + this.controlScheme.gas : 0;
+    const steer = interactive ? this.controlScheme.steer : 0;
+    car.handbrake = interactive && this.controlScheme.handbrake;
     car.accelerate = 0;
 
     if (this.autoSteer || !interactive) {
+      car.roadPos += 3 * delta * simSpeed * steer * this.controlScheme.autoSteerSensitivity;
+      if (car.roadPos > 0.1) car.roadPos -= delta * simSpeed;
+      else if (car.roadPos < -0.1) car.roadPos += delta * simSpeed;
       car.autoSteer(delta * simSpeed, this.level.roadPath, this.autoSteerApproximation, this.laneSpacing, this.laneOffset);
     } else {
       const diff = -sign(car.steerTo) * 0.0002 * car.vel.length() * delta * simSpeed;
       if (Math.abs(diff) >= Math.abs(car.steerTo)) car.steerTo = 0;
       else car.steerTo += diff;
-      car.steerTo = car.steerTo + manualSteerAmount * 0.025 * delta * simSpeed;
+      car.steerTo = car.steerTo + steer * this.controlScheme.manualSteerSensitivity * delta * simSpeed;
+    }
+
+    if (this.autoSteer || this.controlScheme.autoGas) {
+      car.matchCruisingSpeed();
     }
 
     car.accelerate += acc;

@@ -30,7 +30,6 @@ class Screen {
     window.renderer = this.renderer;
     this.camera = this.driverCamera;
     this.frameRate = 1;
-
     this.startFrameTime = Date.now();
     this.lastFrameTime = this.startFrameTime;
   }

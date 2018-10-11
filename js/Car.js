@@ -19,7 +19,7 @@ class Car {
     this.lastVel.set(0, 0);
 
     this.accelerate = 0;
-    this.brake = 0;
+    this.handbrake = 0;
 
     this.angle = 0;
 
@@ -71,8 +71,9 @@ class Car {
     let steerTo = newAngle / (Math.min(targetDir.length() * 0.5, 50) + 1);
     if (Math.abs(steerTo) > 0.02) steerTo *= 0.02 / Math.abs(steerTo);
     this.steerTo = lerp(this.steerTo, steerTo, Math.min(1, step * 10));
+  }
 
-    // Unrelatedly, step on the gas until the car's speed is at cruising speed
+  matchCruisingSpeed() {
     if (this.vel.length() < this.cruiseSpeed) this.accelerate = 1;
     else this.accelerate = this.cruiseSpeed / this.vel.length();
   }
@@ -99,7 +100,7 @@ class Car {
         .add(acc.clone().multiplyScalar(t))
         .dot(dir)
     );
-    if (this.brake >= 0.9) newVel.set(0, 0, 0);
+    if (this.handbrake >= 0.9) newVel.set(0, 0, 0);
 
     if (
       !this.sliding &&
