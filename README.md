@@ -1,6 +1,8 @@
 # Drivey.js
 
-This is a 2018 ECMAScript port of the **graphics demo** [Drivey](http://drivey.com), from 2007. You can see it online [here](https://rezmason.github.io/drivey/), or [download it](https://github.com/Rezmason/drivey/archive/master.zip) for offline play.
+This is a 2018 ECMAScript port of the **graphics demo** [Drivey](http://drivey.com), from 2007. 
+
+You can see Drivey.js online [here](https://rezmason.github.io/drivey/), or [download it](https://github.com/Rezmason/drivey/archive/master.zip) for offline play.
 
 ### Purpose
 
@@ -53,9 +55,9 @@ Constantly drives straight. The car turns left and right if the mouse is on the 
 
 ### History
 
-Back in 2000, JavaScript was a slow, underpowered, interpreted scripting language meant for adding simple behaviors to web pages. Still, it showed enormous potential, and lots of money went into various efforts to make more expressive variations of it. Mark Pursey, Drivey's author, invested his free time and creative energy writing his own variant, which he called JujuScript.
+Back in 2000, JavaScript was a slow, underpowered, interpreted scripting language meant for adding simple behaviors to web pages. Still, it showed enormous potential, and lots of money went into various efforts to make more expressive variations of it. Mark Pursey, Drivey's author, invested his free time and creative energy writing his own variant, which he called [JujuScript](https://web.archive.org/web/20110807170635/http://jujusoft.com/software/jujuscript/index.html).
 
-JujuScript is very similar to JavaScript, but adds strong type support and operator overloading. Furthermore, Pursey embedded a graphics API in JujuScript's interpreter that specializes in composing and rendering text and font-like graphics. When he decided in 2004 (I believe) to make a driving simulator, naturally it had a high legibility and visual fidelity. And he had the foresight to share the code for free.
+JujuScript is very similar to JavaScript, but adds strong type support and operator overloading. Furthermore, Pursey embedded a graphics API in JujuScript's interpreter that specializes in composing and rendering text and font-like graphics. When he decided in 2004 (I believe) to make a driving simulator, naturally it had a high legibility and visual fidelity. And he had the foresight to [share the code](https://web.archive.org/web/20160313145032/http://www.jujusoft.com/download/jujuscript-1.0.zip) for free.
 
 Unfortunately JujuScript's launcher is a Windows-only executable (which [runs very well](https://appdb.winehq.org/objectManager.php?sClass=application&iId=8828) under wine), and isn't open source. Its "2.5D" graphics API is also undocumented. To expand its reach, break its dependency on 2000s-era Windows APIs and boost its [bus factor](https://en.wikipedia.org/wiki/Bus_factor), it made sense to convert the Drivey demo to a more broadly adopted platform (ie. *the web*).
 
