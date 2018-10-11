@@ -32,7 +32,7 @@ class Buttons {
       }`;
     });
 
-    this.addButton("camera", "driver", ["rear","driver", "overhead", "world"], value => `
+    this.addButton("camera", "driver", ["driver", "rear", "overhead", "world"], value => `
       <span class='label'>camera</span>
       <span class="indicator">${value}</span>`);
 
@@ -40,8 +40,8 @@ class Buttons {
       <span class='label'>lane</span>
       <span class="indicator">${value}</span>`);
 
-    this.addButton("resolution", "average", ["low", "average", "high"], value =>  `
-      <span class='label'>resolution</span>
+    this.addButton("quality", "high", ["high", "medium", "low"], value =>  `
+      <span class='label'>quality</span>
       <span class="indicator">${value}</span>`);
 
     this.addButton("music", "", [""], value => `
@@ -65,10 +65,10 @@ class Buttons {
   }
 
   wakeUp() {
-    if(this.buttonsContainer.className == "awake"){ return; }
-    clearTimeout(this.awakeTimer)
-    this.buttonsContainer.className = "awake"  
-    this.awakeTimer = setTimeout(() => { this.buttonsContainer.className = ""; }, 1000)
+    if (this.buttonsContainer.className === "awake") return;
+    clearTimeout(this.awakeTimer);
+    this.buttonsContainer.className = "awake";
+    this.awakeTimer = setTimeout(() => this.buttonsContainer.className = "", 3000);
   }
 
   addListener(func) {

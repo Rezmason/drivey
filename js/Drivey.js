@@ -234,10 +234,10 @@ class Drivey {
         this.setNumOtherCars(parseInt(value) * 8);
         break;
       case "camera":
+        this.rearView = false;
         switch (value) {
           case "driver":
             this.screen.camera = this.screen.driverCamera;
-            this.rearView = null;
             break;
           case "rear":
             this.screen.camera = this.screen.driverCamera;
@@ -262,6 +262,19 @@ class Drivey {
             break;
         }
         this.dashboard.driversSide = this.laneOffset < 0 ? 1 : -1;
+        break;
+      case "quality":
+        switch (value) {
+          case "low":
+          this.screen.setResolution(1 /4);
+          break;
+          case "medium":
+          this.screen.setResolution(1 / 2);
+          break;
+          case "high":
+          this.screen.setResolution(1 / 1);
+          break;
+        }
         break;
       case "music":
         window.open("https://open.spotify.com/user/rezmason/playlist/4ukrs3cTKjTbLoFcxqssXi?si=0y3WoBw1TMyUzK8F9WMbLw", "_blank");

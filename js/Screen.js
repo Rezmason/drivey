@@ -12,6 +12,7 @@ class Screen {
     this.renderListeners = [];
     this.element = document.createElement("div");
     document.body.appendChild(this.element);
+    this.resolution = 1;
     this.scene = new THREE.Scene();
     this.driverCamera = new THREE.PerspectiveCamera(90, 1, 0.001, 100000);
     this.driverCamera.rotation.order = "YZX";
@@ -42,7 +43,12 @@ class Screen {
     this.overheadCamera.updateProjectionMatrix();
     this.worldCamera.aspect = aspect;
     this.worldCamera.updateProjectionMatrix();
-    this.renderer.setSize(window.innerWidth/2, window.innerHeight/2);
+    this.setResolution(this.resolution);
+  }
+
+  setResolution(amount) {
+    this.resolution = amount;
+    this.renderer.setSize(window.innerWidth * this.resolution, window.innerHeight * this.resolution);
     this.renderer.domElement.style.width = "100%";
     this.renderer.domElement.style.height = "100%";
   }
