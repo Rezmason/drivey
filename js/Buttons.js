@@ -12,7 +12,7 @@ class Buttons {
 
     this.addButton("cruise", 3, [0, 1, 2, 3], value => {
       const numLights = parseInt(value);
-      return `auto<br>drive<br><br>${
+      return `<span class='label'>autopilot</span>${
         Array(3).fill().map((_, index) => {
           return `<span class="light ${numLights > index ? "on" : "off"}"></span>`;
         }).join(" ")
@@ -23,48 +23,52 @@ class Buttons {
       return `controls<br><br><span class="indicator">${value.replace("_", "<br>")}</span>`;
     });
 
-    this.addButton("dashboard", true, [true, false], value => {
-      return `show<br>dash<br><br><span class="light ${value === "true" ? "on" : "off"}"></span>`;
-    });
-
     this.addButton("npcCars", 0, [0, 1, 2, 3], value => {
       const numLights = parseInt(value);
-      return `other<br>cars<br><br>${
+      return `<span class='label'>cars</span>${
         Array(3).fill().map((_, index) => {
           return `<span class="light ${numLights > index ? "on" : "off"}"></span>`;
         }).join(" ")
       }`;
     });
 
-    this.addButton("camera", "driver", ["driver", "overhead", "world"], value => {
-      return `view<br>from<br><br><span class="indicator">${value}</span>`;
-    });
+    this.addButton("camera", "driver", ["rear","driver", "overhead", "world"], value => `
+      <span class='label'>camera</span>
+      <span class="indicator">${value}</span>`);
 
-    this.addButton("rearView", false, [true, false], value => {
-      return `rear<br>view<br><br><span class="light ${value === "true" ? "on" : "off"}"></span>`;
-    });
+    this.addButton("drivingSide", "right", ["left", "right"], value => `
+      <span class='label'>lane</span>
+      <span class="indicator">${value}</span>`);
 
-    this.addButton("drivingSide", "right", ["left", "right"], value => {
-      return `drive<br>on<br><br><span class="indicator">${value}</span>`;
-    });
+    this.addButton("resolution", "average", ["low", "average", "high"], value =>  `
+      <span class='label'>resolution</span>
+      <span class="indicator">${value}</span>`);
 
-    this.addButton("music", "", [""], value => `mix<br>tape<br><br><span class="indicator">play</span><br>`);
+    this.addButton("music", "", [""], value => `
+      <span class='label'>mixtape</span>
+      <span class="indicator">play</span><br>`);
 
-    this.addButton("level", "industrial", ["night", "tunnel", "city", "industrial", "warp", "spectre", "beach"], value => {
-      return `current<br>level<br><br><span class="indicator">${value}</span>`;
-    });
+    this.addButton("level", "industrial", ["night", "tunnel", "city", "industrial", "warp", "spectre", "beach"], value => `
+      <span class='label'>level</span>
+      <span class="indicator">${value}</span>`);
 
     const stylesheet = Array.from(document.styleSheets).find(sheet => sheet.title === "main");
     this.bodyRule = Array.from(stylesheet.cssRules).find(rule => rule.selectorText === "body, colors");
 
-    this.buttonsContainer.style.opacity = "1";
     window.addEventListener("mousemove", this.onMouse.bind(this), false);
     window.addEventListener("mousedown", this.onMouse.bind(this), false);
     window.addEventListener("mouseup", this.onMouse.bind(this), false);
   }
 
   onMouse() {
-    this.buttonsContainer.style.opacity = "1";
+    this.wakeUp()
+  }
+
+  wakeUp() {
+    if(this.buttonsContainer.className == "awake"){ return; }
+    clearTimeout(this.awakeTimer)
+    this.buttonsContainer.className = "awake"  
+    this.awakeTimer = setTimeout(() => { this.buttonsContainer.className = ""; }, 1000)
   }
 
   addListener(func) {
@@ -84,6 +88,7 @@ class Buttons {
     let value = defaultValue.toString();
     let index = allValues.indexOf(value);
     let button = document.createElement("button");
+    button.id = `button_${id}`;
     button.name = id;
     button.type = "button";
     button.innerHTML = labelMaker(value);
@@ -101,9 +106,5 @@ class Buttons {
     let litColor = tint.clone().lerp(new THREE.Color(1, 1, 1), 0.25);
     this.bodyRule.style.setProperty("--dashboard-color", `#${dashboardColor.getHex().toString(16).padStart(6, "0")}`);
     this.bodyRule.style.setProperty("--lit-color", `#${litColor.getHex().toString(16).padStart(6, "0")}`);
-  }
-
-  update() {
-    this.buttonsContainer.style.opacity = parseFloat(this.buttonsContainer.style.opacity) * 0.995;
   }
 }

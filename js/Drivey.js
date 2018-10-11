@@ -237,6 +237,11 @@ class Drivey {
         switch (value) {
           case "driver":
             this.screen.camera = this.screen.driverCamera;
+            this.rearView = null;
+            break;
+          case "rear":
+            this.screen.camera = this.screen.driverCamera;
+            this.rearView = true;
             break;
           case "overhead":
             this.screen.camera = this.screen.overheadCamera;
@@ -246,9 +251,6 @@ class Drivey {
             break;
         }
         this.updateBackgroundColor();
-        break;
-      case "rearView":
-        this.rearView = value === "true";
         break;
       case "drivingSide":
         switch (value) {
@@ -271,7 +273,6 @@ class Drivey {
   }
 
   update() {
-    this.buttons.update();
     this.dashboard.update();
     this.controlScheme.update();
 
