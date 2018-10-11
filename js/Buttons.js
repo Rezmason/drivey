@@ -3,7 +3,6 @@
 class Buttons {
   constructor() {
     this.listeners = [];
-    this.awakeTimer = null;
     this.buttonsContainer = document.createElement("div");
     this.buttonsContainer.id = "buttonsContainer";
     this.element = document.createElement("div");
