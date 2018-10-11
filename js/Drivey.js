@@ -33,12 +33,12 @@ class Drivey {
       ["beach", CliffsideBeach]
     ]);
     this.controlSchemes = new Map([
-      ["touch_screen", new TouchInput()],
-      ["arrow_keys", new KeyboardInput()],
-      ["one_switch", new OneSwitchInput()],
-      ["eye_gaze", new EyeGazeInput()],
+      ["touch", new TouchInput()],
+      ["arrows", new KeyboardInput()],
+      ["switch", new OneSwitchInput()],
+      ["eyes", new EyeGazeInput()],
     ]);
-    this.controlScheme = this.controlSchemes.get("touch_screen");
+    this.controlScheme = this.controlSchemes.get("touch");
     this.screen = new Screen();
     this.buttons = new Buttons();
     this.buttons.addListener(this.onButtonClick.bind(this));
