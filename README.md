@@ -34,10 +34,10 @@ I feel nostalgia for his driving demo, so here we are.
 - [x] Procedural automobile generator
 - [x] Tablet-friendly UI
 - [x] Three camera angles
-- [ ] One switch support
-- [ ] Eye gaze support
+- [x] One switch support
+- [x] Eye gaze support
+- [x] Touch screen steering control scheme
 - [ ] Optional ambient audio
-- [ ] Touch screen steering control scheme
 
 ### History
 
