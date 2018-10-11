@@ -24,12 +24,21 @@
             canvas#renderer {
                 display: block;
             }
+
             div#buttonsContainer {
                 position: absolute;
-                top: 1em;
+                bottom: 1em;
                 width: 100%;
                 text-align: center;
+                opacity: 0;
+                transition: opacity 4000ms;
             }
+
+            div#buttonsContainer.awake {
+                opacity: 1;
+                transition: opacity 250ms;
+            }
+
             div#buttons {
                 vertical-align: middle;
                 display: inline-block;
@@ -39,18 +48,30 @@
                 font-size: 1vw;
                 font-family: sans-serif;
                 text-align: center;
-                background-color: var(--dashboard-color);
+                border: 0.4em solid var(--dashboard-color);
                 border-radius: 3em;
-                height: 8em;
+                height: 7em;
+                overflow: hidden;
+                background: black;
             }
+
             div#buttons button {
                 display: inline-block;
                 margin: 0.5em 0.25em;
                 text-transform: uppercase;
                 background-color: black;
-                line-height: 1.2;
-                width: 7em;
-                height: 7em;
+                vertical-align: top;
+                padding:5px 20px 10px;
+                border-right: 0.4em solid var(--dashboard-color);
+            }
+
+            div#buttons button#button_level {
+                border-right:0px;
+            }
+
+            div#buttons button span.label {
+                display:block; 
+                line-height: 30px;
             }
 
             span.indicator {
@@ -73,20 +94,6 @@
             span.light.off {
                 background-color: var(--dashboard-color);
                 box-shadow: unset;
-            }
-
-            #buttons button:first-of-type {
-                width: 9em;
-                border-top-left-radius: 2.5em;
-                border-bottom-left-radius: 2.5em;
-                margin-left: 0.5em;
-            }
-
-            #buttons button:last-of-type {
-                width: 9em;
-                border-top-right-radius: 2.5em;
-                border-bottom-right-radius: 2.5em;
-                margin-right: 0.5em;
             }
         </style>
     </head>
