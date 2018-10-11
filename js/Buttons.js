@@ -33,7 +33,7 @@ class Buttons {
     });
 
     this.addButton("camera", "driver", ["rear","driver", "overhead", "world"], value => `
-      <span class='label'>view</span>
+      <span class='label'>camera</span>
       <span class="indicator">${value}</span>`);
 
     this.addButton("drivingSide", "right", ["left", "right"], value => `
@@ -88,6 +88,7 @@ class Buttons {
     let value = defaultValue.toString();
     let index = allValues.indexOf(value);
     let button = document.createElement("button");
+    button.id = `button_${id}`;
     button.name = id;
     button.type = "button";
     button.innerHTML = labelMaker(value);
