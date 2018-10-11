@@ -35,8 +35,8 @@ class Drivey {
     this.controlSchemes = new Map([
       ["touch", new TouchInput()],
       ["arrows", new KeyboardInput()],
-      ["switch", new OneSwitchInput()],
-      ["eyes", new EyeGazeInput()],
+      ["1 switch", new OneSwitchInput()],
+      ["eye gaze", new EyeGazeInput()],
     ]);
     this.controlScheme = this.controlSchemes.get("touch");
     this.screen = new Screen();
