@@ -12,43 +12,49 @@ class Buttons {
 
     this.addButton("cruise", 3, [0, 1, 2, 3], value => {
       const numLights = parseInt(value);
-      return `auto<br>drive<br><br>${
+      return `<span class='label'>autopilot</span>${
         Array(3).fill().map((_, index) => {
           return `<span class="light ${numLights > index ? "on" : "off"}"></span>`;
         }).join(" ")
       }`;
     });
 
-    this.addButton("dashboard", true, [true, false], value => {
-      return `show<br>dash<br><br><span class="light ${value === "true" ? "on" : "off"}"></span>`;
-    });
+    this.addButton("dashboard", true, [true, false], value => `
+      <span class='label'>dashboard</span>
+      <span class="light ${value === "true" ? "on" : "off"}"></span>`);
 
     this.addButton("npcCars", 0, [0, 8, 16, 24], value => {
       const numLights = parseInt(value) / 8;
-      return `other<br>cars<br><br>${
+      return `<span class='label'>cars</span>${
         Array(3).fill().map((_, index) => {
           return `<span class="light ${numLights > index ? "on" : "off"}"></span>`;
         }).join(" ")
       }`;
     });
 
-    this.addButton("camera", "driver", ["driver", "overhead", "world"], value => {
-      return `view<br>from<br><br><span class="indicator">${value}</span>`;
-    });
+    this.addButton("camera", "driver", ["driver", "overhead", "world"], value => `
+      <span class='label'>view</span>
+      <span class="indicator">${value}</span>`);
 
-    this.addButton("rearView", false, [true, false], value => {
-      return `rear<br>view<br><br><span class="light ${value === "true" ? "on" : "off"}"></span>`;
-    });
+    this.addButton("rearView", false, [true, false], value => `
+      <span class='label'>rear</span>
+      <span class="light ${value === "true" ? "on" : "off"}"></span>`);
 
-    this.addButton("drivingSide", "right", ["left", "right"], value => {
-      return `drive<br>on<br><br><span class="indicator">${value}</span>`;
-    });
+    this.addButton("drivingSide", "right", ["left", "right"], value => `
+      <span class='label'>lane</span>
+      <span class="indicator">${value}</span>`);
 
-    this.addButton("music", "", [""], value => `mix<br>tape<br><br><span class="indicator">play</span><br>`);
+    this.addButton("resolution", "average", ["low", "average", "high"], value =>  `
+      <span class='label'>resolution</span>
+      <span class="indicator">${value}</span>`);
 
-    this.addButton("level", "industrial", ["night", "tunnel", "city", "industrial", "warp", "spectre", "beach"], value => {
-      return `current<br>level<br><br><span class="indicator">${value}</span>`;
-    });
+    this.addButton("music", "", [""], value => `
+      <span class='label'>mixtape</span>
+      <span class="indicator">play</span><br>`);
+
+    this.addButton("level", "industrial", ["night", "tunnel", "city", "industrial", "warp", "spectre", "beach"], value => `
+      <span class='label'>level</span>
+      <span class="indicator">${value}</span>`);
 
     const stylesheet = Array.from(document.styleSheets).find(sheet => sheet.title === "main");
     this.bodyRule = Array.from(stylesheet.cssRules).find(rule => rule.selectorText === "body, colors");
