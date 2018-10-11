@@ -1,16 +1,24 @@
 # Drivey.js
 
-This is a 2018 ECMAScript port of the [graphics demo **Drivey** from 2007](http://drivey.com).
-
-## [Try it online here](https://rezmason.github.io/drivey/)
-#### [Hear the mixtape here](https://open.spotify.com/user/rezmason/playlist/4ukrs3cTKjTbLoFcxqssXi?si=0y3WoBw1TMyUzK8F9WMbLw)
-#### [Download the project here](https://github.com/Rezmason/drivey/archive/master.zip) for offline access: open *index.html* in your browser
+This is a 2018 ECMAScript port of the **graphics demo** [Drivey](http://drivey.com), from 2007. You can see it online [here](https://rezmason.github.io/drivey/), or [download it](https://github.com/Rezmason/drivey/archive/master.zip) for offline play.
 
 ### Purpose
 
 Driving down the open road elicits nostalgia in some people. A couple of them made old arcade games about driving.
 Old driving games triggered nostalgia in [Mark Pursey](https://github.com/MarkPursey), so he made a graphics demo about driving games.
 I feel nostalgia for his driving demo, so here we are.
+
+### Controls
+
+#### Keyboard
+
+- `ShiftLeft`, slow down.
+- `ControlLeft`, speed up.
+- `ArrowUp`, gas.
+- `ArrowDown`, brake.
+- `Space`, hand-brake.
+- `LeftArrow`, steer left.
+- `RightArrow`, steer right.
 
 ### Original features
 
