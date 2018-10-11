@@ -19,12 +19,16 @@ class Buttons {
       }`;
     });
 
+    this.addButton("controls", "touch_screen", ["touch_screen", "arrow_keys", "one_switch", "eye_gaze"], value => {
+      return `controls<br><br><span class="indicator">${value.replace("_", "<br>")}</span>`;
+    });
+
     this.addButton("dashboard", true, [true, false], value => {
       return `show<br>dash<br><br><span class="light ${value === "true" ? "on" : "off"}"></span>`;
     });
 
-    this.addButton("npcCars", 0, [0, 8, 16, 24], value => {
-      const numLights = parseInt(value) / 8;
+    this.addButton("npcCars", 0, [0, 1, 2, 3], value => {
+      const numLights = parseInt(value);
       return `other<br>cars<br><br>${
         Array(3).fill().map((_, index) => {
           return `<span class="light ${numLights > index ? "on" : "off"}"></span>`;

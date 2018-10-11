@@ -90,7 +90,7 @@ const generate = () => {
   const rearOverhang = rand(0.7, 0.1);
   const bottomTaper = rand(0.1, 0); // Honestly not sure what the real term for this is.
 
-  const carColor = 0.075;
+  const carColor = rand(0.075);
   const frame = [];
   const windows = [];
   const bodySlope = v => cabinWidth / 2;
