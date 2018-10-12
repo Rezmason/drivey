@@ -73,7 +73,8 @@ class Drivey {
               <driverCamera>
                 dashboard
               <overheadCamera>
-        world (level contents)
+        level world
+        level sky
         [otherCarExteriors]
     */
 
@@ -302,11 +303,14 @@ class Drivey {
       if (this.dashboard.object.parent != null) this.screen.driverCamera.remove(this.dashboard.object);
     }
 
+    // Only show the sky if the camera is the driver camera
     // Only show my car if the camera is not the driver camera
     if (this.screen.camera == this.screen.driverCamera) {
       if (this.myCarMesh.parent != null) this.myCarExterior.remove(this.myCarMesh);
+      if (this.level.sky.parent == null) this.screen.scene.add(this.level.sky);
     } else {
       if (this.myCarMesh.parent == null) this.myCarExterior.add(this.myCarMesh);
+      if (this.level.sky.parent != null) this.screen.scene.remove(this.level.sky);
     }
 
     // now let's get the time delta here

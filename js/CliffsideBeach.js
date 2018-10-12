@@ -1,7 +1,7 @@
 "use strict";
 
 class CliffsideBeach extends Level {
-  build(meshes, transparentMeshes) {
+  build(meshes, transparentMeshes, skyMeshes) {
     this.tint = new THREE.Color(0, 0.7, 0.7);
     this.skyLow = 0.8;
     this.skyHigh = 1.8;

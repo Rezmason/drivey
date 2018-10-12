@@ -1,7 +1,7 @@
 "use strict";
 
 class Tunnel extends Level {
-  build(meshes, transparentMeshes) {
+  build(meshes, transparentMeshes, skyMeshes) {
     this.name = "The Tunnel";
     this.tint = new THREE.Color(0.2, 0.7, 0.1);
     const tarmac = 0.1; // 0.1

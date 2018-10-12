@@ -1,7 +1,7 @@
 "use strict";
 
 class TestLevel extends Level {
-  build(meshes, transparentMeshes) {
+  build(meshes, transparentMeshes, skyMeshes) {
     this.name = "Test";
     this.tint = new THREE.Color(0.2, 0.8, 1);
     this.skyLow = 0.0;

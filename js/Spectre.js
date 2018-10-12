@@ -1,7 +1,7 @@
 "use strict";
 
 class Spectre extends Level {
-  build(meshes, transparentMeshes) {
+  build(meshes, transparentMeshes, skyMeshes) {
     this.name = "The Deep Dark Night";
     this.tint = new THREE.Color(1, 0, 1);
     this.skyLow = 0.35;

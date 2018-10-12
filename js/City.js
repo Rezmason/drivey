@@ -1,7 +1,7 @@
 "use strict";
 
 class City extends Level {
-  build(meshes, transparentMeshes) {
+  build(meshes, transparentMeshes, skyMeshes) {
     this.name = "The City";
     this.tint = new THREE.Color(0.33, 0.33, 1); // * 1.5
 
@@ -28,7 +28,7 @@ class City extends Level {
     const cloudsMesh = makeMesh(cloudsPath, 1, 200, (this.skyLow + this.skyHigh) / 2);
     cloudsMesh.scale.multiplyScalar(2);
     cloudsMesh.position.z = 80;
-    meshes.push(cloudsMesh);
+    skyMeshes.push(cloudsMesh);
 
     // do bg
     const shorterBuildings = new THREE.ShapePath();

@@ -1,7 +1,7 @@
 "use strict";
 
 class WarpGate extends Level {
-  build(meshes, transparentMeshes) {
+  build(meshes, transparentMeshes, skyMeshes) {
     this.name = "The Cyber Tube";
     this.tint = new THREE.Color(1, 0.1, 0.3);
 

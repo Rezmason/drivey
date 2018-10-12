@@ -11,8 +11,9 @@ class Level {
 
     const meshes = [];
     const transparentMeshes = [];
-    this.build(meshes, transparentMeshes);
-    this.finish(meshes, transparentMeshes);
+    const skyMeshes = [];
+    this.build(meshes, transparentMeshes, skyMeshes);
+    this.finish(meshes, transparentMeshes, skyMeshes);
   }
 
   dispose() {
@@ -23,7 +24,7 @@ class Level {
     this.world = null;
   }
 
-  build(meshes, transparentMeshes) {}
+  build(meshes, transparentMeshes, skyMeshes) {}
 
   drawRoadLine(roadPath, shapePath, xPos, width, style, start, end) {
     if (start == end) {
@@ -89,7 +90,7 @@ class Level {
     return shapePath;
   }
 
-  finish(meshes, transparentMeshes) {
+  finish(meshes, transparentMeshes, skyMeshes) {
     this.world = new THREE.Group();
     meshes.forEach(flattenMesh);
     const combinedMesh = mergeMeshes(meshes);
@@ -103,6 +104,12 @@ class Level {
     if (transparentMeshes.length > 0) this.world.add(mergeMeshes(transparentMeshes));
     transparentMeshes.forEach(mesh => mesh.geometry.dispose());
     transparentMeshes.length = 0;
+
+    skyMeshes.forEach(flattenMesh);
+    this.sky = new THREE.Group();
+    if (skyMeshes.length > 0) this.sky.add(mergeMeshes(skyMeshes));
+    skyMeshes.forEach(mesh => mesh.geometry.dispose());
+    skyMeshes.length = 0;
   }
 
   makeRoadPath() {

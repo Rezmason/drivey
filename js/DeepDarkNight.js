@@ -1,7 +1,7 @@
 "use strict";
 
 class DeepDarkNight extends Level {
-  build(meshes, transparentMeshes) {
+  build(meshes, transparentMeshes, skyMeshes) {
     this.name = "The Deep Dark Night";
     this.tint = new THREE.Color(0.7, 0.7, 0.7);
     // this.tint = new THREE.Color(0, 0.6, 1);
