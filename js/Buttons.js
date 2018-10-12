@@ -10,7 +10,7 @@ class Buttons {
     document.body.appendChild(this.buttonsContainer);
     this.buttonsContainer.appendChild(this.element);
 
-    this.addButton("cruise", 3, [0, 1, 2, 3], value => {
+    this.addButton("cruise", 2, [0, 1, 2, 3], value => {
       const index = parseInt(value);
       return `<div class='label'>autopilot</div>
       <div class='option'>${
