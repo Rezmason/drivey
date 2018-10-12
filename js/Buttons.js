@@ -31,7 +31,7 @@ class Buttons {
     });
 
     this.addButton("drivingSide", "right", ["left", "right"], value => `
-      <div class='label'>lane</div>
+      <div class='label'>&nbsp;&nbsp;side&nbsp;&nbsp;</div>
       <div class='option'>
         <span class="indicator">${value}</span>
       </div>`);

@@ -73,9 +73,9 @@ class Car {
     this.steerTo = lerp(this.steerTo, steerTo, Math.min(1, step * 10));
   }
 
-  matchCruisingSpeed() {
-    if (this.vel.length() < this.cruiseSpeed) this.accelerate = 1;
-    else this.accelerate = this.cruiseSpeed / this.vel.length();
+  matchCruisingSpeed(multiplier) {
+    if (this.vel.length() < this.cruiseSpeed * multiplier) this.accelerate = 1;
+    else this.accelerate = this.cruiseSpeed * multiplier / this.vel.length();
   }
 
   dir() {
@@ -148,6 +148,8 @@ class Car {
     this.tilt += this.tiltV * t;
     this.pitchV = this.pitchV + (this.pitchV * -0.2 + (velDiff.clone().dot(dir) * 0.001) / t - this.pitch) * t * 20;
     this.pitch += this.pitchV * t;
+
+    this.steerTo = Math.max(-Math.PI * 2 / 50, Math.min(Math.PI * 2 / 50, this.steerTo));
 
     this.steerPos = this.steerTo;
     this.lastVel = this.vel;
