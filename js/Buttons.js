@@ -42,6 +42,11 @@ class Buttons {
         <span class="indicator">${value}</span>
       </div>`);
 
+    this.addButton("dashboard", true, [true, false], value => `
+      <div class='label'>dashboard</div>
+      <div class='option'>
+        <span class="light ${value === "true" ? "on" : "off"}"></span>
+      </div>`);
 
     this.addButton("controls", "touch", ["touch", "arrows", "1 switch", "eye gaze"], value => `
       <div class='label'>controls</div>
