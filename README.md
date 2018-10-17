@@ -1,6 +1,8 @@
+![Drivey screenshot](/screenshot.png?raw=true "Drivey's industrial zone.")
+
 # Drivey.js
 
-This is a 2018 ECMAScript port of the **graphics demo** [Drivey](http://drivey.com), from 2007. 
+This is a 2018 ECMAScript port of the **graphics demo** [Drivey](http://drivey.com), from 2007.
 
 You can see Drivey.js online [here](https://rezmason.github.io/drivey/), or [download it](https://github.com/Rezmason/drivey/archive/master.zip) for offline play.
 
@@ -12,7 +14,7 @@ I feel nostalgia for his driving demo, so here we are.
 
 ### Controls
 #### Touch
-You can use any combination of fingers (or the mouse): 
+You can use any combination of fingers (or the mouse):
 - `Up-Down`, adjust the driving speed.
 - `Left-right`, turn the steering wheel.
 #### Keyboard
