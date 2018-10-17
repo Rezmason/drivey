@@ -41,7 +41,7 @@ const silhouette = new THREE.RawShaderMaterial({
   },
   vertexShader: `
     uniform vec3 tint;
-    attribute vec2 monochromeValue;
+    attribute vec3 monochromeValue;
     attribute float bulgeDirection;
     attribute vec3 position;
     uniform mat4 projectionMatrix;
@@ -50,13 +50,18 @@ const silhouette = new THREE.RawShaderMaterial({
     varying vec4 vColor;
     void main() {
       float value = monochromeValue.r;
+      float fade = monochromeValue.b;
+      vec4 worldPosition = modelViewMatrix * vec4(position, 1.0);
+      float screenZ = (projectionMatrix * worldPosition).z;
+
+      value = clamp(value - fade * screenZ / resolution.y, 0., 1.);
+
       vec3 color = value < 0.5
         ? mix(vec3(0.0), tint, value * 2.0)
         : mix(tint, vec3(1.0), value * 2.0 - 1.0);
       vColor = vec4(color, monochromeValue.g);
-      vec4 worldPosition = modelViewMatrix * vec4(position, 1.0);
-      float screenZ = (projectionMatrix * worldPosition).z;
-      worldPosition.y += bulgeDirection * screenZ * 1.2 / resolution.y;
+
+      worldPosition.y += bulgeDirection * screenZ * 0.9 / resolution.y;
       gl_Position = projectionMatrix * worldPosition;
     }
   `,
@@ -130,16 +135,16 @@ const getExtrudedPointAt = (source, t, offset) => {
   );
 };
 
-const makeMesh = (shapePath, depth, curveSegments, value = 0, alpha = 1) => {
+const makeMesh = (shapePath, depth, curveSegments, value = 0, alpha = 1, fade = 0) => {
   if (depth < 0) {
     throw new Error("depth must be greater than or equal to zero");
   }
-  depth = Math.max(depth, 0.00001);
+  depth = Math.max(depth, 0.0000001);
   const geom = new THREE.ExtrudeBufferGeometry(
     shapePath.toShapes(false, false),
     { depth, curveSegments, bevelEnabled : false }
   );
-  shadeGeometry(geom, value, alpha);
+  shadeGeometry(geom, value, alpha, fade);
   bulgeGeometry(geom);
   return new THREE.Mesh(geom, alpha == 1 ? silhouette : transparent);
 };
@@ -150,20 +155,21 @@ const bulgeGeometry = (geometry) => {
   const bulgeDirections = [];
   for (let i = 0; i < numVertices; i++) {
     const z = positions.array[i * 3 + 2];
-    bulgeDirections.push(z == 0 ? -1 : 1);
+    bulgeDirections.push(z <= 0 ? -1 : 1);
   }
   geometry.addAttribute("bulgeDirection", new THREE.Float32BufferAttribute(bulgeDirections, 1));
   return geometry;
 }
 
-const shadeGeometry = (geometry, value, alpha = 1) => {
+const shadeGeometry = (geometry, value, alpha = 1, fade = 0) => {
   const numVertices = geometry.getAttribute("position").count;
   const monochromeValues = [];
   for (let i = 0; i < numVertices; i++) {
     monochromeValues.push(value);
     monochromeValues.push(alpha);
+    monochromeValues.push(fade);
   }
-  geometry.addAttribute("monochromeValue", new THREE.Float32BufferAttribute(monochromeValues, 2));
+  geometry.addAttribute("monochromeValue", new THREE.Float32BufferAttribute(monochromeValues, 3));
   return geometry;
 };
 

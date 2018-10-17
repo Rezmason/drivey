@@ -87,6 +87,6 @@ class City extends Level {
     this.drawRoadLine(this.roadPath, roadLinesPath, 6, 0.15, RoadLineStyle.DASH(30, 1, 10), 0, 1);
     this.drawRoadLine(this.roadPath, roadLinesPath, -3, 0.15, RoadLineStyle.DASH(3, 12, 0), 0, 1);
     this.drawRoadLine(this.roadPath, roadLinesPath, 3, 0.15, RoadLineStyle.DASH(3, 12, 0), 0, 1);
-    meshes.push(makeMesh(roadLinesPath, 0, 1, roadLineColor));
+    meshes.push(makeMesh(roadLinesPath, 0, 1, roadLineColor, 1, 1));
   }
 }

@@ -48,7 +48,7 @@ class IndustrialZone extends Level {
     this.drawRoadLine(this.roadPath, whiteLinesPath, 3.5, 0.15, RoadLineStyle.DASH(60, 2, 5), 0, 1);
     this.drawRoadLine(this.roadPath, whiteLinesPath, -0.15, 0.125, RoadLineStyle.DASH(4, 6, 0), 0, 1);
     this.drawRoadLine(this.roadPath, whiteLinesPath, 0.125, 0.125, RoadLineStyle.SOLID(5), 0, 1);
-    const whiteLinesMesh = makeMesh(whiteLinesPath, 0, 10, whiteLinesColor);
+    const whiteLinesMesh = makeMesh(whiteLinesPath, 0, 10, whiteLinesColor, 1, 2.25);
     meshes.push(whiteLinesMesh);
 
     // do crossings
@@ -62,7 +62,7 @@ class IndustrialZone extends Level {
       const width = (6.0 / 6) * 0.5;
       this.drawRoadLine(this.roadPath, crossingLinesPath, i * 2 * width - 3 + width, width, RoadLineStyle.DASH(2, 200, 0), 0, 1);
     }
-    const crossingLinesMesh = makeMesh(crossingLinesPath, 0, 10, whiteLinesColor);
+    const crossingLinesMesh = makeMesh(crossingLinesPath, 0, 10, whiteLinesColor, 1, 2.25);
     crossingLinesMesh.position.z = 0.01;
     meshes.push(crossingLinesMesh);
 

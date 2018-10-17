@@ -130,8 +130,8 @@ class Drivey {
     const monochromeValues = monochromeAttribute.array;
     for (let i = 0; i < numVertices; i++) {
       const y = positions.array[i * 3 + 0];
-      monochromeValues[i * 2 + 0] = this.level.skyLow * (1 - y) + this.level.skyHigh * y;
-      monochromeValues[i * 2 + 1] = 1;
+      monochromeValues[i * 3 + 0] = this.level.skyLow * (1 - y) + this.level.skyHigh * y;
+      monochromeValues[i * 3 + 1] = 1;
     }
     monochromeAttribute.needsUpdate = true;
 
