@@ -36,12 +36,17 @@ const rotateZ = (v3, angle) => {
 }
 
 const silhouette = new THREE.RawShaderMaterial({
+  uniforms: {
+    resolution: { type: "v2", value: new THREE.Vector2(1, 1) }
+  },
   vertexShader: `
     uniform vec3 tint;
     attribute vec2 monochromeValue;
+    attribute float bulgeDirection;
     attribute vec3 position;
     uniform mat4 projectionMatrix;
     uniform mat4 modelViewMatrix;
+    uniform vec2 resolution;
     varying vec4 vColor;
     void main() {
       float value = monochromeValue.r;
@@ -49,7 +54,10 @@ const silhouette = new THREE.RawShaderMaterial({
         ? mix(vec3(0.0), tint, value * 2.0)
         : mix(tint, vec3(1.0), value * 2.0 - 1.0);
       vColor = vec4(color, monochromeValue.g);
-      gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
+      vec4 worldPosition = modelViewMatrix * vec4(position, 1.0);
+      float screenZ = (projectionMatrix * worldPosition).z;
+      worldPosition.y += bulgeDirection * screenZ * 1.2 / resolution.y;
+      gl_Position = projectionMatrix * worldPosition;
     }
   `,
   fragmentShader: `
@@ -123,13 +131,30 @@ const getExtrudedPointAt = (source, t, offset) => {
 };
 
 const makeMesh = (shapePath, depth, curveSegments, value = 0, alpha = 1) => {
+  if (depth < 0) {
+    throw new Error("depth must be greater than or equal to zero");
+  }
+  depth = Math.max(depth, 0.00001);
   const geom = new THREE.ExtrudeBufferGeometry(
     shapePath.toShapes(false, false),
     { depth, curveSegments, bevelEnabled : false }
   );
   shadeGeometry(geom, value, alpha);
+  bulgeGeometry(geom);
   return new THREE.Mesh(geom, alpha == 1 ? silhouette : transparent);
 };
+
+const bulgeGeometry = (geometry) => {
+  const positions = geometry.getAttribute("position");
+  const numVertices = positions.count;
+  const bulgeDirections = [];
+  for (let i = 0; i < numVertices; i++) {
+    const z = positions.array[i * 3 + 2];
+    bulgeDirections.push(z == 0 ? -1 : 1);
+  }
+  geometry.addAttribute("bulgeDirection", new THREE.Float32BufferAttribute(bulgeDirections, 1));
+  return geometry;
+}
 
 const shadeGeometry = (geometry, value, alpha = 1) => {
   const numVertices = geometry.getAttribute("position").count;
@@ -158,6 +183,9 @@ const mergeMeshes = meshes => {
 };
 
 const mergeGeometries = geometries => {
+  if (geometries.length == 0) {
+    throw new Error("You can't merge zero geometries.");
+  }
   const numIndexed = geometries.filter(geometry => geometry.index != null).length;
   if (numIndexed > 0 && numIndexed < geometries.length) {
     throw new Error("You can't merge indexed and non-indexed buffer geometries.");

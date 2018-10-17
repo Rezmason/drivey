@@ -16,7 +16,8 @@ class CliffsideBeach extends Level {
     this.drawRoadLine(this.roadPath, beachPath, 0, 25, RoadLineStyle.SOLID(50), 0, 1);
     this.drawRoadLine(this.roadPath, beachPath, 0, 28, RoadLineStyle.DASH(10, 10, 0), 0, 1);
     this.drawRoadLine(this.roadPath, beachPath, -20, 20, RoadLineStyle.SOLID(50), 0, 1);
-    const beachMesh = makeMesh(beachPath, -0.1, 1, beach);
+    const beachMesh = makeMesh(beachPath, 0.1, 1, beach);
+    beachMesh.position.z = -0.3;
     meshes.push(beachMesh);
 
     const wavesPath = new THREE.ShapePath();

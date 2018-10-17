@@ -21,11 +21,17 @@ class Screen {
     this.scene.add(this.overheadCamera);
     this.worldCamera = new THREE.PerspectiveCamera(90, 1, 0.001, 100000);
     this.scene.add(this.worldCamera);
-    this.renderer = new THREE.WebGLRenderer({ antialias: window.devicePixelRatio > 1 ? false : true });
+    this.renderer = new THREE.WebGLRenderer();
     this.renderer.setPixelRatio(window.devicePixelRatio);
-    window.addEventListener("resize", this.onWindowResize.bind(this), false);
     this.element.appendChild(this.renderer.domElement);
     this.renderer.domElement.id = "renderer";
+    this.composer = new THREE.EffectComposer(this.renderer);
+    this.renderPass = new THREE.RenderPass(this.scene, this.camera);
+    this.composer.addPass(this.renderPass);
+    this.aaPass = new THREE.SMAAPass(1, 1);
+    this.aaPass.renderToScreen = true;
+    this.composer.addPass(this.aaPass);
+    window.addEventListener("resize", this.onWindowResize.bind(this), false);
     this.onWindowResize();
     if (animate) {
       this.update();
@@ -55,6 +61,8 @@ class Screen {
     this.renderer.setSize(width, height);
     this.renderer.domElement.style.width = "100%";
     this.renderer.domElement.style.height = "100%";
+    this.composer.setSize(width, height);
+    silhouette.uniforms.resolution.value.set(width, height);
   }
 
   update() {
@@ -67,7 +75,8 @@ class Screen {
   render() {
     requestAnimationFrame(this.render.bind(this));
     if (this.camera != null) {
-      this.renderer.render(this.scene, this.camera);
+      this.renderPass.camera = this.camera;
+      this.composer.render();
     }
 
     const frameTime = Date.now() - this.startFrameTime;
