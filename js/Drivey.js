@@ -43,7 +43,7 @@ class Drivey {
     this.buttons = new Buttons();
     this.buttons.addListener(this.onButtonClick.bind(this));
     this.init();
-    this.screen.addRenderListener(this.update.bind(this));
+    this.screen.addUpdateListener(this.update.bind(this));
     this.update();
   }
 
@@ -114,6 +114,8 @@ class Drivey {
 
   setLevel(levelName) {
     if (this.level != null) {
+      this.screen.scene.remove(this.level.world);
+      this.screen.scene.remove(this.level.sky);
       this.level.dispose();
     }
 
@@ -269,7 +271,7 @@ class Drivey {
       case "quality":
         switch (value) {
           case "low":
-          this.screen.setResolution(1 /4);
+          this.screen.setResolution(1 / 4);
           break;
           case "medium":
           this.screen.setResolution(1 / 2);

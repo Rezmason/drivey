@@ -9,7 +9,7 @@ as well as establishing an animation loop and handling window resizing events.
 
 class Screen {
   constructor(animate = true) {
-    this.renderListeners = [];
+    this.updateListeners = [];
     this.element = document.createElement("div");
     document.body.appendChild(this.element);
     this.resolution = 1;
@@ -21,14 +21,16 @@ class Screen {
     this.scene.add(this.overheadCamera);
     this.worldCamera = new THREE.PerspectiveCamera(90, 1, 0.001, 100000);
     this.scene.add(this.worldCamera);
-    this.renderer = new THREE.WebGLRenderer({ antialias: true });
+    this.renderer = new THREE.WebGLRenderer({ antialias: window.devicePixelRatio > 1 ? false : true });
     this.renderer.setPixelRatio(window.devicePixelRatio);
     window.addEventListener("resize", this.onWindowResize.bind(this), false);
-    this.onWindowResize();
     this.element.appendChild(this.renderer.domElement);
     this.renderer.domElement.id = "renderer";
-    if (animate) this.animate();
-    window.renderer = this.renderer;
+    this.onWindowResize();
+    if (animate) {
+      this.update();
+      this.render();
+    }
     this.camera = this.driverCamera;
     this.frameRate = 1;
     this.startFrameTime = Date.now();
@@ -48,17 +50,25 @@ class Screen {
 
   setResolution(amount) {
     this.resolution = amount;
-    this.renderer.setSize(window.innerWidth * this.resolution, window.innerHeight * this.resolution);
+    const width  =  Math.ceil(window.innerWidth  * this.resolution);
+    const height =  Math.ceil(window.innerHeight * this.resolution);
+    this.renderer.setSize(width, height);
     this.renderer.domElement.style.width = "100%";
     this.renderer.domElement.style.height = "100%";
   }
 
-  animate() {
-    requestAnimationFrame(this.animate.bind(this));
-    for (const listener of this.renderListeners) {
+  update() {
+    for (const listener of this.updateListeners) {
       listener();
     }
-    this.render();
+    setTimeout(this.update.bind(this), 1000 / 60);
+  }
+
+  render() {
+    requestAnimationFrame(this.render.bind(this));
+    if (this.camera != null) {
+      this.renderer.render(this.scene, this.camera);
+    }
 
     const frameTime = Date.now() - this.startFrameTime;
     const frameDuration = frameTime - this.lastFrameTime;
@@ -66,15 +76,9 @@ class Screen {
     this.lastFrameTime = frameTime;
   }
 
-  render() {
-    if (this.camera != null) {
-      this.renderer.render(this.scene, this.camera);
-    }
-  }
-
-  addRenderListener(func) {
-    if (!this.renderListeners.includes(func)) {
-      this.renderListeners.push(func);
+  addUpdateListener(func) {
+    if (!this.updateListeners.includes(func)) {
+      this.updateListeners.push(func);
     }
   }
 

@@ -1,3 +1,7 @@
+Optimization
+    Road path approximation data structure improvement
+    Use the profiler to find bottlenecks
+
 Prevent scrolling issue on mobile
 Spotify playlist embed?
 About box?
@@ -9,6 +13,3 @@ Much, much later
   Localization
   Collision
     "theWalls" in jj
-  Optimization
-    Road path approximation data structure improvement
-    Use the profiler to find bottlenecks
