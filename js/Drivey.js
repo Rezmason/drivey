@@ -38,7 +38,7 @@ class Drivey {
       ["1 switch", new OneSwitchInput()],
       ["eye gaze", new EyeGazeInput()],
     ]);
-    this.controlScheme = this.controlSchemes.get("touch");
+    this.controlScheme = this.controlSchemes.get(isMobile ? "touch" : "arrows");
     this.screen = new Screen();
     this.buttons = new Buttons();
     this.buttons.addListener(this.onButtonClick.bind(this));

@@ -48,7 +48,7 @@ class Buttons {
         <span class="light ${value === "true" ? "on" : "off"}"></span>
       </div>`);
 
-    this.addButton("controls", "touch", ["touch", "arrows", "1 switch", "eye gaze"], value => `
+    this.addButton("controls", isMobile ? "touch" : "arrows", ["touch", "arrows", "1 switch", "eye gaze"], value => `
       <div class='label'>controls</div>
       <div class='option'>
         <span class="indicator">${value.replace("_", "<br>")}</span>
