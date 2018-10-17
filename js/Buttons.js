@@ -75,9 +75,12 @@ class Buttons {
     const stylesheet = Array.from(document.styleSheets).find(sheet => sheet.title === "main");
     this.bodyRule = Array.from(stylesheet.cssRules).find(rule => rule.selectorText === "body, colors");
 
-    window.addEventListener("mousemove", this.onMouse.bind(this), false);
-    window.addEventListener("mousedown", this.onMouse.bind(this), false);
-    window.addEventListener("mouseup", this.onMouse.bind(this), false);
+    document.addEventListener("mousemove", this.onMouse.bind(this), false);
+    document.addEventListener("mousedown", this.onMouse.bind(this), false);
+    document.addEventListener("mouseup", this.onMouse.bind(this), false);
+    document.addEventListener("touchstart", this.onMouse.bind(this), false);
+    document.addEventListener("touchmove", this.onMouse.bind(this), false);
+    document.addEventListener("touchend", this.onMouse.bind(this), false);
   }
 
   onMouse() {
