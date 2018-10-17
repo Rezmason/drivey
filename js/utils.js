@@ -53,7 +53,7 @@ const silhouette = new THREE.RawShaderMaterial({
     }
   `,
   fragmentShader: `
-    precision lowp float;
+    precision mediump float;
     varying vec4 vColor;
     void main() {
       gl_FragColor = vColor;
