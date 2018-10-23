@@ -46,6 +46,7 @@ Constantly drives straight. The car turns left and right if the mouse is on the 
 ### New features
 - [x] Runs right in the browser, on any computer
 - [x] Three new levels: Cliffside Beach, Warp Gate and Spectre (inspired by [Craig Fryar](https://www.youtube.com/watch?v=b0X74Oe80tg))
+- [x] Two "refurbished" levels: Nullarbor and Marshland
 - [x] Drivey.js mixtape (see above)
 - [x] Procedural automobile generator
 - [x] Tablet-friendly UI
