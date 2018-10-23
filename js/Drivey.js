@@ -32,6 +32,7 @@ class Drivey {
       ["spectre", Spectre],
       ["beach", CliffsideBeach],
       ["nullarbor", TrainTracks],
+      ["marshland", Overpass],
     ]);
     this.controlSchemes = new Map([
       ["touch", new TouchInput()],

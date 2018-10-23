@@ -113,7 +113,7 @@ class Level {
     skyMeshes.length = 0;
   }
 
-  makeRoadPath() {
+  makeRoadPath(windiness = 5) {
     const points = [];
     let minX = Infinity;
     let maxX = -Infinity;
@@ -123,7 +123,7 @@ class Level {
     const n = 16;
     for (let i = 0; i < n; i++) {
       const theta = (i * Math.PI * 2) / n;
-      const radius = Math.random() + 5;
+      const radius = Math.random() + windiness;
       const point = new THREE.Vector2(Math.cos(theta) * -radius, Math.sin(theta) * radius);
       points.push(point);
       minX = Math.min(minX, point.x);
