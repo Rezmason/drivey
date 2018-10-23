@@ -10,8 +10,8 @@ class Input {
     this.steer = 0;
     this.manualSteerSensitivity = 1;
     this.autoSteerSensitivity = 1;
-    this.autoCruise = false;
-    this.cruiseMultiplier = true;
+    this.forceCruise = false;
+    this.cruiseSpeedMultiplier = 1;
     this.laneChange = 0;
   }
 
@@ -101,8 +101,8 @@ class OneSwitchInput extends Input {
     super();
     this.manualSteerSensitivity = 0.0125;
     this.autoSteerSensitivity = 0.5;
-    this.autoCruise = true;
-    this.cruiseMultiplier = 4;
+    this.forceCruise = true;
+    this.cruiseSpeedMultiplier = 4;
     this.driveDirection = -1;
     document.addEventListener("click", event => {
       if (event.target.type !== "button") this.driveDirection *= -1;
@@ -123,8 +123,8 @@ class EyeGazeInput extends Input {
     super();
     this.manualSteerSensitivity = 0.025;
     this.autoSteerSensitivity = 1;
-    this.autoCruise = true;
-    this.cruiseMultiplier = 4;
+    this.forceCruise = true;
+    this.cruiseSpeedMultiplier = 4;
     this.xRatio = 0.5;
     document.addEventListener("mousemove", event => {
       this.xRatio = event.clientX / window.innerWidth;

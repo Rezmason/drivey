@@ -8,6 +8,7 @@ class Level {
     this.skyLow = 0;
     this.ground = 0;
     this.roadPath = this.makeRoadPath();
+    this.cruiseSpeed = (60 * 1000) / 3600; // 50 kph
 
     const meshes = [];
     const transparentMeshes = [];

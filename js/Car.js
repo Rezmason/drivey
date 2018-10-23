@@ -40,7 +40,6 @@ class Car {
 
     this.sliding = false;
     this.spin = 0;
-    this.cruiseSpeed = this.defaultCruiseSpeed;
   }
 
   autoSteer(step, roadPath, approximation, laneSpacing, laneOffset) {
@@ -73,9 +72,9 @@ class Car {
     this.steerTo = lerp(this.steerTo, steerTo, Math.min(1, step * 10));
   }
 
-  matchCruisingSpeed(multiplier) {
-    if (this.vel.length() < this.cruiseSpeed * multiplier) this.accelerate = 1;
-    else this.accelerate = this.cruiseSpeed * multiplier / this.vel.length();
+  matchSpeed(speed) {
+    if (this.vel.length() < speed) this.accelerate = 1;
+    else this.accelerate = speed / this.vel.length();
   }
 
   dir() {
