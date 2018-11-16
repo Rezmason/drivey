@@ -1,4 +1,4 @@
-![Drivey screenshot](/screenshot.png?raw=true "Drivey's industrial zone.")
+![Drivey screenshot](/readme_assets/screenshot.png?raw=true "Drivey's industrial zone.")
 
 # Drivey.js
 
@@ -68,6 +68,26 @@ In the intervening decades, JavaScript (technically ECMAScript 6+) has matured i
 
 As of October 2018, **Drivey.js** is not yet feature complete; already, though, it ties the long-term fate of the demo to the long-term fate of the web. [The old Windows demo is still online](http://drivey.com), in the meantime, and is still notable for its unique approach to rendering a 3D scene.
 
-### Technique
+## Techniques
 
-Most of the geometry in Drivey and Drivey.js is offset and extruded from a [closed spline](https://threejs.org/docs/#api/en/extras/curves/CatmullRomCurve3) representing the middle of the road. In other words, the demo marches steadily along the road, regularly dropping points along the side, sometimes suspending them in the air. Every solid or dashed line, every wire and pole, is generated in this way, and the level generates them anew every time you visit. There are very few exceptions, such as the clouds and buildings in the City level. The cars are also custom made every time Drivey launches, but with a different process. Read through the source code for more information.
+### Level generation
+You may wonder what process generates these silhouetted landscapes. Set the camera angle to "World" and you'll see the road's shape determines the placement of almost everything:
+
+![Drivey overhead screenshot](/readme_assets/screenshot_overhead.png?raw=true "Drivey's industrial zone, viewed from up above.")
+
+In fact, most of the geometry in both Drivey and Drivey.js is just an extrusion of a single curve (a [closed spline](https://threejs.org/docs/#api/en/extras/curves/CatmullRomCurve3)), which runs down the middle of the road. In other words, the demo marches steadily along this curve, regularly dropping points along the side, sometimes suspending them in the air, and afterwards it connects them into shapes. Every solid or dashed line, every wire and pole, is generated in this way, and the level generates them anew each time you visit. There are very few exceptions, such as the clouds and buildings in the City level.
+### Car generation
+A different process governs the shape of every car. A handful of numbers and decisions are randomly picked— the length of the cabin, for instance, or whether the car is a convertible- and these values are used to create a basic side view diagram of the car:
+```
+                     T---U------V----------W
+                    P----Q------R-----------S
+                   /     |      |            \
+                  /      |      |             \
+  K_______-------L-------M------N--------------O
+  |              |       |      |              |
+  F--------------G-------H------I--------------J
+   \       __    |       |      |      __     /   ====33
+    A-----/  \---B-------C------D-----/  \---E
+           FA                          RA
+```
+Once the points in this diagram are computed, the areas between them are filled with extruded boxes; some are thin, some are thick, some are opaque, some are transparent, some are light and some are dark. Combined together, they form the shape of a car.
