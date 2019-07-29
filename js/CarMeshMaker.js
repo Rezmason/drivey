@@ -65,6 +65,9 @@ const generate = () => {
   // We start by generating random measurements and states for our car
   const rand = (mag, offset) => offset + mag * Math.random();
   const wheelRadius = rand(0.05, 0.25);
+  const hubcapRadius = wheelRadius * 0.6;
+  const wheelThickness = wheelRadius * 0.5;
+  const hubcapThickness = wheelRadius * 0.55;
   const groundClearance = wheelRadius * 0.8;
   const columnThickness = 0.05;
   const columnNudge = new THREE.Vector2(columnThickness, 0);
@@ -72,6 +75,8 @@ const generate = () => {
   const isCoupe = Math.random() > 0.5;
   const hasTailgate = isCoupe || Math.random() > 0.5;
   const isConvertible = !hasTailgate && Math.random() > 0.5;
+  const isSUV = hasTailgate && Math.random() > 0.5;
+
   const pillarSpacings = [
     rand(0.1, wheelRadius * 2 + 0.1), // front windshield
     rand(isCoupe ? 0.2 : 0.1, 0.7), // front seats
@@ -269,8 +274,8 @@ const generate = () => {
 
   // wheel meshes — kept separate, in case someone
   // wants to turn them in the future or something
-  const tireGeometry = shadeGeometry(new THREE.CylinderBufferGeometry(wheelRadius, wheelRadius, wheelRadius * 0.5, 30), 0.1);
-  const hubcapGeometry = shadeGeometry(new THREE.CylinderBufferGeometry(wheelRadius * 0.6, wheelRadius * 0.6, wheelRadius * 0.55, 30), carColor);
+  const tireGeometry = shadeGeometry(new THREE.CylinderBufferGeometry(wheelRadius, wheelRadius, wheelThickness, 30), 0.1);
+  const hubcapGeometry = shadeGeometry(new THREE.CylinderBufferGeometry(hubcapRadius, hubcapRadius, hubcapThickness, 30), carColor);
   const frontLeftWheel = new THREE.Mesh(mergeGeometries([tireGeometry, hubcapGeometry]), silhouette);
   frontLeftWheel.rotation.z = Math.PI * 0.5;
   frontLeftWheel.position.y = wheelRadius;
@@ -293,6 +298,15 @@ const generate = () => {
   mesh.add(frontRightWheel);
   mesh.add(rearLeftWheel);
   mesh.add(rearRightWheel);
+
+  if (isSUV) {
+    const spareTire = frontLeftWheel.clone();
+    spareTire.position.x = cabinWidth * 0.05;
+    spareTire.position.y = j.y - wheelRadius * 0.5;
+    spareTire.position.z = j.x + wheelThickness * 0.5;
+    spareTire.rotation.y = Math.PI * 0.5;
+    mesh.add(spareTire);
+  }
 
   const group = new THREE.Group();
   group.add(mesh);
