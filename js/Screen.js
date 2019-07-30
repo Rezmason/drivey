@@ -13,6 +13,7 @@ class Screen {
     this.element = document.createElement("div");
     document.body.appendChild(this.element);
     this.resolution = 1;
+    this.active = true;
     this.scene = new THREE.Scene();
     this.driverCamera = new THREE.PerspectiveCamera(90, 1, 0.001, 100000);
     this.driverCamera.rotation.order = "YZX";
@@ -37,10 +38,20 @@ class Screen {
       this.update();
       this.render();
     }
+    window.addEventListener("focus", this.onWindowFocus.bind(this), false);
+    window.addEventListener("blur", this.onWindowBlur.bind(this), false);
     this.camera = this.driverCamera;
     this.frameRate = 1;
     this.startFrameTime = Date.now();
     this.lastFrameTime = this.startFrameTime;
+  }
+
+  onWindowFocus() {
+    this.active = true;
+  }
+
+  onWindowBlur() {
+    this.active = false;
   }
 
   onWindowResize() {
@@ -66,14 +77,17 @@ class Screen {
   }
 
   update() {
-    for (const listener of this.updateListeners) {
-      listener();
+    if (this.active) {
+      for (const listener of this.updateListeners) {
+        listener();
+      }
     }
     setTimeout(this.update.bind(this), 1000 / 60);
   }
 
   render() {
     requestAnimationFrame(this.render.bind(this));
+    if (!this.active) return;
     if (this.camera != null) {
       this.renderPass.camera = this.camera;
       this.composer.render();
