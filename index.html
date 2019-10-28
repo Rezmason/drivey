@@ -136,6 +136,9 @@
         <script src="./js/Buttons.js"></script>
         <script src="./js/Drivey.js"></script>
 
-        <script> document.addEventListener("DOMContentLoaded", () => new Drivey()); </script>
+        <script>
+            document.addEventListener('touchmove', e => e.preventDefault(), { passive: false });
+            document.addEventListener("DOMContentLoaded", () => new Drivey());
+        </script>
     </body>
 </html>
