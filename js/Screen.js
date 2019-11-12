@@ -26,20 +26,21 @@ class Screen {
     this.renderer.setPixelRatio(window.devicePixelRatio);
     this.element.appendChild(this.renderer.domElement);
     this.renderer.domElement.id = "renderer";
-    this.composer = new THREE.EffectComposer(this.renderer);
-    this.renderPass = new THREE.RenderPass(this.scene, this.camera);
-    this.composer.addPass(this.renderPass);
-    this.aaPass = new THREE.SMAAPass(1, 1);
-    this.aaPass.renderToScreen = true;
-    this.composer.addPass(this.aaPass);
+    // this.composer = new THREE.EffectComposer(this.renderer);
+    // this.renderPass = new THREE.RenderPass(this.scene, this.camera);
+    // this.composer.addPass(this.renderPass);
+    // this.renderPass.renderToScreen = true;
+    // this.aaPass = new THREE.SMAAPass(1, 1);
+    // this.aaPass.renderToScreen = true;
+    // this.composer.addPass(this.aaPass);
     window.addEventListener("resize", this.onWindowResize.bind(this), false);
     this.onWindowResize();
     if (animate) {
       this.update();
       this.render();
     }
-    window.addEventListener("focus", this.onWindowFocus.bind(this), false);
-    window.addEventListener("blur", this.onWindowBlur.bind(this), false);
+    // window.addEventListener("focus", this.onWindowFocus.bind(this), false);
+    // window.addEventListener("blur", this.onWindowBlur.bind(this), false);
     this.camera = this.driverCamera;
     this.frameRate = 1;
     this.startFrameTime = Date.now();
@@ -72,7 +73,7 @@ class Screen {
     this.renderer.setSize(width, height);
     this.renderer.domElement.style.width = "100%";
     this.renderer.domElement.style.height = "100%";
-    this.composer.setSize(width, height);
+    // this.composer.setSize(width, height);
     silhouette.uniforms.resolution.value.set(width, height);
   }
 
@@ -89,8 +90,9 @@ class Screen {
     requestAnimationFrame(this.render.bind(this));
     if (!this.active) return;
     if (this.camera != null) {
-      this.renderPass.camera = this.camera;
-      this.composer.render();
+      // this.renderPass.camera = this.camera;
+      // this.composer.render();
+      this.renderer.render( this.scene, this.camera );
     }
 
     const frameTime = Date.now() - this.startFrameTime;
