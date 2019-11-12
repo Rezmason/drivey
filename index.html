@@ -102,8 +102,8 @@
     </head>
     <body>
         <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/101/three.js"></script> -->
-        <script src="./lib/three.js"></script>
-        <!-- <script src="./lib/three.min.js"></script> -->
+        <!-- <script src="./lib/three.js"></script> -->
+        <script src="./lib/three.min.js"></script>
         <script src="./lib/BufferGeometryUtils.js"></script>
 
         <script src="./lib/CopyShader.js"></script>
@@ -138,7 +138,7 @@
 
         <script>
             document.addEventListener('touchmove', e => e.preventDefault(), { passive: false });
-            document.addEventListener("DOMContentLoaded", () => new Drivey());
+            window.drivey = new Drivey();
         </script>
     </body>
 </html>

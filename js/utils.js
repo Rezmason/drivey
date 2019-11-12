@@ -166,7 +166,7 @@ const bulgeGeometry = (geometry) => {
     const z = positions.array[i * 3 + 2];
     bulgeDirections.push(z <= 0 ? -1 : 1);
   }
-  geometry.addAttribute("bulgeDirection", new THREE.Float32BufferAttribute(bulgeDirections, 1));
+  geometry.setAttribute("bulgeDirection", new THREE.Float32BufferAttribute(bulgeDirections, 1));
   return geometry;
 }
 
@@ -178,7 +178,7 @@ const shadeGeometry = (geometry, value, alpha = 1, fade = 0) => {
     monochromeValues.push(alpha);
     monochromeValues.push(fade);
   }
-  geometry.addAttribute("monochromeValue", new THREE.Float32BufferAttribute(monochromeValues, 3));
+  geometry.setAttribute("monochromeValue", new THREE.Float32BufferAttribute(monochromeValues, 3));
   return geometry;
 };
 
