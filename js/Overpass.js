@@ -16,7 +16,8 @@ class Overpass extends Level {
     meshes.push(tarmacMesh);
 
     const shoulderPath = new THREE.ShapePath();
-    this.drawRoadLine(this.roadPath, shoulderPath, 0, 12, RoadLineStyle.SOLID(4), 0, 1);
+    this.drawRoadLine(this.roadPath, shoulderPath, -5.5, 2, RoadLineStyle.SOLID(4), 0, 1);
+    this.drawRoadLine(this.roadPath, shoulderPath, 5.5, 2, RoadLineStyle.SOLID(4), 0, 1);
     const shoulderMesh = makeMesh(shoulderPath, 0.5, 100, 0.2);
     shoulderMesh.position.z = -0.55;
     meshes.push(shoulderMesh);
