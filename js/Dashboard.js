@@ -19,7 +19,7 @@ class Dashboard {
     this.wheel = this.addDashboardElement(this.makeSteeringWheel(), edge1, true);
     this.wheel.position.set(-50, -55, -100);
     this.wheel.rotation.z = Math.PI;
-    this.driversSide = 1;
+    this.drivingSide = -1;
   }
 
   addDashboardElement(path, edgeAmount, hasFill) {
@@ -151,9 +151,9 @@ class Dashboard {
 
   update() {
     const lerpAmount = 0.05;
-    this.backing.position.x = lerp(this.backing.position.x, -50 * this.driversSide, lerpAmount);
-    this.wheel.position.x = lerp(this.wheel.position.x, -50 * this.driversSide, lerpAmount);
-    const speedometerPositions = [-25 * this.driversSide, -70 * this.driversSide];
+    this.backing.position.x = lerp(this.backing.position.x, 50 * this.drivingSide, lerpAmount);
+    this.wheel.position.x = lerp(this.wheel.position.x, 50 * this.drivingSide, lerpAmount);
+    const speedometerPositions = [25 * this.drivingSide, 70 * this.drivingSide];
     this.speedometer1.position.x = lerp(this.speedometer1.position.x, Math.max(...speedometerPositions), lerpAmount);
     this.speedometer2.position.x = lerp(this.speedometer2.position.x, Math.min(...speedometerPositions), lerpAmount);
 

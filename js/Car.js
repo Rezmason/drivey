@@ -6,9 +6,6 @@ class Car {
     this.pos = new THREE.Vector2();
     this.vel = new THREE.Vector2();
     this.lastVel = new THREE.Vector2();
-
-    this.defaultCruiseSpeed = (60 * 1000) / 3600; // 50 kph
-
     this.reset();
   }
 
