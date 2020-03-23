@@ -15,13 +15,19 @@ class Screen {
     this.resolution = 1;
     this.active = true;
     this.scene = new THREE.Scene();
+    this.cameras = [];
     this.driverCamera = new THREE.PerspectiveCamera(90, 1, 0.001, 100000);
     this.driverCamera.rotation.order = "YZX";
-    this.scene.add(this.driverCamera);
-    this.overheadCamera = new THREE.PerspectiveCamera(90, 1, 0.001, 100000);
-    this.scene.add(this.overheadCamera);
-    this.worldCamera = new THREE.PerspectiveCamera(90, 1, 0.001, 100000);
-    this.scene.add(this.worldCamera);
+    this.cameras.push(this.driverCamera);
+    this.chaseCamera = new THREE.PerspectiveCamera(100, 1, 0.001, 100000);
+    this.cameras.push(this.chaseCamera);
+    this.aerialCamera = new THREE.PerspectiveCamera(90, 1, 0.001, 100000);
+    this.cameras.push(this.aerialCamera);
+    this.satelliteCamera = new THREE.PerspectiveCamera(90, 1, 0.001, 100000);
+    this.cameras.push(this.satelliteCamera);
+    for (const camera of this.cameras) {
+      this.scene.add(camera);
+    }
     this.renderer = new THREE.WebGLRenderer();
     this.renderer.setPixelRatio(window.devicePixelRatio);
     this.element.appendChild(this.renderer.domElement);
@@ -57,12 +63,10 @@ class Screen {
 
   onWindowResize() {
     const aspect = window.innerWidth / window.innerHeight;
-    this.driverCamera.aspect = aspect;
-    this.driverCamera.updateProjectionMatrix();
-    this.overheadCamera.aspect = aspect;
-    this.overheadCamera.updateProjectionMatrix();
-    this.worldCamera.aspect = aspect;
-    this.worldCamera.updateProjectionMatrix();
+    for (const camera of this.cameras) {
+      camera.aspect = aspect;
+      camera.updateProjectionMatrix();
+    }
     this.setResolution(this.resolution);
   }
 

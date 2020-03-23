@@ -36,7 +36,7 @@ class Buttons {
         <span class="indicator">${value}</span>
       </div>`);
 
-    this.addButton("camera", "driver", ["driver", "rear", "overhead", "world"], value => `
+    this.addButton("camera", "driver", ["driver", "rear", "chase", "aerial", "satellite"], value => `
       <div class='label'>camera</div>
       <div class='option'>
         <span class="indicator">${value}</span>

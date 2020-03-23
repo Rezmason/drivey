@@ -71,7 +71,7 @@ As of October 2018, **Drivey.js** is not yet feature complete; already, though, 
 ## Techniques
 
 ### Level generation
-You may wonder what process generates these silhouetted landscapes. Set the camera angle to "World" and you'll see the road's shape determines the placement of almost everything:
+You may wonder what process generates these silhouetted landscapes. Set the camera angle to "Satellite" and you'll see the road's shape determines the placement of almost everything:
 
 ![Drivey overhead screenshot](/readme_assets/screenshot_overhead.png?raw=true "Drivey's industrial zone, viewed from up above.")
 

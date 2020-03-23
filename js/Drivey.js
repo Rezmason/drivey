@@ -66,15 +66,16 @@ class Drivey {
       The organization of the scene is as follows:
 
       scene
-        <worldCamera>
+        <satelliteCamera>
         myCarExterior
           sky
+          <chaseCamera>
           myCarInterior
             myCarMesh
             driver
               <driverCamera>
                 dashboard
-              <overheadCamera>
+              <aerialCamera>
         level world
         level sky
         [otherCarExteriors]
@@ -95,6 +96,11 @@ class Drivey {
     this.sky = this.makeSky();
     this.myCarExterior.add(this.sky);
 
+    this.screen.chaseCamera.rotation.x = Math.PI * 0.5;
+    this.screen.chaseCamera.position.y = -5;
+    this.screen.chaseCamera.position.z = 2;
+    this.myCarExterior.add(this.screen.chaseCamera);
+
     this.driver = new THREE.Group();
     this.driver.name = "Ace";
     this.myCarInterior.add(this.driver);
@@ -103,8 +109,8 @@ class Drivey {
     this.screen.driverCamera.position.z = 1;
     this.driver.add(this.screen.driverCamera);
 
-    this.screen.overheadCamera.position.set(0, 0, 20);
-    this.driver.add(this.screen.overheadCamera);
+    this.screen.aerialCamera.position.set(0, 0, 60);
+    this.driver.add(this.screen.aerialCamera);
 
     this.dashboard = new Dashboard();
     this.dashboard.object.scale.set(0.0018, 0.0018, 0.001);
@@ -149,12 +155,15 @@ class Drivey {
     this.setNumOtherCars(this.numOtherCars);
 
     // The height of the world camera depends on the size of the level
-    this.screen.worldCamera.position.set(0, 0, this.level.worldRadius);
+    this.screen.satelliteCamera.position.set(0, 0, this.level.worldRadius);
   }
 
   updateBackgroundColor() {
     let backgroundColor = this.level.tint.clone();
-    if (this.screen.camera == this.screen.driverCamera) {
+    if (
+      this.screen.camera == this.screen.driverCamera ||
+      this.screen.camera == this.screen.chaseCamera
+    ) {
       backgroundColor.multiplyScalar(this.level.ground * 2);
     } else {
       backgroundColor.multiplyScalar(this.level.skyLow).addScalar(0.5);
@@ -248,11 +257,14 @@ class Drivey {
             this.screen.camera = this.screen.driverCamera;
             this.rearView = true;
             break;
-          case "overhead":
-            this.screen.camera = this.screen.overheadCamera;
+          case "chase":
+            this.screen.camera = this.screen.chaseCamera;
             break;
-          case "world":
-            this.screen.camera = this.screen.worldCamera;
+          case "aerial":
+            this.screen.camera = this.screen.aerialCamera;
+            break;
+          case "satellite":
+            this.screen.camera = this.screen.satelliteCamera;
             break;
         }
         this.updateBackgroundColor();
@@ -296,7 +308,11 @@ class Drivey {
 
     // The direction the driver is looking - forwards, or backwards
     this.driver.rotation.z = lerp(this.driver.rotation.z, this.rearView ? Math.PI : 0, 0.2);
-    this.sky.rotation.y = this.driver.rotation.z;
+    if (this.screen.camera == this.screen.driverCamera) {
+      this.sky.rotation.y = this.driver.rotation.z;
+    } else {
+      this.sky.rotation.y = 0;
+    }
 
     // The dashboard only appears if the driver is facing forward and the camera is the driver camera
     if (this.showDashboard && !this.rearView && this.screen.camera == this.screen.driverCamera) {
@@ -306,13 +322,20 @@ class Drivey {
     }
 
     // Only show the sky if the camera is the driver camera
+    if (
+      this.screen.camera == this.screen.driverCamera ||
+      this.screen.camera == this.screen.chaseCamera
+    ) {
+      if (this.level.sky.parent == null) this.screen.scene.add(this.level.sky);
+    } else {
+      if (this.level.sky.parent != null) this.screen.scene.remove(this.level.sky);
+    }
+
     // Only show my car if the camera is not the driver camera
     if (this.screen.camera == this.screen.driverCamera) {
       if (this.myCarMesh.parent != null) this.myCarExterior.remove(this.myCarMesh);
-      if (this.level.sky.parent == null) this.screen.scene.add(this.level.sky);
     } else {
       if (this.myCarMesh.parent == null) this.myCarExterior.add(this.myCarMesh);
-      if (this.level.sky.parent != null) this.screen.scene.remove(this.level.sky);
     }
 
     // now let's get the time delta here
