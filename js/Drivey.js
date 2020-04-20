@@ -270,6 +270,13 @@ class Drivey {
         this.cameraMount.add(this.screen.camera);
         this.updateBackgroundColor();
         break;
+      case "wireframe":
+        const isWireframe = value === "true";
+        this.sky.visible = !isWireframe;
+        this.screen.setWireframe(isWireframe);
+        silhouette.uniforms.isWireframe = { value: isWireframe };
+        transparent.uniforms.isWireframe = { value: isWireframe };
+        break;
       case "drivingSide":
         this.drivingSide = this.drivingSidesByName.get(value);
         this.dashboard.drivingSide = this.drivingSide;

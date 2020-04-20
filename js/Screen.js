@@ -10,6 +10,7 @@ as well as establishing an animation loop and handling window resizing events.
 class Screen {
   constructor(animate = true) {
     this.time = 0;
+    this.wireframe = false;
     this.updateListeners = [];
     this.element = document.createElement("div");
     document.body.appendChild(this.element);
@@ -25,7 +26,43 @@ class Screen {
     this.composer = new THREE.EffectComposer(this.renderer);
     this.renderPass = new THREE.RenderPass(this.scene, this.camera);
     this.composer.addPass(this.renderPass);
-    this.renderPass.renderToScreen = true;
+    // this.renderPass.renderToScreen = true;
+
+    this.sobelPass = new THREE.ShaderPass(THREE.SobelOperatorShader);
+    this.composer.addPass(this.sobelPass);
+
+
+    this.blueprintPass = new THREE.ShaderPass({
+      uniforms: {
+        tDiffuse: { type: "t", value: null }
+      },
+      vertexShader: `
+        varying vec2 vUV;
+        void main() {
+          vUV = uv;
+          gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
+        }
+      `,
+      fragmentShader: `
+        precision mediump float;
+        uniform sampler2D tDiffuse;
+        varying vec2 vUV;
+
+        void main() {
+          vec3 color = vec3(0.2, 0.2, 0.7);
+          float line = texture2D(tDiffuse, vUV).r;
+          if (line > 0.02) {
+            color += line * 10.;
+          }
+          gl_FragColor = vec4(clamp(color, 0., 1.), 1.);
+        }
+      `
+    });
+    this.composer.addPass(this.blueprintPass);
+
+    this.sobelPass.enabled = this.wireframe;
+    this.blueprintPass.enabled = this.wireframe;
+
     this.aaPass = new THREE.SMAAPass(1, 1);
     this.aaPass.renderToScreen = true;
     this.composer.addPass(this.aaPass);
@@ -64,8 +101,17 @@ class Screen {
     this.renderer.setSize(width, height);
     this.renderer.domElement.style.width = "100%";
     this.renderer.domElement.style.height = "100%";
+
+    this.sobelPass.uniforms.resolution.value.x = width;
+    this.sobelPass.uniforms.resolution.value.y = height;
+
     this.composer.setSize(width, height);
     silhouette.uniforms.resolution.value.set(width, height);
+  }
+
+  setWireframe(enabled) {
+    this.sobelPass.enabled = enabled;
+    this.blueprintPass.enabled = enabled;
   }
 
   update() {

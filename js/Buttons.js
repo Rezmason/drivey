@@ -42,6 +42,12 @@ class Buttons {
         <span class="indicator">${value}</span>
       </div>`);
 
+    this.addButton("wireframe", false, [true, false], value => `
+      <div class='label'>wireframe</div>
+      <div class='option'>
+        <span class="light ${value === "true" ? "on" : "off"}"></span>
+      </div>`);
+
     this.addButton("controls", isMobile ? "touch" : "arrows", ["touch", "arrows", "1 switch", "eye gaze"], value => `
       <div class='label'>controls</div>
       <div class='option'>

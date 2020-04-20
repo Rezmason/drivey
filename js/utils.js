@@ -49,14 +49,17 @@ const silhouette = new THREE.RawShaderMaterial({
     resolution: { type: "v2", value: new THREE.Vector2(1, 1) }
   },
   vertexShader: `
+    attribute vec3 idColor;
     attribute vec3 monochromeValue;
     attribute float bulgeDirection;
     attribute vec3 position;
+    uniform bool isWireframe;
     uniform mat4 projectionMatrix;
     uniform mat4 modelViewMatrix;
     uniform vec2 resolution;
     varying float vShade;
     varying float vOpacity;
+    varying vec4 vIdColor;
     void main() {
       float value = monochromeValue.r;
       float fade = monochromeValue.b;
@@ -66,8 +69,10 @@ const silhouette = new THREE.RawShaderMaterial({
       value - fade * screenZ / resolution.y;
       vShade = value;
       vOpacity = monochromeValue.g;
+      vIdColor = vec4(idColor, 1.0);
 
-      worldPosition.y += bulgeDirection * screenZ * 0.9 / resolution.y;
+      float bulgeAmount = isWireframe ? 1.5 : 0.9;
+      worldPosition.y += bulgeDirection * screenZ * bulgeAmount / resolution.y;
       gl_Position = projectionMatrix * worldPosition;
     }
   `,
@@ -79,8 +84,10 @@ const silhouette = new THREE.RawShaderMaterial({
     uniform vec3 tint;
     uniform float scramble;
     uniform float ditherMagnitude;
+    uniform bool isWireframe;
     varying float vShade;
     varying float vOpacity;
+    varying vec4 vIdColor;
 
     highp float rand( const in vec2 uv, const in float t ) {
       const highp float a = 12.9898, b = 78.233, c = 43758.5453;
@@ -89,17 +96,25 @@ const silhouette = new THREE.RawShaderMaterial({
     }
 
     void main() {
-      float value = clamp(vShade + (rand( gl_FragCoord.xy, scramble ) - 0.5) * ditherMagnitude, 0., 1.);
+      if (isWireframe) {
+        if (vOpacity < 1.0) {
+          discard;
+        }
+        gl_FragColor = vIdColor;
+      } else {
+        float value = clamp(vShade + (rand( gl_FragCoord.xy, scramble ) - 0.5) * ditherMagnitude, 0., 1.);
 
-      vec3 color = value < 0.5
-        ? mix(vec3(0.0), tint, value * 2.0)
-        : mix(tint, vec3(1.0), value * 2.0 - 1.0);
+        vec3 color = value < 0.5
+          ? mix(vec3(0.0), tint, value * 2.0)
+          : mix(tint, vec3(1.0), value * 2.0 - 1.0);
 
-      gl_FragColor = vec4(color, vOpacity);
+        gl_FragColor = vec4(color, vOpacity);
+      }
     }
   `
 });
 silhouette.uniforms.ditherMagnitude = { value: 0.02 };
+silhouette.uniforms.isWireframe = { value : false };
 
 const transparent = new THREE.RawShaderMaterial({
   vertexShader: silhouette.vertexShader,
@@ -107,6 +122,7 @@ const transparent = new THREE.RawShaderMaterial({
   transparent: true
 });
 transparent.uniforms.ditherMagnitude = { value: 0.02 };
+transparent.uniforms.isWireframe = { value : false };
 
 const makeSplinePath = (pts, closed) => {
   const spline = new THREE.Path();
@@ -173,6 +189,7 @@ const makeMesh = (shapePath, depth, curveSegments, value = 0, alpha = 1, fade = 
     { depth, curveSegments, bevelEnabled : false }
   );
   shadeGeometry(geom, value, alpha, fade);
+  idGeometry(geom);
   bulgeGeometry(geom);
   return new THREE.Mesh(geom, alpha == 1 ? silhouette : transparent);
 };
@@ -198,6 +215,24 @@ const shadeGeometry = (geometry, value, alpha = 1, fade = 0) => {
     monochromeValues.push(fade);
   }
   geometry.setAttribute("monochromeValue", new THREE.Float32BufferAttribute(monochromeValues, 3));
+  return geometry;
+};
+
+
+let [idRed, idGreen, idBlue] = [0, 0, 0];
+
+const idGeometry = (geometry) => {
+  const numVertices = geometry.getAttribute("position").count;
+  idRed = (idRed + 0x23) % 0xFF;
+  idGreen = (idGreen + 0x67) % 0xFF;
+  idBlue = (idBlue + 0xAC) % 0xFF
+  const idValues = [];
+  for (let i = 0; i < numVertices; i++) {
+    idValues.push(idRed / 0xFF);
+    idValues.push(idGreen / 0xFF);
+    idValues.push(idBlue / 0xFF);
+  }
+  geometry.setAttribute("idColor", new THREE.Float32BufferAttribute(idValues, 3));
   return geometry;
 };
 

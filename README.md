@@ -37,11 +37,11 @@ Constantly drives straight. The car turns left and right if the mouse is on the 
 - [x] Rear view
 - [x] Optional simulated dashboard
 - [x] Support for driving on the left and on the right
+- [x] Wireframe mode
 - [ ] Collision detection
 - [ ] Custom color palette control
 - [ ] Engine revving audio support
 - [ ] ~Steering wheel peripheral support~
-- [ ] ~Wireframe mode~
 
 ### New features
 - [x] Runs right in the browser, on any computer

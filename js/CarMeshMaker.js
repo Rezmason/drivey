@@ -253,6 +253,16 @@ const generate = () => {
   plates.push(...createBoxes(rearPlateTF, rearPlateBF, rearPlateTF, rearPlateBF, v => 0.1));
   plates.forEach(plate => shadeGeometry(plate, 0.2));
 
+  const mesh = new THREE.Group();
+
+  mesh.add(new THREE.Mesh(idGeometry(mergeGeometries(frame)), silhouette));
+  mesh.add(new THREE.Mesh(idGeometry(mergeGeometries(mirrors)), silhouette));
+  mesh.add(new THREE.Mesh(idGeometry(mergeGeometries(fenders)), silhouette));
+  mesh.add(new THREE.Mesh(idGeometry(mergeGeometries(frontLights)), silhouette));
+  mesh.add(new THREE.Mesh(idGeometry(mergeGeometries(tailLights)), silhouette));
+  mesh.add(new THREE.Mesh(idGeometry(mergeGeometries(plates)), silhouette));
+  mesh.add(new THREE.Mesh(idGeometry(mergeGeometries(antennas)), silhouette));
+
   // merge opaque geometries
   const allGeometries = [].concat(
     frame,
@@ -263,7 +273,6 @@ const generate = () => {
     plates,
     antennas
   );
-  const mesh = new THREE.Mesh(mergeGeometries(allGeometries), silhouette);
   allGeometries.forEach(geometry => geometry.dispose());
 
   // merge transparent geometries
@@ -274,8 +283,8 @@ const generate = () => {
 
   // wheel meshes — kept separate, in case someone
   // wants to turn them in the future or something
-  const tireGeometry = shadeGeometry(new THREE.CylinderBufferGeometry(wheelRadius, wheelRadius, wheelThickness, 30), 0.1);
-  const hubcapGeometry = shadeGeometry(new THREE.CylinderBufferGeometry(hubcapRadius, hubcapRadius, hubcapThickness, 30), carColor);
+  const tireGeometry = idGeometry(shadeGeometry(new THREE.CylinderBufferGeometry(wheelRadius, wheelRadius, wheelThickness, 30), 0.1));
+  const hubcapGeometry = idGeometry(shadeGeometry(new THREE.CylinderBufferGeometry(hubcapRadius, hubcapRadius, hubcapThickness, 30), carColor));
   const frontLeftWheel = new THREE.Mesh(mergeGeometries([tireGeometry, hubcapGeometry]), silhouette);
   frontLeftWheel.rotation.z = Math.PI * 0.5;
   frontLeftWheel.position.y = wheelRadius;
