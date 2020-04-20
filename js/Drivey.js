@@ -59,14 +59,6 @@ class Drivey {
       [3, 4.0],
     ]);
 
-    this.camerasByName = new Map([
-      ["driver", this.screen.driverCamera],
-      ["rear", this.screen.driverCamera],
-      ["chase", this.screen.chaseCamera],
-      ["aerial", this.screen.aerialCamera],
-      ["satellite", this.screen.satelliteCamera],
-    ]);
-
     this.drivingSidesByName = new Map([
       ["left", 1],
       ["right", -1],
@@ -81,10 +73,8 @@ class Drivey {
     this.laneSpacing = 4;
     this.laneOffset = 2.5;
     this.drivingSide = -1;
-    this.defaultTilt = Math.PI * (0.5 - 0.0625);
+    this.defaultTilt = -0.0625;
 
-    this.showDashboard = true;
-    this.rearView = false;
     this.cruiseSpeed = 1;
 
     // Used to determine time delta between frames
@@ -95,20 +85,24 @@ class Drivey {
       The organization of the scene is as follows:
 
       scene
-        <satelliteCamera>
+        <satelliteCameraMount>
         myCarExterior
           sky
-          <chaseCamera>
-          <aerialCamera>
+          <chaseCameraMount>
+          <aerialCameraMount>
           myCarInterior
             myCarMesh
             driver
-              <driverCamera>
+              <rearCameraMount>
+              <driverCameraMount>
                 dashboard
         level world
         level sky
         [otherCarExteriors]
     */
+
+    this.satelliteCameraMount = new THREE.Group();
+    this.screen.scene.add(this.satelliteCameraMount);
 
     this.myCar = new Car();
     this.myCarMesh = CarMeshMaker.generate();
@@ -125,25 +119,53 @@ class Drivey {
     this.sky = this.makeSky();
     this.myCarExterior.add(this.sky);
 
-    this.screen.chaseCamera.rotation.x = Math.PI * 0.5;
-    this.screen.chaseCamera.position.y = -5;
-    this.screen.chaseCamera.position.z = 2;
-    this.myCarExterior.add(this.screen.chaseCamera);
+    this.chaseCameraMount = new THREE.Group();
+    this.chaseCameraMount.rotation.x = Math.PI * 0.5;
+    this.chaseCameraMount.position.y = -5;
+    this.chaseCameraMount.position.z = 2;
+    this.myCarExterior.add(this.chaseCameraMount);
+
+    this.hoodCameraMount = new THREE.Group();
+    this.hoodCameraMount.rotation.x = Math.PI * 0.5;
+    this.hoodCameraMount.position.y = 3;
+    this.hoodCameraMount.position.z = 0.5;
+    this.myCarExterior.add(this.hoodCameraMount);
 
     this.driver = new THREE.Group();
     this.driver.name = "Ace";
     this.myCarInterior.add(this.driver);
 
-    this.screen.driverCamera.rotation.x = this.defaultTilt;
-    this.screen.driverCamera.position.z = 1;
-    this.driver.add(this.screen.driverCamera);
+    this.driverCameraMount = new THREE.Group();
+    this.driverCameraMount.rotation.x = Math.PI * (0.5 + this.defaultTilt);
+    this.driverCameraMount.position.z = 1;
+    this.driver.add(this.driverCameraMount);
 
-    this.screen.aerialCamera.position.set(0, 0, 60);
-    this.myCarExterior.add(this.screen.aerialCamera);
+    this.rearCameraMount = new THREE.Group();
+    this.rearCameraMount.rotation.x = Math.PI * (0.5 - this.defaultTilt);
+    this.rearCameraMount.rotation.y = Math.PI;
+    this.rearCameraMount.position.z = 1;
+    this.driver.add(this.rearCameraMount);
+
+    this.aerialCameraMount = new THREE.Group();
+    this.aerialCameraMount.position.set(0, 0, 60);
+    this.myCarExterior.add(this.aerialCameraMount);
 
     this.dashboard = new Dashboard();
     this.dashboard.object.scale.set(0.0018, 0.0018, 0.001);
-    this.screen.driverCamera.add(this.dashboard.object);
+    this.driverCameraMount.add(this.dashboard.object);
+
+    this.cameraMountsByName = new Map([
+      ["driver", { mount: this.driverCameraMount, drawBrighterGround: false } ],
+      ["hood", { mount: this.hoodCameraMount, drawBrighterGround: false } ],
+      ["rear", { mount: this.rearCameraMount, drawBrighterGround: false } ],
+      ["chase", { mount: this.chaseCameraMount, drawBrighterGround: false } ],
+      ["aerial", { mount: this.aerialCameraMount, drawBrighterGround: true } ],
+      ["satellite", { mount: this.satelliteCameraMount, drawBrighterGround: true } ],
+    ]);
+
+    this.cameraMount = this.driverCameraMount;
+    this.drawBrighterGround = false;
+    this.cameraMount.add(this.screen.camera);
 
     // Initial level is Industrial Zone
     this.setLevel("industrial");
@@ -192,18 +214,15 @@ class Drivey {
     this.setNumOtherCars(this.numOtherCars);
 
     // The height of the world camera depends on the size of the level
-    this.screen.satelliteCamera.position.set(0, 0, this.level.worldRadius);
+    this.satelliteCameraMount.position.set(0, 0, this.level.worldRadius);
   }
 
   updateBackgroundColor() {
     let backgroundColor = this.level.tint.clone();
-    if (
-      this.screen.camera == this.screen.driverCamera ||
-      this.screen.camera == this.screen.chaseCamera
-    ) {
-      backgroundColor.multiplyScalar(this.level.ground * 2);
+    if (this.drawBrighterGround) {
+      backgroundColor.multiplyScalar(this.level.skyLow);
     } else {
-      backgroundColor.multiplyScalar(this.level.skyLow).addScalar(0.5);
+      backgroundColor.multiplyScalar(this.level.ground * 2);
     }
     this.screen.backgroundColor = backgroundColor;
   }
@@ -242,15 +261,13 @@ class Drivey {
       case "controls":
         this.controlScheme = this.controlSchemes.get(value);
         break;
-      case "dashboard":
-        this.showDashboard = value === "true";
-        break;
       case "npcCars":
         this.setNumOtherCars(parseInt(value) * 8);
         break;
       case "camera":
-        this.rearView = value === "rear";
-        this.screen.camera = this.camerasByName.get(value);
+        this.cameraMount = this.cameraMountsByName.get(value).mount;
+        this.drawBrighterGround = this.cameraMountsByName.get(value).drawBrighterGround;
+        this.cameraMount.add(this.screen.camera);
         this.updateBackgroundColor();
         break;
       case "drivingSide":
@@ -273,25 +290,17 @@ class Drivey {
     this.dashboard.update();
     this.controlScheme.update();
 
-    // The direction the driver is looking - forwards, or backwards
-    this.driver.rotation.z = lerp(this.driver.rotation.z, this.rearView ? Math.PI : 0, 0.2);
-    if (this.screen.camera == this.screen.driverCamera) {
-      this.sky.rotation.y = this.driver.rotation.z;
+    // The dashboard only appears if the camera is in the driver's seat
+    if (this.cameraMount == this.driverCameraMount) {
+      if (this.dashboard.object.parent == null) this.driverCameraMount.add(this.dashboard.object);
     } else {
-      this.sky.rotation.y = 0;
-    }
-
-    // The dashboard only appears if the driver is facing forward and the camera is the driver camera
-    if (this.showDashboard && !this.rearView && this.screen.camera == this.screen.driverCamera) {
-      if (this.dashboard.object.parent == null) this.screen.driverCamera.add(this.dashboard.object);
-    } else {
-      if (this.dashboard.object.parent != null) this.screen.driverCamera.remove(this.dashboard.object);
+      if (this.dashboard.object.parent != null) this.driverCameraMount.remove(this.dashboard.object);
     }
 
     // Only show the sky if the camera is the driver camera
     if (
-      this.screen.camera == this.screen.driverCamera ||
-      this.screen.camera == this.screen.chaseCamera
+      this.cameraMount == this.driverCameraMount ||
+      this.cameraMount == this.chaseCameraMount
     ) {
       if (this.level.sky.parent == null) this.screen.scene.add(this.level.sky);
     } else {
@@ -299,7 +308,7 @@ class Drivey {
     }
 
     // Only show my car if the camera is not the driver camera
-    if (this.screen.camera == this.screen.driverCamera) {
+    if (this.cameraMount == this.driverCameraMount || this.cameraMount == this.rearCameraMount) {
       if (this.myCarMesh.parent != null) this.myCarExterior.remove(this.myCarMesh);
     } else {
       if (this.myCarMesh.parent == null) this.myCarExterior.add(this.myCarMesh);
@@ -326,6 +335,8 @@ class Drivey {
     this.updateCarExterior(this.myCar, this.myCarExterior);
     this.myCarInterior.rotation.x = this.myCar.pitch * Math.PI;
     this.driver.rotation.y = this.myCar.tilt * Math.PI;
+    this.hoodCameraMount.rotation.z = -this.myCar.tilt * Math.PI;
+    this.hoodCameraMount.rotation.x = (this.myCar.pitch + 0.5) * Math.PI;
 
     // Update the dashboard
     this.dashboard.object.rotation.z = this.driver.rotation.y;

@@ -49,45 +49,64 @@ const silhouette = new THREE.RawShaderMaterial({
     resolution: { type: "v2", value: new THREE.Vector2(1, 1) }
   },
   vertexShader: `
-    uniform vec3 tint;
     attribute vec3 monochromeValue;
     attribute float bulgeDirection;
     attribute vec3 position;
     uniform mat4 projectionMatrix;
     uniform mat4 modelViewMatrix;
     uniform vec2 resolution;
-    varying vec4 vColor;
+    varying float vShade;
+    varying float vOpacity;
     void main() {
       float value = monochromeValue.r;
       float fade = monochromeValue.b;
       vec4 worldPosition = modelViewMatrix * vec4(position, 1.0);
       float screenZ = (projectionMatrix * worldPosition).z;
 
-      value = clamp(value - fade * screenZ / resolution.y, 0., 1.);
-
-      vec3 color = value < 0.5
-        ? mix(vec3(0.0), tint, value * 2.0)
-        : mix(tint, vec3(1.0), value * 2.0 - 1.0);
-      vColor = vec4(color, monochromeValue.g);
+      value - fade * screenZ / resolution.y;
+      vShade = value;
+      vOpacity = monochromeValue.g;
 
       worldPosition.y += bulgeDirection * screenZ * 0.9 / resolution.y;
       gl_Position = projectionMatrix * worldPosition;
     }
   `,
+
   fragmentShader: `
     precision mediump float;
-    varying vec4 vColor;
+    #define PI 3.14159265359
+
+    uniform vec3 tint;
+    uniform float scramble;
+    uniform float ditherMagnitude;
+    varying float vShade;
+    varying float vOpacity;
+
+    highp float rand( const in vec2 uv, const in float t ) {
+      const highp float a = 12.9898, b = 78.233, c = 43758.5453;
+      highp float dt = dot( uv.xy, vec2( a,b ) ), sn = mod( dt, PI );
+      return fract(sin(sn) * c + t);
+    }
+
     void main() {
-      gl_FragColor = vColor;
+      float value = clamp(vShade + (rand( gl_FragCoord.xy, scramble ) - 0.5) * ditherMagnitude, 0., 1.);
+
+      vec3 color = value < 0.5
+        ? mix(vec3(0.0), tint, value * 2.0)
+        : mix(tint, vec3(1.0), value * 2.0 - 1.0);
+
+      gl_FragColor = vec4(color, vOpacity);
     }
   `
 });
+silhouette.uniforms.ditherMagnitude = { value: 0.02 };
 
 const transparent = new THREE.RawShaderMaterial({
   vertexShader: silhouette.vertexShader,
   fragmentShader: silhouette.fragmentShader,
   transparent: true
 });
+transparent.uniforms.ditherMagnitude = { value: 0.02 };
 
 const makeSplinePath = (pts, closed) => {
   const spline = new THREE.Path();

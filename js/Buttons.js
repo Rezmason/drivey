@@ -36,16 +36,10 @@ class Buttons {
         <span class="indicator">${value}</span>
       </div>`);
 
-    this.addButton("camera", "driver", ["driver", "rear", "chase", "aerial", "satellite"], value => `
+    this.addButton("camera", "driver", ["driver", "hood", "rear", "chase", "aerial", "satellite"], value => `
       <div class='label'>camera</div>
       <div class='option'>
         <span class="indicator">${value}</span>
-      </div>`);
-
-    this.addButton("dashboard", true, [true, false], value => `
-      <div class='label'>dashboard</div>
-      <div class='option'>
-        <span class="light ${value === "true" ? "on" : "off"}"></span>
       </div>`);
 
     this.addButton("controls", isMobile ? "touch" : "arrows", ["touch", "arrows", "1 switch", "eye gaze"], value => `
