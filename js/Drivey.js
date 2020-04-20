@@ -40,6 +40,7 @@ class Drivey {
       ["1 switch", new OneSwitchInput()],
       ["eye gaze", new EyeGazeInput()],
     ]);
+    this.npcControlScheme = new Input();
     this.controlScheme = this.controlSchemes.get(isMobile ? "touch" : "arrows");
     this.screen = new Screen();
     this.buttons = new Buttons();
@@ -50,9 +51,35 @@ class Drivey {
   }
 
   init() {
+
+    this.cruiseSpeeds = new Map([
+      [0, 0.0],
+      [1, 0.5],
+      [2, 1.0],
+      [3, 4.0],
+    ]);
+
+    this.camerasByName = new Map([
+      ["driver", this.screen.driverCamera],
+      ["rear", this.screen.driverCamera],
+      ["chase", this.screen.chaseCamera],
+      ["aerial", this.screen.aerialCamera],
+      ["satellite", this.screen.satelliteCamera],
+    ]);
+
+    this.drivingSidesByName = new Map([
+      ["left", 1],
+      ["right", -1],
+    ]);
+
+    this.screenResolutions = new Map([
+      ["low", 1 / 4],
+      ["medium", 1 / 2],
+      ["high", 1 / 1],
+    ]);
+
     this.laneSpacing = 4;
     this.laneOffset = 2.5;
-    this.laneChange = 0;
     this.drivingSide = -1;
     this.defaultTilt = Math.PI * (0.5 - 0.0625);
 
@@ -72,12 +99,12 @@ class Drivey {
         myCarExterior
           sky
           <chaseCamera>
+          <aerialCamera>
           myCarInterior
             myCarMesh
             driver
               <driverCamera>
                 dashboard
-              <aerialCamera>
         level world
         level sky
         [otherCarExteriors]
@@ -112,7 +139,7 @@ class Drivey {
     this.driver.add(this.screen.driverCamera);
 
     this.screen.aerialCamera.position.set(0, 0, 60);
-    this.driver.add(this.screen.aerialCamera);
+    this.myCarExterior.add(this.screen.aerialCamera);
 
     this.dashboard = new Dashboard();
     this.dashboard.object.scale.set(0.0018, 0.0018, 0.001);
@@ -153,7 +180,15 @@ class Drivey {
 
     // Build the level scene graph
     this.screen.scene.add(this.level.world);
-    this.placeCar(this.myCar, this.level.roadPath, 0, (this.laneOffset + this.laneChange) * this.drivingSide, false, this.cruiseSpeed * this.level.cruiseSpeed);
+    this.myCar.remove();
+    this.myCar.place(
+      this.level.roadPath,
+      this.autoSteerApproximation,
+      0,
+      this.laneOffset * this.drivingSide,
+      1,
+      this.cruiseSpeed * this.level.cruiseSpeed
+    );
     this.setNumOtherCars(this.numOtherCars);
 
     // The height of the world camera depends on the size of the level
@@ -199,49 +234,13 @@ class Drivey {
     return mesh;
   }
 
-  placeCar(car, roadPath, along, laneOffset, oppositeDirection = false, goSpeed = 0) {
-    car.reset();
-
-    // Cars on the opposite side of the road get some of their initial values inverted
-    const direction = oppositeDirection ? -1 : 1;
-    car.roadDir = direction;
-
-    const pos = roadPath.getPoint(along).add(roadPath.getNormal(along).multiplyScalar(laneOffset * direction));
-    car.pos.copy(pos);
-    car.lastPos.copy(pos);
-
-    const tangent = roadPath.getTangent(along).multiplyScalar(direction);
-    car.angle = getAngle(tangent);
-
-    const vel = tangent.multiplyScalar(goSpeed * 2);
-    car.vel.copy(vel);
-    car.lastVel.copy(vel);
-    car.matchSpeed(goSpeed * 2);
-  }
-
   onButtonClick(button, value) {
     switch (button) {
       case "cruise":
-        const cruise = parseInt(value);
-        switch (cruise) {
-          case 0:
-            this.cruiseSpeed = 0;
-            break;
-          case 1:
-            this.cruiseSpeed = 0.5;
-            break;
-          case 2:
-            this.cruiseSpeed = 1.0;
-            break;
-          case 3:
-            this.cruiseSpeed = 4.0;
-            break;
-        }
-        this.drivingSide *= -1;
+        this.cruiseSpeed = this.cruiseSpeeds.get(parseInt(value));
         break;
       case "controls":
         this.controlScheme = this.controlSchemes.get(value);
-        this.drivingSide *= -1;
         break;
       case "dashboard":
         this.showDashboard = value === "true";
@@ -250,50 +249,16 @@ class Drivey {
         this.setNumOtherCars(parseInt(value) * 8);
         break;
       case "camera":
-        this.rearView = false;
-        switch (value) {
-          case "driver":
-            this.screen.camera = this.screen.driverCamera;
-            break;
-          case "rear":
-            this.screen.camera = this.screen.driverCamera;
-            this.rearView = true;
-            break;
-          case "chase":
-            this.screen.camera = this.screen.chaseCamera;
-            break;
-          case "aerial":
-            this.screen.camera = this.screen.aerialCamera;
-            break;
-          case "satellite":
-            this.screen.camera = this.screen.satelliteCamera;
-            break;
-        }
+        this.rearView = value === "rear";
+        this.screen.camera = this.camerasByName.get(value);
         this.updateBackgroundColor();
         break;
       case "drivingSide":
-        switch (value) {
-          case "left":
-            this.drivingSide = 1;
-            break;
-          case "right":
-            this.drivingSide = -1;
-            break;
-        }
+        this.drivingSide = this.drivingSidesByName.get(value);
         this.dashboard.drivingSide = this.drivingSide;
         break;
       case "quality":
-        switch (value) {
-          case "low":
-          this.screen.setResolution(1 / 4);
-          break;
-          case "medium":
-          this.screen.setResolution(1 / 2);
-          break;
-          case "high":
-          this.screen.setResolution(1 / 1);
-          break;
-        }
+        this.screen.setResolution(this.screenResolutions.get(value));
         break;
       case "music":
         window.open("https://open.spotify.com/user/rezmason/playlist/4ukrs3cTKjTbLoFcxqssXi?si=0y3WoBw1TMyUzK8F9WMbLw", "_blank");
@@ -348,12 +313,17 @@ class Drivey {
     this.lastDelta = delta;
 
     const simSpeed = this.controlScheme.slow ? 0.125 : this.controlScheme.fast ? 4 : 1;
+    const simDelta = simSpeed * delta;
 
     // Drive all the cars and update their positions/rotations
     for (let i = 0; i < this.numOtherCars; i++) {
-      this.drive(this.otherCars[i], this.otherCarExteriors[i], 1, delta, simSpeed);
+      this.otherCars[i].drive(simDelta, this.level.cruiseSpeed, this.npcControlScheme, this.laneSpacing, this.laneOffset, this.drivingSide);
+      this.updateCarExterior(this.otherCars[i], this.otherCarExteriors[i]);
     }
-    this.drive(this.myCar, this.myCarExterior, this.cruiseSpeed, delta, simSpeed, true);
+
+    const myCruiseSpeed = Math.max(this.controlScheme.minCruiseSpeed, this.cruiseSpeed) * this.level.cruiseSpeed;
+    this.myCar.drive(simDelta, myCruiseSpeed, this.controlScheme, this.laneSpacing, this.laneOffset, this.drivingSide);
+    this.updateCarExterior(this.myCar, this.myCarExterior);
     this.myCarInterior.rotation.x = this.myCar.pitch * Math.PI;
     this.driver.rotation.y = this.myCar.tilt * Math.PI;
 
@@ -381,49 +351,26 @@ class Drivey {
         if (this.otherCarExteriors[i].parent == null) {
           this.screen.scene.add(this.otherCarExteriors[i]);
         }
-        this.placeCar(this.otherCars[i], this.level.roadPath, Math.random(), this.laneOffset, Math.random() < 0.5, this.level.cruiseSpeed);
+        this.otherCars[i].place(
+          this.level.roadPath,
+          this.autoSteerApproximation,
+          Math.random(),
+          this.laneOffset * this.drivingSide,
+          Math.random() < 0.5 ? 1 : -1,
+          this.level.cruiseSpeed
+        );
       } else {
         if (this.otherCarExteriors[i].parent != null) {
           this.screen.scene.remove(this.otherCarExteriors[i]);
         }
+        this.otherCars[i].remove();
       }
     }
   }
 
-  drive(car, object, cruiseSpeed, delta, simSpeed, interactive) {
-    const autoSteer = cruiseSpeed > 0;
-    let acc = interactive ? this.controlScheme.brake * -2 + this.controlScheme.gas : 0;
-    let steer = interactive ? this.controlScheme.steer : 0;
-    if (interactive && autoSteer && this.controlScheme.laneChange !== 0) {
-      steer = 0;
-      this.laneChange += (interactive && autoSteer) ? this.controlScheme.laneChange : 0;
-    } else {
-      this.laneChange = 0;
-    }
-    car.handbrake = interactive && this.controlScheme.handbrake;
-    car.accelerate = 0;
-
-    if (autoSteer || !interactive) {
-      car.roadPos += 3 * delta * simSpeed * steer * this.controlScheme.autoSteerSensitivity;
-      if (car.roadPos > 0.1) car.roadPos -= delta * simSpeed;
-      else if (car.roadPos < -0.1) car.roadPos += delta * simSpeed;
-      car.autoSteer(delta * simSpeed, this.level.roadPath, this.autoSteerApproximation, this.laneSpacing, (this.laneOffset + this.laneChange) * this.drivingSide);
-    } else {
-      const diff = -sign(car.steerTo) * 0.0002 * car.vel.length() * delta * simSpeed;
-      if (Math.abs(diff) >= Math.abs(car.steerTo)) car.steerTo = 0;
-      else car.steerTo += diff;
-      car.steerTo = car.steerTo + steer * this.controlScheme.manualSteerSensitivity * delta * simSpeed;
-    }
-
-    if (autoSteer || this.controlScheme.forceCruise) {
-      car.matchSpeed(cruiseSpeed * this.level.cruiseSpeed * (interactive ? this.controlScheme.cruiseSpeedMultiplier : 1));
-    }
-
-    car.accelerate += acc;
-    car.advance(delta * simSpeed);
-
-    object.position.x = car.pos.x;
-    object.position.y = car.pos.y;
-    object.rotation.z = car.angle - Math.PI * 0.5;
+  updateCarExterior(car, exterior) {
+    exterior.position.x = car.pos.x;
+    exterior.position.y = car.pos.y;
+    exterior.rotation.z = car.angle - Math.PI * 0.5;
   }
 }

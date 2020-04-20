@@ -257,3 +257,17 @@ const distance = (v1, v2) => {
   const dy = v1.y - v2.y;
   return Math.sqrt(dx * dx + dy * dy);
 };
+
+const vector2Pool = [];
+
+const borrowVector2 = (from) => {
+  const vec = vector2Pool.length > 0 ? vector2Pool.pop() : new THREE.Vector2();
+  if (from != null) {
+    vec.copy(from);
+  }
+  return vec;
+}
+
+const returnVector2 = (vec) => {
+  vector2Pool.push(vec);
+}

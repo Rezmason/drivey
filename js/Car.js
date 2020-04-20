@@ -6,19 +6,26 @@ class Car {
     this.pos = new THREE.Vector2();
     this.vel = new THREE.Vector2();
     this.lastVel = new THREE.Vector2();
-    this.reset();
   }
 
-  reset() {
-    this.lastPos.set(0, 0);
-    this.pos.set(0, 0);
-    this.vel.set(0, 0);
-    this.lastVel.set(0, 0);
+  place(roadPath, approximation, along, laneOffset, roadDir, initialSpeed) {
+    const pos = roadPath.getPoint(along).add(roadPath.getNormal(along).multiplyScalar(laneOffset * roadDir));
+    const tangent = roadPath.getTangent(along).multiplyScalar(roadDir);
+    const angle = getAngle(tangent);
+    const vel = tangent.multiplyScalar(initialSpeed * 2);
+
+    this.roadPath = roadPath;
+    this.approximation = approximation;
+
+    this.pos.copy(pos);
+    this.lastPos.copy(pos);
+    this.vel.copy(vel);
+    this.lastVel.copy(vel);
 
     this.accelerate = 0;
     this.handbrake = 0;
 
-    this.angle = 0;
+    this.angle = angle;
 
     this.tilt = 0;
     this.pitch = 0;
@@ -27,8 +34,7 @@ class Car {
     this.pitchV = 0;
 
     this.roadPos = 0;
-    this.stepVel = 0;
-    this.roadDir = 1;
+    this.roadDir = roadDir;
 
     this.steer = 0;
     this.steerPos = 0;
@@ -39,19 +45,50 @@ class Car {
     this.spin = 0;
   }
 
-  autoSteer(step, roadPath, approximation, laneSpacing, laneOffset) {
+  remove() {
+    this.roadPath = null;
+    this.approximation = null;
+  }
+
+  drive(step, cruiseSpeed, controlScheme, laneSpacing, laneOffset, drivingSide) {
+    if (cruiseSpeed > 0) {
+      this.roadPos += 3 * step * controlScheme.steer * controlScheme.autoSteerSensitivity;
+      if (this.roadPos > 0.1) this.roadPos -= step;
+      else if (this.roadPos < -0.1) this.roadPos += step;
+      this.autoSteer(
+        step,
+        laneSpacing,
+        (laneOffset + controlScheme.laneShift) * drivingSide
+      );
+      this.matchSpeed(
+        cruiseSpeed * controlScheme.cruiseSpeedMultiplier
+      );
+    } else {
+      const diff = -sign(this.steerTo) * 0.0002 * this.vel.length() * step;
+      if (Math.abs(diff) >= Math.abs(this.steerTo)) this.steerTo = 0;
+      else this.steerTo += diff;
+      this.steerTo = this.steerTo + controlScheme.steer * controlScheme.manualSteerSensitivity * step;
+    }
+
+    this.handbrake = controlScheme.handbrake;
+    this.accelerate += controlScheme.brakePedal * -2 + controlScheme.gasPedal;
+    this.advance(step);
+  }
+
+  autoSteer(step, laneSpacing, laneOffset) {
     // get goal position, based on position on road 1 second in the future
     const dir = this.vel.length() > 0 ? this.vel.clone().normalize() : this.dir();
     const lookAhead = 20;
-    const futurePos = this.pos.clone().add(dir.clone().multiplyScalar(lookAhead));
-    const along = approximation.getNearest(futurePos);
-    const targetDir = roadPath
+    dir.multiplyScalar(lookAhead);
+    const futurePos = this.pos.clone().add(dir);
+    const along = this.approximation.getNearest(futurePos);
+    const targetDir = this.roadPath
       .getPoint(along)
       .sub(this.pos)
-      .add(roadPath.getNormal(along).multiplyScalar(laneSpacing * this.roadPos + this.roadDir * laneOffset));
+      .add(this.roadPath.getNormal(along).multiplyScalar(laneSpacing * this.roadPos + this.roadDir * laneOffset));
 
     // mix it with the slope of the road at that point
-    let tangent = roadPath.getTangent(along);
+    let tangent = this.roadPath.getTangent(along);
     tangent.multiplyScalar(this.roadDir);
     if (targetDir.length() > 0) tangent.lerp(targetDir, 0.1);
 

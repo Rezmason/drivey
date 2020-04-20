@@ -5,14 +5,14 @@ class Input {
     this.slow = false;
     this.fast = false;
     this.gasPedal = 0;
-    this.brake = 0;
+    this.brakePedal = 0;
     this.handbrake = 0;
     this.steer = 0;
+    this.minCruiseSpeed = 0.5;
     this.manualSteerSensitivity = 1;
     this.autoSteerSensitivity = 1;
-    this.forceCruise = false;
     this.cruiseSpeedMultiplier = 1;
-    this.laneChange = 0;
+    this.laneShift = 0;
   }
 
   update() {}
@@ -70,8 +70,8 @@ class TouchInput extends Input {
     total.y = Math.min(1, Math.max(-1, total.y * 2 / minDimension));
 
     this.steer = -total.x;
-    this.gas = total.y < 0 ? -total.y : 0;
-    this.brake = total.y > 0 ? total.y : 0;
+    this.gasPedal = total.y < 0 ? -total.y : 0;
+    this.brakePedal = total.y > 0 ? total.y : 0;
   }
 }
 
@@ -87,8 +87,8 @@ class KeyboardInput extends Input {
   update() {
     this.slow = this.keysDown.has("ShiftLeft") || this.keysDown.has("ShiftRight");
     this.fast = this.keysDown.has("ControlLeft") || this.keysDown.has("ControlRight");
-    this.gas = this.keysDown.has("ArrowUp") ? 1 : 0;
-    this.brake = this.keysDown.has("ArrowDown") ? 1 : 0;
+    this.gasPedal = this.keysDown.has("ArrowUp") ? 1 : 0;
+    this.brakePedal = this.keysDown.has("ArrowDown") ? 1 : 0;
     this.handbrake = this.keysDown.has("Space") ? 1 : 0;
     this.steer = 0;
     if (this.keysDown.has("ArrowLeft")) this.steer += 1;
@@ -101,20 +101,19 @@ class OneSwitchInput extends Input {
     super();
     this.manualSteerSensitivity = 0.0125;
     this.autoSteerSensitivity = 0.5;
-    this.forceCruise = true;
+    this.minCruiseSpeed = 0.5;
     this.cruiseSpeedMultiplier = 4;
-    this.driveDirection = -1;
+    this.shiftSpeed = -0.2;
     document.addEventListener("click", event => {
-      if (event.target.type !== "button") this.driveDirection *= -1;
+      if (event.target.type !== "button") this.shiftSpeed *= -1;
     });
     document.addEventListener("touchstart", event => {
-      if (event.target.type !== "button") this.driveDirection *= -1;
+      if (event.target.type !== "button") this.shiftSpeed *= -1;
     });
   }
 
   update() {
-    this.steer = this.driveDirection;
-    this.laneChange = this.driveDirection * 0.2;
+    this.laneShift += this.shiftSpeed;
   }
 }
 
@@ -123,21 +122,29 @@ class EyeGazeInput extends Input {
     super();
     this.manualSteerSensitivity = 0.025;
     this.autoSteerSensitivity = 1;
-    this.forceCruise = true;
+    this.minCruiseSpeed = 0.5;
     this.cruiseSpeedMultiplier = 4;
     this.xRatio = 0.5;
+    this.yRatio = 0.5;
     document.addEventListener("mousemove", event => {
       this.xRatio = event.clientX / window.innerWidth;
+      this.yRatio = event.clientY / window.innerWidth;
     });
     document.addEventListener("touchstart", event => {
       this.xRatio = touchesFrom(event).pop().clientX / window.innerWidth;
+      this.yRatio = touchesFrom(event).pop().clientY / window.innerWidth;
     });
   }
 
   update() {
-    const DEAD_ZONE = 0.45;
+    const HORIZONTAL_DEAD_ZONE = 0.45;
+    const VERTICAL_DEAD_ZONE = 0.35;
+
     this.steer = 0;
-    if (this.xRatio < 0.5 - DEAD_ZONE) this.steer =  1;
-    if (this.xRatio > 0.5 + DEAD_ZONE) this.steer = -1;
+    if (this.xRatio < 0.5 - HORIZONTAL_DEAD_ZONE) this.steer =  1;
+    if (this.xRatio > 0.5 + HORIZONTAL_DEAD_ZONE) this.steer = -1;
+
+    this.gasPedal = (this.yRatio < 0.5 - VERTICAL_DEAD_ZONE) ? 1 : 0;
+    this.brakePedal = (this.yRatio > 0.5 + VERTICAL_DEAD_ZONE) ? 1 : 0;
   }
 }
