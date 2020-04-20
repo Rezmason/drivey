@@ -115,6 +115,8 @@ const silhouette = new THREE.RawShaderMaterial({
 });
 silhouette.uniforms.ditherMagnitude = { value: 0.02 };
 silhouette.uniforms.isWireframe = { value : false };
+silhouette.uniforms.scramble = { value: 0 };
+silhouette.uniforms.tint = { value: new THREE.Color() };
 
 const transparent = new THREE.RawShaderMaterial({
   vertexShader: silhouette.vertexShader,
@@ -123,6 +125,8 @@ const transparent = new THREE.RawShaderMaterial({
 });
 transparent.uniforms.ditherMagnitude = { value: 0.02 };
 transparent.uniforms.isWireframe = { value : false };
+transparent.uniforms.scramble = { value: 0 };
+transparent.uniforms.tint = { value: new THREE.Color() };
 
 const makeSplinePath = (pts, closed) => {
   const spline = new THREE.Path();

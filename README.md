@@ -38,8 +38,8 @@ Constantly drives straight. The car turns left and right if the mouse is on the 
 - [x] Optional simulated dashboard
 - [x] Support for driving on the left and on the right
 - [x] Wireframe mode
+- [x] Color cycling mode
 - [ ] Collision detection
-- [ ] Custom color palette control
 - [ ] Engine revving audio support
 - [ ] ~Steering wheel peripheral support~
 

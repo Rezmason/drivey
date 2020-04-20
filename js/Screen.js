@@ -10,7 +10,6 @@ as well as establishing an animation loop and handling window resizing events.
 class Screen {
   constructor(animate = true) {
     this.time = 0;
-    this.wireframe = false;
     this.updateListeners = [];
     this.element = document.createElement("div");
     document.body.appendChild(this.element);
@@ -30,7 +29,7 @@ class Screen {
 
     this.sobelPass = new THREE.ShaderPass(THREE.SobelOperatorShader);
     this.composer.addPass(this.sobelPass);
-
+    this.sobelPass.enabled = false;
 
     this.blueprintPass = new THREE.ShaderPass({
       uniforms: {
@@ -49,19 +48,50 @@ class Screen {
         varying vec2 vUV;
 
         void main() {
-          vec3 color = vec3(0.2, 0.2, 0.7);
+          vec3 color = vec3(0.1, 0.15, 0.7);
           float line = texture2D(tDiffuse, vUV).r;
           if (line > 0.02) {
-            color += line * 10.;
+            color = clamp(line * 10., 0., 1.) * vec3(0.9, 0.9, 1.);
           }
-          gl_FragColor = vec4(clamp(color, 0., 1.), 1.);
+          gl_FragColor = vec4(color, 1.);
         }
       `
     });
     this.composer.addPass(this.blueprintPass);
+    this.blueprintPass.enabled = false;
 
-    this.sobelPass.enabled = this.wireframe;
-    this.blueprintPass.enabled = this.wireframe;
+    this.colorCyclePass = new THREE.ShaderPass({
+      uniforms: {
+        tDiffuse: { type: "t", value: null },
+        time: { type: "f", value: 0 }
+      },
+      vertexShader: `
+        varying vec2 vUV;
+        void main() {
+          vUV = uv;
+          gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
+        }
+      `,
+      fragmentShader: `
+        precision mediump float;
+        uniform sampler2D tDiffuse;
+        uniform float time;
+        varying vec2 vUV;
+
+        vec3 hueShift( const in vec3 color, const in float amount ) {
+          vec3 p = vec3(0.55735) * dot(vec3(0.55735), color);
+          vec3 u = color - p;
+          vec3 v = cross(vec3(0.55735), u);
+          return u * cos(amount * 6.2832) + v * sin(amount * 6.2832) + p;
+        }
+
+        void main() {
+          gl_FragColor = vec4(hueShift(texture2D(tDiffuse, vUV).rgb, time), 1.0);
+        }
+      `
+    });
+    this.composer.addPass(this.colorCyclePass);
+    this.colorCyclePass.enabled = false;
 
     this.aaPass = new THREE.SMAAPass(1, 1);
     this.aaPass.renderToScreen = true;
@@ -114,6 +144,10 @@ class Screen {
     this.blueprintPass.enabled = enabled;
   }
 
+  setCycleColors(enabled) {
+    this.colorCyclePass.enabled = enabled;
+  }
+
   update() {
     if (this.active) {
       for (const listener of this.updateListeners) {
@@ -128,8 +162,9 @@ class Screen {
     if (!this.active) return;
 
     this.time += 0.05;
-    silhouette.uniforms.scramble = { value: this.time };
-    transparent.uniforms.scramble = { value: this.time };
+    silhouette.uniforms.scramble.value = this.time;
+    transparent.uniforms.scramble.value = this.time;
+    this.colorCyclePass.uniforms.time.value = this.time * 0.02;
 
     if (this.camera != null) {
       this.renderPass.camera = this.camera;

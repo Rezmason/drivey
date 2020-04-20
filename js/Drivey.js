@@ -197,8 +197,8 @@ class Drivey {
     // Retint the background, UI and materials
     this.updateBackgroundColor();
     this.buttons.setTint(this.level.tint);
-    silhouette.uniforms.tint = { value: this.level.tint };
-    transparent.uniforms.tint = { value: this.level.tint };
+    silhouette.uniforms.tint.value = this.level.tint;
+    transparent.uniforms.tint.value = this.level.tint;
 
     // Build the level scene graph
     this.screen.scene.add(this.level.world);
@@ -270,12 +270,14 @@ class Drivey {
         this.cameraMount.add(this.screen.camera);
         this.updateBackgroundColor();
         break;
-      case "wireframe":
-        const isWireframe = value === "true";
+      case "effect":
+        const isWireframe = value === "wireframe";
         this.sky.visible = !isWireframe;
         this.screen.setWireframe(isWireframe);
-        silhouette.uniforms.isWireframe = { value: isWireframe };
-        transparent.uniforms.isWireframe = { value: isWireframe };
+        silhouette.uniforms.isWireframe.value = isWireframe;
+        transparent.uniforms.isWireframe.value = isWireframe;
+
+        this.screen.setCycleColors(value === "technicolor");
         break;
       case "drivingSide":
         this.drivingSide = this.drivingSidesByName.get(value);
