@@ -6,6 +6,7 @@ class Spectre extends Level {
     this.tint = new THREE.Color(1, 0, 1);
     this.skyLow = 0.35;
     this.skyHigh = -1;
+    this.laneWidth = 4;
     const postPath = new THREE.ShapePath();
     this.drawRoadLine(this.roadPath, postPath, -25, 0.1, RoadLineStyle.DASH(0.1, 27, 0), 0, 1);
     this.drawRoadLine(this.roadPath, postPath, -15, 0.1, RoadLineStyle.DASH(0.1, 23, 0), 0, 1);

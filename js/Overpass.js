@@ -8,6 +8,7 @@ class Overpass extends Level {
     this.skyHigh = 0;
     this.roadPath.scale(0.5, 0.5);
     this.cruiseSpeed = 4;
+    this.laneWidth = 4;
 
     const tarmacPath = new THREE.ShapePath();
     this.drawRoadLine(this.roadPath, tarmacPath, 0, 9, RoadLineStyle.SOLID(2), 0, 1);

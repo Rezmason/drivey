@@ -4,6 +4,7 @@ class Tunnel extends Level {
   build(meshes, transparentMeshes, skyMeshes) {
     this.name = "The Tunnel";
     this.tint = new THREE.Color(0.2, 0.7, 0.1);
+    this.laneWidth = 3.5;
     const tarmac = 0.1; // 0.1
     const whiteLinesColor = 0.8;
     const lightColor = 1;

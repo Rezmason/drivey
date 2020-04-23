@@ -5,6 +5,7 @@ class DeepDarkNight extends Level {
     this.name = "The Deep Dark Night";
     this.tint = new THREE.Color(0.7, 0.7, 0.7);
     // this.tint = new THREE.Color(0, 0.6, 1);
+    this.laneWidth = 3;
     const roadLineColor = 0.75;
     this.roadPath.scale(2, 2);
     const linePath = new THREE.ShapePath();

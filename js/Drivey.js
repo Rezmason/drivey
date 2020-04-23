@@ -70,8 +70,6 @@ class Drivey {
       ["high", 1 / 1],
     ]);
 
-    this.laneSpacing = 4;
-    this.laneOffset = 2.5;
     this.drivingSide = -1;
     this.defaultTilt = -0.0625;
 
@@ -207,7 +205,9 @@ class Drivey {
       this.level.roadPath,
       this.autoSteerApproximation,
       0,
-      this.laneOffset * this.drivingSide,
+      this.level.laneWidth,
+      this.level.numLanes,
+      this.drivingSide,
       1,
       this.cruiseSpeed * this.level.cruiseSpeed
     );
@@ -335,12 +335,12 @@ class Drivey {
 
     // Drive all the cars and update their positions/rotations
     for (let i = 0; i < this.numOtherCars; i++) {
-      this.otherCars[i].drive(simDelta, this.level.cruiseSpeed, this.npcControlScheme, this.laneSpacing, this.laneOffset, this.drivingSide);
+      this.otherCars[i].drive(simDelta, this.level.cruiseSpeed, this.npcControlScheme, this.drivingSide);
       this.updateCarExterior(this.otherCars[i], this.otherCarExteriors[i]);
     }
 
     const myCruiseSpeed = Math.max(this.controlScheme.minCruiseSpeed, this.cruiseSpeed) * this.level.cruiseSpeed;
-    this.myCar.drive(simDelta, myCruiseSpeed, this.controlScheme, this.laneSpacing, this.laneOffset, this.drivingSide);
+    this.myCar.drive(simDelta, myCruiseSpeed, this.controlScheme, this.drivingSide);
     this.updateCarExterior(this.myCar, this.myCarExterior);
     this.myCarInterior.rotation.x = this.myCar.pitch * Math.PI;
     this.driver.rotation.y = this.myCar.tilt * Math.PI;
@@ -375,7 +375,9 @@ class Drivey {
           this.level.roadPath,
           this.autoSteerApproximation,
           Math.random(),
-          this.laneOffset * this.drivingSide,
+          this.level.laneWidth,
+          this.level.numLanes,
+          this.drivingSide,
           Math.random() < 0.5 ? 1 : -1,
           this.level.cruiseSpeed
         );

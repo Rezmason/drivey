@@ -8,8 +8,12 @@ class Car {
     this.lastVel = new THREE.Vector2();
   }
 
-  place(roadPath, approximation, along, laneOffset, roadDir, initialSpeed) {
-    const pos = roadPath.getPoint(along).add(roadPath.getNormal(along).multiplyScalar(laneOffset * roadDir));
+  place(roadPath, approximation, along, laneWidth, numLanes, drivingSide, roadDir, initialSpeed) {
+
+    this.laneOffset = laneWidth * (0.5 + Math.floor(Math.random() * numLanes));
+    this.laneOffset += (Math.random() - 0.5) * 0.5 * laneWidth;
+
+    const pos = roadPath.getPoint(along).add(roadPath.getNormal(along).multiplyScalar(this.laneOffset * roadDir * drivingSide));
     const tangent = roadPath.getTangent(along).multiplyScalar(roadDir);
     const angle = getAngle(tangent);
     const vel = tangent.multiplyScalar(initialSpeed * 2);
@@ -50,15 +54,14 @@ class Car {
     this.approximation = null;
   }
 
-  drive(step, cruiseSpeed, controlScheme, laneSpacing, laneOffset, drivingSide) {
+  drive(step, cruiseSpeed, controlScheme, drivingSide) {
     if (cruiseSpeed > 0) {
       this.roadPos += 3 * step * controlScheme.steer * controlScheme.autoSteerSensitivity;
       if (this.roadPos > 0.1) this.roadPos -= step;
       else if (this.roadPos < -0.1) this.roadPos += step;
       this.autoSteer(
         step,
-        laneSpacing,
-        (laneOffset + controlScheme.laneShift) * drivingSide
+        (this.laneOffset + controlScheme.laneShift) * drivingSide
       );
       this.matchSpeed(
         cruiseSpeed * controlScheme.cruiseSpeedMultiplier
@@ -75,7 +78,7 @@ class Car {
     this.advance(step);
   }
 
-  autoSteer(step, laneSpacing, laneOffset) {
+  autoSteer(step, offset) {
     // get goal position, based on position on road 1 second in the future
     const dir = this.vel.length() > 0 ? this.vel.clone().normalize() : this.dir();
     const lookAhead = 20;
@@ -85,7 +88,7 @@ class Car {
     const targetDir = this.roadPath
       .getPoint(along)
       .sub(this.pos)
-      .add(this.roadPath.getNormal(along).multiplyScalar(laneSpacing * this.roadPos + this.roadDir * laneOffset));
+      .add(this.roadPath.getNormal(along).multiplyScalar(4 * this.roadPos + this.roadDir * offset));
 
     // mix it with the slope of the road at that point
     let tangent = this.roadPath.getTangent(along);

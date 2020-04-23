@@ -11,6 +11,9 @@ class City extends Level {
     this.skyLow = 0.4;
     this.skyHigh = 0;
 
+    this.laneWidth = 3;
+    this.numLanes = 2;
+
     // sky
     const cloudsPath = new THREE.ShapePath();
     for (let i = 0; i < 100; i++) {

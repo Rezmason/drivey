@@ -6,6 +6,8 @@ class CliffsideBeach extends Level {
     this.skyLow = 0.8;
     this.skyHigh = 1.8;
     this.ground = 0.4;
+    this.laneWidth = 3;
+    this.numLanes = 2;
 
     const beach = 0.9;
     const tarmac = 0;

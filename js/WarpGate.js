@@ -4,6 +4,7 @@ class WarpGate extends Level {
   build(meshes, transparentMeshes, skyMeshes) {
     this.name = "The Cyber Tube";
     this.tint = new THREE.Color(1, 0.1, 0.3);
+    this.laneWidth = 0;
 
     for (let i = 0; i < 2; i += 1 / 8) {
       const x = Math.cos(i * Math.PI);

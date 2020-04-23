@@ -10,6 +10,7 @@ class TrainTracks extends Level {
     this.ground = 0.5;
     this.roadPath.scale(1/2, 2);
     this.cruiseSpeed = 10;
+    this.laneWidth = 5;
 
     const railColor = 0.4;
     const sleeperColor = 0.45;

@@ -1,11 +1,5 @@
 Why doesn't it run on iPads?
 
-Level-specified lanes
-  Each level gets to specify how many lanes there are and how wide they are
-  Each car gets assigned a random lane, and NPC cars get a "human error" offset
-  Auto-steer picks the closest lane
-    Detect when car has crossed the divider, and flip it around
-
 Replace framerate gauge with simulated RPM
   Prevent moving in reverse on when on auto-pilot
   Simluated gearbox?
