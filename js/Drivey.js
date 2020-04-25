@@ -108,7 +108,6 @@ class Drivey {
     this.screen.scene.add(this.satelliteCameraMount);
 
     this.myCar = new Car();
-    this.myCarMesh = CarMeshMaker.generate();
     this.otherCars = [];
     this.otherCarExteriors = [];
     this.numOtherCars = 0;
@@ -134,6 +133,10 @@ class Drivey {
     this.hoodCameraMount.position.z = 0.5;
     this.myCarExterior.add(this.hoodCameraMount);
 
+    this.myCarMesh = CarMeshMaker.generate();
+    this.myCarExterior.add(this.myCarMesh);
+    this.myCarMesh.visible = false;
+
     this.driver = new THREE.Group();
     this.driver.name = "Ace";
     this.myCarInterior.add(this.driver);
@@ -155,6 +158,7 @@ class Drivey {
 
     this.dashboard = new Dashboard();
     this.dashboard.object.scale.set(0.0018, 0.0018, 0.001);
+    this.dashboard.object.position.y = -0.02;
     this.driverCameraMount.add(this.dashboard.object);
 
     this.cameraMountsByName = new Map([
@@ -166,9 +170,7 @@ class Drivey {
       ["satellite", { mount: this.satelliteCameraMount, drawBrighterGround: true } ],
     ]);
 
-    this.cameraMount = this.driverCameraMount;
-    this.drawBrighterGround = false;
-    this.cameraMount.add(this.screen.camera);
+    this.setCameraMount("driver");
 
     // Initial level is Industrial Zone
     this.setLevel("industrial");
@@ -346,10 +348,7 @@ class Drivey {
         this.setNumOtherCars(parseInt(value) * 8);
         break;
       case "camera":
-        this.cameraMount = this.cameraMountsByName.get(value).mount;
-        this.drawBrighterGround = this.cameraMountsByName.get(value).drawBrighterGround;
-        this.cameraMount.add(this.screen.camera);
-        this.updateBackgroundColor();
+        this.setCameraMount(value);
         break;
       case "effect":
         this.currentEffect = value;
@@ -377,33 +376,36 @@ class Drivey {
     }
   }
 
-  update() {
-    this.dashboard.update();
-    this.controlScheme.update();
+  setCameraMount(name) {
+    const mount = this.cameraMountsByName.get(name);
+    this.cameraMount = mount.mount;
+    this.drawBrighterGround = mount.drawBrighterGround;
+    this.cameraMount.add(this.screen.camera);
 
     // The dashboard only appears if the camera is in the driver's seat
-    if (this.cameraMount == this.driverCameraMount) {
-      if (this.dashboard.object.parent == null) this.driverCameraMount.add(this.dashboard.object);
-    } else {
-      if (this.dashboard.object.parent != null) this.driverCameraMount.remove(this.dashboard.object);
-    }
+    this.dashboard.object.visible = this.cameraMount == this.driverCameraMount;
 
-    // Only show the sky if the camera is the driver camera
-    if (
-      this.cameraMount == this.driverCameraMount ||
-      this.cameraMount == this.chaseCameraMount
-    ) {
-      if (this.level.sky.parent == null) this.screen.scene.add(this.level.sky);
-    } else {
-      if (this.level.sky.parent != null) this.screen.scene.remove(this.level.sky);
+    // Only show the level's sky if the camera is the driver camera
+    if (this.level != null) {
+      this.level.sky.visible =
+        this.cameraMount == this.driverCameraMount ||
+        this.cameraMount == this.chaseCameraMount;
     }
 
     // Only show my car if the camera is not the driver camera
-    if (this.cameraMount == this.driverCameraMount || this.cameraMount == this.rearCameraMount) {
-      if (this.myCarMesh.parent != null) this.myCarExterior.remove(this.myCarMesh);
-    } else {
-      if (this.myCarMesh.parent == null) this.myCarExterior.add(this.myCarMesh);
+    this.myCarMesh.visible =
+      this.cameraMount != this.driverCameraMount &&
+      this.cameraMount != this.rearCameraMount;
+    this.myCarMesh.needsUpdate = true;
+
+    if (this.level != null) {
+      this.updateBackgroundColor();
     }
+  }
+
+  update() {
+    this.dashboard.update();
+    this.controlScheme.update();
 
     // now let's get the time delta here
     const now = Date.now();

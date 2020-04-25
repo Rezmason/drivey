@@ -112,7 +112,7 @@ class IndustrialZone extends Level {
     meshes.push(overpassSpanMesh);
 
     const overpassBasePath = new THREE.ShapePath();
-    this.drawRoadLine(highwayAbove, overpassBasePath, -100, 42, RoadLineStyle.DASH(overpassDepth + 3, overpassSpacing - 3, 0), 0, 1);
+    this.drawRoadLine(highwayAbove, overpassBasePath, -100, 142, RoadLineStyle.DASH(overpassDepth + 3, overpassSpacing - 3, 0), 0, 1);
     this.drawRoadLine(highwayAbove, overpassBasePath, 200, 242, RoadLineStyle.DASH(overpassDepth + 3, overpassSpacing - 3, 0), 0, 1);
     const overpassBaseMesh = makeMesh(overpassBasePath, 15, 2, this.ground);
     overpassBaseMesh.scale.set(1, 1 / 1.5, 1);
