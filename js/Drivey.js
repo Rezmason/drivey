@@ -198,8 +198,6 @@ class Drivey {
     monochromeAttribute.needsUpdate = true;
 
     // Retint the background, UI and materials
-    this.updateBackgroundColor();
-    this.updateButtonTint();
     this.updateTints();
 
     // Build the level scene graph
@@ -222,32 +220,21 @@ class Drivey {
   }
 
   updateBackgroundColor() {
-    let backgroundColor;
-    switch (this.currentEffect) {
-      case "merveilles":
-        backgroundColor = this.themeColors.background;
-        break;
-      default:
-        if (this.level == null) {
-          return;
-        }
-        backgroundColor = this.level.tint;
-    }
-    backgroundColor = backgroundColor.clone();
-
-    if (this.drawBrighterGround) {
-      backgroundColor.multiplyScalar(this.level.skyLow);
-    } else {
-      backgroundColor.multiplyScalar(this.level.ground * 2);
-    }
-    this.screen.backgroundColor = backgroundColor;
+    this.screen.backgroundColor = blendColors(
+      this.themeColors, this.drawBrighterGround ? this.level.skyLow : this.level.ground
+    );
   }
 
   updateButtonTint() {
     switch (this.currentEffect) {
       case "ombré":
         if (this.level != null) {
-          this.buttons.setTint(this.level.tint);
+          const tint = this.level.tint;
+          this.buttons.setColors(
+            tint.clone().multiplyScalar(0.0),
+            tint.clone().multiplyScalar(0.4),
+            tint.clone().lerp(new THREE.Color(1, 1, 1), 0.25)
+          );
         }
         break;
       case "wireframe":
@@ -265,55 +252,60 @@ class Drivey {
         );
         break;
       case "merveilles":
-        if (this.themeColors != null) {
-          this.buttons.setColors(
-            this.themeColors.b_high,
-            this.themeColors.b_low,
-            this.themeColors.f_high,
-          );
-        }
+        this.buttons.setColors(
+          this.themeColors.dark,
+          this.themeColors.full,
+          this.themeColors.light,
+        );
         break;
     }
   }
 
   onThemeLoaded() {
-    this.themeColors = Object.fromEntries(
-      Object.entries(this.theme.active).map(([name, hex]) => ([
-        name,
-        new THREE.Color(parseInt(hex.substring(1), 16))
-      ]))
-    );
-    this.updateBackgroundColor();
-    this.updateButtonTint();
     this.updateTints();
   }
 
   updateTints() {
-    let fullTint, liteTint, darkTint;
+    let full, light, dark;
 
     switch (this.currentEffect) {
       case "merveilles":
-        fullTint = this.themeColors.f_med;
-        darkTint = this.themeColors.f_low;
-        liteTint = this.themeColors.f_high;
+        const active = this.theme.active;
+        const hsl = Array.from(new Set([ active.f_high, active.f_med, active.f_low, active.b_high, active.b_med, active.background ]))
+          .map(hex => new THREE.Color(parseInt(hex.substring(1), 16)))
+          .map(color => color.getHSL({color}));
+        const minLightness = Math.min(...hsl.map(o => o.l));
+        const darkHSL = hsl.find(o => o.l === minLightness);
+        const maxLightness = Math.max(...hsl.map(o => o.l));
+        const lightHSL = hsl.find(o => o.l === maxLightness);
+        const remainingHSL = hsl.filter(o => o != darkHSL && o != lightHSL);
+        const maxSaturation = Math.max(...remainingHSL.map(o => o.s));
+        const fullHSL = remainingHSL.find(o => o.s === maxSaturation);
+        [dark, light, full] = [darkHSL.color, lightHSL.color, fullHSL.color];
+        // console.log(dark.getHexString(), full.getHexString(), light.getHexString());
         break;
       default:
         if (this.level == null) {
           return;
         }
-        fullTint = this.level.tint;
-        darkTint = new THREE.Color(0, 0, 0);
-        liteTint = new THREE.Color(1, 1, 1);
+        full = this.level.tint;
+        dark = new THREE.Color(0, 0, 0);
+        light = new THREE.Color(1, 1, 1);
         break;
     }
 
-    silhouette.uniforms.fullTint.value = fullTint;
-    silhouette.uniforms.darkTint.value = darkTint;
-    silhouette.uniforms.liteTint.value = liteTint;
+    this.themeColors = { dark, full, light };
 
-    transparent.uniforms.fullTint.value = fullTint;
-    transparent.uniforms.darkTint.value = darkTint;
-    transparent.uniforms.liteTint.value = liteTint;
+    silhouette.uniforms.fullTint.value = full;
+    silhouette.uniforms.darkTint.value = dark;
+    silhouette.uniforms.lightTint.value = light;
+
+    transparent.uniforms.fullTint.value = full;
+    transparent.uniforms.darkTint.value = dark;
+    transparent.uniforms.lightTint.value = light;
+
+    this.updateBackgroundColor();
+    this.updateButtonTint();
   }
 
   makeSky() {
@@ -367,9 +359,7 @@ class Drivey {
         silhouette.uniforms.isWireframe.value = isWireframe;
         transparent.uniforms.isWireframe.value = isWireframe;
         this.screen.setCycleColors(this.currentEffect === "technicolor");
-        this.updateBackgroundColor();
         this.updateTints();
-        this.updateButtonTint();
         break;
       case "drivingSide":
         this.drivingSide = this.drivingSidesByName.get(value);

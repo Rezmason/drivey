@@ -22,7 +22,7 @@ const rotate = (v2, angle) => {
     v2.x * cos - v2.y * sin,
     v2.x * sin + v2.y * cos
   );
-}
+};
 
 const rotateY = (v3, angle) => {
   const cos = Math.cos(angle);
@@ -32,7 +32,7 @@ const rotateY = (v3, angle) => {
     v3.y,
     v3.x * sin + v3.z * cos
   );
-}
+};
 
 const rotateZ = (v3, angle) => {
   const cos = Math.cos(angle);
@@ -42,7 +42,12 @@ const rotateZ = (v3, angle) => {
     v3.x * sin + v3.y * cos,
     v3.z
   );
-}
+};
+
+const blendColors = ({dark, full, light}, value) =>
+  value < 0.5
+    ? dark.clone().lerp(full, value * 2.0)
+    : full.clone().lerp(light, value * 2.0 - 1.0);
 
 const silhouette = new THREE.RawShaderMaterial({
   uniforms: {
@@ -83,7 +88,7 @@ const silhouette = new THREE.RawShaderMaterial({
 
     uniform vec3 fullTint;
     uniform vec3 darkTint;
-    uniform vec3 liteTint;
+    uniform vec3 lightTint;
     uniform float scramble;
     uniform float ditherMagnitude;
     uniform bool isWireframe;
@@ -108,7 +113,7 @@ const silhouette = new THREE.RawShaderMaterial({
 
         vec3 color = value < 0.5
           ? mix(darkTint, fullTint, value * 2.0)
-          : mix(fullTint, liteTint, value * 2.0 - 1.0);
+          : mix(fullTint, lightTint, value * 2.0 - 1.0);
 
         gl_FragColor = vec4(color, vOpacity);
       }
@@ -120,7 +125,7 @@ silhouette.uniforms.isWireframe = { value : false };
 silhouette.uniforms.scramble = { value: 0 };
 silhouette.uniforms.fullTint = { value: new THREE.Color() };
 silhouette.uniforms.darkTint = { value: new THREE.Color(0, 0, 0) };
-silhouette.uniforms.liteTint = { value: new THREE.Color(1, 1, 1) };
+silhouette.uniforms.lightTint = { value: new THREE.Color(1, 1, 1) };
 
 const transparent = new THREE.RawShaderMaterial({
   vertexShader: silhouette.vertexShader,
@@ -132,7 +137,7 @@ transparent.uniforms.isWireframe = { value : false };
 transparent.uniforms.scramble = { value: 0 };
 transparent.uniforms.fullTint = { value: new THREE.Color() };
 transparent.uniforms.darkTint = { value: new THREE.Color(0, 0, 0) };
-transparent.uniforms.liteTint = { value: new THREE.Color(1, 1, 1) };
+transparent.uniforms.lightTint = { value: new THREE.Color(1, 1, 1) };
 
 const makeSplinePath = (pts, closed) => {
   const spline = new THREE.Path();
