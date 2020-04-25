@@ -10,7 +10,7 @@ You can see Drivey.js online [here](https://rezmason.github.io/drivey/), or [dow
 
 Driving down the open road elicits nostalgia in some people. A couple of them made old arcade games about driving.
 Old driving games triggered nostalgia in [Mark Pursey](https://github.com/MarkPursey), so he made a graphics demo about driving games.
-I feel nostalgia for his driving demo, so here we are.
+I feel nostalgia for his driving demo, so here we are. I've written a whole lot more on the subject in [_MY OTHER CAR IS A BÉZIER_](/MY_OTHER_CAR_IS_A_BÉZIER.md).
 
 ### Controls
 #### Touch
