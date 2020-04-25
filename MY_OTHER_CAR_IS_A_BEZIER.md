@@ -31,7 +31,7 @@ In the more complex levels, this trick is very well hidden, since most of the vi
 
 A few early commenters questioned this decision: why not expand the driving experience to include more roads, junctions and destinations? Why not build a racetrack with checkpoints, or a map full of fleshed out locations filled with people, and missions, and sidequests, and so on, ad absurdum? Why not turn Drivey into everything it's not?
 
-Drivey's playability _comes from_ its repetition, because it is an endless loop of the same relaxing scenarios. It's not a power ballad, it's a short, catchy tune you already know the words to.
+Drivey's endless loop of the same relaxing scenarios is _why_ it's so playable. It's not a power ballad, it's a short, catchy tune you already know the words to.
 
 ### Nostalgia: symbolizing the shared dream
 
