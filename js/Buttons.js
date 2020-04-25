@@ -42,7 +42,7 @@ class Buttons {
         <span class="indicator">${value}</span>
       </div>`);
 
-    this.addButton("effect", "ombré", ["ombré", "wireframe", "technicolor"], value => `
+    this.addButton("effect", "ombré", ["ombré", "wireframe", "technicolor", "merveilles"], value => `
       <div class='label'>effect</div>
       <div class='option'>
         <span class="indicator">${value}</span>

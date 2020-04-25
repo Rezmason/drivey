@@ -46,6 +46,10 @@ class Drivey {
     this.screen = new Screen();
     this.buttons = new Buttons();
     this.buttons.addListener(this.onButtonClick.bind(this));
+    this.theme = new Theme();
+    this.theme.install(document.body);
+    this.theme.onLoad = this.onThemeLoaded.bind(this);
+    this.theme.start();
     this.init();
     this.screen.addUpdateListener(this.update.bind(this));
     this.update();
@@ -231,7 +235,9 @@ class Drivey {
   updateButtonTint() {
     switch (this.currentEffect) {
       case "ombré":
-        this.buttons.setTint(this.level.tint);
+        if (this.level != null) {
+          this.buttons.setTint(this.level.tint);
+        }
         break;
       case "wireframe":
         this.buttons.setColors(
@@ -247,7 +253,26 @@ class Drivey {
           new THREE.Color(1, 1, 1)
         );
         break;
+      case "merveilles":
+        if (this.themeColors != null) {
+          this.buttons.setColors(
+            this.themeColors.b_high,
+            this.themeColors.b_low,
+            this.themeColors.f_high,
+          );
+        }
+        break;
     }
+  }
+
+  onThemeLoaded() {
+    this.themeColors = Object.fromEntries(
+      Object.entries(this.theme.active).map(([name, hex]) => ([
+        name,
+        new THREE.Color(parseInt(hex.substring(1), 16))
+      ]))
+    );
+    this.updateButtonTint();
   }
 
   makeSky() {
@@ -300,7 +325,6 @@ class Drivey {
         this.screen.setWireframe(isWireframe);
         silhouette.uniforms.isWireframe.value = isWireframe;
         transparent.uniforms.isWireframe.value = isWireframe;
-
         this.screen.setCycleColors(this.currentEffect === "technicolor");
         this.updateButtonTint();
         break;
