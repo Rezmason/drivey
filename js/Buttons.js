@@ -125,9 +125,15 @@ class Buttons {
   }
 
   setTint(tint) {
-    let dashboardColor = tint.clone().multiplyScalar(0.4);
-    let litColor = tint.clone().lerp(new THREE.Color(1, 1, 1), 0.25);
-    this.bodyRule.style.setProperty("--dashboard-color", `#${dashboardColor.getHex().toString(16).padStart(6, "0")}`);
-    this.bodyRule.style.setProperty("--lit-color", `#${litColor.getHex().toString(16).padStart(6, "0")}`);
+    const backgroundColor = tint.clone().multiplyScalar(0.0);
+    const borderColor = tint.clone().multiplyScalar(0.4);
+    const lightColor = tint.clone().lerp(new THREE.Color(1, 1, 1), 0.25);
+    this.setColors(backgroundColor, borderColor, lightColor);
+  }
+
+  setColors(backgroundColor, borderColor, lightColor) {
+    this.bodyRule.style.setProperty("--dashboard-background-color", `#${backgroundColor.getHex().toString(16).padStart(6, "0")}`);
+    this.bodyRule.style.setProperty("--dashboard-border-color", `#${borderColor.getHex().toString(16).padStart(6, "0")}`);
+    this.bodyRule.style.setProperty("--dashboard-light-color", `#${lightColor.getHex().toString(16).padStart(6, "0")}`);
   }
 }

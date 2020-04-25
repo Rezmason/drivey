@@ -40,6 +40,7 @@ class Drivey {
       ["1 switch", new OneSwitchInput()],
       ["eye gaze", new EyeGazeInput()],
     ]);
+    this.currentEffect = "ombré";
     this.npcControlScheme = new Input();
     this.controlScheme = this.controlSchemes.get(isMobile ? "touch" : "arrows");
     this.screen = new Screen();
@@ -194,7 +195,7 @@ class Drivey {
 
     // Retint the background, UI and materials
     this.updateBackgroundColor();
-    this.buttons.setTint(this.level.tint);
+    this.updateButtonTint();
     silhouette.uniforms.tint.value = this.level.tint;
     transparent.uniforms.tint.value = this.level.tint;
 
@@ -225,6 +226,28 @@ class Drivey {
       backgroundColor.multiplyScalar(this.level.ground * 2);
     }
     this.screen.backgroundColor = backgroundColor;
+  }
+
+  updateButtonTint() {
+    switch (this.currentEffect) {
+      case "ombré":
+        this.buttons.setTint(this.level.tint);
+        break;
+      case "wireframe":
+        this.buttons.setColors(
+          new THREE.Color(0.1, 0.15, 0.7),
+          new THREE.Color(1, 1, 1),
+          new THREE.Color(1, 1, 1)
+        );
+        break;
+      case "technicolor":
+        this.buttons.setColors(
+          new THREE.Color(0, 0, 0),
+          new THREE.Color(0.1, 0.1, 0.1),
+          new THREE.Color(1, 1, 1)
+        );
+        break;
+    }
   }
 
   makeSky() {
@@ -271,13 +294,15 @@ class Drivey {
         this.updateBackgroundColor();
         break;
       case "effect":
-        const isWireframe = value === "wireframe";
+        this.currentEffect = value;
+        const isWireframe = this.currentEffect === "wireframe";
         this.sky.visible = !isWireframe;
         this.screen.setWireframe(isWireframe);
         silhouette.uniforms.isWireframe.value = isWireframe;
         transparent.uniforms.isWireframe.value = isWireframe;
 
-        this.screen.setCycleColors(value === "technicolor");
+        this.screen.setCycleColors(this.currentEffect === "technicolor");
+        this.updateButtonTint();
         break;
       case "drivingSide":
         this.drivingSide = this.drivingSidesByName.get(value);

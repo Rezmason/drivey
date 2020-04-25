@@ -14,8 +14,9 @@
             }
 
             body, colors {
-              --dashboard-color: #888;
-              --lit-color: #fff;
+              --dashboard-background-color: black;
+              --dashboard-border-color: #888;
+              --dashboard-light-color: #fff;
             }
 
             canvas#renderer {
@@ -46,21 +47,21 @@
                 font-size: 1vw;
                 font-family: sans-serif;
                 text-align: center;
-                border: 0.4em solid var(--dashboard-color);
+                border: 0.4em solid var(--dashboard-border-color);
                 border-radius: 3em;
                 overflow: hidden;
-                background: black;
+                background: var(--dashboard-background-color);
             }
 
             div#buttons button {
                 display: inline-block;
                 margin: 0.25em 0;
                 text-transform: uppercase;
-                background-color: black;
+                background-color: var(--dashboard-background-color);
                 vertical-align: top;
                 padding:0.5em 1.5em;
-                border-left: 0.2em solid var(--dashboard-color);
-                border-right: 0.2em solid var(--dashboard-color);
+                border-left: 0.2em solid var(--dashboard-border-color);
+                border-right: 0.2em solid var(--dashboard-border-color);
             }
 
             #buttons button:first-of-type {
@@ -82,20 +83,20 @@
             }
 
             span.indicator {
-                color: var(--lit-color);
-                text-shadow: 0 0 0.5em var(--lit-color);
+                color: var(--dashboard-light-color);
+                text-shadow: 0 0 0.5em var(--dashboard-light-color);
             }
 
             span.light {
                 display: inline-block;
                 width: 1.25em;
                 height: 1em;
-                background-color: var(--lit-color);
-                box-shadow: 0 0 1em var(--lit-color);
+                background-color: var(--dashboard-light-color);
+                box-shadow: 0 0 1em var(--dashboard-light-color);
             }
 
             span.light.off {
-                background-color: var(--dashboard-color);
+                background-color: var(--dashboard-border-color);
                 box-shadow: unset;
             }
         </style>
