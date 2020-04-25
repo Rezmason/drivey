@@ -200,8 +200,7 @@ class Drivey {
     // Retint the background, UI and materials
     this.updateBackgroundColor();
     this.updateButtonTint();
-    silhouette.uniforms.tint.value = this.level.tint;
-    transparent.uniforms.tint.value = this.level.tint;
+    this.updateTints();
 
     // Build the level scene graph
     this.screen.scene.add(this.level.world);
@@ -223,7 +222,19 @@ class Drivey {
   }
 
   updateBackgroundColor() {
-    let backgroundColor = this.level.tint.clone();
+    let backgroundColor;
+    switch (this.currentEffect) {
+      case "merveilles":
+        backgroundColor = this.themeColors.background;
+        break;
+      default:
+        if (this.level == null) {
+          return;
+        }
+        backgroundColor = this.level.tint;
+    }
+    backgroundColor = backgroundColor.clone();
+
     if (this.drawBrighterGround) {
       backgroundColor.multiplyScalar(this.level.skyLow);
     } else {
@@ -272,7 +283,37 @@ class Drivey {
         new THREE.Color(parseInt(hex.substring(1), 16))
       ]))
     );
+    this.updateBackgroundColor();
     this.updateButtonTint();
+    this.updateTints();
+  }
+
+  updateTints() {
+    let fullTint, liteTint, darkTint;
+
+    switch (this.currentEffect) {
+      case "merveilles":
+        fullTint = this.themeColors.f_med;
+        darkTint = this.themeColors.f_low;
+        liteTint = this.themeColors.f_high;
+        break;
+      default:
+        if (this.level == null) {
+          return;
+        }
+        fullTint = this.level.tint;
+        darkTint = new THREE.Color(0, 0, 0);
+        liteTint = new THREE.Color(1, 1, 1);
+        break;
+    }
+
+    silhouette.uniforms.fullTint.value = fullTint;
+    silhouette.uniforms.darkTint.value = darkTint;
+    silhouette.uniforms.liteTint.value = liteTint;
+
+    transparent.uniforms.fullTint.value = fullTint;
+    transparent.uniforms.darkTint.value = darkTint;
+    transparent.uniforms.liteTint.value = liteTint;
   }
 
   makeSky() {
@@ -326,6 +367,8 @@ class Drivey {
         silhouette.uniforms.isWireframe.value = isWireframe;
         transparent.uniforms.isWireframe.value = isWireframe;
         this.screen.setCycleColors(this.currentEffect === "technicolor");
+        this.updateBackgroundColor();
+        this.updateTints();
         this.updateButtonTint();
         break;
       case "drivingSide":

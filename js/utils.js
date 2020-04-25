@@ -81,7 +81,9 @@ const silhouette = new THREE.RawShaderMaterial({
     precision mediump float;
     #define PI 3.14159265359
 
-    uniform vec3 tint;
+    uniform vec3 fullTint;
+    uniform vec3 darkTint;
+    uniform vec3 liteTint;
     uniform float scramble;
     uniform float ditherMagnitude;
     uniform bool isWireframe;
@@ -105,8 +107,8 @@ const silhouette = new THREE.RawShaderMaterial({
         float value = clamp(vShade + (rand( gl_FragCoord.xy, scramble ) - 0.5) * ditherMagnitude, 0., 1.);
 
         vec3 color = value < 0.5
-          ? mix(vec3(0.0), tint, value * 2.0)
-          : mix(tint, vec3(1.0), value * 2.0 - 1.0);
+          ? mix(darkTint, fullTint, value * 2.0)
+          : mix(fullTint, liteTint, value * 2.0 - 1.0);
 
         gl_FragColor = vec4(color, vOpacity);
       }
@@ -116,7 +118,9 @@ const silhouette = new THREE.RawShaderMaterial({
 silhouette.uniforms.ditherMagnitude = { value: 0.02 };
 silhouette.uniforms.isWireframe = { value : false };
 silhouette.uniforms.scramble = { value: 0 };
-silhouette.uniforms.tint = { value: new THREE.Color() };
+silhouette.uniforms.fullTint = { value: new THREE.Color() };
+silhouette.uniforms.darkTint = { value: new THREE.Color(0, 0, 0) };
+silhouette.uniforms.liteTint = { value: new THREE.Color(1, 1, 1) };
 
 const transparent = new THREE.RawShaderMaterial({
   vertexShader: silhouette.vertexShader,
@@ -126,7 +130,9 @@ const transparent = new THREE.RawShaderMaterial({
 transparent.uniforms.ditherMagnitude = { value: 0.02 };
 transparent.uniforms.isWireframe = { value : false };
 transparent.uniforms.scramble = { value: 0 };
-transparent.uniforms.tint = { value: new THREE.Color() };
+transparent.uniforms.fullTint = { value: new THREE.Color() };
+transparent.uniforms.darkTint = { value: new THREE.Color(0, 0, 0) };
+transparent.uniforms.liteTint = { value: new THREE.Color(1, 1, 1) };
 
 const makeSplinePath = (pts, closed) => {
   const spline = new THREE.Path();
