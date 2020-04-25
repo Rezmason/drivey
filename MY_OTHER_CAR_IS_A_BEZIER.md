@@ -57,7 +57,7 @@ The Drivey demo landed in front of this cultural backdrop, but walked its own pa
 
 Instead, Drivey was built on top of a _custom software renderer_, optimized for drawing screen-size vector graphics with applied perspective. It actually draws roads and buildings with the techniques that typically render fonts, namely [bézier curves](https://en.wikipedia.org/wiki/B%C3%A9zier_curve)– precisely tunable splines that can take any shape. That's why in the 2005 Drivey demo, you will never see a polygonal approximation of any smooth surface. To give these shapes height and depth, they were projected into 3D space, and then vertically offset upwards and downwards to produce the tops and bottoms of volumes. Finally, Drivey would connect the top and bottom with flat regions of color, filling in the silhouette.
 
-It's important to recognize how advanced this technique was for a 3D indie game. It was the secret sauce that provided Drivey the visual clarity necessary to evoke our nostalgia the way it did; every frame was an ensemble of pixel perfect, duotone shadows, just detailed enough to give the illusion of twilit driving.
+It's important to recognize how advanced this technique was for a 3D indie game. It was the secret sauce that provided Drivey the visual clarity necessary to invoke our nostalgia the way it did; every frame was an ensemble of pixel perfect, duotone shadows, just detailed enough to give the illusion of twilit driving.
 
 ### This is my exit
 
