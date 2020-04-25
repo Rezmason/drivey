@@ -39,6 +39,7 @@ Constantly drives straight. The car turns left and right if the mouse is on the 
 - [x] Support for driving on the left and on the right
 - [x] Wireframe mode
 - [x] Color cycling mode
+- [x] [Merveilles Theme](https://github.com/hundredrabbits/Themes) support
 - [ ] Collision detection
 - [ ] Engine revving audio support
 - [ ] ~Steering wheel peripheral support~
