@@ -71,6 +71,7 @@ class Car {
       if (Math.abs(diff) >= Math.abs(this.steerTo)) this.steerTo = 0;
       else this.steerTo += diff;
       this.steerTo = this.steerTo + controlScheme.steer * controlScheme.manualSteerSensitivity * step;
+      this.accelerate = 0;
     }
 
     this.handbrake = controlScheme.handbrake;

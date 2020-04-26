@@ -8,7 +8,7 @@ class Input {
     this.brakePedal = 0;
     this.handbrake = 0;
     this.steer = 0;
-    this.minCruiseSpeed = 0.5;
+    this.minCruiseSpeed = 0;
     this.manualSteerSensitivity = 1;
     this.autoSteerSensitivity = 1;
     this.cruiseSpeedMultiplier = 1;
