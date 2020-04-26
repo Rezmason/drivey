@@ -244,7 +244,7 @@ class Drivey {
       case "wireframe":
         this.buttons.setColors(
           new THREE.Color(0.1, 0.15, 0.7),
-          new THREE.Color(1, 1, 1),
+          new THREE.Color(0.8, 0.8, 1),
           new THREE.Color(1, 1, 1)
         );
         break;
