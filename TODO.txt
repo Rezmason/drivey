@@ -1,10 +1,12 @@
+Declarative level representation
+
 Why doesn't it run on iPads?
 
 Replace framerate gauge with simulated RPM
   Prevent moving in reverse on when on auto-pilot
   Simluated gearbox?
 
-Prevent scrolling issue on mobile
+Improve performance of Approximation::getNearest
 
 Much, much later
   Spotify playlist embed?

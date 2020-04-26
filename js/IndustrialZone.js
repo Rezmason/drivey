@@ -105,25 +105,26 @@ class IndustrialZone extends Level {
     const highwayAbove = this.roadPath.clone();
     highwayAbove.scale(1, 1.5);
     const overpassSpanPath = new THREE.ShapePath();
-    this.drawRoadLine(highwayAbove, overpassSpanPath, 0, 162, RoadLineStyle.DASH(overpassDepth, overpassSpacing, 0), 0, 1);
+    this.drawRoadLine(highwayAbove, overpassSpanPath, 0, 500, RoadLineStyle.DASH(overpassDepth, overpassSpacing, 0), 0, 1);
     const overpassSpanMesh = makeMesh(overpassSpanPath, 3, 2, this.ground);
     overpassSpanMesh.position.z = 12;
     overpassSpanMesh.scale.set(1, 1 / 1.5, 1);
     meshes.push(overpassSpanMesh);
 
     const overpassBasePath = new THREE.ShapePath();
-    this.drawRoadLine(highwayAbove, overpassBasePath, -100, 142, RoadLineStyle.DASH(overpassDepth + 3, overpassSpacing - 3, 0), 0, 1);
-    this.drawRoadLine(highwayAbove, overpassBasePath, 200, 242, RoadLineStyle.DASH(overpassDepth + 3, overpassSpacing - 3, 0), 0, 1);
-    const overpassBaseMesh = makeMesh(overpassBasePath, 15, 2, this.ground);
+    this.drawRoadLine(highwayAbove, overpassBasePath, -200, 130, RoadLineStyle.DASH(overpassDepth, overpassSpacing, 0), 0, 1);
+    this.drawRoadLine(highwayAbove, overpassBasePath, 200, 130, RoadLineStyle.DASH(overpassDepth, overpassSpacing, 0), 0, 1);
+    const overpassBaseMesh = makeMesh(overpassBasePath, 12, 2, this.ground);
     overpassBaseMesh.scale.set(1, 1 / 1.5, 1);
     meshes.push(overpassBaseMesh);
 
+
     const overpassFeetPath = new THREE.ShapePath();
 
-    this.drawRoadLine(highwayAbove, overpassFeetPath, -40, 4, RoadLineStyle.DASH(overpassDepth - 4, overpassSpacing + 4, 0), 0, 1);
-    this.drawRoadLine(highwayAbove, overpassFeetPath, -15, 4, RoadLineStyle.DASH(overpassDepth - 4, overpassSpacing + 4, 0), 0, 1);
-    this.drawRoadLine(highwayAbove, overpassFeetPath, 15, 4, RoadLineStyle.DASH(overpassDepth - 4, overpassSpacing + 4, 0), 0, 1);
-    this.drawRoadLine(highwayAbove, overpassFeetPath, 40, 4, RoadLineStyle.DASH(overpassDepth - 4, overpassSpacing + 4, 0), 0, 1);
+    this.drawRoadLine(highwayAbove, overpassFeetPath, -45, 4, RoadLineStyle.DASH(overpassDepth - 4, overpassSpacing + 4, 0), 0, 1);
+    this.drawRoadLine(highwayAbove, overpassFeetPath, -18, 4, RoadLineStyle.DASH(overpassDepth - 4, overpassSpacing + 4, 0), 0, 1);
+    this.drawRoadLine(highwayAbove, overpassFeetPath, 18, 4, RoadLineStyle.DASH(overpassDepth - 4, overpassSpacing + 4, 0), 0, 1);
+    this.drawRoadLine(highwayAbove, overpassFeetPath, 45, 4, RoadLineStyle.DASH(overpassDepth - 4, overpassSpacing + 4, 0), 0, 1);
 
     // var wall = new ShapePath();
     // drawRoadLine(highwayAbove, wall, -15, 2, DASH(overpassDepth, overpassSpacing), 0, 1, 1);
