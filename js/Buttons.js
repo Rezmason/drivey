@@ -107,21 +107,34 @@ class Buttons {
   }
 
   addButton(id, defaultValue, allValues, labelMaker) {
+    const button = document.createElement("button");
     allValues = allValues.map(value => value.toString());
-    let value = defaultValue.toString();
-    let index = allValues.indexOf(value);
-    let button = document.createElement("button");
+    button.allValues = allValues;
+    button.value = defaultValue.toString();
+    button.index = allValues.indexOf(button.value);
     button.id = `button_${id}`;
     button.name = id;
     button.type = "button";
-    button.innerHTML = labelMaker(value);
+    button.innerHTML = labelMaker(button.value);
+    button.labelMaker = labelMaker;
     this.element.appendChild(button);
     button.addEventListener("click", () => {
-      index = (index + 1) % allValues.length;
-      value = allValues[index];
-      button.innerHTML = labelMaker(value);
-      this.dispatch(id, value);
+      button.index = (button.index + 1) % allValues.length;
+      button.value = allValues[button.index];
+      button.innerHTML = labelMaker(button.value);
+      this.dispatch(id, button.value);
     });
+  }
+
+  setButton(id, value) {
+    const button = document.getElementById(`button_${id}`);
+    button.index = button.allValues.indexOf(value);
+    if (button.index === -1) {
+      button.index = 0;
+    }
+    button.value = button.allValues[button.index];
+    button.innerHTML = button.labelMaker(button.value);
+    this.dispatch(id, button.value);
   }
 
   setColors(backgroundColor, borderColor, lightColor) {

@@ -49,8 +49,10 @@ class Drivey {
     this.theme = new Theme();
     this.theme.install(document.body);
     this.theme.onLoad = this.onThemeLoaded.bind(this);
-    this.theme.start();
     this.init();
+    if (localStorage.getItem("theme") != null) {
+      this.theme.start();
+    }
     this.screen.addUpdateListener(this.update.bind(this));
     this.update();
   }
@@ -264,6 +266,7 @@ class Drivey {
   }
 
   onThemeLoaded() {
+    this.buttons.setButton("effect", "merveilles");
     this.updateTints();
   }
 
@@ -273,6 +276,9 @@ class Drivey {
     switch (this.currentEffect) {
       case "merveilles":
         const active = this.theme.active;
+        if (active.background == null) {
+          return;
+        }
         const hsl = Array.from(new Set([ active.f_high, active.f_med, active.f_low, active.b_high, active.b_med, active.background ]))
           .map(hex => new THREE.Color(parseInt(hex.substring(1), 16)))
           .map(color => color.getHSL({color}));
@@ -358,6 +364,13 @@ class Drivey {
         silhouette.uniforms.isWireframe.value = isWireframe;
         transparent.uniforms.isWireframe.value = isWireframe;
         this.screen.setCycleColors(this.currentEffect === "technicolor");
+        if (this.currentEffect === "merveilles") {
+          if (this.theme.active.background == null) {
+            this.theme.start();
+          }
+        } else {
+          localStorage.removeItem("theme");
+        }
         this.updateTints();
         break;
       case "drivingSide":
