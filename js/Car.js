@@ -1,11 +1,12 @@
+import { Vector2 } from "./../lib/three/three.module.js";
 import { getAngle, lerp, rotate, rotateY, sign } from "./math.js";
 
 export default class Car {
   constructor() {
-    this.lastPos = new THREE.Vector2();
-    this.pos = new THREE.Vector2();
-    this.vel = new THREE.Vector2();
-    this.lastVel = new THREE.Vector2();
+    this.lastPos = new Vector2();
+    this.pos = new Vector2();
+    this.vel = new Vector2();
+    this.lastVel = new Vector2();
   }
 
   place(roadPath, approximation, along, laneWidth, numLanes, drivingSide, roadDir, initialSpeed) {
@@ -113,7 +114,7 @@ export default class Car {
   }
 
   dir() {
-    return rotate(new THREE.Vector2(1, 0), this.angle);
+    return rotate(new Vector2(1, 0), this.angle);
   }
 
   advance(t) {

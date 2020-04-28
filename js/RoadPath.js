@@ -1,3 +1,5 @@
+import { Vector2 } from "./../lib/three/three.module.js";
+
 import { mod, minDistSquaredIndex } from "./math.js";
 import { makeSplinePath } from "./shapes.js";
 
@@ -12,14 +14,14 @@ export default class RoadPath {
   }
 
   scale(x, y) {
-    this.points = this.points.map(point => new THREE.Vector2(point.x * x, point.y * y));
+    this.points = this.points.map(point => new Vector2(point.x * x, point.y * y));
     this.curve = makeSplinePath(this.points, true);
   }
 
   getPoint(t) {
     if (arguments.length > 1) throw "!";
     const pos = this.curve.getPoint(mod(t, 1));
-    return new THREE.Vector2(pos.x, pos.y);
+    return new Vector2(pos.x, pos.y);
   }
 
   getTangent(t) {
@@ -32,7 +34,7 @@ export default class RoadPath {
   getNormal(t) {
     if (arguments.length > 1) throw "!";
     const normal = this.getTangent(t);
-    return new THREE.Vector2(-normal.y, normal.x);
+    return new Vector2(-normal.y, normal.x);
   }
 
   approximate(resolution = 1000) {

@@ -1,8 +1,10 @@
+import { RawShaderMaterial, Vector2, Color, Float32BufferAttribute, Mesh } from "./../lib/three/three.module.js";
+
 const blendColors = ({ dark, full, light }, value) => (value < 0.5 ? dark.clone().lerp(full, value * 2.0) : full.clone().lerp(light, value * 2.0 - 1.0));
 
-const silhouette = new THREE.RawShaderMaterial({
+const silhouette = new RawShaderMaterial({
   uniforms: {
-    resolution: { type: "v2", value: new THREE.Vector2(1, 1) }
+    resolution: { type: "v2", value: new Vector2(1, 1) }
   },
   vertexShader: `
     attribute vec3 idColor;
@@ -76,11 +78,11 @@ const silhouette = new THREE.RawShaderMaterial({
 silhouette.uniforms.ditherMagnitude = { value: 0.02 };
 silhouette.uniforms.isWireframe = { value: false };
 silhouette.uniforms.scramble = { value: 0 };
-silhouette.uniforms.fullTint = { value: new THREE.Color() };
-silhouette.uniforms.darkTint = { value: new THREE.Color(0, 0, 0) };
-silhouette.uniforms.lightTint = { value: new THREE.Color(1, 1, 1) };
+silhouette.uniforms.fullTint = { value: new Color() };
+silhouette.uniforms.darkTint = { value: new Color(0, 0, 0) };
+silhouette.uniforms.lightTint = { value: new Color(1, 1, 1) };
 
-const transparent = new THREE.RawShaderMaterial({
+const transparent = new RawShaderMaterial({
   vertexShader: silhouette.vertexShader,
   fragmentShader: silhouette.fragmentShader,
   transparent: true
@@ -88,9 +90,9 @@ const transparent = new THREE.RawShaderMaterial({
 transparent.uniforms.ditherMagnitude = { value: 0.02 };
 transparent.uniforms.isWireframe = { value: false };
 transparent.uniforms.scramble = { value: 0 };
-transparent.uniforms.fullTint = { value: new THREE.Color() };
-transparent.uniforms.darkTint = { value: new THREE.Color(0, 0, 0) };
-transparent.uniforms.lightTint = { value: new THREE.Color(1, 1, 1) };
+transparent.uniforms.fullTint = { value: new Color() };
+transparent.uniforms.darkTint = { value: new Color(0, 0, 0) };
+transparent.uniforms.lightTint = { value: new Color(1, 1, 1) };
 
 const bulgeGeometry = geometry => {
   const positions = geometry.getAttribute("position");
@@ -101,7 +103,7 @@ const bulgeGeometry = geometry => {
     bulgeDirections.push(z <= 0 ? -1 : 1);
   }
 
-  geometry.setAttribute("bulgeDirection", new THREE.Float32BufferAttribute(bulgeDirections, 1));
+  geometry.setAttribute("bulgeDirection", new Float32BufferAttribute(bulgeDirections, 1));
   return geometry;
 };
 
@@ -114,7 +116,7 @@ const shadeGeometry = (geometry, value, alpha = 1, fade = 0) => {
     monochromeValues.push(fade);
   }
 
-  geometry.setAttribute("monochromeValue", new THREE.Float32BufferAttribute(monochromeValues, 3));
+  geometry.setAttribute("monochromeValue", new Float32BufferAttribute(monochromeValues, 3));
   return geometry;
 };
 
@@ -132,7 +134,7 @@ const idGeometry = geometry => {
     idValues.push(idBlue / 0xff);
   }
 
-  geometry.setAttribute("idColor", new THREE.Float32BufferAttribute(idValues, 3));
+  geometry.setAttribute("idColor", new Float32BufferAttribute(idValues, 3));
   return geometry;
 };
 
@@ -140,7 +142,7 @@ const makeShadedMesh = (geom, value = 0, alpha = 1, fade = 0) => {
   shadeGeometry(geom, value, alpha, fade);
   idGeometry(geom);
   bulgeGeometry(geom);
-  return new THREE.Mesh(geom, alpha == 1 ? silhouette : transparent);
+  return new Mesh(geom, alpha == 1 ? silhouette : transparent);
 };
 
 export { shadeGeometry, bulgeGeometry, idGeometry, silhouette, transparent, blendColors, makeShadedMesh };

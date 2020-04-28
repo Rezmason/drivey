@@ -1,3 +1,5 @@
+import { Color, ShapePath, Vector2 } from "./../lib/three/three.module.js";
+
 import Level from "./Level.js";
 import RoadLineStyle from "./RoadLineStyle.js";
 import { distance } from "./math.js";
@@ -6,11 +8,11 @@ import { addPath, makeRectanglePath } from "./shapes.js";
 export default class Spectre extends Level {
   build(meshes, transparentMeshes, skyMeshes) {
     this.name = "The Deep Dark Night";
-    this.tint = new THREE.Color(1, 0, 1);
+    this.tint = new Color(1, 0, 1);
     this.skyLow = 0.35;
     this.skyHigh = -1;
     this.laneWidth = 4;
-    const postPath = new THREE.ShapePath();
+    const postPath = new ShapePath();
     this.drawRoadLine(this.roadPath, postPath, -25, 0.1, RoadLineStyle.DASH(0.1, 27, 0), 0, 1);
     this.drawRoadLine(this.roadPath, postPath, -15, 0.1, RoadLineStyle.DASH(0.1, 23, 0), 0, 1);
     this.drawRoadLine(this.roadPath, postPath, -5, 0.1, RoadLineStyle.DASH(0.1, 20, 0), 0, 1);
@@ -19,7 +21,7 @@ export default class Spectre extends Level {
     this.drawRoadLine(this.roadPath, postPath, 25, 0.1, RoadLineStyle.DASH(0.1, 27, 0), 0, 1);
     meshes.push(this.makeMesh(postPath, 0.1, 0, 1));
 
-    const dotsPath = new THREE.ShapePath();
+    const dotsPath = new ShapePath();
     const mag = 0.3;
     const width = 30 * mag;
     const radius = 1500 * mag;
@@ -29,7 +31,7 @@ export default class Spectre extends Level {
     while (x < radius) {
       let y = -radius;
       while (y < radius) {
-        const pos = new THREE.Vector2(x, y);
+        const pos = new Vector2(x, y);
         if (pos.length() < radius && distance(approximation.getNearestPoint(pos), pos) > 30 * mag) {
           addPath(dotsPath, makeRectanglePath(pos.x + -width / 2, pos.y + -width / 2, width, width));
         }
@@ -40,12 +42,12 @@ export default class Spectre extends Level {
 
     meshes.push(this.makeMesh(dotsPath, width * 1.25, 1, 0.5));
 
-    const signpostsPath = new THREE.ShapePath();
+    const signpostsPath = new ShapePath();
     this.drawRoadLine(this.roadPath, signpostsPath, -12, 0.2, RoadLineStyle.DASH(0.2, 400, 0), 0, 1);
     this.drawRoadLine(this.roadPath, signpostsPath, 12, 0.2, RoadLineStyle.DASH(0.2, 300, 0), 0, 1);
     meshes.push(this.makeMesh(signpostsPath, 14, 0, 0.9));
 
-    const signsPath = new THREE.ShapePath();
+    const signsPath = new ShapePath();
     this.drawRoadLine(this.roadPath, signsPath, -15, 6, RoadLineStyle.DASH(0.2, 400, 0), 0, 1);
     this.drawRoadLine(this.roadPath, signsPath, 15, 6, RoadLineStyle.DASH(0.2, 300, 0), 0, 1);
     const signsMesh = this.makeMesh(signsPath, 4, 0, 0.9);

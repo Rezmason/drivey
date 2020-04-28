@@ -1,3 +1,5 @@
+import { Color, ShapePath, Vector2 } from "./../lib/three/three.module.js";
+
 import Level from "./Level.js";
 import RoadLineStyle from "./RoadLineStyle.js";
 import { addPath, makeCirclePath } from "./shapes.js";
@@ -5,7 +7,7 @@ import { addPath, makeCirclePath } from "./shapes.js";
 export default class TrainTracks extends Level {
   build(meshes, transparentMeshes, skyMeshes) {
     this.name = "The Indian Pacific";
-    this.tint = new THREE.Color(0.8, 0.4, 0.2);
+    this.tint = new Color(0.8, 0.4, 0.2);
     this.skyHigh = 0.9;
     this.skyLow = 1.0; // 1.0
     this.skyGradient = 0.25;
@@ -19,9 +21,9 @@ export default class TrainTracks extends Level {
     const ballastColor = 0.6;
 
     // sky
-    const cloudsPath = new THREE.ShapePath();
+    const cloudsPath = new ShapePath();
     for (let i = 0; i < 200; i++) {
-      const pos = new THREE.Vector2(Math.random() - 0.5, Math.random() - 0.5);
+      const pos = new Vector2(Math.random() - 0.5, Math.random() - 0.5);
       if (pos.length() > 0.9 || pos.length() < 0.3) {
         continue;
       }
@@ -39,28 +41,28 @@ export default class TrainTracks extends Level {
     cloudsMesh.position.z = 80;
     skyMeshes.push(cloudsMesh);
 
-    const rails = new THREE.ShapePath();
+    const rails = new ShapePath();
     this.drawRoadLine(this.roadPath, rails, -2.5 - 0.6, 0.15, RoadLineStyle.SOLID(5), 0, 1);
     this.drawRoadLine(this.roadPath, rails, -2.5 + 0.6, 0.15, RoadLineStyle.SOLID(5), 0, 1);
     this.drawRoadLine(this.roadPath, rails, 2.5 - 0.6, 0.15, RoadLineStyle.SOLID(5), 0, 1);
     this.drawRoadLine(this.roadPath, rails, 2.5 + 0.6, 0.15, RoadLineStyle.SOLID(5), 0, 1);
     meshes.push(this.makeMesh(rails, 0.125, 1, railColor, 1));
 
-    const sleepers = new THREE.ShapePath();
+    const sleepers = new ShapePath();
     this.drawRoadLine(this.roadPath, sleepers, -2.5, 1.75, RoadLineStyle.DASH(0.5, 1.5, 0), 0, 1);
     this.drawRoadLine(this.roadPath, sleepers, 2.5, 1.75, RoadLineStyle.DASH(0.5, 1.5, 0), 0, 1);
     const sleeperMesh = this.makeMesh(sleepers, 0.12, 1, sleeperColor, 1);
     sleeperMesh.position.z = -0.125;
     meshes.push(sleeperMesh);
 
-    const ballast = new THREE.ShapePath();
+    const ballast = new ShapePath();
     this.drawRoadLine(this.roadPath, ballast, -2.5, 2.5, RoadLineStyle.SOLID(5), 0, 1);
     this.drawRoadLine(this.roadPath, ballast, 2.5, 2.5, RoadLineStyle.SOLID(5), 0, 1);
     const ballastMesh = this.makeMesh(ballast, 0, 1, ballastColor, 1);
     ballastMesh.position.z = -0.125;
     meshes.push(ballastMesh);
 
-    const lightFeatures = new THREE.ShapePath();
+    const lightFeatures = new ShapePath();
     this.drawRoadLine(this.roadPath, lightFeatures, -20, 8, RoadLineStyle.DOT(200 / 2), 0, 1);
     this.drawRoadLine(this.roadPath, lightFeatures, -12, 8, RoadLineStyle.DOT(1500 / 2), 0, 1);
     this.drawRoadLine(this.roadPath, lightFeatures, 20, 8, RoadLineStyle.DOT(140 / 2), 0, 1);
@@ -69,7 +71,7 @@ export default class TrainTracks extends Level {
     lightFeaturesMesh.position.z = -0.1;
     meshes.push(lightFeaturesMesh);
 
-    const darkFeatures = new THREE.ShapePath();
+    const darkFeatures = new ShapePath();
     this.drawRoadLine(this.roadPath, darkFeatures, -19, 2, RoadLineStyle.DOT(160 / 2), 0, 1);
     this.drawRoadLine(this.roadPath, darkFeatures, -13, 2, RoadLineStyle.DOT(1200 / 2), 0, 1);
     this.drawRoadLine(this.roadPath, darkFeatures, 15, 2, RoadLineStyle.DOT(110 / 2), 0, 1);

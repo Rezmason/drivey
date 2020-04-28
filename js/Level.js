@@ -1,3 +1,5 @@
+import { Mesh, Color, Vector2, Group } from "./../lib/three/three.module.js";
+
 import RoadPath from "./RoadPath.js";
 import RoadLineStyle from "./RoadLineStyle.js";
 import { getExtrudedPointAt, makeGeometry, addPath, makeCirclePath, makePolygonPath, mergeGeometries } from "./shapes.js";
@@ -5,7 +7,7 @@ import { makeShadedMesh } from "./rendering.js";
 
 const mergeMeshes = meshes => {
   const geom = mergeGeometries(meshes.map(mesh => mesh.geometry));
-  return new THREE.Mesh(geom, meshes[0].material);
+  return new Mesh(geom, meshes[0].material);
 };
 
 const flattenMesh = mesh => {
@@ -20,7 +22,7 @@ const flattenMesh = mesh => {
 
 export default class Level {
   constructor() {
-    this.tint = new THREE.Color(0.7, 0.7, 0.7);
+    this.tint = new Color(0.7, 0.7, 0.7);
     this.skyGradient = 0;
     this.skyHigh = 0;
     this.skyLow = 0;
@@ -124,7 +126,7 @@ export default class Level {
   }
 
   finish(meshes, transparentMeshes, skyMeshes) {
-    this.world = new THREE.Group();
+    this.world = new Group();
     meshes.forEach(flattenMesh);
     const combinedMesh = mergeMeshes(meshes);
     combinedMesh.geometry.computeBoundingSphere();
@@ -139,7 +141,7 @@ export default class Level {
     transparentMeshes.length = 0;
 
     skyMeshes.forEach(flattenMesh);
-    this.sky = new THREE.Group();
+    this.sky = new Group();
     if (skyMeshes.length > 0) this.sky.add(mergeMeshes(skyMeshes));
     skyMeshes.forEach(mesh => mesh.geometry.dispose());
     skyMeshes.length = 0;
@@ -156,7 +158,7 @@ export default class Level {
     for (let i = 0; i < n; i++) {
       const theta = (i * Math.PI * 2) / n;
       const radius = Math.random() + windiness;
-      const point = new THREE.Vector2(Math.cos(theta) * -radius, Math.sin(theta) * radius);
+      const point = new Vector2(Math.cos(theta) * -radius, Math.sin(theta) * radius);
       points.push(point);
       minX = Math.min(minX, point.x);
       maxX = Math.max(maxX, point.x);

@@ -31,11 +31,13 @@
 
 */
 
+import { BoxGeometry, BufferGeometry, Vector2, Group, Mesh, CylinderBufferGeometry } from "./../lib/three/three.module.js";
+
 import { lerp } from "./math.js";
 import { shadeGeometry, idGeometry, silhouette, transparent } from "./rendering.js";
 import { mergeGeometries } from "./shapes.js";
 
-const boxGeometry = new THREE.BoxGeometry();
+const boxGeometry = new BoxGeometry();
 const createBoxes = (topFront, bottomFront, topRear, bottomRear, outerSlope, innerSlope, reflect = false) => {
   // A slope is just a function that returns the horizontal offset of a given vertex.
   // This way guarantees that the six sides of the box are still planar.
@@ -49,7 +51,7 @@ const createBoxes = (topFront, bottomFront, topRear, bottomRear, outerSlope, inn
   boxGeometry.vertices[5].set(innerSlope(topFront), topFront.y, topFront.x);
   boxGeometry.vertices[6].set(innerSlope(bottomRear), bottomRear.y, bottomRear.x);
   boxGeometry.vertices[7].set(innerSlope(topRear), topRear.y, topRear.x);
-  const geometry = new THREE.BufferGeometry();
+  const geometry = new BufferGeometry();
   geometry.fromGeometry(boxGeometry);
   const geometries = [geometry];
 
@@ -81,7 +83,7 @@ export default () => {
   const hubcapThickness = wheelRadius * 0.55;
   const groundClearance = wheelRadius * 0.8;
   const columnThickness = 0.05;
-  const columnNudge = new THREE.Vector2(columnThickness, 0);
+  const columnNudge = new Vector2(columnThickness, 0);
   const roofThickness = 0.025;
   const isCoupe = Math.random() > 0.5;
   const hasTailgate = isCoupe || Math.random() > 0.5;
@@ -114,18 +116,18 @@ export default () => {
   const roofSlope = v => roofWidth / 2;
 
   // frame bottom
-  const a = new THREE.Vector2(0 + bottomTaper, groundClearance);
-  const b = new THREE.Vector2(a.x + pillarSpacings[0], groundClearance);
-  const c = new THREE.Vector2(b.x + pillarSpacings[1], groundClearance);
-  const d = new THREE.Vector2(c.x + pillarSpacings[2], groundClearance);
-  const e = new THREE.Vector2(d.x + pillarSpacings[3] - bottomTaper, groundClearance);
+  const a = new Vector2(0 + bottomTaper, groundClearance);
+  const b = new Vector2(a.x + pillarSpacings[0], groundClearance);
+  const c = new Vector2(b.x + pillarSpacings[1], groundClearance);
+  const d = new Vector2(c.x + pillarSpacings[2], groundClearance);
+  const e = new Vector2(d.x + pillarSpacings[3] - bottomTaper, groundClearance);
 
   // frame middle
-  const f = new THREE.Vector2(a.x - bottomTaper, a.y + cabinHeight1);
-  const g = new THREE.Vector2(b.x, b.y + cabinHeight1);
-  const h = new THREE.Vector2(c.x, c.y + cabinHeight1);
-  const i = new THREE.Vector2(d.x, d.y + cabinHeight1);
-  const j = new THREE.Vector2(e.x + bottomTaper, e.y + cabinHeight1);
+  const f = new Vector2(a.x - bottomTaper, a.y + cabinHeight1);
+  const g = new Vector2(b.x, b.y + cabinHeight1);
+  const h = new Vector2(c.x, c.y + cabinHeight1);
+  const i = new Vector2(d.x, d.y + cabinHeight1);
+  const j = new Vector2(e.x + bottomTaper, e.y + cabinHeight1);
 
   frame.push(...createBoxes(f, a, g, b, bodySlope));
   frame.push(...createBoxes(g, b, h, c, bodySlope));
@@ -133,11 +135,11 @@ export default () => {
   frame.push(...createBoxes(i, d, j, e, bodySlope));
 
   // frame top
-  const k = new THREE.Vector2(f.x, f.y + hoodHeight);
-  const l = new THREE.Vector2(g.x, g.y + hoodHeight + cabinHeight2);
-  const m = new THREE.Vector2(h.x, h.y + hoodHeight + cabinHeight2);
-  const n = new THREE.Vector2(i.x, i.y + hoodHeight + cabinHeight2);
-  const o = new THREE.Vector2(j.x, j.y + hoodHeight + cabinHeight2);
+  const k = new Vector2(f.x, f.y + hoodHeight);
+  const l = new Vector2(g.x, g.y + hoodHeight + cabinHeight2);
+  const m = new Vector2(h.x, h.y + hoodHeight + cabinHeight2);
+  const n = new Vector2(i.x, i.y + hoodHeight + cabinHeight2);
+  const o = new Vector2(j.x, j.y + hoodHeight + cabinHeight2);
 
   frame.push(...createBoxes(k, f, l, g, bodySlope));
   frame.push(...createBoxes(l, g, m, h, bodySlope));
@@ -145,15 +147,15 @@ export default () => {
   frame.push(...createBoxes(n, i, o, j, bodySlope));
 
   // Roof
-  const p = new THREE.Vector2(l.x + frontWindshieldTaper * pillarSpacings[1], l.y + roofHeight);
-  const q = new THREE.Vector2(m.x, m.y + roofHeight);
-  const r = new THREE.Vector2(hasTailgate ? n.x : n.x - rearWindshieldTaper, n.y + roofHeight);
-  const s = new THREE.Vector2(o.x - rearWindshieldTaper, hasTailgate ? o.y + roofHeight : o.y);
+  const p = new Vector2(l.x + frontWindshieldTaper * pillarSpacings[1], l.y + roofHeight);
+  const q = new Vector2(m.x, m.y + roofHeight);
+  const r = new Vector2(hasTailgate ? n.x : n.x - rearWindshieldTaper, n.y + roofHeight);
+  const s = new Vector2(o.x - rearWindshieldTaper, hasTailgate ? o.y + roofHeight : o.y);
 
-  const t = new THREE.Vector2(p.x + columnThickness, p.y + roofThickness);
-  const u = new THREE.Vector2(q.x, q.y + roofThickness);
-  const v = new THREE.Vector2(r.x + (hasTailgate ? 0 : -columnThickness), r.y + roofThickness);
-  const w = new THREE.Vector2(s.x + (hasTailgate ? -columnThickness : 0), s.y + roofThickness);
+  const t = new Vector2(p.x + columnThickness, p.y + roofThickness);
+  const u = new Vector2(q.x, q.y + roofThickness);
+  const v = new Vector2(r.x + (hasTailgate ? 0 : -columnThickness), r.y + roofThickness);
+  const w = new Vector2(s.x + (hasTailgate ? -columnThickness : 0), s.y + roofThickness);
 
   // Column bar vertices
   const l2 = l.clone().add(columnNudge);
@@ -278,31 +280,31 @@ export default () => {
   plates.push(...createBoxes(rearPlateTF, rearPlateBF, rearPlateTF, rearPlateBF, v => 0.1));
   plates.forEach(plate => shadeGeometry(plate, 0.2));
 
-  const mesh = new THREE.Group();
+  const mesh = new Group();
 
-  mesh.add(new THREE.Mesh(idGeometry(mergeGeometries(frame)), silhouette));
-  mesh.add(new THREE.Mesh(idGeometry(mergeGeometries(mirrors)), silhouette));
-  mesh.add(new THREE.Mesh(idGeometry(mergeGeometries(fenders)), silhouette));
-  mesh.add(new THREE.Mesh(idGeometry(mergeGeometries(frontLights)), silhouette));
-  mesh.add(new THREE.Mesh(idGeometry(mergeGeometries(tailLights)), silhouette));
-  mesh.add(new THREE.Mesh(idGeometry(mergeGeometries(plates)), silhouette));
-  mesh.add(new THREE.Mesh(idGeometry(mergeGeometries(antennas)), silhouette));
+  mesh.add(new Mesh(idGeometry(mergeGeometries(frame)), silhouette));
+  mesh.add(new Mesh(idGeometry(mergeGeometries(mirrors)), silhouette));
+  mesh.add(new Mesh(idGeometry(mergeGeometries(fenders)), silhouette));
+  mesh.add(new Mesh(idGeometry(mergeGeometries(frontLights)), silhouette));
+  mesh.add(new Mesh(idGeometry(mergeGeometries(tailLights)), silhouette));
+  mesh.add(new Mesh(idGeometry(mergeGeometries(plates)), silhouette));
+  mesh.add(new Mesh(idGeometry(mergeGeometries(antennas)), silhouette));
 
   // merge opaque geometries
   const allGeometries = [].concat(frame, mirrors, fenders, frontLights, tailLights, plates, antennas);
   allGeometries.forEach(geometry => geometry.dispose());
 
   // merge transparent geometries
-  const windowMesh = new THREE.Mesh(mergeGeometries(windows), transparent);
+  const windowMesh = new Mesh(mergeGeometries(windows), transparent);
   mesh.add(windowMesh);
   mesh.rotation.x = Math.PI * 0.5;
   mesh.scale.multiplyScalar(1.5);
 
   // wheel meshes — kept separate, in case someone
   // wants to turn them in the future or something
-  const tireGeometry = idGeometry(shadeGeometry(new THREE.CylinderBufferGeometry(wheelRadius, wheelRadius, wheelThickness, 30), 0.1));
-  const hubcapGeometry = idGeometry(shadeGeometry(new THREE.CylinderBufferGeometry(hubcapRadius, hubcapRadius, hubcapThickness, 30), carColor));
-  const frontLeftWheel = new THREE.Mesh(mergeGeometries([tireGeometry, hubcapGeometry]), silhouette);
+  const tireGeometry = idGeometry(shadeGeometry(new CylinderBufferGeometry(wheelRadius, wheelRadius, wheelThickness, 30), 0.1));
+  const hubcapGeometry = idGeometry(shadeGeometry(new CylinderBufferGeometry(hubcapRadius, hubcapRadius, hubcapThickness, 30), carColor));
+  const frontLeftWheel = new Mesh(mergeGeometries([tireGeometry, hubcapGeometry]), silhouette);
   frontLeftWheel.rotation.z = Math.PI * 0.5;
   frontLeftWheel.position.y = wheelRadius;
 
@@ -334,7 +336,7 @@ export default () => {
     mesh.add(spareTire);
   }
 
-  const group = new THREE.Group();
+  const group = new Group();
   group.add(mesh);
 
   return group;

@@ -1,3 +1,5 @@
+import { Vector2, Vector3 } from "./../lib/three/three.module.js";
+
 const sign = input => (input < 0 ? -1 : 1);
 
 const mod = (a, b) => ((a % b) + b) % b;
@@ -7,13 +9,13 @@ const getAngle = v2 => Math.atan2(v2.y, v2.x);
 const rotate = (v2, angle) => {
   const cos = Math.cos(angle);
   const sin = Math.sin(angle);
-  return new THREE.Vector2(v2.x * cos - v2.y * sin, v2.x * sin + v2.y * cos);
+  return new Vector2(v2.x * cos - v2.y * sin, v2.x * sin + v2.y * cos);
 };
 
 const rotateY = (v3, angle) => {
   const cos = Math.cos(angle);
   const sin = Math.sin(angle);
-  return new THREE.Vector3(v3.x * cos - v3.z * sin, v3.y, v3.x * sin + v3.z * cos);
+  return new Vector3(v3.x * cos - v3.z * sin, v3.y, v3.x * sin + v3.z * cos);
 };
 
 const minDistSquaredIndex = (points, toPoint) => {

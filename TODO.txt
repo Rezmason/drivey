@@ -3,6 +3,19 @@ Declarative level representation
   let parser = new DOMParser();
   let doc = parser.parseFromString(htmlSource, "text/html");
 
+  Easiest to hardest:
+    Simple: DeepDarkNight, CliffsideBeach, TestLevel, Overpass
+    Loop: Tunnel, WarpGate
+    Rows: Spectre
+    Sky: TrainTracks
+    Buildings: City
+    Just a lot going on: IndustrialZone
+
+Portable Drivey
+  Like A-Frame, drivey.js (and minified) would find a root tag in the DOM and render it
+  browserify / webpack / rollup
+    Gotta prune, jeez
+
 Why doesn't it run on iPads?
 
 Change car auto-steering logic when the car is going in reverse

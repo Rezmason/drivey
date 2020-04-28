@@ -1,10 +1,12 @@
+import { Group, Vector2, ShapePath } from "./../lib/three/three.module.js";
+
 import { lerp } from "./math.js";
 import { makeSplinePath, makeGeometry, expandShapePath, makeCirclePath, makePolygonPath } from "./shapes.js";
 import { makeShadedMesh } from "./rendering.js";
 
 export default class Dashboard {
   constructor() {
-    this.object = new THREE.Group();
+    this.object = new Group();
     const edge1 = 2;
     this.backing = this.addDashboardElement(this.makeDashboardBacking(), edge1, true);
     this.backing.position.set(-50, -80, -110);
@@ -29,7 +31,7 @@ export default class Dashboard {
       edgeAmount = 0;
     }
 
-    const element = new THREE.Group();
+    const element = new Group();
     if (edgeAmount != 0) {
       const edge = makeShadedMesh(makeGeometry(expandShapePath(path, 1 + edgeAmount, 250), 0, 0), 0.2);
       edge.position.z = -0.1;
@@ -52,19 +54,19 @@ export default class Dashboard {
 
   makeDashboardBacking() {
     const pts = [
-      new THREE.Vector2(-200, -40),
-      new THREE.Vector2(-200, 40),
-      new THREE.Vector2(200, 40),
-      new THREE.Vector2(200, -40)
+      new Vector2(-200, -40),
+      new Vector2(-200, 40),
+      new Vector2(200, 40),
+      new Vector2(200, -40)
     ];
     const path = makeSplinePath(pts, true);
-    const shapePath = new THREE.ShapePath();
+    const shapePath = new ShapePath();
     shapePath.subPaths.push(path);
     return shapePath;
   }
 
   makeSpeedometer() {
-    const shapePath = new THREE.ShapePath();
+    const shapePath = new ShapePath();
     const outerRadius = 20;
     const innerRadius = outerRadius - 1;
     const dashEnd = innerRadius - 2;
@@ -77,10 +79,10 @@ export default class Dashboard {
       const angle = (Math.PI * 2 * (i + 0.5)) / 10;
       shapePath.subPaths.push(
         makePolygonPath([
-          new THREE.Vector2(Math.cos(angle - nudge) * outerRadius, Math.sin(angle - nudge) * outerRadius),
-          new THREE.Vector2(Math.cos(angle - nudge) * dashEnd, Math.sin(angle - nudge) * dashEnd),
-          new THREE.Vector2(Math.cos(angle + nudge) * dashEnd, Math.sin(angle + nudge) * dashEnd),
-          new THREE.Vector2(Math.cos(angle + nudge) * outerRadius, Math.sin(angle + nudge) * outerRadius)
+          new Vector2(Math.cos(angle - nudge) * outerRadius, Math.sin(angle - nudge) * outerRadius),
+          new Vector2(Math.cos(angle - nudge) * dashEnd, Math.sin(angle - nudge) * dashEnd),
+          new Vector2(Math.cos(angle + nudge) * dashEnd, Math.sin(angle + nudge) * dashEnd),
+          new Vector2(Math.cos(angle + nudge) * outerRadius, Math.sin(angle + nudge) * outerRadius)
         ])
       );
     }
@@ -89,27 +91,27 @@ export default class Dashboard {
   }
 
   makeNeedle() {
-    const shapePath = new THREE.ShapePath();
+    const shapePath = new ShapePath();
     const scale = 40;
     shapePath.subPaths.push(makePolygonPath([
-      new THREE.Vector2(-0.02 * scale, 0.1 * scale),
-      new THREE.Vector2(-0.005 * scale, -0.4 * scale),
-      new THREE.Vector2(0.005 * scale, -0.4 * scale),
-      new THREE.Vector2(0.02 * scale, 0.1 * scale)
+      new Vector2(-0.02 * scale, 0.1 * scale),
+      new Vector2(-0.005 * scale, -0.4 * scale),
+      new Vector2(0.005 * scale, -0.4 * scale),
+      new Vector2(0.02 * scale, 0.1 * scale)
     ]));
     return shapePath;
   }
 
   makeSteeringWheel() {
     const scale = 148;
-    const shapePath = new THREE.ShapePath();
+    const shapePath = new ShapePath();
     const outerRim = makeCirclePath(0, 0, scale * 0.5);
     const innerRim1Points = [];
     const n = 60;
     for (let i = 0; i < 25; i++) {
       const theta = ((57 - i) * Math.PI * 2) / n;
       const mag = ((i & 1) != 0 ? 0.435 : 0.45) * scale;
-      innerRim1Points.push(new THREE.Vector2(Math.cos(theta) * mag, Math.sin(theta) * mag));
+      innerRim1Points.push(new Vector2(Math.cos(theta) * mag, Math.sin(theta) * mag));
     }
 
     innerRim1Points.reverse();
@@ -118,13 +120,13 @@ export default class Dashboard {
     for (let i = 0; i < 29; i++) {
       const theta1 = ((29 - i) * 2 * Math.PI) / n;
       const mag1 = ((i & 1) != 0 ? 0.435 : 0.45) * scale;
-      innerRim2Points.push(new THREE.Vector2(Math.cos(theta1) * mag1, Math.sin(theta1) * mag1));
+      innerRim2Points.push(new Vector2(Math.cos(theta1) * mag1, Math.sin(theta1) * mag1));
     }
 
-    innerRim2Points.push(new THREE.Vector2(scale * 0.25, scale * 0.075));
-    innerRim2Points.push(new THREE.Vector2(scale * 0.125, scale * 0.2));
-    innerRim2Points.push(new THREE.Vector2(scale * -0.125, scale * 0.2));
-    innerRim2Points.push(new THREE.Vector2(scale * -0.25, scale * 0.075));
+    innerRim2Points.push(new Vector2(scale * 0.25, scale * 0.075));
+    innerRim2Points.push(new Vector2(scale * 0.125, scale * 0.2));
+    innerRim2Points.push(new Vector2(scale * -0.125, scale * 0.2));
+    innerRim2Points.push(new Vector2(scale * -0.25, scale * 0.075));
     innerRim2Points.reverse();
     const innerRim2 = makeSplinePath(innerRim2Points, true);
     shapePath.subPaths.push(outerRim);

@@ -5,6 +5,13 @@ as well as establishing an animation loop and handling window resizing events.
 
 */
 
+import { Scene, PerspectiveCamera, WebGLRenderer } from "./../lib/three/three.module.js";
+import { EffectComposer } from "./../lib/three/postprocessing/EffectComposer.js";
+import { RenderPass } from "./../lib/three/postprocessing/RenderPass.js";
+import { ShaderPass } from "./../lib/three/postprocessing/ShaderPass.js";
+import { SMAAPass } from "./../lib/three/postprocessing/SMAAPass.js";
+import { SobelOperatorShader } from "./../lib/three/shaders/SobelOperatorShader.js";
+
 import { silhouette, transparent } from "./rendering.js";
 
 export default class Screen {
@@ -15,23 +22,23 @@ export default class Screen {
     document.body.appendChild(this.element);
     this.resolution = 1;
     this.active = true;
-    this.scene = new THREE.Scene();
-    this.camera = new THREE.PerspectiveCamera(90, 1, 0.001, 100000);
+    this.scene = new Scene();
+    this.camera = new PerspectiveCamera(90, 1, 0.001, 100000);
     this.camera.rotation.order = "YZX";
-    this.renderer = new THREE.WebGLRenderer();
+    this.renderer = new WebGLRenderer();
     this.renderer.setPixelRatio(window.devicePixelRatio);
     this.element.appendChild(this.renderer.domElement);
     this.renderer.domElement.id = "renderer";
-    this.composer = new THREE.EffectComposer(this.renderer);
-    this.renderPass = new THREE.RenderPass(this.scene, this.camera);
+    this.composer = new EffectComposer(this.renderer);
+    this.renderPass = new RenderPass(this.scene, this.camera);
     this.composer.addPass(this.renderPass);
     // this.renderPass.renderToScreen = true;
 
-    this.sobelPass = new THREE.ShaderPass(THREE.SobelOperatorShader);
+    this.sobelPass = new ShaderPass(SobelOperatorShader);
     this.composer.addPass(this.sobelPass);
     this.sobelPass.enabled = false;
 
-    this.blueprintPass = new THREE.ShaderPass({
+    this.blueprintPass = new ShaderPass({
       uniforms: {
         tDiffuse: { type: "t", value: null }
       },
@@ -63,7 +70,7 @@ export default class Screen {
     this.composer.addPass(this.blueprintPass);
     this.blueprintPass.enabled = false;
 
-    this.colorCyclePass = new THREE.ShaderPass({
+    this.colorCyclePass = new ShaderPass({
       uniforms: {
         tDiffuse: { type: "t", value: null },
         time: { type: "f", value: 0 }
@@ -96,7 +103,7 @@ export default class Screen {
     this.composer.addPass(this.colorCyclePass);
     this.colorCyclePass.enabled = false;
 
-    this.aaPass = new THREE.SMAAPass(1, 1);
+    this.aaPass = new SMAAPass(1, 1);
     this.aaPass.renderToScreen = true;
     this.composer.addPass(this.aaPass);
     window.addEventListener("resize", this.onWindowResize.bind(this), false);

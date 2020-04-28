@@ -18,6 +18,8 @@
 
 */
 
+import { Group, Color, CylinderBufferGeometry, Mesh } from "./../lib/three/three.module.js";
+
 import Level from "./Level.js";
 
 import TestLevel from "./TestLevel.js";
@@ -124,7 +126,7 @@ export default class Drivey {
         [otherCarExteriors]
     */
 
-    this.satelliteCameraMount = new THREE.Group();
+    this.satelliteCameraMount = new Group();
     this.screen.scene.add(this.satelliteCameraMount);
 
     this.myCar = new Car();
@@ -132,22 +134,22 @@ export default class Drivey {
     this.otherCarExteriors = [];
     this.numOtherCars = 0;
 
-    this.myCarExterior = new THREE.Group();
+    this.myCarExterior = new Group();
     this.screen.scene.add(this.myCarExterior);
 
-    this.myCarInterior = new THREE.Group();
+    this.myCarInterior = new Group();
     this.myCarExterior.add(this.myCarInterior);
 
     this.sky = this.makeSky();
     this.myCarExterior.add(this.sky);
 
-    this.chaseCameraMount = new THREE.Group();
+    this.chaseCameraMount = new Group();
     this.chaseCameraMount.rotation.x = Math.PI * 0.5;
     this.chaseCameraMount.position.y = -5;
     this.chaseCameraMount.position.z = 2;
     this.myCarExterior.add(this.chaseCameraMount);
 
-    this.hoodCameraMount = new THREE.Group();
+    this.hoodCameraMount = new Group();
     this.hoodCameraMount.rotation.x = Math.PI * 0.5;
     this.hoodCameraMount.position.y = 3;
     this.hoodCameraMount.position.z = 0.5;
@@ -157,22 +159,22 @@ export default class Drivey {
     this.myCarExterior.add(this.myCarMesh);
     this.myCarMesh.visible = false;
 
-    this.driver = new THREE.Group();
+    this.driver = new Group();
     this.driver.name = "Ace";
     this.myCarInterior.add(this.driver);
 
-    this.driverCameraMount = new THREE.Group();
+    this.driverCameraMount = new Group();
     this.driverCameraMount.rotation.x = Math.PI * (0.5 + this.defaultTilt);
     this.driverCameraMount.position.z = 1;
     this.driver.add(this.driverCameraMount);
 
-    this.rearCameraMount = new THREE.Group();
+    this.rearCameraMount = new Group();
     this.rearCameraMount.rotation.x = Math.PI * (0.5 - this.defaultTilt);
     this.rearCameraMount.rotation.y = Math.PI;
     this.rearCameraMount.position.z = 1;
     this.driver.add(this.rearCameraMount);
 
-    this.aerialCameraMount = new THREE.Group();
+    this.aerialCameraMount = new Group();
     this.aerialCameraMount.position.set(0, 0, 60);
     this.myCarExterior.add(this.aerialCameraMount);
 
@@ -253,15 +255,15 @@ export default class Drivey {
       case "ombré":
         if (this.level != null) {
           const tint = this.level.tint;
-          this.buttons.setColors(tint.clone().multiplyScalar(0.0), tint.clone().multiplyScalar(0.4), tint.clone().lerp(new THREE.Color(1, 1, 1), 0.25));
+          this.buttons.setColors(tint.clone().multiplyScalar(0.0), tint.clone().multiplyScalar(0.4), tint.clone().lerp(new Color(1, 1, 1), 0.25));
         }
 
         break;
       case "wireframe":
-        this.buttons.setColors(new THREE.Color(0.1, 0.15, 0.7), new THREE.Color(0.8, 0.8, 1), new THREE.Color(1, 1, 1));
+        this.buttons.setColors(new Color(0.1, 0.15, 0.7), new Color(0.8, 0.8, 1), new Color(1, 1, 1));
         break;
       case "technicolor":
-        this.buttons.setColors(new THREE.Color(0, 0, 0), new THREE.Color(0.1, 0.1, 0.1), new THREE.Color(1, 1, 1));
+        this.buttons.setColors(new Color(0, 0, 0), new Color(0.1, 0.1, 0.1), new Color(1, 1, 1));
         break;
       case "merveilles":
         this.buttons.setColors(this.themeColors.dark, this.themeColors.full, this.themeColors.light);
@@ -285,7 +287,7 @@ export default class Drivey {
         }
 
         const hsl = Array.from(new Set([active.f_high, active.f_med, active.f_low, active.b_high, active.b_med, active.background]))
-          .map(hex => new THREE.Color(parseInt(hex.substring(1), 16)))
+          .map(hex => new Color(parseInt(hex.substring(1), 16)))
           .map(color => color.getHSL({ color }));
         const minLightness = Math.min(...hsl.map(o => o.l));
         const darkHSL = hsl.find(o => o.l === minLightness);
@@ -303,8 +305,8 @@ export default class Drivey {
         }
 
         full = this.level.tint;
-        dark = new THREE.Color(0, 0, 0);
-        light = new THREE.Color(1, 1, 1);
+        dark = new Color(0, 0, 0);
+        light = new Color(1, 1, 1);
         break;
     }
 
@@ -339,9 +341,9 @@ export default class Drivey {
 
     */
 
-    const geometry = new THREE.CylinderBufferGeometry(1, 1, -100, 100, 1, true, 0, Math.PI);
+    const geometry = new CylinderBufferGeometry(1, 1, -100, 100, 1, true, 0, Math.PI);
     shadeGeometry(geometry, 0);
-    const mesh = new THREE.Mesh(geometry, silhouette);
+    const mesh = new Mesh(geometry, silhouette);
     mesh.scale.multiplyScalar(100000);
     mesh.rotation.x = Math.PI * 0.5;
     mesh.rotation.z = Math.PI * 0.5;
