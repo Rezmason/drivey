@@ -1,8 +1,8 @@
-import { Color, ShapePath, Vector2 } from "./../lib/three/three.module.js";
+import { Color, ShapePath, Vector2 } from "./../../lib/three/three.module.js";
 
-import Level from "./Level.js";
-import RoadLineStyle from "./RoadLineStyle.js";
-import { addPath, makeCirclePath } from "./shapes.js";
+import Level from "./../Level.js";
+import RoadLineStyle from "./../RoadLineStyle.js";
+import { addPath, makeCirclePath } from "./../shapes.js";
 
 export default class TrainTracks extends Level {
   build(meshes, transparentMeshes, skyMeshes) {

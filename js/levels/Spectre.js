@@ -1,9 +1,9 @@
-import { Color, ShapePath, Vector2 } from "./../lib/three/three.module.js";
+import { Color, ShapePath, Vector2 } from "./../../lib/three/three.module.js";
 
-import Level from "./Level.js";
-import RoadLineStyle from "./RoadLineStyle.js";
-import { distance } from "./math.js";
-import { addPath, makeRectanglePath } from "./shapes.js";
+import Level from "./../Level.js";
+import RoadLineStyle from "./../RoadLineStyle.js";
+import { distance } from "./../math.js";
+import { addPath, makeRectanglePath } from "./../shapes.js";
 
 export default class Spectre extends Level {
   build(meshes, transparentMeshes, skyMeshes) {

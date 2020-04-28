@@ -22,16 +22,16 @@ import { Group, Color, CylinderBufferGeometry, Mesh } from "./../lib/three/three
 
 import Level from "./Level.js";
 
-import TestLevel from "./TestLevel.js";
-import DeepDarkNight from "./DeepDarkNight.js";
-import Tunnel from "./Tunnel.js";
-import City from "./City.js";
-import IndustrialZone from "./IndustrialZone.js";
-import WarpGate from "./WarpGate.js";
-import Spectre from "./Spectre.js";
-import CliffsideBeach from "./CliffsideBeach.js";
-import TrainTracks from "./TrainTracks.js";
-import Overpass from "./Overpass.js";
+import TestLevel from "./levels/TestLevel.js";
+import DeepDarkNight from "./levels/DeepDarkNight.js";
+import Tunnel from "./levels/Tunnel.js";
+import City from "./levels/City.js";
+import IndustrialZone from "./levels/IndustrialZone.js";
+import WarpGate from "./levels/WarpGate.js";
+import Spectre from "./levels/Spectre.js";
+import CliffsideBeach from "./levels/CliffsideBeach.js";
+import TrainTracks from "./levels/TrainTracks.js";
+import Overpass from "./levels/Overpass.js";
 import { lerp } from "./math.js";
 import { shadeGeometry, silhouette, transparent, blendColors } from "./rendering.js";
 import isTouchDevice from "./isTouchDevice.js";

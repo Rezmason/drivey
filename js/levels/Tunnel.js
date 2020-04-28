@@ -1,7 +1,7 @@
-import { Color, ShapePath } from "./../lib/three/three.module.js";
+import { Color, ShapePath } from "./../../lib/three/three.module.js";
 
-import Level from "./Level.js";
-import RoadLineStyle from "./RoadLineStyle.js";
+import Level from "./../Level.js";
+import RoadLineStyle from "./../RoadLineStyle.js";
 
 export default class Tunnel extends Level {
   build(meshes, transparentMeshes, skyMeshes) {
