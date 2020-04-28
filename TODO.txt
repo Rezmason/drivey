@@ -1,12 +1,20 @@
 Declarative level representation
+  HTML, actually. Gonna load it up like A-Frame
+  let parser = new DOMParser();
+  let doc = parser.parseFromString(htmlSource, "text/html");
 
 Why doesn't it run on iPads?
+
+Change car auto-steering logic when the car is going in reverse
 
 Replace framerate gauge with simulated RPM
   Prevent moving in reverse on when on auto-pilot
   Simluated gearbox?
 
 Improve performance of Approximation::getNearest
+
+Cavern level
+  Stalagmites and stalagtites, subtle color variation?
 
 Much, much later
   Spotify playlist embed?

@@ -1,5 +1,3 @@
-"use strict";
-
 /*
 
 Screen is responsible for initializing the three.js renderer, scene, cameras,
@@ -7,7 +5,9 @@ as well as establishing an animation loop and handling window resizing events.
 
 */
 
-class Screen {
+import { silhouette, transparent } from "./rendering.js";
+
+export default class Screen {
   constructor(animate = true) {
     this.time = 0;
     this.updateListeners = [];
@@ -44,15 +44,18 @@ class Screen {
       `,
       fragmentShader: `
         precision mediump float;
+
+        #define prussianBlue vec3(0.1, 0.15, 0.7)
+
         uniform sampler2D tDiffuse;
         varying vec2 vUV;
 
         void main() {
-          vec3 color = vec3(0.1, 0.15, 0.7);
-          float line = texture2D(tDiffuse, vUV).r;
-          if (line > 0.02) {
-            color = clamp(line * 10., 0., 1.) * vec3(0.9, 0.9, 1.);
+          float edge = texture2D(tDiffuse, vUV).r * 20.;
+          if (edge < 0.4) {
+            edge = 0.;
           }
+          vec3 color = mix(prussianBlue, vec3(0.9, 0.9, 1.0), edge);
           gl_FragColor = vec4(color, 1.);
         }
       `
@@ -126,8 +129,8 @@ class Screen {
 
   setResolution(amount) {
     this.resolution = amount;
-    const width  =  Math.ceil(window.innerWidth  * this.resolution);
-    const height =  Math.ceil(window.innerHeight * this.resolution);
+    const width = Math.ceil(window.innerWidth * this.resolution);
+    const height = Math.ceil(window.innerHeight * this.resolution);
     this.renderer.setSize(width, height);
     this.renderer.domElement.style.width = "100%";
     this.renderer.domElement.style.height = "100%";
@@ -154,6 +157,7 @@ class Screen {
         listener();
       }
     }
+
     setTimeout(this.update.bind(this), 1000 / 60);
   }
 

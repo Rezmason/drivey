@@ -1,6 +1,7 @@
-"use strict";
+import Level from "./Level.js";
+import RoadLineStyle from "./RoadLineStyle.js";
 
-class DeepDarkNight extends Level {
+export default class DeepDarkNight extends Level {
   build(meshes, transparentMeshes, skyMeshes) {
     this.name = "The Deep Dark Night";
     this.tint = new THREE.Color(0.7, 0.7, 0.7);
@@ -12,10 +13,10 @@ class DeepDarkNight extends Level {
     this.drawRoadLine(this.roadPath, linePath, 0, 0.2, RoadLineStyle.DASH(4, 10, 0), 0, 1);
     this.drawRoadLine(this.roadPath, linePath, -3, 0.15, RoadLineStyle.DASH(30, 2, 5), 0, 1);
     this.drawRoadLine(this.roadPath, linePath, 3, 0.15, RoadLineStyle.DASH(30, 2, 5), 0, 1);
-    meshes.push(makeMesh(linePath, 0, 1, roadLineColor, 1, 5));
+    meshes.push(this.makeMesh(linePath, 0, 1, roadLineColor, 1, 5));
     const postPath = new THREE.ShapePath();
     this.drawRoadLine(this.roadPath, postPath, -6, 0.2, RoadLineStyle.DASH(0.2, 50, 0), 0, 1);
     this.drawRoadLine(this.roadPath, postPath, 6, 0.2, RoadLineStyle.DASH(0.2, 50, 0), 0, 1);
-    meshes.push(makeMesh(postPath, 0.6, 1, roadLineColor, 1, 5));
+    meshes.push(this.makeMesh(postPath, 0.6, 1, roadLineColor, 1, 5));
   }
 }

@@ -1,5 +1,3 @@
-"use strict";
-
 /*
 
   A car mesh is built from a series of boxes,
@@ -33,6 +31,10 @@
 
 */
 
+import { lerp } from "./math.js";
+import { shadeGeometry, idGeometry, silhouette, transparent } from "./rendering.js";
+import { mergeGeometries } from "./shapes.js";
+
 const boxGeometry = new THREE.BoxGeometry();
 const createBoxes = (topFront, bottomFront, topRear, bottomRear, outerSlope, innerSlope, reflect = false) => {
   // A slope is just a function that returns the horizontal offset of a given vertex.
@@ -50,18 +52,27 @@ const createBoxes = (topFront, bottomFront, topRear, bottomRear, outerSlope, inn
   const geometry = new THREE.BufferGeometry();
   geometry.fromGeometry(boxGeometry);
   const geometries = [geometry];
+
   // but sometimes, we have a box that's offset from the axis
   // of symmetry, that we still want to reflect bilaterally
   if (reflect) {
-    geometries.push(createBoxes(
-      topFront, bottomFront, topRear, bottomRear, v => -innerSlope(v), v => -outerSlope(v), false
-    ).pop());
+    geometries.push(
+      createBoxes(
+        topFront,
+        bottomFront,
+        topRear,
+        bottomRear,
+        v => -innerSlope(v),
+        v => -outerSlope(v),
+        false
+      ).pop()
+    );
   }
+
   return geometries;
 };
 
-const generate = () => {
-
+export default () => {
   // We start by generating random measurements and states for our car
   const rand = (mag, offset) => offset + mag * Math.random();
   const wheelRadius = rand(0.05, 0.25);
@@ -83,6 +94,7 @@ const generate = () => {
     isCoupe ? 0 : rand(0.1, 0.5), // rear seats
     rand(hasTailgate && !isCoupe ? 0.2 : 0.1, wheelRadius * 2 + 0.1) // rear windshield
   ];
+
   const cabinWidth = rand(0.3, 0.9);
   const roofWidth = rand(0.3, 0.7) * cabinWidth;
   const hoodHeight = rand(0.0125, 0);
@@ -182,15 +194,19 @@ const generate = () => {
   }
 
   // Axles
-  const frontWheelPos = a.clone(); frontWheelPos.x += wheelRadius + frontOverhang * (pillarSpacings[0] - wheelRadius * 2);
-  const rearWheelPos = e.clone(); rearWheelPos.x -= wheelRadius + rearOverhang * (pillarSpacings[3] - wheelRadius * 2 - bottomTaper);
+  const frontWheelPos = a.clone();
+  frontWheelPos.x += wheelRadius + frontOverhang * (pillarSpacings[0] - wheelRadius * 2);
+  const rearWheelPos = e.clone();
+  rearWheelPos.x -= wheelRadius + rearOverhang * (pillarSpacings[3] - wheelRadius * 2 - bottomTaper);
 
   // Undercarriage
   const undercarriageTF = a.clone();
-  const undercarriageBF = frontWheelPos.clone(); undercarriageBF.y -= 0.1;
+  const undercarriageBF = frontWheelPos.clone();
+  undercarriageBF.y -= 0.1;
   const undercarriageTR = e.clone();
-  const undercarriageBR = rearWheelPos.clone(); undercarriageBR.y -= 0.1;
-  frame.push(...createBoxes(undercarriageTF, undercarriageBF, undercarriageTR, undercarriageBR, v => (cabinWidth / 2 * 0.7)));
+  const undercarriageBR = rearWheelPos.clone();
+  undercarriageBR.y -= 0.1;
+  frame.push(...createBoxes(undercarriageTF, undercarriageBF, undercarriageTR, undercarriageBR, v => (cabinWidth / 2) * 0.7));
 
   frame.forEach(box => shadeGeometry(box, carColor));
   windows.forEach(box => shadeGeometry(box, carColor, 0.4));
@@ -211,9 +227,11 @@ const generate = () => {
 
   // mirrors
   const mirrorBF = l.clone();
-  const mirrorTF = l.clone(); mirrorTF.y += 0.1;
+  const mirrorTF = l.clone();
+  mirrorTF.y += 0.1;
   const mirrorBR = l2.clone();
-  const mirrorTR = l2.clone(); mirrorTR.y += 0.1;
+  const mirrorTR = l2.clone();
+  mirrorTR.y += 0.1;
   const mirrors = [];
   mirrors.push(...createBoxes(mirrorTF, mirrorBF, mirrorTR, mirrorBR, v => bodySlope(v) + 0.15, v => bodySlope(v) - 0.01, true));
   mirrors.forEach(mirror => shadeGeometry(mirror, carColor));
@@ -237,17 +255,24 @@ const generate = () => {
   // antenna
   const antennaTF = p.clone().sub(l).multiplyScalar(0.5).add(p);
   const antennaBF = p.clone();
-  const antennaTR = antennaTF.clone(); antennaTF.x -= 0.01;
-  const antennaBR = antennaBF.clone(); antennaBF.x -= 0.01;
+  const antennaTR = antennaTF.clone();
+  antennaTF.x -= 0.01;
+  const antennaBR = antennaBF.clone();
+  antennaBF.x -= 0.01;
   const antennas = [];
   antennas.push(...createBoxes(antennaTF, antennaBF, antennaTR, antennaBR, greenhouseOuterSlope, v => greenhouseOuterSlope(v) - 0.01));
   antennas.forEach(antenna => shadeGeometry(antenna, carColor));
 
   // license plates
   const frontPlateTF = frontFenderTF.clone();
-  const frontPlateBF = frontFenderTF.clone(); frontPlateBF.y -= 0.1;
-  const rearPlateTF = j.clone(); rearPlateTF.x += 0.01; rearPlateTF.y -= 0.15;
-  const rearPlateBF = j.clone(); rearPlateBF.x += 0.01; rearPlateBF.y -= 0.05;
+  const frontPlateBF = frontFenderTF.clone();
+  frontPlateBF.y -= 0.1;
+  const rearPlateTF = j.clone();
+  rearPlateTF.x += 0.01;
+  rearPlateTF.y -= 0.15;
+  const rearPlateBF = j.clone();
+  rearPlateBF.x += 0.01;
+  rearPlateBF.y -= 0.05;
   const plates = [];
   plates.push(...createBoxes(frontPlateTF, frontPlateBF, frontPlateTF, frontPlateBF, v => 0.1));
   plates.push(...createBoxes(rearPlateTF, rearPlateBF, rearPlateTF, rearPlateBF, v => 0.1));
@@ -264,15 +289,7 @@ const generate = () => {
   mesh.add(new THREE.Mesh(idGeometry(mergeGeometries(antennas)), silhouette));
 
   // merge opaque geometries
-  const allGeometries = [].concat(
-    frame,
-    mirrors,
-    fenders,
-    frontLights,
-    tailLights,
-    plates,
-    antennas
-  );
+  const allGeometries = [].concat(frame, mirrors, fenders, frontLights, tailLights, plates, antennas);
   allGeometries.forEach(geometry => geometry.dispose());
 
   // merge transparent geometries
@@ -319,7 +336,6 @@ const generate = () => {
 
   const group = new THREE.Group();
   group.add(mesh);
+
   return group;
 };
-
-const CarMeshMaker = { generate };

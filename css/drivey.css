@@ -1,0 +1,112 @@
+* {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  outline: 0;
+  text-decoration: none;
+  font-weight: inherit;
+  font-style: inherit;
+  color: inherit;
+  font-size: 100%;
+  font-family: inherit;
+  vertical-align: baseline;
+  list-style: none;
+  border-collapse: collapse;
+  border-spacing: 0;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  background: black;
+  color: white;
+  overflow: hidden;
+  margin: 0;
+}
+
+body, colors {
+  --dashboard-background-color: black;
+  --dashboard-border-color: #888;
+  --dashboard-light-color: #fff;
+}
+
+canvas#renderer {
+  display: block;
+  image-rendering: optimizeSpeed;
+}
+
+div#buttonsContainer {
+  position: absolute;
+  bottom: 1em;
+  width: 100%;
+  text-align: center;
+  opacity: 0;
+  transition: opacity 4000ms;
+}
+
+div#buttonsContainer.awake {
+  opacity: 1;
+  transition: opacity 250ms;
+}
+
+div#buttons {
+  vertical-align: middle;
+  display: inline-block;
+  color: white;
+  font-weight: bolder;
+  text-transform: uppercase;
+  font-size: 1vw;
+  font-family: sans-serif;
+  text-align: center;
+  border: 0.4em solid var(--dashboard-border-color);
+  border-radius: 3em;
+  overflow: hidden;
+  background: var(--dashboard-background-color);
+}
+
+div#buttons button {
+  display: inline-block;
+  margin: 0.25em 0;
+  text-transform: uppercase;
+  background-color: var(--dashboard-background-color);
+  vertical-align: top;
+  padding:0.5em 1.5em;
+  border-left: 0.2em solid var(--dashboard-border-color);
+  border-right: 0.2em solid var(--dashboard-border-color);
+}
+
+#buttons button:first-of-type {
+  border-left: unset;
+}
+
+#buttons button:last-of-type {
+  border-right: unset;
+}
+
+div#buttons button div.label {
+  display:block;
+  line-height: 2em;
+}
+
+div#buttons button div.option {
+  display:block;
+  line-height: 2em;
+}
+
+span.indicator {
+  color: var(--dashboard-light-color);
+  text-shadow: 0 0 0.5em var(--dashboard-light-color);
+}
+
+span.light {
+  display: inline-block;
+  width: 1.25em;
+  height: 1em;
+  background-color: var(--dashboard-light-color);
+  box-shadow: 0 0 1em var(--dashboard-light-color);
+}
+
+span.light.off {
+  background-color: var(--dashboard-border-color);
+  box-shadow: unset;
+}

@@ -1,6 +1,9 @@
-"use strict";
+import Level from "./Level.js";
+import RoadLineStyle from "./RoadLineStyle.js";
+import { distance } from "./math.js";
+import { addPath, makeCirclePath, makeRectanglePath } from "./shapes.js";
 
-class City extends Level {
+export default class City extends Level {
   build(meshes, transparentMeshes, skyMeshes) {
     this.name = "The City";
     this.tint = new THREE.Color(0.33, 0.33, 1); // * 1.5
@@ -18,9 +21,11 @@ class City extends Level {
     const cloudsPath = new THREE.ShapePath();
     for (let i = 0; i < 100; i++) {
       const pos = new THREE.Vector2(Math.random() - 0.5, Math.random() - 0.5);
-      if (pos.length() > 0.9 || pos.length() < 0.3) { // 0.5, 0.1
+      if (pos.length() > 0.9 || pos.length() < 0.3) {
+        // 0.5, 0.1
         continue;
       }
+
       pos.multiplyScalar(1000);
 
       // TODO: more efficient distance test
@@ -28,7 +33,8 @@ class City extends Level {
 
       addPath(cloudsPath, makeCirclePath(pos.x, pos.y, 50));
     }
-    const cloudsMesh = makeMesh(cloudsPath, 1, 200, (this.skyLow + this.skyHigh) / 2);
+
+    const cloudsMesh = this.makeMesh(cloudsPath, 1, 200, (this.skyLow + this.skyHigh) / 2);
     cloudsMesh.scale.multiplyScalar(2);
     cloudsMesh.position.z = 80;
     skyMeshes.push(cloudsMesh);
@@ -59,27 +65,29 @@ class City extends Level {
             addPath(tallerBuildings, building);
           }
         }
+
         y += 150 * mag;
       }
+
       x += 150 * mag;
     }
 
-    // meshes.push(makeMesh(shorterBuildings, 15 * mag, 1, this.ground));
-    meshes.push(makeMesh(shortBuildings, 30 * mag, 1, this.ground));
-    meshes.push(makeMesh(tallBuildings, 50 * mag, 1, this.ground));
-    meshes.push(makeMesh(tallerBuildings, 120 * mag, 1, this.ground));
+    // meshes.push(this.makeMesh(shorterBuildings, 15 * mag, 1, this.ground));
+    meshes.push(this.makeMesh(shortBuildings, 30 * mag, 1, this.ground));
+    meshes.push(this.makeMesh(tallBuildings, 50 * mag, 1, this.ground));
+    meshes.push(this.makeMesh(tallerBuildings, 120 * mag, 1, this.ground));
 
     const signpostsPath = new THREE.ShapePath();
     this.drawRoadLine(this.roadPath, signpostsPath, -16, 0.2, RoadLineStyle.DASH(0.2, 400, 0), 0, 1);
     this.drawRoadLine(this.roadPath, signpostsPath, -12, 0.2, RoadLineStyle.DASH(0.2, 400, 0), 0, 1);
     this.drawRoadLine(this.roadPath, signpostsPath, 12, 0.2, RoadLineStyle.DASH(0.2, 300, 0), 0, 1);
     this.drawRoadLine(this.roadPath, signpostsPath, 16, 0.2, RoadLineStyle.DASH(0.2, 300, 0), 0, 1);
-    meshes.push(makeMesh(signpostsPath, 10, 0, this.ground));
+    meshes.push(this.makeMesh(signpostsPath, 10, 0, this.ground));
 
     const signsPath = new THREE.ShapePath();
     this.drawRoadLine(this.roadPath, signsPath, -14, 6, RoadLineStyle.DASH(0.2, 400, 0), 0, 1);
     this.drawRoadLine(this.roadPath, signsPath, 14, 6, RoadLineStyle.DASH(0.2, 300, 0), 0, 1);
-    const signsMesh = makeMesh(signsPath, 4, 0, this.ground);
+    const signsMesh = this.makeMesh(signsPath, 4, 0, this.ground);
     signsMesh.position.z = 10;
     meshes.push(signsMesh);
 
@@ -90,6 +98,6 @@ class City extends Level {
     this.drawRoadLine(this.roadPath, roadLinesPath, 6, 0.15, RoadLineStyle.DASH(30, 1, 10), 0, 1);
     this.drawRoadLine(this.roadPath, roadLinesPath, -3, 0.15, RoadLineStyle.DASH(3, 12, 0), 0, 1);
     this.drawRoadLine(this.roadPath, roadLinesPath, 3, 0.15, RoadLineStyle.DASH(3, 12, 0), 0, 1);
-    meshes.push(makeMesh(roadLinesPath, 0, 1, roadLineColor, 1, 1));
+    meshes.push(this.makeMesh(roadLinesPath, 0, 1, roadLineColor, 1, 1));
   }
 }

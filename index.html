@@ -1,148 +1,30 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <title>Drivey.js - GL on Wheels</title>
-        <meta charset="utf-8">
-        <link rel="stylesheet" type="text/css" href="./reset.css"/>
-        <style title="main">
+  <head>
+    <title>Drivey.js - GL on Wheels</title>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" type="text/css" title="main" href="./css/drivey.css" />
+  </head>
+  <body>
+    <script src="./lib/theme.js"></script>
 
-            body {
-              background: black;
-              color: white;
-              overflow: hidden;
-              margin: 0;
-            }
+    <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/101/three.js"></script> -->
+    <!-- <script src="./lib/three.js"></script> -->
+    <script src="./lib/three.min.js"></script>
+    <script src="./lib/BufferGeometryUtils.js"></script>
 
-            body, colors {
-              --dashboard-background-color: black;
-              --dashboard-border-color: #888;
-              --dashboard-light-color: #fff;
-            }
+    <script src="./lib/CopyShader.js"></script>
+    <script src="./lib/EffectComposer.js"></script>
+    <script src="./lib/RenderPass.js"></script>
+    <script src="./lib/ShaderPass.js"></script>
+    <script src="./lib/SMAAShader.js"></script>
+    <script src="./lib/SMAAPass.js"></script>
+    <script src="./lib/SobelOperatorShader.js"></script>
 
-            canvas#renderer {
-                display: block;
-                image-rendering: optimizeSpeed;
-            }
-
-            div#buttonsContainer {
-                position: absolute;
-                bottom: 1em;
-                width: 100%;
-                text-align: center;
-                opacity: 0;
-                transition: opacity 4000ms;
-            }
-
-            div#buttonsContainer.awake {
-                opacity: 1;
-                transition: opacity 250ms;
-            }
-
-            div#buttons {
-                vertical-align: middle;
-                display: inline-block;
-                color: white;
-                font-weight: bolder;
-                text-transform: uppercase;
-                font-size: 1vw;
-                font-family: sans-serif;
-                text-align: center;
-                border: 0.4em solid var(--dashboard-border-color);
-                border-radius: 3em;
-                overflow: hidden;
-                background: var(--dashboard-background-color);
-            }
-
-            div#buttons button {
-                display: inline-block;
-                margin: 0.25em 0;
-                text-transform: uppercase;
-                background-color: var(--dashboard-background-color);
-                vertical-align: top;
-                padding:0.5em 1.5em;
-                border-left: 0.2em solid var(--dashboard-border-color);
-                border-right: 0.2em solid var(--dashboard-border-color);
-            }
-
-            #buttons button:first-of-type {
-                border-left: unset;
-            }
-
-            #buttons button:last-of-type {
-                border-right: unset;
-            }
-
-            div#buttons button div.label {
-                display:block;
-                line-height: 2em;
-            }
-
-            div#buttons button div.option {
-                display:block;
-                line-height: 2em;
-            }
-
-            span.indicator {
-                color: var(--dashboard-light-color);
-                text-shadow: 0 0 0.5em var(--dashboard-light-color);
-            }
-
-            span.light {
-                display: inline-block;
-                width: 1.25em;
-                height: 1em;
-                background-color: var(--dashboard-light-color);
-                box-shadow: 0 0 1em var(--dashboard-light-color);
-            }
-
-            span.light.off {
-                background-color: var(--dashboard-border-color);
-                box-shadow: unset;
-            }
-        </style>
-    </head>
-    <body>
-        <script src="./lib/theme.js"></script>
-
-        <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/101/three.js"></script> -->
-        <!-- <script src="./lib/three.js"></script> -->
-        <script src="./lib/three.min.js"></script>
-        <script src="./lib/BufferGeometryUtils.js"></script>
-
-        <script src="./lib/CopyShader.js"></script>
-        <script src="./lib/EffectComposer.js"></script>
-        <script src="./lib/RenderPass.js"></script>
-        <script src="./lib/ShaderPass.js"></script>
-        <script src="./lib/SMAAShader.js"></script>
-        <script src="./lib/SMAAPass.js"></script>
-        <script src="./lib/SobelOperatorShader.js"></script>
-
-        <script src="./js/utils.js"></script>
-        <script src="./js/RoadLineStyle.js"></script>
-        <script src="./js/RoadPath.js"></script>
-        <script src="./js/Level.js"></script>
-        <script src="./js/TestLevel.js"></script>
-        <script src="./js/DeepDarkNight.js"></script>
-        <script src="./js/Tunnel.js"></script>
-        <script src="./js/City.js"></script>
-        <script src="./js/IndustrialZone.js"></script>
-        <script src="./js/WarpGate.js"></script>
-        <script src="./js/Spectre.js"></script>
-        <script src="./js/CliffsideBeach.js"></script>
-        <script src="./js/TrainTracks.js"></script>
-        <script src="./js/Overpass.js"></script>
-
-        <script src="./js/Car.js"></script>
-        <script src="./js/CarMeshMaker.js"></script>
-        <script src="./js/Dashboard.js"></script>
-        <script src="./js/Input.js"></script>
-        <script src="./js/Screen.js"></script>
-        <script src="./js/Buttons.js"></script>
-        <script src="./js/Drivey.js"></script>
-
-        <script>
-            document.addEventListener('touchmove', e => e.preventDefault(), { passive: false });
-            window.drivey = new Drivey();
-        </script>
-    </body>
+    <script type="module">
+      import Drivey from "./js/drivey.js";
+      document.addEventListener("touchmove", e => e.preventDefault(), { passive: false });
+      window.drivey = new Drivey();
+    </script>
+  </body>
 </html>

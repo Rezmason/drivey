@@ -1,6 +1,4 @@
-"use strict";
-
-const RoadLineStyle = {
+export default {
   type: {
     SOLID: "SOLID",
     DASH: "DASH",

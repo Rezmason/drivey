@@ -1,5 +1,3 @@
-"use strict";
-
 class Input {
   constructor() {
     this.slow = false;
@@ -27,27 +25,32 @@ class TouchInput extends Input {
     this.deltas = new Map();
 
     document.addEventListener("touchstart", event => {
-      touchesFrom(event).filter(touch => touch.target.type !== "button").forEach(touch => {
-        this.deltas.set(touch.identifier, {x: touch.clientX, y: touch.clientY, dx: 0, dy: 0});
-      });
+      touchesFrom(event)
+        .filter(touch => touch.target.type !== "button")
+        .forEach(touch => {
+          this.deltas.set(touch.identifier, { x: touch.clientX, y: touch.clientY, dx: 0, dy: 0 });
+        });
     });
     document.addEventListener("touchend", event => {
-      touchesFrom(event).filter(touch => this.deltas.has(touch.identifier)).forEach(touch => {
-        this.deltas.delete(touch.identifier);
-      });
+      touchesFrom(event)
+        .filter(touch => this.deltas.has(touch.identifier))
+        .forEach(touch => {
+          this.deltas.delete(touch.identifier);
+        });
     });
     document.addEventListener("touchmove", event => {
-      touchesFrom(event).filter(touch => this.deltas.has(touch.identifier)).forEach(touch => {
-        const delta = this.deltas.get(touch.identifier);
-        [delta.dx, delta.dy] = [touch.clientX - delta.x, touch.clientY - delta.y];
-      });
+      touchesFrom(event)
+        .filter(touch => this.deltas.has(touch.identifier))
+        .forEach(touch => {
+          const delta = this.deltas.get(touch.identifier);
+          [delta.dx, delta.dy] = [touch.clientX - delta.x, touch.clientY - delta.y];
+        });
     });
     document.addEventListener("touchcancel", event => this.deltas.clear());
-
     document.addEventListener("mousedown", event => {
       if (event.target.type === "button") return;
       if (event.button !== 0) return;
-      this.deltas.set(-1, {x: event.clientX, y: event.clientY, dx: 0, dy: 0 });
+      this.deltas.set(-1, { x: event.clientX, y: event.clientY, dx: 0, dy: 0 });
     });
     document.addEventListener("mouseup", event => this.deltas.delete(-1));
     document.addEventListener("mousemove", event => {
@@ -58,7 +61,8 @@ class TouchInput extends Input {
   }
 
   update() {
-    const total = {x: 0, y: 0};
+    const total = { x: 0, y: 0 };
+
     for (const delta of this.deltas.values()) {
       total.x += delta.dx;
       total.y += delta.dy;
@@ -66,8 +70,8 @@ class TouchInput extends Input {
 
     const minDimension = Math.min(window.innerWidth, window.innerHeight);
 
-    total.x = Math.min(1, Math.max(-1, total.x * 2 / minDimension));
-    total.y = Math.min(1, Math.max(-1, total.y * 2 / minDimension));
+    total.x = Math.min(1, Math.max(-1, (total.x * 2) / minDimension));
+    total.y = Math.min(1, Math.max(-1, (total.y * 2) / minDimension));
 
     this.steer = -total.x;
     this.gasPedal = total.y < 0 ? -total.y : 0;
@@ -104,6 +108,7 @@ class OneSwitchInput extends Input {
     this.minCruiseSpeed = 0.5;
     this.cruiseSpeedMultiplier = 4;
     this.shiftSpeed = -0.2;
+
     document.addEventListener("click", event => {
       if (event.target.type !== "button") this.shiftSpeed *= -1;
     });
@@ -126,6 +131,7 @@ class EyeGazeInput extends Input {
     this.cruiseSpeedMultiplier = 4;
     this.xRatio = 0.5;
     this.yRatio = 0.5;
+
     document.addEventListener("mousemove", event => {
       this.xRatio = event.clientX / window.innerWidth;
       this.yRatio = event.clientY / window.innerWidth;
@@ -141,10 +147,19 @@ class EyeGazeInput extends Input {
     const VERTICAL_DEAD_ZONE = 0.35;
 
     this.steer = 0;
-    if (this.xRatio < 0.5 - HORIZONTAL_DEAD_ZONE) this.steer =  1;
+    if (this.xRatio < 0.5 - HORIZONTAL_DEAD_ZONE) this.steer = 1;
     if (this.xRatio > 0.5 + HORIZONTAL_DEAD_ZONE) this.steer = -1;
 
-    this.gasPedal = (this.yRatio < 0.5 - VERTICAL_DEAD_ZONE) ? 1 : 0;
-    this.brakePedal = (this.yRatio > 0.5 + VERTICAL_DEAD_ZONE) ? 1 : 0;
+    this.gasPedal = this.yRatio < 0.5 - VERTICAL_DEAD_ZONE ? 1 : 0;
+    this.brakePedal = this.yRatio > 0.5 + VERTICAL_DEAD_ZONE ? 1 : 0;
   }
 }
+
+const controlSchemesByName = new Map([
+  ["touch", new TouchInput()],
+  ["arrows", new KeyboardInput()],
+  ["1 switch", new OneSwitchInput()],
+  ["eye gaze", new EyeGazeInput()]
+]);
+
+export { Input, controlSchemesByName };

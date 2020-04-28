@@ -1,6 +1,24 @@
-"use strict";
+import RoadPath from "./RoadPath.js";
+import RoadLineStyle from "./RoadLineStyle.js";
+import { getExtrudedPointAt, makeGeometry, addPath, makeCirclePath, makePolygonPath, mergeGeometries } from "./shapes.js";
+import { makeShadedMesh } from "./rendering.js";
 
-class Level {
+const mergeMeshes = meshes => {
+  const geom = mergeGeometries(meshes.map(mesh => mesh.geometry));
+  return new THREE.Mesh(geom, meshes[0].material);
+};
+
+const flattenMesh = mesh => {
+  const geom = mesh.geometry;
+  mesh.updateMatrix();
+  geom.applyMatrix(mesh.matrix);
+  mesh.position.set(0, 0, 0);
+  mesh.rotation.set(0, 0, 0);
+  mesh.scale.set(1, 1, 1);
+  mesh.updateMatrix();
+};
+
+export default class Level {
   constructor() {
     this.tint = new THREE.Color(0.7, 0.7, 0.7);
     this.skyGradient = 0;
@@ -24,6 +42,7 @@ class Level {
     if (this.world.parent != null) {
       this.world.parent.remove(this.world);
     }
+
     this.world.children.forEach(child => child.geometry.dispose());
     this.world = null;
   }
@@ -34,6 +53,7 @@ class Level {
     if (start == end) {
       return shapePath;
     }
+
     switch (style.type) {
       case RoadLineStyle.type.SOLID:
         {
@@ -55,6 +75,7 @@ class Level {
               i += psFraction;
             }
           }
+
           outsidePoints.push(getExtrudedPointAt(roadPath.curve, end, outsideOffset));
           insidePoints.push(getExtrudedPointAt(roadPath.curve, end, insideOffset));
           outsidePoints.reverse();
@@ -65,6 +86,7 @@ class Level {
             addPath(shapePath, makePolygonPath(outsidePoints.concat(insidePoints)));
           }
         }
+
         break;
       case RoadLineStyle.type.DASH:
         {
@@ -77,6 +99,7 @@ class Level {
             dashStart += dashSpan;
           }
         }
+
         break;
       case RoadLineStyle.type.DOT:
         {
@@ -89,9 +112,15 @@ class Level {
             dotStart += dotSpan;
           }
         }
+
         break;
     }
+
     return shapePath;
+  }
+
+  makeMesh(shapePath, depth, curveSegments, value, alpha = 1, fade = 0) {
+    return makeShadedMesh(makeGeometry(shapePath, depth, curveSegments), value, alpha, fade);
   }
 
   finish(meshes, transparentMeshes, skyMeshes) {
@@ -134,6 +163,7 @@ class Level {
       minY = Math.min(minY, point.y);
       maxY = Math.max(maxY, point.y);
     }
+
     const centerX = (maxX + minX) * 0.5;
     const centerY = (maxY + minY) * 0.5;
     const width = maxX - minX;
@@ -145,6 +175,7 @@ class Level {
       point.x *= 80; // 400
       point.y *= 80; // 400
     }
+
     return new RoadPath(points);
   }
 }

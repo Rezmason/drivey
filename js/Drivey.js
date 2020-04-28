@@ -1,5 +1,3 @@
-"use strict";
-
 /*
 
   Drivey.js
@@ -13,36 +11,73 @@
   A GPLv3 license is being actively considered.
 
   This code is provided AS IS. You are encouraged to make (and contribute)
+
   modifications, if you're feeling inspired.
 
   Subscribe to the repo at https://github.com/Rezmason/drivey to learn of any major changes.
 
 */
 
-class Drivey {
+import Level from "./Level.js";
+
+import TestLevel from "./TestLevel.js";
+import DeepDarkNight from "./DeepDarkNight.js";
+import Tunnel from "./Tunnel.js";
+import City from "./City.js";
+import IndustrialZone from "./IndustrialZone.js";
+import WarpGate from "./WarpGate.js";
+import Spectre from "./Spectre.js";
+import CliffsideBeach from "./CliffsideBeach.js";
+import TrainTracks from "./TrainTracks.js";
+import Overpass from "./Overpass.js";
+import { lerp } from "./math.js";
+import { shadeGeometry, silhouette, transparent, blendColors } from "./rendering.js";
+import isTouchDevice from "./isTouchDevice.js";
+import { Input, controlSchemesByName } from "./input.js";
+
+import Screen from "./Screen.js";
+import Buttons from "./Buttons.js";
+import Car from "./Car.js";
+import buildCar from "./buildCar.js";
+import Dashboard from "./Dashboard.js";
+
+const levelsByName = new Map([
+  ["empty", Level],
+  ["test", TestLevel],
+  ["night", DeepDarkNight],
+  ["tunnel", Tunnel],
+  ["city", City],
+  ["industrial", IndustrialZone],
+  ["warp", WarpGate],
+  ["spectre", Spectre],
+  ["beach", CliffsideBeach],
+  ["nullarbor", TrainTracks],
+  ["marshland", Overpass]
+]);
+
+const cruiseSpeeds = new Map([
+  [0, 0.0],
+  [1, 0.5],
+  [2, 1.0],
+  [3, 4.0]
+]);
+
+const drivingSidesByName = new Map([
+  ["left", 1],
+  ["right", -1]
+]);
+
+const screenResolutions = new Map([
+  ["low", 1 / 4],
+  ["medium", 1 / 2],
+  ["high", 1 / 1]
+]);
+
+export default class Drivey {
   constructor() {
-    this.levelsByName = new Map([
-      ["empty", Level],
-      ["test", TestLevel],
-      ["night", DeepDarkNight],
-      ["tunnel", Tunnel],
-      ["city", City],
-      ["industrial", IndustrialZone],
-      ["warp", WarpGate],
-      ["spectre", Spectre],
-      ["beach", CliffsideBeach],
-      ["nullarbor", TrainTracks],
-      ["marshland", Overpass],
-    ]);
-    this.controlSchemes = new Map([
-      ["touch", new TouchInput()],
-      ["arrows", new KeyboardInput()],
-      ["1 switch", new OneSwitchInput()],
-      ["eye gaze", new EyeGazeInput()],
-    ]);
     this.currentEffect = "ombré";
     this.npcControlScheme = new Input();
-    this.controlScheme = this.controlSchemes.get(isMobile ? "touch" : "arrows");
+    this.controlScheme = controlSchemesByName.get(isTouchDevice ? "touch" : "arrows");
     this.screen = new Screen();
     this.buttons = new Buttons();
     this.buttons.addListener(this.onButtonClick.bind(this));
@@ -50,33 +85,16 @@ class Drivey {
     this.theme.install(document.body);
     this.theme.onLoad = this.onThemeLoaded.bind(this);
     this.init();
+
     if (localStorage.getItem("theme") != null) {
       this.theme.start();
     }
+
     this.screen.addUpdateListener(this.update.bind(this));
     this.update();
   }
 
   init() {
-
-    this.cruiseSpeeds = new Map([
-      [0, 0.0],
-      [1, 0.5],
-      [2, 1.0],
-      [3, 4.0],
-    ]);
-
-    this.drivingSidesByName = new Map([
-      ["left", 1],
-      ["right", -1],
-    ]);
-
-    this.screenResolutions = new Map([
-      ["low", 1 / 4],
-      ["medium", 1 / 2],
-      ["high", 1 / 1],
-    ]);
-
     this.drivingSide = -1;
     this.defaultTilt = -0.0625;
 
@@ -135,7 +153,7 @@ class Drivey {
     this.hoodCameraMount.position.z = 0.5;
     this.myCarExterior.add(this.hoodCameraMount);
 
-    this.myCarMesh = CarMeshMaker.generate();
+    this.myCarMesh = buildCar();
     this.myCarExterior.add(this.myCarMesh);
     this.myCarMesh.visible = false;
 
@@ -164,12 +182,12 @@ class Drivey {
     this.driverCameraMount.add(this.dashboard.object);
 
     this.cameraMountsByName = new Map([
-      ["driver", { mount: this.driverCameraMount, drawBrighterGround: false } ],
-      ["hood", { mount: this.hoodCameraMount, drawBrighterGround: false } ],
-      ["rear", { mount: this.rearCameraMount, drawBrighterGround: false } ],
-      ["chase", { mount: this.chaseCameraMount, drawBrighterGround: false } ],
-      ["aerial", { mount: this.aerialCameraMount, drawBrighterGround: true } ],
-      ["satellite", { mount: this.satelliteCameraMount, drawBrighterGround: true } ],
+      ["driver", { mount: this.driverCameraMount, drawBrighterGround: false }],
+      ["hood", { mount: this.hoodCameraMount, drawBrighterGround: false }],
+      ["rear", { mount: this.rearCameraMount, drawBrighterGround: false }],
+      ["chase", { mount: this.chaseCameraMount, drawBrighterGround: false }],
+      ["aerial", { mount: this.aerialCameraMount, drawBrighterGround: true }],
+      ["satellite", { mount: this.satelliteCameraMount, drawBrighterGround: true }]
     ]);
 
     this.setCameraMount("driver");
@@ -185,8 +203,9 @@ class Drivey {
       this.level.dispose();
     }
 
-    this.level = new (this.levelsByName.get(levelName) || DeepDarkNight)();
-    this.autoSteerApproximation = this.level.roadPath.approximate(10000); // Used by car steering logic
+    const level = new (levelsByName.get(levelName) || DeepDarkNight)();
+    this.level = level;
+    this.autoSteerApproximation = level.roadPath.approximate(10000); // Used by car steering logic
 
     // Retint the sky
     const skyGeometry = this.sky.geometry;
@@ -196,37 +215,37 @@ class Drivey {
     const monochromeValues = monochromeAttribute.array;
     for (let i = 0; i < numVertices; i++) {
       const y = positions.array[i * 3 + 0];
-      monochromeValues[i * 3 + 0] = this.level.skyLow * (1 - y) + this.level.skyHigh * y;
+      monochromeValues[i * 3 + 0] = level.skyLow * (1 - y) + level.skyHigh * y;
       monochromeValues[i * 3 + 1] = 1;
     }
+
     monochromeAttribute.needsUpdate = true;
 
     // Retint the background, UI and materials
     this.updateTints();
 
     // Build the level scene graph
-    this.screen.scene.add(this.level.world);
+    this.screen.scene.add(level.world);
+    this.screen.scene.add(this.level.sky);
     this.myCar.remove();
     this.myCar.place(
-      this.level.roadPath,
+      level.roadPath,
       this.autoSteerApproximation,
       0,
-      this.level.laneWidth,
-      this.level.numLanes,
+      level.laneWidth,
+      level.numLanes,
       this.drivingSide,
       1,
-      this.cruiseSpeed * this.level.cruiseSpeed
+      this.cruiseSpeed * level.cruiseSpeed
     );
     this.setNumOtherCars(this.numOtherCars);
 
     // The height of the world camera depends on the size of the level
-    this.satelliteCameraMount.position.set(0, 0, this.level.worldRadius);
+    this.satelliteCameraMount.position.set(0, 0, level.worldRadius);
   }
 
   updateBackgroundColor() {
-    this.screen.backgroundColor = blendColors(
-      this.themeColors, this.drawBrighterGround ? this.level.skyLow : this.level.ground
-    );
+    this.screen.backgroundColor = blendColors(this.themeColors, this.drawBrighterGround ? this.level.skyLow : this.level.ground);
   }
 
   updateButtonTint() {
@@ -234,33 +253,18 @@ class Drivey {
       case "ombré":
         if (this.level != null) {
           const tint = this.level.tint;
-          this.buttons.setColors(
-            tint.clone().multiplyScalar(0.0),
-            tint.clone().multiplyScalar(0.4),
-            tint.clone().lerp(new THREE.Color(1, 1, 1), 0.25)
-          );
+          this.buttons.setColors(tint.clone().multiplyScalar(0.0), tint.clone().multiplyScalar(0.4), tint.clone().lerp(new THREE.Color(1, 1, 1), 0.25));
         }
+
         break;
       case "wireframe":
-        this.buttons.setColors(
-          new THREE.Color(0.1, 0.15, 0.7),
-          new THREE.Color(0.8, 0.8, 1),
-          new THREE.Color(1, 1, 1)
-        );
+        this.buttons.setColors(new THREE.Color(0.1, 0.15, 0.7), new THREE.Color(0.8, 0.8, 1), new THREE.Color(1, 1, 1));
         break;
       case "technicolor":
-        this.buttons.setColors(
-          new THREE.Color(0, 0, 0),
-          new THREE.Color(0.1, 0.1, 0.1),
-          new THREE.Color(1, 1, 1)
-        );
+        this.buttons.setColors(new THREE.Color(0, 0, 0), new THREE.Color(0.1, 0.1, 0.1), new THREE.Color(1, 1, 1));
         break;
       case "merveilles":
-        this.buttons.setColors(
-          this.themeColors.dark,
-          this.themeColors.full,
-          this.themeColors.light,
-        );
+        this.buttons.setColors(this.themeColors.dark, this.themeColors.full, this.themeColors.light);
         break;
     }
   }
@@ -279,9 +283,10 @@ class Drivey {
         if (active.background == null) {
           return;
         }
-        const hsl = Array.from(new Set([ active.f_high, active.f_med, active.f_low, active.b_high, active.b_med, active.background ]))
+
+        const hsl = Array.from(new Set([active.f_high, active.f_med, active.f_low, active.b_high, active.b_med, active.background]))
           .map(hex => new THREE.Color(parseInt(hex.substring(1), 16)))
-          .map(color => color.getHSL({color}));
+          .map(color => color.getHSL({ color }));
         const minLightness = Math.min(...hsl.map(o => o.l));
         const darkHSL = hsl.find(o => o.l === minLightness);
         const maxLightness = Math.max(...hsl.map(o => o.l));
@@ -296,6 +301,7 @@ class Drivey {
         if (this.level == null) {
           return;
         }
+
         full = this.level.tint;
         dark = new THREE.Color(0, 0, 0);
         light = new THREE.Color(1, 1, 1);
@@ -345,10 +351,10 @@ class Drivey {
   onButtonClick(button, value) {
     switch (button) {
       case "cruise":
-        this.cruiseSpeed = this.cruiseSpeeds.get(parseInt(value));
+        this.cruiseSpeed = cruiseSpeeds.get(parseInt(value));
         break;
       case "controls":
-        this.controlScheme = this.controlSchemes.get(value);
+        this.controlScheme = controlSchemesByName.get(value);
         break;
       case "npcCars":
         this.setNumOtherCars(parseInt(value) * 8);
@@ -371,14 +377,15 @@ class Drivey {
         } else {
           localStorage.removeItem("theme");
         }
+
         this.updateTints();
         break;
       case "drivingSide":
-        this.drivingSide = this.drivingSidesByName.get(value);
+        this.drivingSide = drivingSidesByName.get(value);
         this.dashboard.drivingSide = this.drivingSide;
         break;
       case "quality":
-        this.screen.setResolution(this.screenResolutions.get(value));
+        this.screen.setResolution(screenResolutions.get(value));
         break;
       case "music":
         window.open("https://open.spotify.com/user/rezmason/playlist/4ukrs3cTKjTbLoFcxqssXi?si=0y3WoBw1TMyUzK8F9WMbLw", "_blank");
@@ -400,15 +407,11 @@ class Drivey {
 
     // Only show the level's sky if the camera is the driver camera
     if (this.level != null) {
-      this.level.sky.visible =
-        this.cameraMount == this.driverCameraMount ||
-        this.cameraMount == this.chaseCameraMount;
+      this.level.sky.visible = this.cameraMount != this.aerialCameraMount && this.cameraMount != this.satelliteCameraMount;
     }
 
     // Only show my car if the camera is not the driver camera
-    this.myCarMesh.visible =
-      this.cameraMount != this.driverCameraMount &&
-      this.cameraMount != this.rearCameraMount;
+    this.myCarMesh.visible = this.cameraMount != this.driverCameraMount && this.cameraMount != this.rearCameraMount;
     this.myCarMesh.needsUpdate = true;
 
     if (this.level != null) {
@@ -459,7 +462,7 @@ class Drivey {
     // Other cars are procedurally generated as needed
     while (this.otherCars.length < this.numOtherCars) {
       this.otherCars.push(new Car());
-      const otherCarExterior = CarMeshMaker.generate();
+      const otherCarExterior = buildCar();
       this.otherCarExteriors.push(otherCarExterior);
     }
 
@@ -468,6 +471,7 @@ class Drivey {
         if (this.otherCarExteriors[i].parent == null) {
           this.screen.scene.add(this.otherCarExteriors[i]);
         }
+
         this.otherCars[i].place(
           this.level.roadPath,
           this.autoSteerApproximation,
@@ -482,6 +486,7 @@ class Drivey {
         if (this.otherCarExteriors[i].parent != null) {
           this.screen.scene.remove(this.otherCarExteriors[i]);
         }
+
         this.otherCars[i].remove();
       }
     }

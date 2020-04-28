@@ -1,6 +1,7 @@
-"use strict";
+import { mod, minDistSquaredIndex } from "./math.js";
+import { makeSplinePath } from "./shapes.js";
 
-class RoadPath {
+export default class RoadPath {
   constructor(points) {
     this.points = points;
     this.curve = makeSplinePath(points, true);

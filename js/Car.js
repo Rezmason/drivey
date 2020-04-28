@@ -1,6 +1,6 @@
-"use strict";
+import { getAngle, lerp, rotate, rotateY, sign } from "./math.js";
 
-class Car {
+export default class Car {
   constructor() {
     this.lastPos = new THREE.Vector2();
     this.pos = new THREE.Vector2();
@@ -9,11 +9,10 @@ class Car {
   }
 
   place(roadPath, approximation, along, laneWidth, numLanes, drivingSide, roadDir, initialSpeed) {
-
     this.laneOffset = laneWidth * (0.5 + Math.floor(Math.random() * numLanes));
-    this.laneOffset += (Math.random() - 0.5) * 0.5 * laneWidth;
+    this.laneWander = (Math.random() - 0.5) * 0.5 * laneWidth;
 
-    const pos = roadPath.getPoint(along).add(roadPath.getNormal(along).multiplyScalar(this.laneOffset * roadDir * drivingSide));
+    const pos = roadPath.getPoint(along).add(roadPath.getNormal(along).multiplyScalar((this.laneOffset + this.laneWander) * roadDir * drivingSide));
     const tangent = roadPath.getTangent(along).multiplyScalar(roadDir);
     const angle = getAngle(tangent);
     const vel = tangent.multiplyScalar(initialSpeed * 2);
@@ -59,13 +58,12 @@ class Car {
       this.roadPos += 3 * step * controlScheme.steer * controlScheme.autoSteerSensitivity;
       if (this.roadPos > 0.1) this.roadPos -= step;
       else if (this.roadPos < -0.1) this.roadPos += step;
-      this.autoSteer(
-        step,
-        (this.laneOffset + controlScheme.laneShift) * drivingSide
-      );
-      this.matchSpeed(
-        cruiseSpeed * controlScheme.cruiseSpeedMultiplier
-      );
+      if (controlScheme.handbrake < 0.9) {
+        this.laneWander += (Math.random() - 0.5) * 0.025;
+        this.laneWander *= 0.999;
+      }
+      this.autoSteer(step, (this.laneOffset + this.laneWander + controlScheme.laneShift) * drivingSide);
+      this.matchSpeed(cruiseSpeed * controlScheme.cruiseSpeedMultiplier);
     } else {
       const diff = -sign(this.steerTo) * 0.0002 * this.vel.length() * step;
       if (Math.abs(diff) >= Math.abs(this.steerTo)) this.steerTo = 0;
@@ -104,7 +102,6 @@ class Car {
     // "normalize" it, so it is no larger than 1 radian
     if (Math.abs(newAngle) > 1) newAngle /= Math.abs(newAngle);
     // Generate a steerTo value (these are pretty small)
-
     let steerTo = newAngle / (Math.min(targetDir.length() * 0.5, 50) + 1);
     if (Math.abs(steerTo) > 0.02) steerTo *= 0.02 / Math.abs(steerTo);
     this.steerTo = lerp(this.steerTo, steerTo, Math.min(1, step * 10));
@@ -137,6 +134,7 @@ class Car {
         .add(acc.clone().multiplyScalar(t))
         .dot(dir)
     );
+
     if (this.handbrake >= 0.9) newVel.set(0, 0, 0);
 
     if (
@@ -186,7 +184,7 @@ class Car {
     this.pitchV = this.pitchV + (this.pitchV * -0.2 + (velDiff.clone().dot(dir) * 0.001) / t - this.pitch) * t * 20;
     this.pitch += this.pitchV * t;
 
-    this.steerTo = Math.max(-Math.PI * 2 / 50, Math.min(Math.PI * 2 / 50, this.steerTo));
+    this.steerTo = Math.max((-Math.PI * 2) / 50, Math.min((Math.PI * 2) / 50, this.steerTo));
 
     this.steerPos = this.steerTo;
     this.lastVel = this.vel;

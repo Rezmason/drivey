@@ -1,6 +1,6 @@
-"use strict";
+import isTouchDevice from "./isTouchDevice.js";
 
-class Buttons {
+export default class Buttons {
   constructor() {
     this.listeners = [];
     this.buttonsContainer = document.createElement("div");
@@ -13,64 +13,100 @@ class Buttons {
     this.addButton("cruise", 2, [0, 1, 2, 3], value => {
       const index = parseInt(value);
       return `<div class='label'>autopilot</div>
-      <div class='option'>${
-        Array(3).fill().map((_, id) => {
+      <div class='option'>${Array(3)
+        .fill()
+        .map((_, id) => {
           return `<span class="light ${index > id ? "on" : "off"}"></span>`;
-        }).join(" ")
-      }</div>`;
+        })
+        .join(" ")}</div>`;
     });
 
     this.addButton("npcCars", 0, [0, 1, 2, 3], value => {
       const index = parseInt(value);
+      const lights = Array(3)
+        .fill()
+        .map((_, id) => `<span class="light ${index > id ? "on" : "off"}"></span>`)
+        .join(" ");
       return `<div class='label'>cars</div>
-      <div class='option'>${
-        Array(3).fill().map((_, id) => {
-          return `<span class="light ${index > id ? "on" : "off"}"></span>`;
-        }).join(" ")
-      }</div>`;
+      <div class='option'>${lights}</div>`;
     });
 
-    this.addButton("drivingSide", "right", ["left", "right"], value => `
+    this.addButton(
+      "drivingSide",
+      "right",
+      ["left", "right"],
+      value => `
       <div class='label'>&nbsp;&nbsp;side&nbsp;&nbsp;</div>
-      <div class='option'>
+        <div class='option'>
         <span class="indicator">${value}</span>
-      </div>`);
+      </div>`
+    );
 
-    this.addButton("camera", "driver", ["driver", "hood", "rear", "chase", "aerial", "satellite"], value => `
+    this.addButton(
+      "camera",
+      "driver",
+      ["driver", "hood", "rear", "chase", "aerial", "satellite"],
+      value => `
       <div class='label'>camera</div>
-      <div class='option'>
+        <div class='option'>
         <span class="indicator">${value}</span>
-      </div>`);
+      </div>`
+    );
 
-    this.addButton("effect", "ombré", ["ombré", "wireframe", "technicolor", "merveilles"], value => `
+    this.addButton(
+      "effect",
+      "ombré",
+      ["ombré", "wireframe", "technicolor", "merveilles"],
+      value => `
       <div class='label'>effect</div>
-      <div class='option'>
+        <div class='option'>
         <span class="indicator">${value}</span>
-      </div>`);
+      </div>`
+    );
 
-    this.addButton("controls", isMobile ? "touch" : "arrows", ["touch", "arrows", "1 switch", "eye gaze"], value => `
+    this.addButton(
+      "controls",
+      isTouchDevice ? "touch" : "arrows",
+      ["touch", "arrows", "1 switch", "eye gaze"],
+      value => `
       <div class='label'>controls</div>
-      <div class='option'>
+        <div class='option'>
         <span class="indicator">${value.replace("_", "<br>")}</span>
-      </div>`);
+      </div>`
+    );
 
-    this.addButton("quality", "high", ["high", "medium", "low"], value =>  `
+    this.addButton(
+      "quality",
+      "high",
+      ["high", "medium", "low"],
+      value => `
       <div class='label'>quality</div>
-      <div class='option'>
+        <div class='option'>
         <span class="indicator">${value}</span>
-      </div>`);
+      </div>`
+    );
 
-    this.addButton("music", "", [""], value => `
+    this.addButton(
+      "music",
+      "",
+      [""],
+      value => `
       <div class='label'>mixtape</div>
-      <div class='option'>
+        <div class='option'>
         <span class="indicator">play</span>
-      </div>`);
+      </div>`
+    );
 
-    this.addButton("level", "industrial", ["industrial", "night", "city", "tunnel", "beach", "warp", "spectre", "nullarbor", "marshland"], value => `
+    this.addButton(
+      "level",
+      "industrial",
+      ["industrial", "night", "city", "tunnel", "beach", "warp", "spectre", "nullarbor", "marshland"],
+      value => `
       <div class='label'>level select</div>
-      <div class='option'>
+        <div class='option'>
         <span class="indicator">${value}</span>
-      </div>`);
+      </div>`
+    );
 
     const stylesheet = Array.from(document.styleSheets).find(sheet => sheet.title === "main");
     this.bodyRule = Array.from(stylesheet.cssRules).find(rule => rule.selectorText === "body, colors");
@@ -84,14 +120,14 @@ class Buttons {
   }
 
   onMouse() {
-    this.wakeUp()
+    this.wakeUp();
   }
 
   wakeUp() {
     if (this.buttonsContainer.className === "awake") return;
     clearTimeout(this.awakeTimer);
     this.buttonsContainer.className = "awake";
-    this.awakeTimer = setTimeout(() => this.buttonsContainer.className = "", 3000);
+    this.awakeTimer = setTimeout(() => (this.buttonsContainer.className = ""), 3000);
   }
 
   addListener(func) {
@@ -132,6 +168,7 @@ class Buttons {
     if (button.index === -1) {
       button.index = 0;
     }
+
     button.value = button.allValues[button.index];
     button.innerHTML = button.labelMaker(button.value);
     this.dispatch(id, button.value);

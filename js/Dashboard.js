@@ -1,6 +1,8 @@
-"use strict";
+import { lerp } from "./math.js";
+import { makeSplinePath, makeGeometry, expandShapePath, makeCirclePath, makePolygonPath } from "./shapes.js";
+import { makeShadedMesh } from "./rendering.js";
 
-class Dashboard {
+export default class Dashboard {
   constructor() {
     this.object = new THREE.Group();
     const edge1 = 2;
@@ -26,27 +28,35 @@ class Dashboard {
     if (edgeAmount == null) {
       edgeAmount = 0;
     }
+
     const element = new THREE.Group();
     if (edgeAmount != 0) {
-      const edge = makeMesh(expandShapePath(path, 1 + edgeAmount, 250), 0, 0, 0.2);
+      const edge = makeShadedMesh(makeGeometry(expandShapePath(path, 1 + edgeAmount, 250), 0, 0), 0.2);
       edge.position.z = -0.1;
       element.add(edge);
     }
+
     if (hasFill && edgeAmount != 0) {
-      const fill = makeMesh(expandShapePath(path, 1, 250), 0, 0, 0);
+      const fill = makeShadedMesh(makeGeometry(expandShapePath(path, 1, 250), 0, 0), 0);
       fill.position.z = 0;
       element.add(fill);
     } else if (hasFill) {
-      const fill1 = makeMesh(path, 0, 240, 0.2);
+      const fill1 = makeShadedMesh(makeGeometry(path, 0, 240), 0.2);
       fill1.position.z = 0;
       element.add(fill1);
     }
+
     this.object.add(element);
     return element;
   }
 
   makeDashboardBacking() {
-    const pts = [new THREE.Vector2(-200, -40), new THREE.Vector2(-200, 40), new THREE.Vector2(200, 40), new THREE.Vector2(200, -40)];
+    const pts = [
+      new THREE.Vector2(-200, -40),
+      new THREE.Vector2(-200, 40),
+      new THREE.Vector2(200, 40),
+      new THREE.Vector2(200, -40)
+    ];
     const path = makeSplinePath(pts, true);
     const shapePath = new THREE.ShapePath();
     shapePath.subPaths.push(path);
@@ -74,20 +84,19 @@ class Dashboard {
         ])
       );
     }
+
     return shapePath;
   }
 
   makeNeedle() {
     const shapePath = new THREE.ShapePath();
     const scale = 40;
-    shapePath.subPaths.push(
-      makePolygonPath([
-        new THREE.Vector2(-0.02 * scale, 0.1 * scale),
-        new THREE.Vector2(-0.005 * scale, -0.4 * scale),
-        new THREE.Vector2(0.005 * scale, -0.4 * scale),
-        new THREE.Vector2(0.02 * scale, 0.1 * scale)
-      ])
-    );
+    shapePath.subPaths.push(makePolygonPath([
+      new THREE.Vector2(-0.02 * scale, 0.1 * scale),
+      new THREE.Vector2(-0.005 * scale, -0.4 * scale),
+      new THREE.Vector2(0.005 * scale, -0.4 * scale),
+      new THREE.Vector2(0.02 * scale, 0.1 * scale)
+    ]));
     return shapePath;
   }
 
@@ -102,6 +111,7 @@ class Dashboard {
       const mag = ((i & 1) != 0 ? 0.435 : 0.45) * scale;
       innerRim1Points.push(new THREE.Vector2(Math.cos(theta) * mag, Math.sin(theta) * mag));
     }
+
     innerRim1Points.reverse();
     const innerRim1 = makeSplinePath(innerRim1Points, true);
     const innerRim2Points = [];
@@ -110,6 +120,7 @@ class Dashboard {
       const mag1 = ((i & 1) != 0 ? 0.435 : 0.45) * scale;
       innerRim2Points.push(new THREE.Vector2(Math.cos(theta1) * mag1, Math.sin(theta1) * mag1));
     }
+
     innerRim2Points.push(new THREE.Vector2(scale * 0.25, scale * 0.075));
     innerRim2Points.push(new THREE.Vector2(scale * 0.125, scale * 0.2));
     innerRim2Points.push(new THREE.Vector2(scale * -0.125, scale * 0.2));

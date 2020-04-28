@@ -1,6 +1,9 @@
-"use strict";
+import Level from "./Level.js";
+import RoadLineStyle from "./RoadLineStyle.js";
+import { distance } from "./math.js";
+import { addPath, makeRectanglePath } from "./shapes.js";
 
-class Spectre extends Level {
+export default class Spectre extends Level {
   build(meshes, transparentMeshes, skyMeshes) {
     this.name = "The Deep Dark Night";
     this.tint = new THREE.Color(1, 0, 1);
@@ -14,13 +17,14 @@ class Spectre extends Level {
     this.drawRoadLine(this.roadPath, postPath, 5, 0.1, RoadLineStyle.DASH(0.1, 20, 0), 0, 1);
     this.drawRoadLine(this.roadPath, postPath, 15, 0.1, RoadLineStyle.DASH(0.1, 23, 0), 0, 1);
     this.drawRoadLine(this.roadPath, postPath, 25, 0.1, RoadLineStyle.DASH(0.1, 27, 0), 0, 1);
-    meshes.push(makeMesh(postPath, 0.1, 0, 1));
+    meshes.push(this.makeMesh(postPath, 0.1, 0, 1));
 
     const dotsPath = new THREE.ShapePath();
     const mag = 0.3;
     const width = 30 * mag;
     const radius = 1500 * mag;
     const approximation = this.roadPath.approximate();
+
     let x = -radius;
     while (x < radius) {
       let y = -radius;
@@ -34,17 +38,17 @@ class Spectre extends Level {
       x += 200 * mag;
     }
 
-    meshes.push(makeMesh(dotsPath, width * 1.25, 1, 0.5));
+    meshes.push(this.makeMesh(dotsPath, width * 1.25, 1, 0.5));
 
     const signpostsPath = new THREE.ShapePath();
     this.drawRoadLine(this.roadPath, signpostsPath, -12, 0.2, RoadLineStyle.DASH(0.2, 400, 0), 0, 1);
     this.drawRoadLine(this.roadPath, signpostsPath, 12, 0.2, RoadLineStyle.DASH(0.2, 300, 0), 0, 1);
-    meshes.push(makeMesh(signpostsPath, 14, 0, 0.9));
+    meshes.push(this.makeMesh(signpostsPath, 14, 0, 0.9));
 
     const signsPath = new THREE.ShapePath();
     this.drawRoadLine(this.roadPath, signsPath, -15, 6, RoadLineStyle.DASH(0.2, 400, 0), 0, 1);
     this.drawRoadLine(this.roadPath, signsPath, 15, 6, RoadLineStyle.DASH(0.2, 300, 0), 0, 1);
-    const signsMesh = makeMesh(signsPath, 4, 0, 0.9);
+    const signsMesh = this.makeMesh(signsPath, 4, 0, 0.9);
     signsMesh.position.z = 10;
     meshes.push(signsMesh);
   }
