@@ -1,15 +1,13 @@
-Declarative level representation
-  HTML, actually. Gonna load it up like A-Frame
-  let parser = new DOMParser();
-  let doc = parser.parseFromString(htmlSource, "text/html");
+HTML level representation
 
   Easiest to hardest:
-    Simple: DeepDarkNight, CliffsideBeach, TestLevel, Overpass
     Loop: Tunnel, WarpGate
     Rows: Spectre
     Sky: TrainTracks
     Buildings: City
     Just a lot going on: IndustrialZone
+
+Is mesh fade working properly?
 
 Portable Drivey
   Like A-Frame, drivey.js (and minified) would find a root tag in the DOM and render it

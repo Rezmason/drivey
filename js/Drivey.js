@@ -20,18 +20,7 @@
 
 import { Group, Color, CylinderBufferGeometry, Mesh } from "./../lib/three/three.module.js";
 
-import Level from "./Level.js";
-
-import TestLevel from "./levels/TestLevel.js";
-import DeepDarkNight from "./levels/DeepDarkNight.js";
-import Tunnel from "./levels/Tunnel.js";
-import City from "./levels/City.js";
-import IndustrialZone from "./levels/IndustrialZone.js";
-import WarpGate from "./levels/WarpGate.js";
-import Spectre from "./levels/Spectre.js";
-import CliffsideBeach from "./levels/CliffsideBeach.js";
-import TrainTracks from "./levels/TrainTracks.js";
-import Overpass from "./levels/Overpass.js";
+import buildLevel from "./buildLevel.js";
 import { lerp } from "./math.js";
 import { shadeGeometry, silhouette, transparent, blendColors } from "./rendering.js";
 import isTouchDevice from "./isTouchDevice.js";
@@ -43,18 +32,18 @@ import Car from "./Car.js";
 import buildCar from "./buildCar.js";
 import Dashboard from "./Dashboard.js";
 
-const levelsByName = new Map([
-  ["empty", Level],
-  ["test", TestLevel],
-  ["night", DeepDarkNight],
-  ["tunnel", Tunnel],
-  ["city", City],
-  ["industrial", IndustrialZone],
-  ["warp", WarpGate],
-  ["spectre", Spectre],
-  ["beach", CliffsideBeach],
-  ["nullarbor", TrainTracks],
-  ["marshland", Overpass]
+const levelURLsByName = new Map([
+  ["empty", "Level"],
+  ["test", "TestLevel"],
+  ["night", "DeepDarkNight"],
+  ["tunnel", "Tunnel"],
+  ["city", "City"],
+  ["industrial", "IndustrialZone"],
+  ["warp", "WarpGate"],
+  ["spectre", "Spectre"],
+  ["beach", "CliffsideBeach"],
+  ["nullarbor", "TrainTracks"],
+  ["marshland", "Overpass"]
 ]);
 
 const cruiseSpeeds = new Map([
@@ -77,6 +66,7 @@ const screenResolutions = new Map([
 
 export default class Drivey {
   constructor() {
+    this.cachedLevels = new Map();
     this.currentEffect = "ombré";
     this.npcControlScheme = new Input();
     this.controlScheme = controlSchemesByName.get(isTouchDevice ? "touch" : "arrows");
@@ -87,16 +77,9 @@ export default class Drivey {
     this.theme.install(document.body);
     this.theme.onLoad = this.onThemeLoaded.bind(this);
     this.init();
-
-    if (localStorage.getItem("theme") != null) {
-      this.theme.start();
-    }
-
-    this.screen.addUpdateListener(this.update.bind(this));
-    this.update();
   }
 
-  init() {
+  async init() {
     this.drivingSide = -1;
     this.defaultTilt = -0.0625;
 
@@ -125,6 +108,8 @@ export default class Drivey {
         level sky
         [otherCarExteriors]
     */
+
+    this.screen.scene.visible = false;
 
     this.satelliteCameraMount = new Group();
     this.screen.scene.add(this.satelliteCameraMount);
@@ -195,19 +180,45 @@ export default class Drivey {
     this.setCameraMount("driver");
 
     // Initial level is Industrial Zone
-    this.setLevel("industrial");
+    await this.setLevel("industrial");
+
+    if (localStorage.getItem("theme") != null) {
+      this.theme.start();
+    }
+
+    this.screen.addUpdateListener(this.update.bind(this));
+    this.update();
+    this.screen.scene.visible = true;
   }
 
-  setLevel(levelName) {
+  async setLevel(levelName) {
+    levelName = "marshland"; // TODO: REMOVE
+
+    this.loadingLevelName = levelName;
+
+    if (!this.cachedLevels.has(levelName)) {
+      const file = await fetch(`./../levels/${levelURLsByName.get(levelName)}.html`);
+      const htmlText = await file.text();
+      const parser = new DOMParser();
+      const levelDOM = parser.parseFromString(htmlText, "text/html").documentElement;
+      if (levelDOM != null) {
+        this.cachedLevels.set(levelName, levelDOM);
+      }
+    }
+
+    if (this.loadingLevelName !== levelName) {
+      return;
+    }
+
     if (this.level != null) {
       this.screen.scene.remove(this.level.world);
       this.screen.scene.remove(this.level.sky);
       this.level.dispose();
     }
 
-    const level = new (levelsByName.get(levelName) || DeepDarkNight)();
+    const level = buildLevel(this.cachedLevels.get(levelName));
     this.level = level;
-    this.autoSteerApproximation = level.roadPath.approximate(10000); // Used by car steering logic
+    this.autoSteerApproximation = level.mainRoad.approximate(10000); // Used by car steering logic
 
     // Retint the sky
     const skyGeometry = this.sky.geometry;
@@ -231,7 +242,7 @@ export default class Drivey {
     this.screen.scene.add(this.level.sky);
     this.myCar.remove();
     this.myCar.place(
-      level.roadPath,
+      level.mainRoad,
       this.autoSteerApproximation,
       0,
       level.laneWidth,
@@ -475,7 +486,7 @@ export default class Drivey {
         }
 
         this.otherCars[i].place(
-          this.level.roadPath,
+          this.level.mainRoad,
           this.autoSteerApproximation,
           Math.random(),
           this.level.laneWidth,

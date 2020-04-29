@@ -1,13 +1,12 @@
 import { Mesh, Color, Vector2, Group } from "./../lib/three/three.module.js";
 
-import RoadPath from "./RoadPath.js";
 import RoadLineStyle from "./RoadLineStyle.js";
 import { getExtrudedPointAt, makeGeometry, addPath, makeCirclePath, makePolygonPath, mergeGeometries } from "./shapes.js";
 import { makeShadedMesh } from "./rendering.js";
 
 const mergeMeshes = meshes => {
   const geom = mergeGeometries(meshes.map(mesh => mesh.geometry));
-  return new Mesh(geom, meshes[0].material);
+  return new Mesh(geom, meshes[0]?.material);
 };
 
 const flattenMesh = mesh => {
@@ -21,24 +20,7 @@ const flattenMesh = mesh => {
 };
 
 export default class Level {
-  constructor() {
-    this.tint = new Color(0.7, 0.7, 0.7);
-    this.skyGradient = 0;
-    this.skyHigh = 0;
-    this.skyLow = 0;
-    this.ground = 0;
-    this.roadPath = this.makeRoadPath();
-    this.cruiseSpeed = 50 / 3; // 50 kph
-
-    this.laneWidth = 2;
-    this.numLanes = 1;
-
-    const meshes = [];
-    const transparentMeshes = [];
-    const skyMeshes = [];
-    this.build(meshes, transparentMeshes, skyMeshes);
-    this.finish(meshes, transparentMeshes, skyMeshes);
-  }
+  constructor() {}
 
   dispose() {
     if (this.world.parent != null) {
@@ -57,7 +39,7 @@ export default class Level {
     }
 
     switch (style.type) {
-      case RoadLineStyle.type.SOLID:
+      case "solid":
         {
           const [pointSpacing] = [style.pointSpacing];
           width = Math.abs(width);
@@ -90,20 +72,20 @@ export default class Level {
         }
 
         break;
-      case RoadLineStyle.type.DASH:
+      case "dash":
         {
           const [off, on, pointSpacing] = [style.off, style.on, style.pointSpacing];
           let dashStart = start;
           const dashSpan = (on + off) / roadPath.length;
           const dashLength = (dashSpan * on) / (on + off);
           while (dashStart < end) {
-            this.drawRoadLine(roadPath, shapePath, xPos, width, RoadLineStyle.SOLID(pointSpacing), dashStart, Math.min(end, dashStart + dashLength));
+            this.drawRoadLine(roadPath, shapePath, xPos, width, { type: "solid", pointSpacing }, dashStart, Math.min(end, dashStart + dashLength));
             dashStart += dashSpan;
           }
         }
 
         break;
-      case RoadLineStyle.type.DOT:
+      case "dot":
         {
           const [spacing] = [style.spacing];
           let dotStart = start;
@@ -145,39 +127,5 @@ export default class Level {
     if (skyMeshes.length > 0) this.sky.add(mergeMeshes(skyMeshes));
     skyMeshes.forEach(mesh => mesh.geometry.dispose());
     skyMeshes.length = 0;
-  }
-
-  makeRoadPath(windiness = 5) {
-    const points = [];
-    let minX = Infinity;
-    let maxX = -Infinity;
-    let minY = Infinity;
-    let maxY = -Infinity;
-
-    const n = 16;
-    for (let i = 0; i < n; i++) {
-      const theta = (i * Math.PI * 2) / n;
-      const radius = Math.random() + windiness;
-      const point = new Vector2(Math.cos(theta) * -radius, Math.sin(theta) * radius);
-      points.push(point);
-      minX = Math.min(minX, point.x);
-      maxX = Math.max(maxX, point.x);
-      minY = Math.min(minY, point.y);
-      maxY = Math.max(maxY, point.y);
-    }
-
-    const centerX = (maxX + minX) * 0.5;
-    const centerY = (maxY + minY) * 0.5;
-    const width = maxX - minX;
-    const height = maxY - minY;
-    for (const point of points) {
-      point.x -= centerX;
-      point.y -= centerY;
-      point.y *= width / height;
-      point.x *= 80; // 400
-      point.y *= 80; // 400
-    }
-
-    return new RoadPath(points);
   }
 }

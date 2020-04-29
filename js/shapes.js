@@ -1,4 +1,4 @@
-import { Path, CatmullRomCurve3, Vector3, Vector2, Shape, ShapePath, ExtrudeBufferGeometry } from "./../lib/three/three.module.js";
+import { Path, CatmullRomCurve3, Vector3, Vector2, Shape, ShapePath, BufferGeometry, ExtrudeBufferGeometry } from "./../lib/three/three.module.js";
 import { BufferGeometryUtils } from "./../lib/three/utils/BufferGeometryUtils.js";
 
 import { mod } from "./math.js";
@@ -55,7 +55,7 @@ const makeGeometry = (shapePath, depth, curveSegments) =>
 
 const mergeGeometries = geometries => {
   if (geometries.length == 0) {
-    throw new Error("You can't merge zero geometries.");
+    return new BufferGeometry();
   }
 
   const numIndexed = geometries.filter(geometry => geometry.index != null).length;
