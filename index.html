@@ -9,7 +9,9 @@
     <script src="./lib/theme.js"></script>
     <script type="module">
       import Drivey from "./js/drivey.js";
-      document.addEventListener("touchmove", e => e.preventDefault(), { passive: false });
+      document.addEventListener("touchmove", e => e.preventDefault(), {
+        passive: false
+      });
       window.drivey = new Drivey();
     </script>
   </body>

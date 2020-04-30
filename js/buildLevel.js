@@ -1,6 +1,7 @@
 import { Mesh, Color, Vector2, Group, ShapePath } from "./../lib/three/three.module.js";
+import { getExtrudedPointAt, makeGeometry, addPath, makeCirclePath, makePolygonPath, mergeGeometries } from "./shapes.js";
+import { makeShadedMesh } from "./rendering.js";
 
-import Level from "./Level.js";
 import RoadPath from "./RoadPath.js";
 const dashed = /(.*?)-([a-zA-Z])/g;
 const dashedToCamelCase = s => s.replace(dashed, (_, a, b) => a + b.toUpperCase());
@@ -54,6 +55,91 @@ const makeRoadPath = ({ windiness, roadScale }) => {
   const roadPath = new RoadPath(points);
 
   return new RoadPath(points);
+};
+
+const drawRoadLine = (roadPath, shapePath, xPos, width, style, start, end) => {
+  if (start == end) {
+    return shapePath;
+  }
+
+  switch (style.type) {
+    case "solid":
+      {
+        const [pointSpacing] = [style.pointSpacing];
+        width = Math.abs(width);
+        const outsideOffset = xPos - width / 2;
+        const insideOffset = xPos + width / 2;
+        const outsidePoints = [];
+        const insidePoints = [];
+        outsidePoints.push(getExtrudedPointAt(roadPath.curve, start, outsideOffset));
+        insidePoints.push(getExtrudedPointAt(roadPath.curve, start, insideOffset));
+        if (pointSpacing > 0) {
+          const psFraction = pointSpacing / roadPath.length;
+          let i = Math.ceil(start / psFraction) * psFraction;
+          if (i == start) i += psFraction;
+          while (i < end) {
+            outsidePoints.push(getExtrudedPointAt(roadPath.curve, i, outsideOffset));
+            insidePoints.push(getExtrudedPointAt(roadPath.curve, i, insideOffset));
+            i += psFraction;
+          }
+        }
+
+        outsidePoints.push(getExtrudedPointAt(roadPath.curve, end, outsideOffset));
+        insidePoints.push(getExtrudedPointAt(roadPath.curve, end, insideOffset));
+        outsidePoints.reverse();
+        if (start == 0 && end == 1) {
+          addPath(shapePath, makePolygonPath(outsidePoints));
+          addPath(shapePath, makePolygonPath(insidePoints));
+        } else {
+          addPath(shapePath, makePolygonPath(outsidePoints.concat(insidePoints)));
+        }
+      }
+
+      break;
+    case "dash":
+      {
+        const [off, on, pointSpacing] = [style.off, style.on, style.pointSpacing];
+        let dashStart = start;
+        const dashSpan = (on + off) / roadPath.length;
+        const dashLength = (dashSpan * on) / (on + off);
+        while (dashStart < end) {
+          drawRoadLine(roadPath, shapePath, xPos, width, { type: "solid", pointSpacing }, dashStart, Math.min(end, dashStart + dashLength));
+          dashStart += dashSpan;
+        }
+      }
+
+      break;
+    case "dot":
+      {
+        const [spacing] = [style.spacing];
+        let dotStart = start;
+        const dotSpan = spacing / roadPath.length;
+        while (dotStart < end) {
+          const pos = getExtrudedPointAt(roadPath.curve, dotStart, xPos);
+          addPath(shapePath, makeCirclePath(pos.x, pos.y, width));
+          dotStart += dotSpan;
+        }
+      }
+
+      break;
+  }
+
+  return shapePath;
+};
+
+const mergeMeshes = meshes => {
+  const geom = mergeGeometries(meshes.map(mesh => mesh.geometry));
+  return new Mesh(geom, meshes[0]?.material);
+};
+
+const flattenMesh = mesh => {
+  const geom = mesh.geometry;
+  mesh.updateMatrix();
+  geom.applyMatrix4(mesh.matrix);
+  mesh.position.set(0, 0, 0);
+  mesh.rotation.set(0, 0, 0);
+  mesh.scale.set(1, 1, 1);
+  mesh.updateMatrix();
 };
 
 const schemasByTagName = new Map([
@@ -201,14 +287,14 @@ const parseLine = (element, linePath, level, mush) => {
   }
   const style = parseRoadLineStyle(styleElement);
   const { road, xPos, width, start, end } = element.attributes;
-  level.drawRoadLine(road, linePath, xPos, width, style, start, end);
+  drawRoadLine(road, linePath, xPos, width, style, start, end);
 };
 
 const parseMesh = (element, level, mush) => {
   const linePath = new ShapePath();
   forEachChild(element, "line", line => parseLine(line, linePath, level, mush));
   const { depth, curveSegments, shade, alpha, fade, z } = element.attributes;
-  const mesh = level.makeMesh(linePath, depth, curveSegments, shade, alpha, fade);
+  const mesh = makeShadedMesh(makeGeometry(linePath, depth, curveSegments), shade, alpha, fade);
   mesh.position.z = z;
   if (alpha < 1) {
     mush.transparentMeshes.push(mesh);
@@ -219,12 +305,11 @@ const parseMesh = (element, level, mush) => {
 
 const parseRoot = (element, level, mush) => {
   Object.assign(level, element.attributes);
-  // level.roadPath = makeRoadPath(5, level.roadScale);
   forEachChild(element, "mesh", mesh => parseMesh(mesh, level, mush));
 };
 
 export default dom => {
-  const level = new Level();
+  const level = {};
   const meshes = [];
   const transparentMeshes = [];
   const skyMeshes = [];
@@ -232,7 +317,36 @@ export default dom => {
   const root = objectify(dom.querySelector("drivey"));
   console.log(root);
   parseRoot(root, level, { meshes, transparentMeshes, skyMeshes });
-  level.finish(meshes, transparentMeshes, skyMeshes);
-  // console.log(level);
+
+  const world = new Group();
+  level.world = world;
+  meshes.forEach(flattenMesh);
+  const combinedMesh = mergeMeshes(meshes);
+  combinedMesh.geometry.computeBoundingSphere();
+  level.worldRadius = combinedMesh.geometry.boundingSphere.radius;
+  if (meshes.length > 0) world.add(combinedMesh);
+  meshes.forEach(mesh => mesh.geometry.dispose());
+  meshes.length = 0;
+
+  transparentMeshes.forEach(flattenMesh);
+  if (transparentMeshes.length > 0) world.add(mergeMeshes(transparentMeshes));
+  transparentMeshes.forEach(mesh => mesh.geometry.dispose());
+  transparentMeshes.length = 0;
+
+  skyMeshes.forEach(flattenMesh);
+  const sky = new Group();
+  level.sky = sky;
+  if (skyMeshes.length > 0) sky.add(mergeMeshes(skyMeshes));
+  skyMeshes.forEach(mesh => mesh.geometry.dispose());
+  skyMeshes.length = 0;
+
+  level.dispose = () => {
+    if (world.parent != null) {
+      world.parent.remove(this.world);
+    }
+
+    world.children.forEach(child => child.geometry.dispose());
+  };
+
   return level;
 };
