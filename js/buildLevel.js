@@ -142,83 +142,76 @@ const flattenMesh = mesh => {
   mesh.updateMatrix();
 };
 
-const schemasByTagName = new Map([
-  [
-    "drivey",
-    {
-      name: [verbatim, "Untitled Level"],
-      tint: [parseColor, new Color(0.7, 0.7, 0.7)],
-      laneWidth: [safeParseFloat, 2],
-      roadScale: [parseVec2, new Vector2(1, 1)],
-      skyHigh: [safeParseFloat, 0],
-      skyLow: [safeParseFloat, 0],
-      ground: [safeParseFloat, 0],
-      cruiseSpeed: [safeParseFloat, 50 / 3], // 50 kph
-      numLanes: [safeParseFloat, 1],
-      windiness: [safeParseFloat, 5],
-      roadScale: [parseVec2, new Vector2(1, 1)]
-    }
-  ],
-  [
-    "number",
-    {
-      id: [verbatim],
-      value: [safeParseFloat]
-    }
-  ],
-  [
-    "mesh",
-    {
-      depth: [safeParseFloat, 0],
-      curveSegments: [safeParseInt, 1],
-      shade: [safeParseFloat, 0.5],
-      alpha: [safeParseFloat, 1],
-      fade: [safeParseFloat, 0],
-      z: [safeParseFloat, 0]
-    }
-  ],
-  [
-    "line",
-    {
-      road: [verbatim, "#mainRoad"],
-      xPos: [safeParseFloat, 0],
-      width: [safeParseFloat, 1],
-      start: [safeParseFloat, 0],
-      end: [safeParseFloat, 1]
-    }
-  ],
-  [
-    "dash",
-    {
-      on: [safeParseFloat, 1],
-      off: [safeParseFloat, 1],
-      pointSpacing: [safeParseFloat, 0]
-    }
-  ],
-  [
-    "solid",
-    {
-      pointSpacing: [safeParseFloat, 0]
-    }
-  ],
-  [
-    "dot",
-    {
-      spacing: [safeParseFloat, 100]
-    }
-  ],
-  [
-    "road",
-    {
-      id: [verbatim],
-      windiness: [safeParseFloat, 5],
-      roadScale: [parseVec2, new Vector2(1, 1)]
-    }
-  ]
-]);
+const numberTagSchema = {
+  id: [verbatim],
+  value: [safeParseFloat]
+};
+
+const meshTagSchema = {
+  depth: [safeParseFloat, 0],
+  curveSegments: [safeParseInt, 1],
+  shade: [safeParseFloat, 0.5],
+  alpha: [safeParseFloat, 1],
+  fade: [safeParseFloat, 0],
+  z: [safeParseFloat, 0]
+};
+
+const lineTagSchema = {
+  road: [verbatim, "#mainRoad"],
+  xPos: [safeParseFloat, 0],
+  width: [safeParseFloat, 1],
+  start: [safeParseFloat, 0],
+  end: [safeParseFloat, 1]
+};
+
+const dashTagSchema = {
+  ...lineTagSchema,
+  on: [safeParseFloat, 1],
+  off: [safeParseFloat, 1],
+  pointSpacing: [safeParseFloat, 0]
+};
+
+const solidTagSchema = {
+  ...lineTagSchema,
+  pointSpacing: [safeParseFloat, 0]
+};
+
+const dotTagSchema = {
+  ...lineTagSchema,
+  spacing: [safeParseFloat, 100]
+};
+
+const roadTagSchema = {
+  id: [verbatim],
+  windiness: [safeParseFloat, 5],
+  roadScale: [parseVec2, new Vector2(1, 1)]
+};
+
+const driveyTagSchema = {
+  ...roadTagSchema,
+  name: [verbatim, "Untitled Level"],
+  tint: [parseColor, new Color(0.7, 0.7, 0.7)],
+  skyHigh: [safeParseFloat, 0],
+  skyLow: [safeParseFloat, 0],
+  ground: [safeParseFloat, 0],
+  cruiseSpeed: [safeParseFloat, 50 / 3], // 50 kph
+  laneWidth: [safeParseFloat, 2],
+  numLanes: [safeParseFloat, 1]
+};
+
+const schemasByTagName = {
+  number: numberTagSchema,
+  mesh: meshTagSchema,
+  line: lineTagSchema,
+  dash: dashTagSchema,
+  solid: solidTagSchema,
+  dot: dotTagSchema,
+  road: roadTagSchema,
+  drivey: driveyTagSchema,
+};
 
 const getAttributes = (element, scope) => {
-  const schema = schemasByTagName.get(element.tagName.toLowerCase()) ?? {};
+  const schema = schemasByTagName[element.tagName.toLowerCase()] ?? {};
 
   const resolvePointer = value => {
     const s = value?.toString() ?? "";
@@ -281,18 +274,16 @@ const forEachChild = (element, tagName, f) => (element.children[tagName] ?? []).
 const parseRoadLineStyle = element => ({ ...element.attributes, type: element.tagName });
 
 const parseLine = (element, linePath, level, mush) => {
-  const styleElement = ["solid", "dash", "dot"].map(tagName => element.children[tagName]).filter(list => list != null)?.[0]?.[0];
-  if (styleElement == null) {
-    return;
-  }
-  const style = parseRoadLineStyle(styleElement);
+  const style = parseRoadLineStyle(element);
   const { road, xPos, width, start, end } = element.attributes;
   drawRoadLine(road, linePath, xPos, width, style, start, end);
 };
 
 const parseMesh = (element, level, mush) => {
   const linePath = new ShapePath();
-  forEachChild(element, "line", line => parseLine(line, linePath, level, mush));
+  forEachChild(element, "solid", line => parseLine(line, linePath, level, mush));
+  forEachChild(element, "dash", line => parseLine(line, linePath, level, mush));
+  forEachChild(element, "dot", line => parseLine(line, linePath, level, mush));
   const { depth, curveSegments, shade, alpha, fade, z } = element.attributes;
   const mesh = makeShadedMesh(makeGeometry(linePath, depth, curveSegments), shade, alpha, fade);
   mesh.position.z = z;
