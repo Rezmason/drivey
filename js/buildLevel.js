@@ -1,10 +1,9 @@
-import { Mesh, Color, Vector2, Group, ShapePath } from "./../lib/three/three.module.js";
-import { getExtrudedPointAt, makeGeometry, addPath, makeCirclePath, makePolygonPath, mergeGeometries } from "./shapes.js";
-import { makeShadedMesh } from "./rendering.js";
-
+import { Color, Vector2, ShapePath } from "./../lib/three/three.module.js";
 import RoadPath from "./RoadPath.js";
+
 const dashed = /(.*?)-([a-zA-Z])/g;
-const dashedToCamelCase = s => s.replace(dashed, (_, a, b) => a + b.toUpperCase());
+const dashedToCamelCase = s =>
+  s.replace(dashed, (_, a, b) => a + b.toUpperCase());
 
 const verbatim = _ => _;
 const safeParseFloat = s => {
@@ -18,6 +17,7 @@ const safeParseInt = s => {
 const parseNumberList = s => s.split(",").map(s => safeParseFloat(s.trim()));
 const parseColor = s => new Color(...parseNumberList(s));
 const parseVec2 = s => new Vector2(...parseNumberList(s));
+const parseBool = s => s === "true";
 
 const makeRoadPath = ({ windiness, roadScale }) => {
   const points = [];
@@ -30,7 +30,10 @@ const makeRoadPath = ({ windiness, roadScale }) => {
   for (let i = 0; i < n; i++) {
     const theta = (i * Math.PI * 2) / n;
     const radius = Math.random() + windiness;
-    const point = new Vector2(Math.cos(theta) * -radius, Math.sin(theta) * radius);
+    const point = new Vector2(
+      Math.cos(theta) * -radius,
+      Math.sin(theta) * radius
+    );
     points.push(point);
     minX = Math.min(minX, point.x);
     maxX = Math.max(maxX, point.x);
@@ -57,81 +60,6 @@ const makeRoadPath = ({ windiness, roadScale }) => {
   return new RoadPath(points);
 };
 
-const drawRoadLine = (roadPath, shapePath, xPos, width, style, start, end) => {
-  if (start == end) {
-    return shapePath;
-  }
-
-  switch (style.type) {
-    case "solid":
-      {
-        const [pointSpacing] = [style.pointSpacing];
-        width = Math.abs(width);
-        const outsideOffset = xPos - width / 2;
-        const insideOffset = xPos + width / 2;
-        const outsidePoints = [];
-        const insidePoints = [];
-        outsidePoints.push(getExtrudedPointAt(roadPath.curve, start, outsideOffset));
-        insidePoints.push(getExtrudedPointAt(roadPath.curve, start, insideOffset));
-        if (pointSpacing > 0) {
-          const psFraction = pointSpacing / roadPath.length;
-          let i = Math.ceil(start / psFraction) * psFraction;
-          if (i == start) i += psFraction;
-          while (i < end) {
-            outsidePoints.push(getExtrudedPointAt(roadPath.curve, i, outsideOffset));
-            insidePoints.push(getExtrudedPointAt(roadPath.curve, i, insideOffset));
-            i += psFraction;
-          }
-        }
-
-        outsidePoints.push(getExtrudedPointAt(roadPath.curve, end, outsideOffset));
-        insidePoints.push(getExtrudedPointAt(roadPath.curve, end, insideOffset));
-        outsidePoints.reverse();
-        if (start == 0 && end == 1) {
-          addPath(shapePath, makePolygonPath(outsidePoints));
-          addPath(shapePath, makePolygonPath(insidePoints));
-        } else {
-          addPath(shapePath, makePolygonPath(outsidePoints.concat(insidePoints)));
-        }
-      }
-
-      break;
-    case "dash":
-      {
-        const [off, on, pointSpacing] = [style.off, style.on, style.pointSpacing];
-        let dashStart = start;
-        const dashSpan = (on + off) / roadPath.length;
-        const dashLength = (dashSpan * on) / (on + off);
-        while (dashStart < end) {
-          drawRoadLine(roadPath, shapePath, xPos, width, { type: "solid", pointSpacing }, dashStart, Math.min(end, dashStart + dashLength));
-          dashStart += dashSpan;
-        }
-      }
-
-      break;
-    case "dot":
-      {
-        const [spacing] = [style.spacing];
-        let dotStart = start;
-        const dotSpan = spacing / roadPath.length;
-        while (dotStart < end) {
-          const pos = getExtrudedPointAt(roadPath.curve, dotStart, xPos);
-          addPath(shapePath, makeCirclePath(pos.x, pos.y, width));
-          dotStart += dotSpan;
-        }
-      }
-
-      break;
-  }
-
-  return shapePath;
-};
-
-const mergeMeshes = meshes => {
-  const geom = mergeGeometries(meshes.map(mesh => mesh.geometry));
-  return new Mesh(geom, meshes[0]?.material);
-};
-
 const flattenMesh = mesh => {
   const geom = mesh.geometry;
   mesh.updateMatrix();
@@ -142,8 +70,12 @@ const flattenMesh = mesh => {
   mesh.updateMatrix();
 };
 
+const variableTagSchema = {
+  id: [verbatim]
+};
+
 const numberTagSchema = {
-  id: [verbatim],
+  ...variableTagSchema,
   value: [safeParseFloat]
 };
 
@@ -157,11 +89,12 @@ const meshTagSchema = {
 };
 
 const lineTagSchema = {
-  road: [verbatim, "#mainRoad"],
+  road: [verbatim, "{mainRoad}"],
   xPos: [safeParseFloat, 0],
   width: [safeParseFloat, 1],
   start: [safeParseFloat, 0],
-  end: [safeParseFloat, 1]
+  end: [safeParseFloat, 1],
+  mirror: [parseBool, false]
 };
 
 const dashTagSchema = {
@@ -182,7 +115,7 @@ const dotTagSchema = {
 };
 
 const roadTagSchema = {
-  id: [verbatim],
+  ...variableTagSchema,
   windiness: [safeParseFloat, 5],
   roadScale: [parseVec2, new Vector2(1, 1)]
 };
@@ -199,7 +132,7 @@ const driveyTagSchema = {
   numLanes: [safeParseFloat, 1]
 };
 
-const schemasByTagName = {
+const schemasByType = {
   number: numberTagSchema,
   mesh: meshTagSchema,
   line: lineTagSchema,
@@ -207,137 +140,111 @@ const schemasByTagName = {
   solid: solidTagSchema,
   dot: dotTagSchema,
   road: roadTagSchema,
-  drivey: driveyTagSchema,
+  drivey: driveyTagSchema
 };
 
-const getAttributes = (element, scope) => {
-  const schema = schemasByTagName[element.tagName.toLowerCase()] ?? {};
+const evaluateExpression = (expression, scope) => {
+  // TODO
+  const key = expression;
+  if (scope[key] != null) {
+    return scope[key];
+  }
+  return null;
+};
 
-  const resolvePointer = value => {
-    const s = value?.toString() ?? "";
-    if (s.startsWith("#")) {
-      const key = s.substring(1);
-      if (scope[key] != null) {
-        return scope[key];
-      }
+const braced = /^{(.*)}$/;
+
+const evaluateRawValue = (parser, scope, rawValue, name) => {
+  if (parser == null) return rawValue;
+  if (rawValue == null || rawValue === "") return undefined;
+  if (typeof rawValue !== "string") return rawValue;
+
+  const expression = rawValue.match(braced)?.[1];
+  if (expression != null) {
+    return evaluateExpression(expression, scope);
+  }
+
+  return parser(rawValue);
+};
+
+const simplifyAttributes = (type, attributes, scope) => {
+  const schema = schemasByType[type] ?? {};
+
+  const rawValues = Object.fromEntries([
+    ...Object.entries(schema).map(([name, [_, value]]) => [name, value]),
+    ...Array.from(attributes).map(({ name, value }) => [
+      dashedToCamelCase(name),
+      value
+    ])
+  ]);
+
+  return Object.fromEntries(
+    Object.entries(rawValues).map(([name, value]) => [
+      name,
+      evaluateRawValue(schema[name]?.[0], scope, value, name)
+    ])
+  );
+};
+
+const variablesByType = new Map([
+  [
+    "number",
+    ({ value }, scope) => {
+      console.log(scope);
+      return value;
     }
-    return value;
-  };
-
-  const defaultValues = Object.fromEntries(Object.entries(schema).map(([key, [_, value]]) => [key, resolvePointer(value)]));
-  const attributes = {
-    ...defaultValues,
-    ...Object.fromEntries(
-      Array.from(element.attributes).map(({ name, value }) => {
-        const attributeName = dashedToCamelCase(name);
-        const resolvedPointer = resolvePointer(value);
-        if (resolvedPointer != value) {
-          return [attributeName, resolvedPointer];
-        }
-        const parseFunc = schema[attributeName]?.[0] ?? verbatim;
-        return [attributeName, parseFunc(value)];
-      })
-    )
-  };
-  return attributes;
-};
-
-const variablesByTagName = new Map([
-  ["number", ({ value }) => value],
+  ],
   ["road", makeRoadPath]
 ]);
 
-const objectify = (element, parentScope = {}) => {
-  const tagName = element.tagName.toLowerCase();
-  const basicAttributes = getAttributes(element, parentScope);
-  const driveyAttributes = tagName === "drivey" ? { mainRoad: makeRoadPath(basicAttributes) } : {};
+const simplify = (element, parentScope = {}) => {
+  // Tag name
+  const type = element.tagName.toLowerCase();
+
+  // Attributes
+  const basicAttributes = simplifyAttributes(type, element.attributes, parentScope);
+  const driveyAttributes =
+    type === "drivey" ? { mainRoad: makeRoadPath(basicAttributes) } : {};
   const attributes = {
     ...basicAttributes,
     ...driveyAttributes
   };
-  const allChildren = Array.from(element.children);
-  const variables = allChildren.filter(child => variablesByTagName.has(child.tagName.toLowerCase())).map(child => objectify(child, parentScope));
+
+  const childElements = Array.from(element.children);
+  const variableElements = childElements.filter(child =>
+    variablesByType.has(child.tagName.toLowerCase())
+  );
+  const componentElements = childElements.filter(
+    child => !variablesByType.has(child.tagName.toLowerCase())
+  );
+
+  // Scope: the parent scope, the attributes, plus the variables within this element.
+  // We reduce so that a variable can reference the variables listed before it.
+  const variables = variableElements.map(child => simplify(child, parentScope));
+  const variableScope = variables.reduce(
+    (scope, { type, attributes }) => ({
+      ...scope,
+      [attributes.id]: variablesByType.get(type)(attributes, scope)
+    }),
+    parentScope
+  );
   const scope = {
-    ...parentScope,
-    ...Object.fromEntries(variables.map(({ tagName, attributes }) => [attributes.id, variablesByTagName.get(tagName)(attributes)])),
+    ...variableScope,
     ...driveyAttributes
   };
 
-  const objects = allChildren.filter(child => !variablesByTagName.has(child.tagName.toLowerCase()));
-  const objectTagNames = Array.from(new Set(objects.map(child => child.tagName)));
-  const children = Object.fromEntries(objectTagNames.map(tagName => [tagName.toLowerCase(), objects.filter(child => child.tagName === tagName).map(child => objectify(child, scope))]));
-  return { tagName, attributes, children };
+  // Generate components against the scope
+  const components = componentElements.map(element => simplify(element, scope));
+  const componentTypes = Array.from(
+    new Set(components.map(({ type }) => type))
+  );
+  const componentsByType = Object.fromEntries(
+    componentTypes.map(type => [
+      type,
+      components.filter(child => child.type === type)
+    ])
+  );
+  return { type, attributes, componentsByType };
 };
 
-const forEachChild = (element, tagName, f) => (element.children[tagName] ?? []).forEach(f);
-
-const parseRoadLineStyle = element => ({ ...element.attributes, type: element.tagName });
-
-const parseLine = (element, linePath, level, mush) => {
-  const style = parseRoadLineStyle(element);
-  const { road, xPos, width, start, end } = element.attributes;
-  drawRoadLine(road, linePath, xPos, width, style, start, end);
-};
-
-const parseMesh = (element, level, mush) => {
-  const linePath = new ShapePath();
-  forEachChild(element, "solid", line => parseLine(line, linePath, level, mush));
-  forEachChild(element, "dash", line => parseLine(line, linePath, level, mush));
-  forEachChild(element, "dot", line => parseLine(line, linePath, level, mush));
-  const { depth, curveSegments, shade, alpha, fade, z } = element.attributes;
-  const mesh = makeShadedMesh(makeGeometry(linePath, depth, curveSegments), shade, alpha, fade);
-  mesh.position.z = z;
-  if (alpha < 1) {
-    mush.transparentMeshes.push(mesh);
-  } else {
-    mush.meshes.push(mesh);
-  }
-};
-
-const parseRoot = (element, level, mush) => {
-  Object.assign(level, element.attributes);
-  forEachChild(element, "mesh", mesh => parseMesh(mesh, level, mush));
-};
-
-export default dom => {
-  const level = {};
-  const meshes = [];
-  const transparentMeshes = [];
-  const skyMeshes = [];
-
-  const root = objectify(dom.querySelector("drivey"));
-  console.log(root);
-  parseRoot(root, level, { meshes, transparentMeshes, skyMeshes });
-
-  const world = new Group();
-  level.world = world;
-  meshes.forEach(flattenMesh);
-  const combinedMesh = mergeMeshes(meshes);
-  combinedMesh.geometry.computeBoundingSphere();
-  level.worldRadius = combinedMesh.geometry.boundingSphere.radius;
-  if (meshes.length > 0) world.add(combinedMesh);
-  meshes.forEach(mesh => mesh.geometry.dispose());
-  meshes.length = 0;
-
-  transparentMeshes.forEach(flattenMesh);
-  if (transparentMeshes.length > 0) world.add(mergeMeshes(transparentMeshes));
-  transparentMeshes.forEach(mesh => mesh.geometry.dispose());
-  transparentMeshes.length = 0;
-
-  skyMeshes.forEach(flattenMesh);
-  const sky = new Group();
-  level.sky = sky;
-  if (skyMeshes.length > 0) sky.add(mergeMeshes(skyMeshes));
-  skyMeshes.forEach(mesh => mesh.geometry.dispose());
-  skyMeshes.length = 0;
-
-  level.dispose = () => {
-    if (world.parent != null) {
-      world.parent.remove(this.world);
-    }
-
-    world.children.forEach(child => child.geometry.dispose());
-  };
-
-  return level;
-};
+export default dom => simplify(dom.querySelector("drivey"));

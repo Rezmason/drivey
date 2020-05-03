@@ -1,12 +1,10 @@
 <drivey name="The Deep Dark Night" lane-width="3" road-scale="2, 2">
   <number id="roadLineShade" value="0.75"></number>
-  <mesh id="lines" shade="#roadLineShade" fade="5">
+  <mesh id="lines" shade="{roadLineShade}" fade="5">
     <dash width="0.2" on="4" off="10" point-spacing="0"></dash>
-    <dash x-pos="-3" width="0.15" on="30" off="2" point-spacing="5"></dash>
-    <dash x-pos="3" width="0.15" on="30" off="2" point-spacing="5"></dash>
+    <dash x-pos="3" width="0.15" on="30" off="2" point-spacing="5" mirror="true"></dash>
   </mesh>
-  <mesh id="posts" depth="0.6" shade="#roadLineShade" fade="5">
-    <dash x-pos="-6" width="0.2" on="0.2" off="50"></dash>
-    <dash x-pos="6" width="0.2" on="0.2" off="50"></dash>
+  <mesh id="posts" depth="0.6" shade="{roadLineShade}" fade="5">
+    <dash x-pos="6" width="0.2" on="0.2" off="50" mirror="true"></dash>
   </mesh>
 </drivey>

@@ -11,6 +11,8 @@ HTML level representation
   Seed?
   Modularize buildLevel
 
+Clean up those throw "!"s
+
 Is mesh fade working properly?
 
 Portable Drivey

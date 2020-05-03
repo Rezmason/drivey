@@ -21,6 +21,7 @@
 import { Group, Color, CylinderBufferGeometry, Mesh } from "./../lib/three/three.module.js";
 
 import buildLevel from "./buildLevel.js";
+import renderLevel from "./renderLevel.js";
 import { lerp } from "./math.js";
 import { shadeGeometry, silhouette, transparent, blendColors } from "./rendering.js";
 import isTouchDevice from "./isTouchDevice.js";
@@ -216,7 +217,7 @@ export default class Drivey {
       this.level.dispose();
     }
 
-    const level = buildLevel(this.cachedLevels.get(levelName));
+    const level = renderLevel(buildLevel(this.cachedLevels.get(levelName)));
     this.level = level;
     this.autoSteerApproximation = level.mainRoad.approximate(10000); // Used by car steering logic
 

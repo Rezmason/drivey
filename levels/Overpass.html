@@ -12,28 +12,23 @@
     <solid x-pos="0" width="9" point-spacing="2"></solid>
   </mesh>
   <mesh id="shoulder" depth="0.5" curve-segments="100" shade="0.25" z="-0.55">
-    <solid x-pos="-5.5" width="2" point-spacing="2"></solid>
-    <solid x-pos="5.5" width="2" point-spacing="2"></solid>
+    <solid x-pos="5.5" width="2" point-spacing="2" mirror="true"></solid>
   </mesh>
   <mesh id="underneath" depth="2" shade="0.07" z="-2.5">
     <solid x-pos="0" width="5.25" point-spacing="10"></solid>
   </mesh>
   <mesh id="roadLines" shade="0.7" z="0.1">
-    <dash x-pos="-4" width="0.1" on="30" off="1" point-spacing="2"></dash>
-    <dash x-pos="4" width="0.1" on="30" off="1" point-spacing="2"></dash>
+    <dash x-pos="4" width="0.1" on="30" off="1" point-spacing="2" mirror="true"></dash>
     <dash x-pos="0" width="0.15" on="5" off="5"></dash>
   </mesh>
   <mesh id="rails" depth="0.1" shade="0.3" z="0.25">
-    <solid x-pos="-6.0" width="0.175" point-spacing="3"></solid>
-    <solid x-pos="6.0" width="0.175" point-spacing="3"></solid>
+    <solid x-pos="6.0" width="0.175" point-spacing="3" mirror="true"></solid>
   </mesh>
   <mesh id="railsTop" depth="0.125" shade="0.35" z="0.25">
-    <solid x-pos="-6.0" width="0.1" point-spacing="3"></solid>
-    <solid x-pos="6.0" width="0.1" point-spacing="3"></solid>
+    <solid x-pos="6.0" width="0.1" point-spacing="3" mirror="true"></solid>
   </mesh>
   <mesh id="railStakes" depth="0.55" shade="0.3" z="-0.25">
-    <dash x-pos="-6.0" width="0.15" on="0.2" off="2"></dash>
-    <dash x-pos="6.0" width="0.15" on="0.2" off="2"></dash>
+    <dash x-pos="6.0" width="0.15" on="0.2" off="2" mirror="true"></dash>
   </mesh>
   <mesh id="supports" depth="2" curve-segments="100" shade="0.07" z="-3.5">
     <dot x-pos="0" width="5" spacing="50"></dot>
@@ -43,6 +38,6 @@
   </mesh>
   <road id="river" windiness="0.3" road-scale="6, 6"></road>
   <mesh id="marshland" curve-segments="100" shade="0.5" fade="-1" z="-5.5">
-    <solid road="#river" x-pos="0" width="70" point-spacing="10"></solid>
+    <solid road="{river}" x-pos="0" width="70" point-spacing="10"></solid>
   </mesh>
 </drivey>
