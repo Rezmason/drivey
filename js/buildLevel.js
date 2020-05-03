@@ -1,3 +1,4 @@
+import { Parser } from "./../lib/expr-eval.js";
 import { Color, Vector2, ShapePath } from "./../lib/three/three.module.js";
 import RoadPath from "./RoadPath.js";
 
@@ -143,14 +144,9 @@ const schemasByType = {
   drivey: driveyTagSchema
 };
 
-const evaluateExpression = (expression, scope) => {
-  // TODO
-  const key = expression;
-  if (scope[key] != null) {
-    return scope[key];
-  }
-  return null;
-};
+
+const parser = new Parser();
+const evaluateExpression = (expression, scope) => parser.parse(expression).evaluate(scope);
 
 const braced = /^{(.*)}$/;
 
