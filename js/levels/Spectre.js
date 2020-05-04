@@ -7,7 +7,7 @@ import { addPath, makeRectanglePath } from "./../shapes.js";
 
 export default class Spectre extends Level {
   build(meshes, transparentMeshes, skyMeshes) {
-    this.name = "The Deep Dark Night";
+    this.name = "Central Systems Matrix";
     this.tint = new Color(1, 0, 1);
     this.skyLow = 0.35;
     this.skyHigh = -1;
@@ -42,15 +42,15 @@ export default class Spectre extends Level {
 
     meshes.push(this.makeMesh(dotsPath, width * 1.25, 1, 0.5));
 
-    const signpostsPath = new ShapePath();
-    this.drawRoadLine(this.roadPath, signpostsPath, -12, 0.2, RoadLineStyle.DASH(0.2, 400, 0), 0, 1);
-    this.drawRoadLine(this.roadPath, signpostsPath, 12, 0.2, RoadLineStyle.DASH(0.2, 300, 0), 0, 1);
-    meshes.push(this.makeMesh(signpostsPath, 14, 0, 0.9));
+    const flagpolesPath = new ShapePath();
+    this.drawRoadLine(this.roadPath, flagpolesPath, -12, 0.2, RoadLineStyle.DASH(0.2, 400, 0), 0, 1);
+    this.drawRoadLine(this.roadPath, flagpolesPath, 12, 0.2, RoadLineStyle.DASH(0.2, 300, 0), 0, 1);
+    meshes.push(this.makeMesh(flagpolesPath, 14, 0, 0.9));
 
-    const signsPath = new ShapePath();
-    this.drawRoadLine(this.roadPath, signsPath, -15, 6, RoadLineStyle.DASH(0.2, 400, 0), 0, 1);
-    this.drawRoadLine(this.roadPath, signsPath, 15, 6, RoadLineStyle.DASH(0.2, 300, 0), 0, 1);
-    const signsMesh = this.makeMesh(signsPath, 4, 0, 0.9);
+    const flagsPath = new ShapePath();
+    this.drawRoadLine(this.roadPath, flagsPath, -15, 6, RoadLineStyle.DASH(0.2, 400, 0), 0, 1);
+    this.drawRoadLine(this.roadPath, flagsPath, 15, 6, RoadLineStyle.DASH(0.2, 300, 0), 0, 1);
+    const signsMesh = this.makeMesh(flagsPath, 4, 0, 0.9);
     signsMesh.position.z = 10;
     meshes.push(signsMesh);
   }

@@ -1,15 +1,15 @@
 HTML level representation
 
-  Easiest to hardest:
-    Field of dots: Spectre
-    Sky: TrainTracks
-    Buildings: City
-    Just a lot going on: IndustrialZone
+  IndustrialZone
 
+  Consolidate some schema stuff
+  Curve segments default: 1 or 0?
   Maybe makeRoadPath should be in renderLevel?
   Search for and remove default values from HTML files
   Seed?
-  Modularize buildLevel
+  Modularize buildLevel, renderLevel
+    Move more stuff out to utility modules
+    Consolidate some of those functions
 
 Clean up those throw "!"s
 

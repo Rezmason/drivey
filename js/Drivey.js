@@ -34,6 +34,7 @@ import buildCar from "./buildCar.js";
 import Dashboard from "./Dashboard.js";
 
 const levelURLsByName = new Map([
+  ["empty", "Reference"],
   ["test", "TestLevel"],
   ["night", "DeepDarkNight"],
   ["tunnel", "Tunnel"],
@@ -192,7 +193,7 @@ export default class Drivey {
   }
 
   async setLevel(levelName) {
-    levelName = "warp"; // TODO: REMOVE test, night, beach, marshland, tunnel, warp |||| city, industrial, spectre, nullarbor
+    levelName = "nullarbor"; // TODO: REMOVE test, night, beach, marshland, tunnel, warp, spectre, city, nullarbor |||| industrial
 
     this.loadingLevelName = levelName;
 
@@ -378,7 +379,6 @@ export default class Drivey {
       case "effect":
         this.currentEffect = value;
         const isWireframe = this.currentEffect === "wireframe";
-        this.sky.visible = !isWireframe;
         this.screen.setWireframe(isWireframe);
         silhouette.uniforms.isWireframe.value = isWireframe;
         transparent.uniforms.isWireframe.value = isWireframe;
@@ -420,7 +420,7 @@ export default class Drivey {
 
     // Only show the level's sky if the camera is the driver camera
     if (this.level != null) {
-      this.level.sky.visible = this.cameraMount != this.aerialCameraMount && this.cameraMount != this.satelliteCameraMount;
+      this.level.sky.visible = !isWireframe && this.cameraMount != this.aerialCameraMount && this.cameraMount != this.satelliteCameraMount;
     }
 
     // Only show my car if the camera is not the driver camera

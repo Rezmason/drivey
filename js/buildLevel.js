@@ -117,6 +117,27 @@ const dotTagSchema = {
   spacing: { parseFunc: safeParseFloat, defaultValue: 100 }
 };
 
+const cityscapeTagSchema = {
+  road: { parseFunc: verbatim, defaultValue: "{mainRoad}" },
+  rowSpacing: { parseFunc: safeParseFloat, defaultValue: 200 },
+  columnSpacing: { parseFunc: safeParseFloat, defaultValue: 200 },
+  heights: { parseFunc: parseNumberList, defaultValue: "50" },
+  width: { parseFunc: safeParseFloat, defaultValue: 100 },
+  proximity: { parseFunc: safeParseFloat, defaultValue: 100 },
+  radius: { parseFunc: safeParseFloat, defaultValue: 2000 },
+
+  shade: { parseFunc: safeParseFloat, defaultValue: 0.5 },
+  alpha: { parseFunc: safeParseFloat, defaultValue: 1 },
+  fade: { parseFunc: safeParseFloat, defaultValue: 0 }
+};
+
+const cloudsTagSchema = {
+  count: { parseFunc: safeParseInt, defaultValue: 100 },
+  shade: { parseFunc: safeParseFloat, defaultValue: 0.5 },
+  scale: { parseFunc: safeParseFloat, defaultValue: 1 },
+  z: { parseFunc: safeParseFloat, defaultValue: 100 }
+};
+
 const roadTagSchema = {
   ...idTagSchema,
   windiness: { parseFunc: safeParseFloat, defaultValue: 5 },
@@ -143,6 +164,8 @@ const schemasByType = {
   dash: dashTagSchema,
   solid: solidTagSchema,
   dot: dotTagSchema,
+  cityscape: cityscapeTagSchema,
+  clouds: cloudsTagSchema,
   road: roadTagSchema,
   drivey: driveyTagSchema
 };

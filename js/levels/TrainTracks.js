@@ -20,6 +20,8 @@ export default class TrainTracks extends Level {
     const sleeperColor = 0.45;
     const ballastColor = 0.6;
 
+    // clouds shade = 0.95 count = 200 z = 80 scale="2"
+
     // sky
     const cloudsPath = new ShapePath();
     for (let i = 0; i < 200; i++) {
