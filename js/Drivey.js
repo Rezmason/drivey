@@ -193,8 +193,6 @@ export default class Drivey {
   }
 
   async setLevel(levelName) {
-    levelName = "nullarbor"; // TODO: REMOVE test, night, beach, marshland, tunnel, warp, spectre, city, nullarbor |||| industrial
-
     this.loadingLevelName = levelName;
 
     if (!this.cachedLevels.has(levelName)) {
@@ -420,7 +418,7 @@ export default class Drivey {
 
     // Only show the level's sky if the camera is the driver camera
     if (this.level != null) {
-      this.level.sky.visible = !isWireframe && this.cameraMount != this.aerialCameraMount && this.cameraMount != this.satelliteCameraMount;
+      this.level.sky.visible = !this.isWireframe && this.cameraMount != this.aerialCameraMount && this.cameraMount != this.satelliteCameraMount;
     }
 
     // Only show my car if the camera is not the driver camera

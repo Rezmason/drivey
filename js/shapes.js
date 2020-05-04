@@ -21,7 +21,8 @@ const makeCirclePath = (x, y, radius, aClockwise = true) => {
   return circle;
 };
 
-const makeRectanglePath = (x, y, width, height) => makePolygonPath([new Vector2(x, y), new Vector2(x + width, y), new Vector2(x + width, y + height), new Vector2(x, y + height)]);
+const makeRectanglePath = (x, y, width, height) =>
+  makePolygonPath([new Vector2(x, y), new Vector2(x + width, y), new Vector2(x + width, y + height), new Vector2(x, y + height)]);
 
 const makePolygonPath = points => new Shape(points);
 

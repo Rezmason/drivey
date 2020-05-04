@@ -1,8 +1,19 @@
-<drivey name="Untitled Level" tint="0.7, 0.7, 0.7" lane-width="2" sky-high="0" sky-low="0" ground="0" cruise-speed="{50 / 3}" num-lanes="1" windiness="5" road-scale="1, 1">
+<drivey
+  name="Untitled Level"
+  tint="0.7, 0.7, 0.7"
+  lane-width="2"
+  sky-high="0"
+  sky-low="0"
+  ground="0"
+  cruise-speed="{50 / 3}"
+  num-lanes="1"
+  windiness="5"
+  road-scale="1, 1"
+>
   <number id="" value=""></number>
-  <loop id="i" value="1"></loop>
-  <road id="" windiness="5" road-scale="1, 1"></road>
-  <mesh depth="0" curve-segments="1" shade="0.5" alpha="1" fade="0" z="0">
+  <repeat id="i" value="1"></repeat>
+  <road id="" basis="" windiness="5" road-scale="1, 1"></road>
+  <mesh depth="0" curve-segments="1" shade="0.5" alpha="1" fade="0" z="0" scale="1, 1">
     <dash road="{mainRoad}" x-pos="0" width="1" start="0" end="1" on="1" off="1" point-spacing="0"></dash>
     <solid road="{mainRoad}" x-pos="0" width="1" start="0" end="1" point-spacing="0"></solid>
     <dot road="{mainRoad}" x-pos="0" width="1" start="0" end="1" spacing="100"></dot>

@@ -112,8 +112,8 @@ export default class Screen {
       this.update();
       this.render();
     }
-    // window.addEventListener("focus", this.onWindowFocus.bind(this), false);
-    // window.addEventListener("blur", this.onWindowBlur.bind(this), false);
+    window.addEventListener("focus", this.onWindowFocus.bind(this), false);
+    window.addEventListener("blur", this.onWindowBlur.bind(this), false);
     this.frameRate = 1;
     this.startFrameTime = Date.now();
     this.lastFrameTime = this.startFrameTime;

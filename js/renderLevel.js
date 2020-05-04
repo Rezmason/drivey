@@ -1,25 +1,9 @@
-import {
-  Mesh,
-  Group,
-  Vector2,
-  ShapePath
-} from "./../lib/three/three.module.js";
-import {
-  getExtrudedPointAt,
-  makeGeometry,
-  addPath,
-  makeCirclePath,
-  makePolygonPath,
-  makeRectanglePath,
-  mergeGeometries
-} from "./shapes.js";
+import { Mesh, Group, Vector2, ShapePath } from "./../lib/three/three.module.js";
+import { getExtrudedPointAt, makeGeometry, addPath, makeCirclePath, makePolygonPath, makeRectanglePath, mergeGeometries } from "./shapes.js";
 import { distance } from "./math.js";
 import { makeShadedMesh } from "./rendering.js";
 
-const renderSolidLine = (
-  shapePath,
-  { pointSpacing, road, xPos, width, start, end }
-) => {
+const renderSolidLine = (shapePath, { pointSpacing, road, xPos, width, start, end }) => {
   if (start == end) {
     return;
   }
@@ -51,10 +35,7 @@ const renderSolidLine = (
   }
 };
 
-const renderDashedLine = (
-  shapePath,
-  { off, on, pointSpacing, road, xPos, width, start, end }
-) => {
+const renderDashedLine = (shapePath, { off, on, pointSpacing, road, xPos, width, start, end }) => {
   if (start == end) {
     return shapePath;
   }
@@ -73,10 +54,7 @@ const renderDashedLine = (
   }
 };
 
-const renderDottedLine = (
-  shapePath,
-  { spacing, road, xPos, width, start, end }
-) => {
+const renderDottedLine = (shapePath, { spacing, road, xPos, width, start, end }) => {
   if (start == end) {
     return;
   }
@@ -108,8 +86,7 @@ const flattenMesh = mesh => {
   mesh.updateMatrix();
 };
 
-const forEachChildOfType = (node, type, f) =>
-  node.children.filter(child => child.type === type).forEach(f);
+const forEachChildOfType = (node, type, f) => node.children.filter(child => child.type === type).forEach(f);
 
 const renderLine = ({ attributes, type }, path) => {
   const render = lineRenderersByType[type];
@@ -120,15 +97,7 @@ const renderLine = ({ attributes, type }, path) => {
 };
 
 const renderCityscape = ({ attributes }, mush) => {
-  const {
-    road,
-    rowSpacing,
-    columnSpacing,
-    heights,
-    proximity,
-    width,
-    radius
-  } = attributes;
+  const { road, rowSpacing, columnSpacing, heights, proximity, width, radius } = attributes;
   if (rowSpacing <= 0) rowSpacing = 100;
   if (columnSpacing <= 0) columnSpacing = 100;
   const paths = Array(heights.length)
@@ -139,19 +108,8 @@ const renderCityscape = ({ attributes }, mush) => {
   for (let x = -radius; x < radius; x += rowSpacing) {
     for (let y = -radius; y < radius; y += columnSpacing) {
       const pos = new Vector2(x, y);
-      if (
-        pos.length() < radius &&
-        distance(approximation.getNearestPoint(pos), pos) > proximity
-      ) {
-        addPath(
-          paths[Math.floor(Math.random() * heights.length)],
-          makeRectanglePath(
-            pos.x + -width / 2,
-            pos.y + -width / 2,
-            width,
-            width
-          )
-        );
+      if (pos.length() < radius && distance(approximation.getNearestPoint(pos), pos) > proximity) {
+        addPath(paths[Math.floor(Math.random() * heights.length)], makeRectanglePath(pos.x + -width / 2, pos.y + -width / 2, width, width));
       }
     }
   }
@@ -194,14 +152,10 @@ const renderMesh = (node, mush) => {
   forEachChildOfType(node, "solid", line => renderLine(line, path));
   forEachChildOfType(node, "dash", line => renderLine(line, path));
   forEachChildOfType(node, "dot", line => renderLine(line, path));
-  const { depth, curveSegments, shade, alpha, fade, z } = node.attributes;
-  const mesh = makeShadedMesh(
-    makeGeometry(path, depth, curveSegments),
-    shade,
-    alpha,
-    fade
-  );
+  const { depth, curveSegments, shade, alpha, fade, z, scale } = node.attributes;
+  const mesh = makeShadedMesh(makeGeometry(path, depth, curveSegments), shade, alpha, fade);
   mesh.position.z = z;
+  mesh.scale.set(scale.x, scale.y, 1);
   if (alpha < 1) {
     mush.transparentMeshes.push(mesh);
   } else {
@@ -216,9 +170,7 @@ const renderLevel = node => {
   const mush = { meshes, transparentMeshes, skyMeshes }; // TODO: refactor
 
   forEachChildOfType(node, "mesh", mesh => renderMesh(mesh, mush));
-  forEachChildOfType(node, "cityscape", cityscape =>
-    renderCityscape(cityscape, mush)
-  );
+  forEachChildOfType(node, "cityscape", cityscape => renderCityscape(cityscape, mush));
   forEachChildOfType(node, "clouds", clouds => renderClouds(clouds, mush));
   return {
     ...node.attributes,

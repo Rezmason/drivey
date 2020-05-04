@@ -1,5 +1,5 @@
 <drivey name="The Cyber Tube" tint="1, 0.1, 0.3" lane-width="0">
-  <loop id="l" value="16">
+  <repeat id="l" value="16">
     <number id="i" value="{l / 8}"></number>
     <number id="x" value="{cos(i * PI)}"></number>
     <number id="y" value="{sin(i * PI)}"></number>
@@ -9,5 +9,5 @@
     <mesh depth="0.1" curve-segments="0" shade="1" z="{y * 20}">
       <dash x-pos="{x * 20}" width="0.1" on="5" off="{(i + 1) * 50}"></dash>
     </mesh>
-  </loop>
+  </repeat>
 </drivey>

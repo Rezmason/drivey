@@ -3,8 +3,7 @@ import { Color, Vector2, ShapePath } from "./../lib/three/three.module.js";
 import RoadPath from "./RoadPath.js";
 
 const dashed = /(.*?)-([a-zA-Z])/g;
-const dashedToCamelCase = s =>
-  s.replace(dashed, (_, a, b) => a + b.toUpperCase());
+const dashedToCamelCase = s => s.replace(dashed, (_, a, b) => a + b.toUpperCase());
 const verbatim = _ => _;
 const safeParseFloat = s => {
   const f = parseFloat(s);
@@ -19,7 +18,13 @@ const parseColor = s => new Color(...parseNumberList(s));
 const parseVec2 = s => new Vector2(...parseNumberList(s));
 const parseBool = s => s === "true";
 
-const makeRoadPath = ({ windiness, roadScale }) => {
+const makeRoadPath = ({ windiness, roadScale, basis }) => {
+  if (basis != null) {
+    const roadPath = basis.clone();
+    roadPath.scale(1, 1.5);
+    return roadPath;
+  }
+
   const points = [];
   let minX = Infinity;
   let maxX = -Infinity;
@@ -30,10 +35,7 @@ const makeRoadPath = ({ windiness, roadScale }) => {
   for (let i = 0; i < n; i++) {
     const theta = (i * Math.PI * 2) / n;
     const radius = Math.random() + windiness;
-    const point = new Vector2(
-      Math.cos(theta) * -radius,
-      Math.sin(theta) * radius
-    );
+    const point = new Vector2(Math.cos(theta) * -radius, Math.sin(theta) * radius);
     points.push(point);
     minX = Math.min(minX, point.x);
     maxX = Math.max(maxX, point.x);
@@ -70,29 +72,34 @@ const flattenMesh = mesh => {
   mesh.updateMatrix();
 };
 
-const idTagSchema = { id: {} };
+const idAttribute = { id: {} };
+const shadeAttribute = { shade: { parseFunc: safeParseFloat, defaultValue: 0.5 } };
+const alphaAttribute = { alpha: { parseFunc: safeParseFloat, defaultValue: 1 } };
+const zAttribute = { z: { parseFunc: safeParseFloat, defaultValue: 0 } };
+const roadAttribute = { road: { parseFunc: verbatim, defaultValue: "{mainRoad}" } };
 
 const numberTagSchema = {
-  ...idTagSchema,
+  ...idAttribute,
   value: { parseFunc: safeParseFloat }
 };
 
-const loopTagSchema = {
-  ...idTagSchema,
+const repeatTagSchema = {
+  ...idAttribute,
   value: { parseFunc: safeParseInt, defaultValue: 1 }
 };
 
 const meshTagSchema = {
   depth: { parseFunc: safeParseFloat, defaultValue: 0 },
   curveSegments: { parseFunc: safeParseInt, defaultValue: 1 },
-  shade: { parseFunc: safeParseFloat, defaultValue: 0.5 },
-  alpha: { parseFunc: safeParseFloat, defaultValue: 1 },
+  ...shadeAttribute,
+  ...alphaAttribute,
+  ...zAttribute,
   fade: { parseFunc: safeParseFloat, defaultValue: 0 },
-  z: { parseFunc: safeParseFloat, defaultValue: 0 }
+  scale: { parseFunc: parseVec2, defaultValue: new Vector2(1, 1) }
 };
 
 const lineTagSchema = {
-  road: { parseFunc: verbatim, defaultValue: "{mainRoad}" },
+  ...roadAttribute,
   xPos: { parseFunc: safeParseFloat, defaultValue: 0 },
   width: { parseFunc: safeParseFloat, defaultValue: 1 },
   start: { parseFunc: safeParseFloat, defaultValue: 0 },
@@ -107,7 +114,7 @@ const dashTagSchema = {
   pointSpacing: { parseFunc: safeParseFloat, defaultValue: 0 }
 };
 
-const solidTagSchema = {
+const solidAttribute = {
   ...lineTagSchema,
   pointSpacing: { parseFunc: safeParseFloat, defaultValue: 0 }
 };
@@ -118,7 +125,7 @@ const dotTagSchema = {
 };
 
 const cityscapeTagSchema = {
-  road: { parseFunc: verbatim, defaultValue: "{mainRoad}" },
+  ...roadAttribute,
   rowSpacing: { parseFunc: safeParseFloat, defaultValue: 200 },
   columnSpacing: { parseFunc: safeParseFloat, defaultValue: 200 },
   heights: { parseFunc: parseNumberList, defaultValue: "50" },
@@ -126,20 +133,20 @@ const cityscapeTagSchema = {
   proximity: { parseFunc: safeParseFloat, defaultValue: 100 },
   radius: { parseFunc: safeParseFloat, defaultValue: 2000 },
 
-  shade: { parseFunc: safeParseFloat, defaultValue: 0.5 },
-  alpha: { parseFunc: safeParseFloat, defaultValue: 1 },
-  fade: { parseFunc: safeParseFloat, defaultValue: 0 }
+  ...shadeAttribute,
+  ...alphaAttribute
 };
 
 const cloudsTagSchema = {
   count: { parseFunc: safeParseInt, defaultValue: 100 },
-  shade: { parseFunc: safeParseFloat, defaultValue: 0.5 },
+  ...shadeAttribute,
   scale: { parseFunc: safeParseFloat, defaultValue: 1 },
-  z: { parseFunc: safeParseFloat, defaultValue: 100 }
+  ...zAttribute
 };
 
 const roadTagSchema = {
-  ...idTagSchema,
+  ...idAttribute,
+  basis: { parseFunc: verbatim, defaultValue: null },
   windiness: { parseFunc: safeParseFloat, defaultValue: 5 },
   roadScale: { parseFunc: parseVec2, defaultValue: new Vector2(1, 1) }
 };
@@ -159,10 +166,10 @@ const driveyTagSchema = {
 
 const schemasByType = {
   number: numberTagSchema,
-  loop: loopTagSchema,
+  repeat: repeatTagSchema,
   mesh: meshTagSchema,
   dash: dashTagSchema,
-  solid: solidTagSchema,
+  solid: solidAttribute,
   dot: dotTagSchema,
   cityscape: cityscapeTagSchema,
   clouds: cloudsTagSchema,
@@ -176,14 +183,13 @@ const hoistForId = renderFunc => attributes => ({
 
 const hoistsByType = {
   number: hoistForId(({ value }) => value),
-  loop: hoistForId(({ value }) => value),
+  repeat: hoistForId(({ value }) => value),
   road: hoistForId(makeRoadPath),
   drivey: hoistForId(makeRoadPath)
 };
 
 const parser = new Parser();
-const evaluateExpression = (expression, scope) =>
-  parser.parse(expression).evaluate(scope);
+const evaluateExpression = (expression, scope) => parser.parse(expression).evaluate(scope);
 
 const braced = /^{(.*)}$/;
 
@@ -204,37 +210,26 @@ const simplify = (element, parentScope = {}) => {
   const schema = schemasByType[type] ?? {};
 
   const rawAttributes = Object.fromEntries([
-    ...Object.entries(schema).map(([name, { defaultValue }]) => [
-      name,
-      defaultValue
-    ]),
-    ...Array.from(element.attributes).map(({ name, value }) => [
-      dashedToCamelCase(name),
-      value
-    ])
+    ...Object.entries(schema).map(([name, { defaultValue }]) => [name, defaultValue]),
+    ...Array.from(element.attributes).map(({ name, value }) => [dashedToCamelCase(name), value])
   ]);
 
   const attributes = Object.fromEntries(
-    Object.entries(rawAttributes).map(([name, value]) => [
-      name,
-      evaluateRawValue(schema[name]?.parseFunc ?? verbatim, parentScope, value)
-    ])
+    Object.entries(rawAttributes).map(([name, value]) => [name, evaluateRawValue(schema[name]?.parseFunc ?? verbatim, parentScope, value)])
   );
 
   const hoist = hoistsByType[type]?.(attributes);
   Object.assign(parentScope, hoist);
 
-  const iteratorId = type === "loop" ? Object.keys(hoist).pop() : undefined;
-  const count = type === "loop" ? hoist[iteratorId] : 1;
+  const iteratorId = type === "repeat" ? Object.keys(hoist).pop() : undefined;
+  const count = type === "repeat" ? hoist[iteratorId] : 1;
   const scopes = Array(count)
     .fill()
     .map((_, index) => ({ ...parentScope, [iteratorId]: index }));
   const children = scopes
-    .map(scope =>
-      Array.from(element.children).map(child => simplify(child, scope))
-    )
+    .map(scope => Array.from(element.children).map(child => simplify(child, scope)))
     .flat()
-    .map(child => (child.type === "loop" ? child.children : [child]))
+    .map(child => (child.type === "repeat" ? child.children : [child]))
     .flat();
 
   return { type, id: attributes.id, attributes, children, ...hoist };

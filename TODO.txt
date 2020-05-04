@@ -1,8 +1,5 @@
 HTML level representation
 
-  IndustrialZone
-
-  Consolidate some schema stuff
   Curve segments default: 1 or 0?
   Maybe makeRoadPath should be in renderLevel?
   Search for and remove default values from HTML files
@@ -10,6 +7,10 @@ HTML level representation
   Modularize buildLevel, renderLevel
     Move more stuff out to utility modules
     Consolidate some of those functions
+
+  Drag-drop support
+    Take SVG drag-drop support responsibility from theme library
+    A drivey tag must be present in the dropped file
 
 Clean up those throw "!"s
 
