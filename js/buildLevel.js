@@ -5,7 +5,6 @@ import RoadPath from "./RoadPath.js";
 const dashed = /(.*?)-([a-zA-Z])/g;
 const dashedToCamelCase = s =>
   s.replace(dashed, (_, a, b) => a + b.toUpperCase());
-
 const verbatim = _ => _;
 const safeParseFloat = s => {
   const f = parseFloat(s);
@@ -72,65 +71,66 @@ const flattenMesh = mesh => {
 };
 
 const variableTagSchema = {
-  id: [verbatim]
+  id: { parseFunc: verbatim }
 };
 
 const numberTagSchema = {
   ...variableTagSchema,
-  value: [safeParseFloat]
+  value: { parseFunc: safeParseFloat }
 };
 
 const meshTagSchema = {
-  depth: [safeParseFloat, 0],
-  curveSegments: [safeParseInt, 1],
-  shade: [safeParseFloat, 0.5],
-  alpha: [safeParseFloat, 1],
-  fade: [safeParseFloat, 0],
-  z: [safeParseFloat, 0]
+  depth: { parseFunc: safeParseFloat, defaultValue: 0 },
+  curveSegments: { parseFunc: safeParseInt, defaultValue: 1 },
+  shade: { parseFunc: safeParseFloat, defaultValue: 0.5 },
+  alpha: { parseFunc: safeParseFloat, defaultValue: 1 },
+  fade: { parseFunc: safeParseFloat, defaultValue: 0 },
+  z: { parseFunc: safeParseFloat, defaultValue: 0 }
 };
 
 const lineTagSchema = {
-  road: [verbatim, "{mainRoad}"],
-  xPos: [safeParseFloat, 0],
-  width: [safeParseFloat, 1],
-  start: [safeParseFloat, 0],
-  end: [safeParseFloat, 1],
-  mirror: [parseBool, false]
+  road: { parseFunc: verbatim, defaultValue: "{mainRoad}" },
+  xPos: { parseFunc: safeParseFloat, defaultValue: 0 },
+  width: { parseFunc: safeParseFloat, defaultValue: 1 },
+  start: { parseFunc: safeParseFloat, defaultValue: 0 },
+  end: { parseFunc: safeParseFloat, defaultValue: 1 },
+  mirror: { parseFunc: parseBool, defaultValue: false }
 };
 
 const dashTagSchema = {
   ...lineTagSchema,
-  on: [safeParseFloat, 1],
-  off: [safeParseFloat, 1],
-  pointSpacing: [safeParseFloat, 0]
+  on: { parseFunc: safeParseFloat, defaultValue: 1 },
+  off: { parseFunc: safeParseFloat, defaultValue: 1 },
+  pointSpacing: { parseFunc: safeParseFloat, defaultValue: 0 }
 };
 
 const solidTagSchema = {
   ...lineTagSchema,
-  pointSpacing: [safeParseFloat, 0]
+  pointSpacing: { parseFunc: safeParseFloat, defaultValue: 0 }
 };
 
 const dotTagSchema = {
   ...lineTagSchema,
-  spacing: [safeParseFloat, 100]
+  spacing: { parseFunc: safeParseFloat, defaultValue: 100 }
 };
 
 const roadTagSchema = {
   ...variableTagSchema,
-  windiness: [safeParseFloat, 5],
-  roadScale: [parseVec2, new Vector2(1, 1)]
+  windiness: { parseFunc: safeParseFloat, defaultValue: 5 },
+  roadScale: { parseFunc: parseVec2, defaultValue: new Vector2(1, 1) }
 };
 
 const driveyTagSchema = {
   ...roadTagSchema,
-  name: [verbatim, "Untitled Level"],
-  tint: [parseColor, new Color(0.7, 0.7, 0.7)],
-  skyHigh: [safeParseFloat, 0],
-  skyLow: [safeParseFloat, 0],
-  ground: [safeParseFloat, 0],
-  cruiseSpeed: [safeParseFloat, 50 / 3], // 50 kph
-  laneWidth: [safeParseFloat, 2],
-  numLanes: [safeParseFloat, 1]
+  id: { parseFunc: _ => "mainRoad", defaultValue: "mainRoad" },
+  name: { parseFunc: verbatim, defaultValue: "Untitled Level" },
+  tint: { parseFunc: parseColor, defaultValue: new Color(0.7, 0.7, 0.7) },
+  skyHigh: { parseFunc: safeParseFloat, defaultValue: 0 },
+  skyLow: { parseFunc: safeParseFloat, defaultValue: 0 },
+  ground: { parseFunc: safeParseFloat, defaultValue: 0 },
+  cruiseSpeed: { parseFunc: safeParseFloat, defaultValue: 50 / 3 }, // 50 kph
+  laneWidth: { parseFunc: safeParseFloat, defaultValue: 2 },
+  numLanes: { parseFunc: safeParseFloat, defaultValue: 1 }
 };
 
 const schemasByType = {
@@ -144,14 +144,23 @@ const schemasByType = {
   drivey: driveyTagSchema
 };
 
+const hoistForId = renderFunc => attributes => ({
+  [attributes.id]: renderFunc(attributes)
+});
+
+const hoistsByType = {
+  number: hoistForId(({ value }) => value),
+  road: hoistForId(makeRoadPath),
+  drivey: hoistForId(makeRoadPath)
+};
 
 const parser = new Parser();
-const evaluateExpression = (expression, scope) => parser.parse(expression).evaluate(scope);
+const evaluateExpression = (expression, scope) =>
+  parser.parse(expression).evaluate(scope);
 
 const braced = /^{(.*)}$/;
 
-const evaluateRawValue = (parser, scope, rawValue, name) => {
-  if (parser == null) return rawValue;
+const evaluateRawValue = (parser, scope, rawValue) => {
   if (rawValue == null || rawValue === "") return undefined;
   if (typeof rawValue !== "string") return rawValue;
 
@@ -163,84 +172,43 @@ const evaluateRawValue = (parser, scope, rawValue, name) => {
   return parser(rawValue);
 };
 
-const simplifyAttributes = (type, attributes, scope) => {
+const simplify = (element, parentScope = {}) => {
+  const type = element.tagName.toLowerCase();
   const schema = schemasByType[type] ?? {};
 
-  const rawValues = Object.fromEntries([
-    ...Object.entries(schema).map(([name, [_, value]]) => [name, value]),
-    ...Array.from(attributes).map(({ name, value }) => [
+  const rawAttributes = Object.fromEntries([
+    ...Object.entries(schema).map(([name, { defaultValue }]) => [
+      name,
+      defaultValue
+    ]),
+    ...Array.from(element.attributes).map(({ name, value }) => [
       dashedToCamelCase(name),
       value
     ])
   ]);
 
-  return Object.fromEntries(
-    Object.entries(rawValues).map(([name, value]) => [
+  const attributes = Object.fromEntries(
+    Object.entries(rawAttributes).map(([name, value]) => [
       name,
-      evaluateRawValue(schema[name]?.[0], scope, value, name)
+      evaluateRawValue(schema[name]?.parseFunc ?? verbatim, parentScope, value)
     ])
   );
-};
 
-const variablesByType = new Map([
-  [
-    "number",
-    ({ value }, scope) => {
-      console.log(scope);
-      return value;
-    }
-  ],
-  ["road", makeRoadPath]
-]);
+  const hoist = hoistsByType[type]?.(attributes);
+  Object.assign(parentScope, hoist);
 
-const simplify = (element, parentScope = {}) => {
-  // Tag name
-  const type = element.tagName.toLowerCase();
-
-  // Attributes
-  const basicAttributes = simplifyAttributes(type, element.attributes, parentScope);
-  const driveyAttributes =
-    type === "drivey" ? { mainRoad: makeRoadPath(basicAttributes) } : {};
-  const attributes = {
-    ...basicAttributes,
-    ...driveyAttributes
-  };
-
-  const childElements = Array.from(element.children);
-  const variableElements = childElements.filter(child =>
-    variablesByType.has(child.tagName.toLowerCase())
+  const scope = { ...parentScope };
+  const children = Array.from(element.children).map(child =>
+    simplify(child, scope)
   );
-  const componentElements = childElements.filter(
-    child => !variablesByType.has(child.tagName.toLowerCase())
-  );
-
-  // Scope: the parent scope, the attributes, plus the variables within this element.
-  // We reduce so that a variable can reference the variables listed before it.
-  const variables = variableElements.map(child => simplify(child, parentScope));
-  const variableScope = variables.reduce(
-    (scope, { type, attributes }) => ({
-      ...scope,
-      [attributes.id]: variablesByType.get(type)(attributes, scope)
-    }),
-    parentScope
-  );
-  const scope = {
-    ...variableScope,
-    ...driveyAttributes
-  };
-
-  // Generate components against the scope
-  const components = componentElements.map(element => simplify(element, scope));
-  const componentTypes = Array.from(
-    new Set(components.map(({ type }) => type))
-  );
-  const componentsByType = Object.fromEntries(
-    componentTypes.map(type => [
+  const childTypes = Array.from(new Set(children.map(({ type }) => type)));
+  const childrenByType = Object.fromEntries(
+    childTypes.map(type => [
       type,
-      components.filter(child => child.type === type)
+      children.filter(child => child.type === type)
     ])
   );
-  return { type, attributes, componentsByType };
+  return { type, attributes, childrenByType, ...hoist };
 };
 
 export default dom => simplify(dom.querySelector("drivey"));

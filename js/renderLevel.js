@@ -101,8 +101,8 @@ const flattenMesh = mesh => {
   mesh.updateMatrix();
 };
 
-const forEachComponentOfType = (element, type, f) =>
-  (element.componentsByType[type] ?? []).forEach(f);
+const forEachChildOfType = (node, type, f) =>
+  (node.childrenByType[type] ?? []).forEach(f);
 
 const renderLine = ({ attributes, type }, linePath) => {
   const render = lineRenderersByType[type];
@@ -112,12 +112,12 @@ const renderLine = ({ attributes, type }, linePath) => {
   }
 };
 
-const renderMesh = (element, level, mush) => {
+const renderMesh = (node, mush) => {
   const linePath = new ShapePath();
-  forEachComponentOfType(element, "solid", line => renderLine(line, linePath));
-  forEachComponentOfType(element, "dash", line => renderLine(line, linePath));
-  forEachComponentOfType(element, "dot", line => renderLine(line, linePath));
-  const { depth, curveSegments, shade, alpha, fade, z } = element.attributes;
+  forEachChildOfType(node, "solid", line => renderLine(line, linePath));
+  forEachChildOfType(node, "dash", line => renderLine(line, linePath));
+  forEachChildOfType(node, "dot", line => renderLine(line, linePath));
+  const { depth, curveSegments, shade, alpha, fade, z } = node.attributes;
   const mesh = makeShadedMesh(
     makeGeometry(linePath, depth, curveSegments),
     shade,
@@ -132,22 +132,27 @@ const renderMesh = (element, level, mush) => {
   }
 };
 
-const render = (element, level, mush) => {
-  Object.assign(level, element.attributes);
-  forEachComponentOfType(element, "mesh", mesh =>
-    renderMesh(mesh, level, mush)
-  );
+const renderLevel = node => {
+  const meshes = [];
+  const transparentMeshes = [];
+  const skyMeshes = [];
+  const mush = { meshes, transparentMeshes, skyMeshes }; // TODO: refactor
+
+  forEachChildOfType(node, "mesh", mesh => renderMesh(mesh, mush));
+  return {
+    ...node.attributes,
+    meshes,
+    transparentMeshes,
+    skyMeshes,
+    mainRoad: node.mainRoad
+  };
 };
 
 export default root => {
   console.log(root);
 
-  const level = {};
-  const meshes = [];
-  const transparentMeshes = [];
-  const skyMeshes = [];
-
-  render(root, level, { meshes, transparentMeshes, skyMeshes });
+  const level = renderLevel(root);
+  const { meshes, transparentMeshes, skyMeshes } = level;
 
   const world = new Group();
   level.world = world;

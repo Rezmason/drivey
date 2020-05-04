@@ -2,11 +2,12 @@ HTML level representation
 
   Easiest to hardest:
     Loop: Tunnel, WarpGate
-    Dots: Spectre
+    Field of dots: Spectre
     Sky: TrainTracks
     Buildings: City
     Just a lot going on: IndustrialZone
 
+  Maybe makeRoadPath should be in renderLevel?
   Search for and remove default values from HTML files
   Seed?
   Modularize buildLevel

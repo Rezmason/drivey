@@ -11,9 +11,9 @@ export default class Car {
 
   place(roadPath, approximation, along, laneWidth, numLanes, drivingSide, roadDir, initialSpeed) {
     this.laneOffset = laneWidth * (0.5 + Math.floor(Math.random() * numLanes));
-    this.laneWander = (Math.random() - 0.5) * 0.5 * laneWidth;
+    this.weaving = (Math.random() - 0.5) * 0.5 * laneWidth;
 
-    const pos = roadPath.getPoint(along).add(roadPath.getNormal(along).multiplyScalar((this.laneOffset + this.laneWander) * roadDir * drivingSide));
+    const pos = roadPath.getPoint(along).add(roadPath.getNormal(along).multiplyScalar((this.laneOffset + this.weaving) * roadDir * drivingSide));
     const tangent = roadPath.getTangent(along).multiplyScalar(roadDir);
     const angle = getAngle(tangent);
     const vel = tangent.multiplyScalar(initialSpeed * 2);
@@ -60,10 +60,10 @@ export default class Car {
       if (this.roadPos > 0.1) this.roadPos -= step;
       else if (this.roadPos < -0.1) this.roadPos += step;
       if (controlScheme.handbrake < 0.9) {
-        this.laneWander += (Math.random() - 0.5) * 0.025;
-        this.laneWander *= 0.999;
+        this.weaving += (Math.random() - 0.5) * 0.025;
+        this.weaving *= 0.999;
       }
-      this.autoSteer(step, (this.laneOffset + this.laneWander + controlScheme.laneShift) * drivingSide);
+      this.autoSteer(step, (this.laneOffset + this.weaving + controlScheme.laneShift) * drivingSide);
       this.matchSpeed(cruiseSpeed * controlScheme.cruiseSpeedMultiplier);
     } else {
       const diff = -sign(this.steerTo) * 0.0002 * this.vel.length() * step;

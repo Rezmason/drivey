@@ -34,7 +34,6 @@ import buildCar from "./buildCar.js";
 import Dashboard from "./Dashboard.js";
 
 const levelURLsByName = new Map([
-  ["empty", "Level"],
   ["test", "TestLevel"],
   ["night", "DeepDarkNight"],
   ["tunnel", "Tunnel"],
@@ -193,7 +192,7 @@ export default class Drivey {
   }
 
   async setLevel(levelName) {
-    levelName = "marshland"; // TODO: REMOVE
+    levelName = "marshland"; // TODO: REMOVE test, night, beach, marshland |||| tunnel, city, industrial, warp, spectre, nullarbor
 
     this.loadingLevelName = levelName;
 
