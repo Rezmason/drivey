@@ -102,7 +102,7 @@ const flattenMesh = mesh => {
 };
 
 const forEachChildOfType = (node, type, f) =>
-  (node.childrenByType[type] ?? []).forEach(f);
+  node.children.filter(child => child.type === type).forEach(f);
 
 const renderLine = ({ attributes, type }, linePath) => {
   const render = lineRenderersByType[type];

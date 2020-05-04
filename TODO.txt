@@ -1,7 +1,6 @@
 HTML level representation
 
   Easiest to hardest:
-    Loop: Tunnel, WarpGate
     Field of dots: Spectre
     Sky: TrainTracks
     Buildings: City

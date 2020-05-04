@@ -70,13 +70,16 @@ const flattenMesh = mesh => {
   mesh.updateMatrix();
 };
 
-const variableTagSchema = {
-  id: { parseFunc: verbatim }
-};
+const idTagSchema = { id: {} };
 
 const numberTagSchema = {
-  ...variableTagSchema,
+  ...idTagSchema,
   value: { parseFunc: safeParseFloat }
+};
+
+const loopTagSchema = {
+  ...idTagSchema,
+  value: { parseFunc: safeParseInt, defaultValue: 1 }
 };
 
 const meshTagSchema = {
@@ -115,7 +118,7 @@ const dotTagSchema = {
 };
 
 const roadTagSchema = {
-  ...variableTagSchema,
+  ...idTagSchema,
   windiness: { parseFunc: safeParseFloat, defaultValue: 5 },
   roadScale: { parseFunc: parseVec2, defaultValue: new Vector2(1, 1) }
 };
@@ -135,8 +138,8 @@ const driveyTagSchema = {
 
 const schemasByType = {
   number: numberTagSchema,
+  loop: loopTagSchema,
   mesh: meshTagSchema,
-  line: lineTagSchema,
   dash: dashTagSchema,
   solid: solidTagSchema,
   dot: dotTagSchema,
@@ -150,6 +153,7 @@ const hoistForId = renderFunc => attributes => ({
 
 const hoistsByType = {
   number: hoistForId(({ value }) => value),
+  loop: hoistForId(({ value }) => value),
   road: hoistForId(makeRoadPath),
   drivey: hoistForId(makeRoadPath)
 };
@@ -197,18 +201,20 @@ const simplify = (element, parentScope = {}) => {
   const hoist = hoistsByType[type]?.(attributes);
   Object.assign(parentScope, hoist);
 
-  const scope = { ...parentScope };
-  const children = Array.from(element.children).map(child =>
-    simplify(child, scope)
-  );
-  const childTypes = Array.from(new Set(children.map(({ type }) => type)));
-  const childrenByType = Object.fromEntries(
-    childTypes.map(type => [
-      type,
-      children.filter(child => child.type === type)
-    ])
-  );
-  return { type, attributes, childrenByType, ...hoist };
+  const iteratorId = type === "loop" ? Object.keys(hoist).pop() : undefined;
+  const count = type === "loop" ? hoist[iteratorId] : 1;
+  const scopes = Array(count)
+    .fill()
+    .map((_, index) => ({ ...parentScope, [iteratorId]: index }));
+  const children = scopes
+    .map(scope =>
+      Array.from(element.children).map(child => simplify(child, scope))
+    )
+    .flat()
+    .map(child => (child.type === "loop" ? child.children : [child]))
+    .flat();
+
+  return { type, id: attributes.id, attributes, children, ...hoist };
 };
 
 export default dom => simplify(dom.querySelector("drivey"));
