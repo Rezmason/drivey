@@ -1,11 +1,3 @@
-HTML level representation
-
-  Drag-drop support
-    Take SVG drag-drop support responsibility from theme library
-    A drivey tag must be present in the dropped file
-
-Clean up those throw "!"s
-
 Is mesh fade working properly?
 
 Portable Drivey

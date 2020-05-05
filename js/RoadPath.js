@@ -19,20 +19,17 @@ export default class RoadPath {
   }
 
   getPoint(t) {
-    if (arguments.length > 1) throw "!";
     const pos = this.curve.getPoint(mod(t, 1));
     return new Vector2(pos.x, pos.y);
   }
 
   getTangent(t) {
-    if (arguments.length > 1) throw "!";
     const EPSILON = 0.00001;
     const point = this.getPoint(t + EPSILON).sub(this.getPoint(t - EPSILON));
     return point.normalize();
   }
 
   getNormal(t) {
-    if (arguments.length > 1) throw "!";
     const normal = this.getTangent(t);
     return new Vector2(-normal.y, normal.x);
   }

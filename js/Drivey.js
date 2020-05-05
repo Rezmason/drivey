@@ -67,7 +67,7 @@ const screenResolutions = new Map([
 
 export default class Drivey {
   constructor() {
-    this.cachedLevels = new Map();
+    this.cachedLevelData = new Map();
     this.currentEffect = "ombré";
     this.npcControlScheme = new Input();
     this.controlScheme = controlSchemesByName.get(isTouchDevice ? "touch" : "arrows");
@@ -75,9 +75,43 @@ export default class Drivey {
     this.buttons = new Buttons();
     this.buttons.addListener(this.onButtonClick.bind(this));
     this.theme = new Theme();
-    this.theme.install(document.body);
+    document.body.appendChild(this.theme.el);
+    window.addEventListener("dragover", this.drag.bind(this));
+    window.addEventListener("drop", this.drop.bind(this));
     this.theme.onLoad = this.onThemeLoaded.bind(this);
     this.init();
+  }
+
+  drag(event) {
+    event.stopPropagation();
+    event.preventDefault();
+    event.dataTransfer.dropEffect = "copy";
+  }
+
+  drop(event) {
+    event.preventDefault();
+    const file = event.dataTransfer.files[0];
+
+    const isSVG = file.name.endsWith(".svg");
+    const isHTML = file.name.endsWith(".html");
+
+    if (isSVG || isHTML) {
+      const reader = new FileReader();
+      reader.onload = event => {
+        const text = event.target.result;
+        if (isSVG) {
+          this.theme.load(text);
+        } else if (isHTML) {
+          const levelDOM = this.readLevel(text);
+          if (levelDOM != null) {
+            this.setLevel(buildLevel(levelDOM));
+          }
+        }
+      };
+      reader.readAsText(file, "UTF-8");
+    }
+
+    event.stopPropagation();
   }
 
   async init() {
@@ -181,7 +215,7 @@ export default class Drivey {
     this.setCameraMount("driver");
 
     // Initial level is Industrial Zone
-    await this.setLevel("industrial");
+    await this.setLevelByName("industrial");
 
     if (localStorage.getItem("theme") != null) {
       this.theme.start();
@@ -192,16 +226,24 @@ export default class Drivey {
     this.screen.scene.visible = true;
   }
 
-  async setLevel(levelName) {
+  readLevel(htmlText) {
+    const parser = new DOMParser();
+    const levelDOM = parser.parseFromString(htmlText, "text/html").documentElement;
+    if (levelDOM?.querySelector("drivey") != null) {
+      return levelDOM;
+    }
+    return null;
+  }
+
+  async setLevelByName(levelName) {
     this.loadingLevelName = levelName;
 
-    if (!this.cachedLevels.has(levelName)) {
+    if (!this.cachedLevelData.has(levelName)) {
       const file = await fetch(`./../levels/${levelURLsByName.get(levelName)}.html`);
       const htmlText = await file.text();
-      const parser = new DOMParser();
-      const levelDOM = parser.parseFromString(htmlText, "text/html").documentElement;
+      const levelDOM = this.readLevel(htmlText);
       if (levelDOM != null) {
-        this.cachedLevels.set(levelName, levelDOM);
+        this.cachedLevelData.set(levelName, buildLevel(levelDOM));
       }
     }
 
@@ -209,13 +251,18 @@ export default class Drivey {
       return;
     }
 
+    this.setLevel(this.cachedLevelData.get(levelName));
+  }
+
+  setLevel(levelData) {
+    const level = renderLevel(levelData);
+
     if (this.level != null) {
       this.screen.scene.remove(this.level.world);
       this.screen.scene.remove(this.level.sky);
       this.level.dispose();
     }
 
-    const level = renderLevel(buildLevel(this.cachedLevels.get(levelName)));
     this.level = level;
     this.autoSteerApproximation = level.mainRoad.approximate(10000); // Used by car steering logic
 
@@ -402,7 +449,7 @@ export default class Drivey {
         window.open("https://open.spotify.com/user/rezmason/playlist/4ukrs3cTKjTbLoFcxqssXi?si=0y3WoBw1TMyUzK8F9WMbLw", "_blank");
         break;
       case "level":
-        this.setLevel(value);
+        this.setLevelByName(value);
         break;
     }
   }
