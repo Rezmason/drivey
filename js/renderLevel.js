@@ -2,6 +2,7 @@ import { Mesh, Group, Vector2, ShapePath } from "./../lib/three/three.module.js"
 import { getExtrudedPointAt, makeGeometry, addPath, makeCirclePath, makePolygonPath, makeRectanglePath, mergeGeometries } from "./shapes.js";
 import { distance } from "./math.js";
 import { makeShadedMesh } from "./rendering.js";
+import RoadPath from "./RoadPath.js";
 
 const renderSolidLine = (shapePath, { pointSpacing, road, xPos, width, start, end }) => {
   if (start == end) {
@@ -18,10 +19,9 @@ const renderSolidLine = (shapePath, { pointSpacing, road, xPos, width, start, en
     const psFraction = pointSpacing / road.length;
     let i = Math.ceil(start / psFraction) * psFraction;
     if (i == start) i += psFraction;
-    while (i < end) {
+    for (i; i < end; i += psFraction) {
       outsidePoints.push(getExtrudedPointAt(road.curve, i, outsideOffset));
       insidePoints.push(getExtrudedPointAt(road.curve, i, insideOffset));
-      i += psFraction;
     }
   }
   outsidePoints.push(getExtrudedPointAt(road.curve, end, outsideOffset));
@@ -86,18 +86,76 @@ const flattenMesh = mesh => {
   mesh.updateMatrix();
 };
 
+const makeRoadPath = ({ windiness, roadScale }, basis) => {
+  if (basis != null) {
+    const roadPath = basis.clone();
+    roadPath.scale(1, 1.5);
+    return roadPath;
+  }
+
+  const points = [];
+  let minX = Infinity;
+  let maxX = -Infinity;
+  let minY = Infinity;
+  let maxY = -Infinity;
+
+  const n = 16;
+  for (let i = 0; i < n; i++) {
+    const theta = (i * Math.PI * 2) / n;
+    const radius = Math.random() + windiness;
+    const point = new Vector2(Math.cos(theta) * -radius, Math.sin(theta) * radius);
+    points.push(point);
+    minX = Math.min(minX, point.x);
+    maxX = Math.max(maxX, point.x);
+    minY = Math.min(minY, point.y);
+    maxY = Math.max(maxY, point.y);
+  }
+
+  const centerX = (maxX + minX) * 0.5;
+  const centerY = (maxY + minY) * 0.5;
+  const width = maxX - minX;
+  const height = maxY - minY;
+  for (const point of points) {
+    point.x -= centerX;
+    point.y -= centerY;
+    point.y *= width / height;
+    point.x *= 80; // 400
+    point.y *= 80; // 400
+    point.x *= roadScale.x;
+    point.y *= roadScale.y;
+  }
+
+  const roadPath = new RoadPath(points);
+
+  return new RoadPath(points);
+};
+
+const getRoad = (attributes, { roadsById }) => {
+  if (attributes == null) {
+    return null;
+  }
+  const { id } = attributes;
+  if (roadsById[id] == null) {
+    const basis = getRoad(attributes.basis, { roadsById });
+    roadsById[id] = makeRoadPath(attributes, basis);
+  }
+  return roadsById[id];
+};
+
 const forEachChildOfType = (node, type, f) => node.children.filter(child => child.type === type).forEach(f);
 
-const renderLine = ({ attributes, type }, path) => {
+const renderLine = ({ attributes, type }, path, mush) => {
   const render = lineRenderersByType[type];
-  render(path, { ...attributes, xPos: attributes.xPos });
+  const road = getRoad(attributes.road, mush);
+  render(path, { ...attributes, road });
   if (attributes.mirror) {
-    render(path, { ...attributes, xPos: -attributes.xPos });
+    render(path, { ...attributes, road, xPos: -attributes.xPos });
   }
 };
 
 const renderCityscape = ({ attributes }, mush) => {
-  const { road, rowSpacing, columnSpacing, heights, proximity, width, radius } = attributes;
+  const { rowSpacing, columnSpacing, heights, proximity, width, radius } = attributes;
+  const road = getRoad(attributes.road, mush);
   if (rowSpacing <= 0) rowSpacing = 100;
   if (columnSpacing <= 0) columnSpacing = 100;
   const paths = Array(heights.length)
@@ -149,9 +207,9 @@ const renderClouds = ({ attributes }, { skyMeshes }) => {
 
 const renderMesh = (node, mush) => {
   const path = new ShapePath();
-  forEachChildOfType(node, "solid", line => renderLine(line, path));
-  forEachChildOfType(node, "dash", line => renderLine(line, path));
-  forEachChildOfType(node, "dot", line => renderLine(line, path));
+  forEachChildOfType(node, "solid", line => renderLine(line, path, mush));
+  forEachChildOfType(node, "dash", line => renderLine(line, path, mush));
+  forEachChildOfType(node, "dot", line => renderLine(line, path, mush));
   const { depth, curveSegments, shade, alpha, fade, z, scale } = node.attributes;
   const mesh = makeShadedMesh(makeGeometry(path, depth, curveSegments), shade, alpha, fade);
   mesh.position.z = z;
@@ -167,7 +225,8 @@ const renderLevel = node => {
   const meshes = [];
   const transparentMeshes = [];
   const skyMeshes = [];
-  const mush = { meshes, transparentMeshes, skyMeshes }; // TODO: refactor
+  const roadsById = {};
+  const mush = { meshes, transparentMeshes, skyMeshes, roadsById }; // TODO: refactor
 
   forEachChildOfType(node, "mesh", mesh => renderMesh(mesh, mush));
   forEachChildOfType(node, "cityscape", cityscape => renderCityscape(cityscape, mush));
@@ -177,7 +236,7 @@ const renderLevel = node => {
     meshes,
     transparentMeshes,
     skyMeshes,
-    mainRoad: node.mainRoad
+    ...roadsById
   };
 };
 

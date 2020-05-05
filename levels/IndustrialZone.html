@@ -26,16 +26,16 @@
     <dot x-pos="120" width="8" spacing="220"></dot>
   </mesh>
   <!-- do white lines -->
-  <mesh id="whiteLines" depth="0" curve-segments="10" shade="{whiteLinesShade}" fade="2.25">
+  <mesh id="whiteLines" curve-segments="10" shade="{whiteLinesShade}" fade="2.25">
     <dash x-pos="3.5" width="0.15" on="60" off="2" point-spacing="5" mirror="true"></dash>
     <dash x-pos="-0.15" width="0.125" on="4" off="6"></dash>
     <solid x-pos="0.125" width="0.125" point-spacing="5"></solid>
   </mesh>
   <!-- do crossings -->
-  <mesh id="crossings" depth="0" curve-segments="10" shade="{groundShade}" z="0.001">
-    <dash width="1" on="2" off="200"></dash>
+  <mesh id="crossings" curve-segments="10" shade="{groundShade}" z="0.001">
+    <dash on="2" off="200"></dash>
   </mesh>
-  <mesh id="crossingLines" depth="0" curve-segments="10" shade="{whiteLinesShade}" fade="2.25" z="0.01">
+  <mesh id="crossingLines" curve-segments="10" shade="{whiteLinesShade}" fade="2.25" z="0.01">
     <repeat id="i" value="6">
       <dash x-pos="{i - 2.5}" width="0.5" on="2" off="200"></dash>
     </repeat>
@@ -55,10 +55,10 @@
   </mesh>
   <!-- Light circles beneath streetlamps -->
   <!--
-    <mesh id="streetLightShines" depth="0" curve-segments="30" shade="{brightShade}" z="-0.01">
+    <mesh id="streetLightShines" curve-segments="30" shade="{brightShade}" z="-0.01">
       <dot x-pos="-4" width="8 0)" spacing="{streetLightSpacing}"></dot>
     </mesh>
-    <mesh id="streetLightShadows" depth="0" curve-segments="1" shade="{groundShade}">
+    <mesh id="streetLightShadows" shade="{groundShade}">
       <dash x-pos="-13" width="10" on="{streetLightThickness}" off="{streetLightSpacing}"></dash>
     </mesh>
    -->
@@ -67,7 +67,7 @@
   <number id="overpassSpacing" value="300"></number>
   <road id="highwayAbove" basis="{mainRoad}" road-scale="1, 1.5"></road>
   <mesh id="overpassSpans" depth="3" curve-segments="2" shade="{groundShade}" z="12" scale="1, 0.6667">
-    <dash road="{highwayAbove}" x-pos="0" width="500" on="{overpassDepth}" off="{overpassSpacing}"></dash>
+    <dash road="{highwayAbove}" width="500" on="{overpassDepth}" off="{overpassSpacing}"></dash>
   </mesh>
   <mesh id="overpassBases" depth="12" curve-segments="2" shade="{groundShade}" scale="1, 0.6667">
     <dash road="{highwayAbove}" x-pos="200" width="130" on="{overpassDepth}" off="{overpassSpacing}" mirror="true"></dash>
@@ -77,7 +77,7 @@
     <dash road="{highwayAbove}" x-pos="45" width="4" on="{overpassDepth - 4}" off="{overpassSpacing + 4}" mirror="true"></dash>
   </mesh>
   <!--
-  <mesh id="wall" depth="0" curve-segments="1" shade="0.5">
+  <mesh id="wall">
     <dash x-pos="-15" width="2" on="{overpassDepth}" off="{overpassSpacing}" point-spacing="1"></dash>
     <dash x-pos="15" width="2" on="{overpassDepth}" off="{overpassSpacing}" point-spacing="1"></dash>
   </mesh>
@@ -100,8 +100,8 @@
   </mesh>
   <!-- knobs -->
   <mesh id="knobs" depth="1" curve-segments="10" shade="{groundShade}" z="12">
-    <dot x-pos="-40" width="1" spacing="{knobSpacing1}"></dot>
-    <dot x-pos="60" width="1" spacing="{knobSpacing2}"></dot>
+    <dot x-pos="-40" spacing="{knobSpacing1}"></dot>
+    <dot x-pos="60" spacing="{knobSpacing2}"></dot>
   </mesh>
   <!-- wires -->
   <number id="wireThickness" value="0.075"></number>
