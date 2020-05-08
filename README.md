@@ -4,7 +4,8 @@
 
 This is a 2018 ECMAScript port of the **graphics demo** [Drivey](http://drivey.com), from 2007.
 
-You can see Drivey.js online [here](https://rezmason.github.io/drivey/), or [download it](https://github.com/Rezmason/drivey/archive/master.zip) for offline play.
+Play Drivey.js online [here](https://rezmason.github.io/drivey/).
+On older browsers, try the [legacy version](https://rezmason.github.io/drivey/legacy).
 
 ### Purpose
 
@@ -39,7 +40,6 @@ Constantly drives straight. The car turns left and right if the mouse is on the 
 - [x] Support for driving on the left and on the right
 - [x] Wireframe mode
 - [x] Color cycling mode
-- [x] [Merveilles Theme](https://github.com/hundredrabbits/Themes) support
 - [ ] Collision detection
 - [ ] Engine revving audio support
 - [ ] ~Steering wheel peripheral support~
@@ -55,6 +55,8 @@ Constantly drives straight. The car turns left and right if the mouse is on the 
 - [x] One switch support
 - [x] Eye gaze support
 - [x] Touch screen steering control scheme
+- [x] [Merveilles Theme](https://github.com/hundredrabbits/Themes) drag-and-drop support
+- [x] HTML levels, with drag-and-drop support
 - [ ] Optional ambient audio
 
 ### History
