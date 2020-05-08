@@ -71,7 +71,7 @@ const silhouette = new THREE.RawShaderMaterial({
       vec4 worldPosition = modelViewMatrix * vec4(position, 1.0);
       float screenZ = (projectionMatrix * worldPosition).z;
 
-      value - fade * screenZ / resolution.y;
+      value = clamp(value - fade * screenZ / resolution.y, 0., 1.);
       vShade = value;
       vOpacity = monochromeValue.g;
       vIdColor = vec4(idColor, 1.0);
