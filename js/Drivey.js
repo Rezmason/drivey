@@ -25,7 +25,7 @@ import renderLevel from "./renderLevel.js";
 import { lerp } from "./math.js";
 import { shadeGeometry, silhouette, transparent, blendColors } from "./rendering.js";
 import isTouchDevice from "./isTouchDevice.js";
-import { Input, controlSchemesByName } from "./input.js";
+import { Input, controlSchemesByName } from "./Input.js";
 
 import Screen from "./Screen.js";
 import Buttons from "./Buttons.js";
@@ -239,7 +239,7 @@ export default class Drivey {
     this.loadingLevelName = levelName;
 
     if (!this.cachedLevelData.has(levelName)) {
-      const file = await fetch(`./../levels/${levelURLsByName.get(levelName)}.html`);
+      const file = await fetch(`./levels/${levelURLsByName.get(levelName)}.html`);
       const htmlText = await file.text();
       const levelDOM = this.readLevel(htmlText);
       if (levelDOM != null) {
