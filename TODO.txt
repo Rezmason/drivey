@@ -1,5 +1,3 @@
-Is mesh fade working properly?
-
 Portable Drivey
   Like A-Frame, drivey.js (and minified) would find a root tag in the DOM and render it
   browserify / webpack / rollup
