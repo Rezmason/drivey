@@ -89,7 +89,7 @@ const flattenMesh = mesh => {
 const makeRoadPath = ({ windiness, roadScale }, basis) => {
   if (basis != null) {
     const roadPath = basis.clone();
-    roadPath.scale(1, 1.5);
+    roadPath.scale(roadScale.x, roadScale.y);
     return roadPath;
   }
 
