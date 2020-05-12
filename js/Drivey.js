@@ -301,10 +301,12 @@ export default class Drivey {
 
     // The height of the world camera depends on the size of the level
     this.satelliteCameraMount.position.set(0, 0, level.worldRadius);
+
+    this.updateCamera();
   }
 
   updateBackgroundColor() {
-    this.screen.backgroundColor = blendColors(this.themeColors, this.drawBrighterGround ? this.level.skyLow : this.level.ground);
+    this.screen.backgroundColor = blendColors(this.themeColors, this.drawBrighterGround ? 0.25 : this.level.ground);
   }
 
   updateButtonTint() {
@@ -460,6 +462,10 @@ export default class Drivey {
     this.drawBrighterGround = mount.drawBrighterGround;
     this.cameraMount.add(this.screen.camera);
 
+    this.updateCamera();
+  }
+
+  updateCamera() {
     // The dashboard only appears if the camera is in the driver's seat
     this.dashboard.object.visible = this.cameraMount == this.driverCameraMount;
 

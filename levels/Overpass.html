@@ -1,4 +1,4 @@
-<drivey name="Overpass" tint="0.5, 0.8, 0.2" ground="0.1" sky-low="0.8" road-scale="0.5, 0.5" cruise-speed="4" lane-width="4">
+<drivey name="Overpass" tint="0.5, 0.8, 0.2" ground="0.1" sky-low="0.8" windiness="{1/6}" scale="300, 300" cruise-speed="4" lane-width="4">
   <mesh id="tarmac" depth="0.5" curve-segments="100" shade="0.05" z="-0.5">
     <solid width="9" point-spacing="2"></solid>
   </mesh>
@@ -27,8 +27,8 @@
   <mesh id="columns" depth="2" curve-segments="100" shade="0.07" z="-5.5">
     <dot width="5" spacing="50"></dot>
   </mesh>
-  <road id="river" windiness="0.3" road-scale="6, 6"></road>
+  <road id="river" windiness="0.9" scale="600, 600"></road>
   <mesh id="marshland" curve-segments="100" fade="-1" z="-5.5">
-    <solid road="{river}" width="70" point-spacing="10"></solid>
+    <solid road="{river}" width="120" point-spacing="3"></solid>
   </mesh>
 </drivey>

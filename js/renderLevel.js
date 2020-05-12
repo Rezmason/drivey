@@ -1,6 +1,6 @@
 import { Mesh, Group, Vector2, ShapePath } from "./../lib/three/three.module.js";
 import { getExtrudedPointAt, makeGeometry, addPath, makeCirclePath, makePolygonPath, makeRectanglePath, mergeGeometries } from "./shapes.js";
-import { distance } from "./math.js";
+import { lerp, distance } from "./math.js";
 import { makeShadedMesh } from "./rendering.js";
 import RoadPath from "./RoadPath.js";
 
@@ -86,48 +86,35 @@ const flattenMesh = mesh => {
   mesh.updateMatrix();
 };
 
-const makeRoadPath = ({ windiness, roadScale }, basis) => {
+const roadPathWedges = Array(16)
+  .fill()
+  .map((_, index) => (index / 16) * Math.PI * 2)
+  .map(theta => new Vector2(-Math.cos(theta), Math.sin(theta)));
+
+const makeRoadPath = ({ windiness, scale }, basis) => {
   if (basis != null) {
     const roadPath = basis.clone();
-    roadPath.scale(roadScale.x, roadScale.y);
+    roadPath.scale(scale.x, scale.y);
     return roadPath;
   }
 
-  const points = [];
-  let minX = Infinity;
-  let maxX = -Infinity;
-  let minY = Infinity;
-  let maxY = -Infinity;
+  const controlPoints = roadPathWedges.map((point, i) => point.clone().multiplyScalar(lerp(1, Math.random(), windiness)));
 
-  const n = 16;
-  for (let i = 0; i < n; i++) {
-    const theta = (i * Math.PI * 2) / n;
-    const radius = Math.random() + windiness;
-    const point = new Vector2(Math.cos(theta) * -radius, Math.sin(theta) * radius);
-    points.push(point);
-    minX = Math.min(minX, point.x);
-    maxX = Math.max(maxX, point.x);
-    minY = Math.min(minY, point.y);
-    maxY = Math.max(maxY, point.y);
-  }
+  const minX = Math.min(...controlPoints.map(({ x }) => x));
+  const maxX = Math.max(...controlPoints.map(({ x }) => x));
+  const minY = Math.min(...controlPoints.map(({ y }) => y));
+  const maxY = Math.max(...controlPoints.map(({ y }) => y));
 
-  const centerX = (maxX + minX) * 0.5;
-  const centerY = (maxY + minY) * 0.5;
-  const width = maxX - minX;
-  const height = maxY - minY;
-  for (const point of points) {
-    point.x -= centerX;
-    point.y -= centerY;
-    point.y *= width / height;
-    point.x *= 80; // 400
-    point.y *= 80; // 400
-    point.x *= roadScale.x;
-    point.y *= roadScale.y;
-  }
+  const center = new Vector2(maxX + minX, maxY + minY).multiplyScalar(0.5);
+  const aspect = new Vector2(1, (maxY - minY) / (maxX - minX));
 
-  const roadPath = new RoadPath(points);
+  controlPoints.forEach(point => {
+    point.sub(center);
+    point.multiply(aspect);
+    point.multiply(scale);
+  });
 
-  return new RoadPath(points);
+  return new RoadPath(controlPoints);
 };
 
 const getRoad = (attributes, { roadsById }) => {
@@ -189,18 +176,17 @@ const renderCityscape = ({ attributes }, mush) => {
 };
 
 const renderClouds = ({ attributes }, { skyMeshes }) => {
-  const { count, shade, scale, z } = attributes;
+  const { count, shade, scale, z, cloudRadius } = attributes;
   const path = new ShapePath();
   for (let i = 0; i < count; i++) {
     const pos = new Vector2(Math.random() - 0.5, Math.random() - 0.5);
     if (pos.length() < 0.9 && pos.length() > 0.3) {
-      pos.multiplyScalar(1000);
-      addPath(path, makeCirclePath(pos.x, pos.y, 50));
+      pos.multiply(scale);
+      addPath(path, makeCirclePath(pos.x, pos.y, cloudRadius));
     }
   }
 
   const cloudsMesh = makeShadedMesh(makeGeometry(path, 1, 200), shade);
-  cloudsMesh.scale.multiplyScalar(scale);
   cloudsMesh.position.z = z;
   skyMeshes.push(cloudsMesh);
 };
@@ -240,10 +226,11 @@ const renderLevel = node => {
   };
 };
 
-export default root => {
-  console.log(root);
+export default levelData => {
+  console.time("Rendering " + levelData.attributes.name);
+  const level = renderLevel(levelData);
+  console.timeEnd("Rendering " + levelData.attributes.name);
 
-  const level = renderLevel(root);
   const { meshes, transparentMeshes, skyMeshes } = level;
 
   const world = new Group();

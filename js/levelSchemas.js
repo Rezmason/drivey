@@ -69,15 +69,16 @@ const cityscapeTagSchema = {
 const cloudsTagSchema = {
   count: { parseFunc: safeParseInt, defaultValue: 100 },
   ...shadeAttribute,
-  scale: { parseFunc: safeParseFloat, defaultValue: 1 },
-  ...zAttribute
+  scale: { parseFunc: parseVec2, defaultValue: "1000, 1000" },
+  ...zAttribute,
+  cloudRadius: { parseFunc: safeParseFloat, defaultValue: 50 }
 };
 
 const roadTagSchema = {
   ...idAttribute,
   basis: { parseFunc: verbatim, defaultValue: null },
-  windiness: { parseFunc: safeParseFloat, defaultValue: 5 },
-  roadScale: { parseFunc: parseVec2, defaultValue: new Vector2(1, 1) }
+  windiness: { parseFunc: safeParseFloat, defaultValue: 0 },
+  scale: { parseFunc: parseVec2, defaultValue: new Vector2(100, 100) }
 };
 
 const driveyTagSchema = {

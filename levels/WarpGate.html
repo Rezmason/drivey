@@ -1,12 +1,12 @@
-<drivey name="The Cyber Tube" tint="1, 0.1, 0.3" lane-width="0">
+<drivey name="The Cyber Tube" tint="1, 0.1, 0.3" lane-width="0" windiness="0.6" scale="1000, 1000" cruise-speed="50">
   <repeat id="l" value="16">
     <number id="i" value="{l / 8}"></number>
     <number id="x" value="{cos(i * PI)}"></number>
     <number id="y" value="{sin(i * PI)}"></number>
-    <mesh depth="0.1" z="{y * 4}">
+    <mesh depth="0.1" z="{y * 4}" fade="1">
       <dash x-pos="{x * 4}" width="0.1" on="10" off="{(i + 1) * 10}"></dash>
     </mesh>
-    <mesh depth="0.1" shade="1" z="{y * 20}">
+    <mesh depth="0.1" shade="1" z="{y * 20}" fade="1">
       <dash x-pos="{x * 20}" width="0.1" on="5" off="{(i + 1) * 50}"></dash>
     </mesh>
   </repeat>

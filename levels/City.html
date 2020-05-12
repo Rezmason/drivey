@@ -1,4 +1,4 @@
-<drivey name="The City" tint="0.33, 0.33, 1" lane-width="3" sky-low="0.4" ground="0.05" num-lanes="2" road-scale="2, 2">
+<drivey name="The City" tint="0.33, 0.33, 1" lane-width="3" sky-low="0.4" ground="0.05" num-lanes="2" windiness="{1/6}" scale="900, 900">
   <number id="groundShade" value="0.05"></number>
   <mesh id="roadLines" shade="0.6" fade="1">
     <solid x-pos="0.1" width="0.1" point-spacing="5" mirror="true"></solid>
@@ -16,5 +16,5 @@
     <dash x-pos="-14" width="6" on="0.2" off="400"></dash>
   </mesh>
   <cityscape row-spacing="90" column-spacing="90" width="24" proximity="36" radius="1080" heights="0,0,0,18,18,18,30,30,72" shade="{groundShade}"></cityscape>
-  <clouds count="100" scale="2" z="80" shade="0.2"></clouds>
+  <clouds count="100" scale="2000, 2000" z="80" shade="0.2"></clouds>
 </drivey>

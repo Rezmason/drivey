@@ -1,4 +1,4 @@
-<drivey name="The Industrial Zone" tint="1, 0.5, 0.1" lane-width="3.5" sky-high="-0.15" sky-low="0.7" ground="0.05">
+<drivey name="The Industrial Zone" tint="1, 0.5, 0.1" lane-width="3.5" sky-high="-0.15" sky-low="0.7" ground="0.05" windiness="0.2" scale="600,600">
   <number id="whiteLinesShade" value="0.6"></number>
   <number id="lightShade" value="1.0"></number>
   <number id="brightShade" value="0.2"></number>
@@ -65,7 +65,7 @@
   <!-- overpasses -->
   <number id="overpassDepth" value="10"></number>
   <number id="overpassSpacing" value="300"></number>
-  <road id="highwayAbove" basis="{mainRoad}" road-scale="1, 1.5"></road>
+  <road id="highwayAbove" basis="{mainRoad}" scale="1, 1.5"></road>
   <mesh id="overpassSpans" depth="3" curve-segments="2" shade="{groundShade}" z="12" scale="1, 0.6667">
     <dash road="{highwayAbove}" width="500" on="{overpassDepth}" off="{overpassSpacing}"></dash>
   </mesh>
