@@ -1,23 +1,29 @@
 Adaptive curve smoothness
-  Gets Drivey away from ExtrudeBufferGeometry
-    Basically rewrites shapes.js
-    Every operation on a shape should be non-destructive until it gets converted to a geometry
-  Start with coarse samples of the curve
-    For every sample,
-      Grab the two successive samples: s0, s1, s2 (looping around)
-      If (
-        distance(s0.p, s2.p) > MAX_DIST ||
-        distance(s0.q, s2.q) > MAX_DIST ||
-        abs(angle(s0.p, s1.p, s2.p)) < MIN_ANGLE ||
-        abs(angle(s0.q, s1.q, s2.q)) < MIN_ANGLE
-      ) {
-        insert a sample between s0 and s1
-        insert a sample between s1 and s2
-      }
-    Do this until there are no insertions.
-  Ignore curve segments, at first
-  Eventually, curve segments should only be specified when the points used to represent a curve are explicit
-    Like the telephone lines
+
+  Write a coarse function that implements the current sampling behavior
+    Only use this when curveSegments is specified
+
+  Write a new function that takes a path, a start, an end, a maxDist and a minAngle
+    If the path is not curved, just use the coarse function
+
+    Start with coarse samples of the curve
+      For every sample,
+        Grab the two successive samples: s0, s1, s2 (looping around)
+        If (
+          distance(s0.p, s2.p) > maxDist ||
+          distance(s0.q, s2.q) > maxDist ||
+          abs(angle(s0.p, s1.p, s2.p)) < minAngle ||
+          abs(angle(s0.q, s1.q, s2.q)) < minAngle
+        ) {
+          insert a sample between s0 and s1
+          insert a sample between s1 and s2
+        }
+      Do this until there are no insertions.
+
+  Rewrite:
+    expandShapePath
+    renderSolidLine
+
 
 
 HTML revision

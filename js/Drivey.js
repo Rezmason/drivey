@@ -33,19 +33,35 @@ import Car from "./Car.js";
 import buildCar from "./buildCar.js";
 import Dashboard from "./Dashboard.js";
 
-const levelURLsByName = new Map([
-  ["empty", "Reference"],
-  ["test", "TestLevel"],
-  ["night", "DeepDarkNight"],
-  ["tunnel", "Tunnel"],
-  ["city", "City"],
-  ["industrial", "IndustrialZone"],
-  ["warp", "WarpGate"],
-  ["spectre", "Spectre"],
-  ["beach", "CliffsideBeach"],
-  ["nullarbor", "TrainTracks"],
-  ["marshland", "Overpass"]
-]);
+const parser = new DOMParser();
+const readLevel = htmlText => {
+  const levelDOM = parser.parseFromString(htmlText, "text/html").documentElement;
+  if (levelDOM?.querySelector("drivey") != null) {
+    return levelDOM;
+  }
+  return null;
+};
+
+const levelsByName = new Map(
+  [
+    ["empty", "Reference"],
+    ["test", "TestLevel"],
+    ["night", "DeepDarkNight"],
+    ["tunnel", "Tunnel"],
+    ["city", "City"],
+    ["industrial", "IndustrialZone"],
+    ["warp", "WarpGate"],
+    ["spectre", "Spectre"],
+    ["beach", "CliffsideBeach"],
+    ["nullarbor", "TrainTracks"],
+    ["marshland", "Overpass"]
+  ].map(([levelName, filename]) => [
+    levelName,
+    fetch(`./levels/${filename}.html`)
+      .then(file => file.text())
+      .then(readLevel)
+  ])
+);
 
 const cruiseSpeeds = new Map([
   [0, 0.0],
@@ -67,7 +83,6 @@ const screenResolutions = new Map([
 
 export default class Drivey {
   constructor() {
-    this.cachedLevelData = new Map();
     this.currentEffect = "ombré";
     this.npcControlScheme = new Input();
     this.controlScheme = controlSchemesByName.get(isTouchDevice ? "touch" : "arrows");
@@ -102,7 +117,7 @@ export default class Drivey {
         if (isSVG) {
           this.theme.load(text);
         } else if (isHTML) {
-          const levelDOM = this.readLevel(text);
+          const levelDOM = readLevel(text);
           if (levelDOM != null) {
             this.setLevel(buildLevel(levelDOM));
           }
@@ -226,32 +241,12 @@ export default class Drivey {
     this.screen.scene.visible = true;
   }
 
-  readLevel(htmlText) {
-    const parser = new DOMParser();
-    const levelDOM = parser.parseFromString(htmlText, "text/html").documentElement;
-    if (levelDOM?.querySelector("drivey") != null) {
-      return levelDOM;
-    }
-    return null;
-  }
-
   async setLevelByName(levelName) {
     this.loadingLevelName = levelName;
-
-    if (!this.cachedLevelData.has(levelName)) {
-      const file = await fetch(`./levels/${levelURLsByName.get(levelName)}.html`);
-      const htmlText = await file.text();
-      const levelDOM = this.readLevel(htmlText);
-      if (levelDOM != null) {
-        this.cachedLevelData.set(levelName, buildLevel(levelDOM));
-      }
+    const levelDOM = await levelsByName.get(levelName);
+    if (this.loadingLevelName === levelName) {
+      this.setLevel(buildLevel(levelDOM));
     }
-
-    if (this.loadingLevelName !== levelName) {
-      return;
-    }
-
-    this.setLevel(this.cachedLevelData.get(levelName));
   }
 
   setLevel(levelData) {

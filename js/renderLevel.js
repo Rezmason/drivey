@@ -257,7 +257,7 @@ export default levelData => {
 
   level.dispose = () => {
     if (world.parent != null) {
-      world.parent.remove(this.world);
+      world.parent.remove(world);
     }
 
     world.children.forEach(child => child.geometry.dispose());
