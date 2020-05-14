@@ -1,33 +1,18 @@
 import { Mesh, Group, Vector2, ShapePath } from "./../lib/three/three.module.js";
-import { getExtrudedPointAt, makeGeometry, addPath, makeCirclePath, makePolygonPath, makeRectanglePath, mergeGeometries } from "./shapes.js";
+import { getOffsetPoints, makeGeometry, addPath, makeCirclePath, makePolygonPath, makeRectanglePath, mergeGeometries } from "./shapes.js";
 import { lerp, distance } from "./math.js";
 import { makeShadedMesh } from "./rendering.js";
 import RoadPath from "./RoadPath.js";
 
 const renderSolidLine = (shapePath, { pointSpacing, road, xPos, width, start, end }) => {
-  if (start == end) {
+  if (start === end) {
     return;
   }
   width = Math.abs(width);
-  const outsideOffset = xPos - width / 2;
-  const insideOffset = xPos + width / 2;
-  const outsidePoints = [];
-  const insidePoints = [];
-  outsidePoints.push(getExtrudedPointAt(road.curve, start, outsideOffset));
-  insidePoints.push(getExtrudedPointAt(road.curve, start, insideOffset));
-  if (pointSpacing > 0) {
-    const psFraction = pointSpacing / road.length;
-    let i = Math.ceil(start / psFraction) * psFraction;
-    if (i == start) i += psFraction;
-    for (i; i < end; i += psFraction) {
-      outsidePoints.push(getExtrudedPointAt(road.curve, i, outsideOffset));
-      insidePoints.push(getExtrudedPointAt(road.curve, i, insideOffset));
-    }
-  }
-  outsidePoints.push(getExtrudedPointAt(road.curve, end, outsideOffset));
-  insidePoints.push(getExtrudedPointAt(road.curve, end, insideOffset));
+  const outsidePoints = getOffsetPoints(road.curve, xPos - width / 2, start, end, pointSpacing / road.length);
+  const insidePoints = getOffsetPoints(road.curve, xPos + width / 2, start, end, pointSpacing / road.length);
   outsidePoints.reverse();
-  if (start == 0 && end == 1) {
+  if (start === 0 && end === 1) {
     addPath(shapePath, makePolygonPath(outsidePoints));
     addPath(shapePath, makePolygonPath(insidePoints));
   } else {
@@ -55,14 +40,10 @@ const renderDashedLine = (shapePath, { off, on, pointSpacing, road, xPos, width,
 };
 
 const renderDottedLine = (shapePath, { spacing, road, xPos, width, start, end }) => {
-  if (start == end) {
+  if (start === end) {
     return;
   }
-  const dotSpan = spacing / road.length;
-  for (let dotStart = start; dotStart < end; dotStart += dotSpan) {
-    const pos = getExtrudedPointAt(road.curve, dotStart, xPos);
-    addPath(shapePath, makeCirclePath(pos.x, pos.y, width));
-  }
+  getOffsetPoints(road.curve, xPos, start, end, spacing / road.length).forEach(pos => addPath(shapePath, makeCirclePath(pos.x, pos.y, width)));
 };
 
 const lineRenderersByType = {

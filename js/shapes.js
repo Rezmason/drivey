@@ -26,25 +26,31 @@ const makeRectanglePath = (x, y, width, height) =>
 
 const makePolygonPath = points => new Shape(points);
 
-const expandPath = (source, thickness, divisions) =>
-  new Path(
-    Array(divisions)
-      .fill()
-      .map((_, i) => getExtrudedPointAt(source, i / divisions, thickness / 2))
-  );
-
 const expandShapePath = (shapePath, thickness, divisions) => {
   const expansion = new ShapePath();
-  shapePath.subPaths.forEach(subPath => expansion.subPaths.push(expandPath(subPath, thickness, divisions)));
+  shapePath.subPaths.forEach(subPath => expansion.subPaths.push(new Path(getOffsetPoints(subPath, thickness / 2, 0, 1, 1 / divisions))));
   return expansion;
 };
 
-const getExtrudedPointAt = (source, t, offset) => {
+const getOffsetPoint = (source, t, offset) => {
   t = mod(t, 1);
   // These are Vector3, but we need a Vector2
   const tangent = source.getTangent(t);
   const pos = source.getPoint(t);
   return new Vector2(pos.x - tangent.y * offset, pos.y + tangent.x * offset);
+};
+
+const getOffsetPoints = (source, offset, start, end, spacing) => {
+  const points = [getOffsetPoint(source, start, offset)];
+  if (spacing > 0) {
+    let i = Math.ceil(start / spacing) * spacing;
+    if (i == start) i += spacing;
+    for (i; i < end; i += spacing) {
+      points.push(getOffsetPoint(source, i, offset));
+    }
+  }
+  points.push(getOffsetPoint(source, end, offset));
+  return points;
 };
 
 const makeGeometry = (shapePath, depth, curveSegments) =>
@@ -75,4 +81,4 @@ const addPath = (shapePath, path) => {
   shapePath.subPaths.push(path.clone());
 };
 
-export { addPath, makeGeometry, makeCirclePath, getExtrudedPointAt, mergeGeometries, makePolygonPath, makeRectanglePath, makeSplinePath, expandShapePath };
+export { addPath, makeGeometry, makeCirclePath, getOffsetPoints, mergeGeometries, makePolygonPath, makeRectanglePath, makeSplinePath, expandShapePath };

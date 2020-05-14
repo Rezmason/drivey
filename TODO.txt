@@ -1,28 +1,29 @@
 Adaptive curve smoothness
 
-  Write a coarse function that implements the current sampling behavior
-    Only use this when curveSegments is specified
+  If spacing > 0,
+    // current behavior: evenly spaced points
+  Get the beginning, middle, and end samples
+  const isStraightLine = samples have same tangent and their positions sit on a straight line
+  if (isStraightLine) {
+    return [start, end].map(({pos}) => pos);
+  }
 
-  Write a new function that takes a path, a start, an end, a maxDist and a minAngle
-    If the path is not curved, just use the coarse function
+  const maxDistSquared = maxDist ** 2;
+  Get coarse samples of the curve
+  let iterate = true;
+  let samples = [ start, (start + middle) / 2, end ];
+  while (iterate) {
+    iterate = false;
+    for (every sample) {
+      Grab the two successive samples: s0, s1, s2 (looping around)
+      If (distanceSquared(s0.point, s1.point) > maxDist || abs(angle(s0.point, s1.point, s2.point)) < minAngle) {
+        insert a sample between s0 and s1;
+        iterate = true;
+      }
+    }
+  }
 
-    Start with coarse samples of the curve
-      For every sample,
-        Grab the two successive samples: s0, s1, s2 (looping around)
-        If (
-          distance(s0.p, s2.p) > maxDist ||
-          distance(s0.q, s2.q) > maxDist ||
-          abs(angle(s0.p, s1.p, s2.p)) < minAngle ||
-          abs(angle(s0.q, s1.q, s2.q)) < minAngle
-        ) {
-          insert a sample between s0 and s1
-          insert a sample between s1 and s2
-        }
-      Do this until there are no insertions.
-
-  Rewrite:
-    expandShapePath
-    renderSolidLine
+  return samples.map(({pos}) => pos);
 
 
 
