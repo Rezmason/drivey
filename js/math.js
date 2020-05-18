@@ -1,10 +1,20 @@
 import { Vector2, Vector3 } from "./../lib/three/three.module.js";
 
+const [PI, TWO_PI] = [Math.PI, Math.PI * 2];
+
 const sign = input => (input < 0 ? -1 : 1);
 
-const mod = (a, b) => ((a % b) + b) % b;
+const fract = n => ((n % 1) + 1) % 1;
 
 const getAngle = v2 => Math.atan2(v2.y, v2.x);
+
+const lerp = (from, to, amount) => from * (1 - amount) + to * amount;
+
+const distanceSquared = (v1, v2) => (v1.x - v2.x) ** 2 + (v1.y - v2.y) ** 2;
+
+const distance = (v1, v2) => Math.sqrt(distanceSquared(v1, v2));
+
+const modAngle = angle => (angle % TWO_PI) * sign(angle);
 
 const rotate = (v2, angle) => {
   const cos = Math.cos(angle);
@@ -18,43 +28,30 @@ const rotateY = (v3, angle) => {
   return new Vector3(v3.x * cos - v3.z * sin, v3.y, v3.x * sin + v3.z * cos);
 };
 
-const minDistSquaredIndex = (points, toPoint) => {
+const closestPointIndex = (points, toPoint) => {
+  // const distancesSquared = points.map(point => distanceSquared(point, toPoint));
+  // const minimum = Math.min(...distancesSquared);
+  // return distancesSquared.indexOf(minimum);
+
   let minimum = Infinity;
   let minimumPoint = -1;
-
-  points.forEach((point, i) => {
-    const dx = toPoint.x - point.x;
-    const dy = toPoint.y - point.y;
-    const distSquared = dx * dx + dy * dy;
+  const numPoints = points.length;
+  for (let i = 0; i < numPoints; i++) {
+    const point = points[i];
+    const distSquared = (toPoint.x - point.x) ** 2 + (toPoint.y - point.y) ** 2;
     if (minimum > distSquared) {
       minimum = distSquared;
       minimumPoint = i;
     }
-  });
-
+  }
   return minimumPoint;
 };
 
-const diffAngle = (a, b) => {
-  a %= Math.PI * 2;
-  b %= Math.PI * 2;
-  if (a - b > Math.PI) {
-    b += Math.PI * 2;
-  } else if (b - a > Math.PI) {
-    a += Math.PI * 2;
-  }
-
-  return b - a;
+const modDiffAngle = (angle1, angle2) => {
+  let diffAngle = modAngle(angle1) - modAngle(angle2);
+  if (diffAngle > PI) diffAngle -= TWO_PI;
+  if (diffAngle < -PI) diffAngle += TWO_PI;
+  return diffAngle;
 };
 
-const lerp = (from, to, amount) => {
-  return from * (1 - amount) + to * amount;
-};
-
-const distance = (v1, v2) => {
-  const dx = v1.x - v2.x;
-  const dy = v1.y - v2.y;
-  return Math.sqrt(dx * dx + dy * dy);
-};
-
-export { distance, getAngle, lerp, rotate, rotateY, sign, mod, minDistSquaredIndex };
+export { PI, TWO_PI, sign, fract, getAngle, lerp, distanceSquared, distance, modAngle, rotate, rotateY, closestPointIndex, modDiffAngle };

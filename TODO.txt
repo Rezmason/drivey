@@ -1,31 +1,41 @@
+Separate "solid" into "smooth" and "angular"
+  "smooth" and "dashed" will be smoothly approximated, ie have no declared spacing
+  "pointy" will have a spacing parameter (instead of "point-spacing")
+
 Adaptive curve smoothness
 
-  If spacing > 0,
-    // current behavior: evenly spaced points
-  Get the beginning, middle, and end samples
-  const isStraightLine = samples have same tangent and their positions sit on a straight line
-  if (isStraightLine) {
-    return [start, end].map(({pos}) => pos);
-  }
+  2D spline extrusion
 
-  const maxDistSquared = maxDist ** 2;
-  Get coarse samples of the curve
-  let iterate = true;
-  let samples = [ start, (start + middle) / 2, end ];
-  while (iterate) {
-    iterate = false;
-    for (every sample) {
-      Grab the two successive samples: s0, s1, s2 (looping around)
-      If (distanceSquared(s0.point, s1.point) > maxDist || abs(angle(s0.point, s1.point, s2.point)) < minAngle) {
-        insert a sample between s0 and s1;
-        iterate = true;
+    Get the beginning, middle, and end samples
+    const isStraightLine = samples have same tangent and their positions sit on a straight line
+    if (isStraightLine) {
+      return [start, end].map(({pos}) => pos);
+    }
+
+    const maxDistSquared = maxDist ** 2;
+    Get coarse samples of the curve
+    let iterate = true;
+    let samples = [ start, (start + middle) / 2, end ];
+    while (iterate) {
+      iterate = false;
+      for (every sample) {
+        Grab the successive sample: s0, s1 (looping around)
+        If (distanceSquared(s0.point, s1.point) > maxDist || abs(s0.angle  - s1.angle)) < maxAngle) {
+          insert a sample between s0 and s1;
+          iterate = true;
+        }
       }
     }
-  }
 
-  return samples.map(({pos}) => pos);
+    return samples.map(({pos}) => pos);
 
+  curveSegments of ExtrudeBufferGeometry
+    How do different shapes get extruded?
+      CurvePath::getPoints. Not great.
+    What we want is for all paths at this point to be polygonal, and to be extruded "verbatim"
+      Every function that makes a path, should make a polygon path
 
+Remake dashboard from smooth curves
 
 HTML revision
   Right now, everything is a bunch of meshes with lines in them

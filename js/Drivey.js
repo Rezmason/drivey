@@ -46,6 +46,7 @@ const levelsByName = new Map(
   [
     ["empty", "Reference"],
     ["test", "TestLevel"],
+    ["curveTest", "CurveTestLevel"],
     ["night", "DeepDarkNight"],
     ["tunnel", "Tunnel"],
     ["city", "City"],

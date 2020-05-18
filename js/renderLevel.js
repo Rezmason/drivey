@@ -1,6 +1,6 @@
 import { Mesh, Group, Vector2, ShapePath } from "./../lib/three/three.module.js";
 import { getOffsetPoints, makeGeometry, addPath, makeCirclePath, makePolygonPath, makeRectanglePath, mergeGeometries } from "./shapes.js";
-import { lerp, distance } from "./math.js";
+import { fract, lerp, distance } from "./math.js";
 import { makeShadedMesh } from "./rendering.js";
 import RoadPath from "./RoadPath.js";
 
@@ -21,8 +21,13 @@ const renderSolidLine = (shapePath, { pointSpacing, road, xPos, width, start, en
 };
 
 const renderDashedLine = (shapePath, { off, on, pointSpacing, road, xPos, width, start, end }) => {
-  if (start == end) {
-    return shapePath;
+  if (start === end) {
+    return;
+  }
+  start = fract(start);
+  end = end === 1 ? 1 : fract(end);
+  if (end < start) {
+    end++;
   }
   const dashSpan = (on + off) / road.length;
   const dashLength = (dashSpan * on) / (on + off);

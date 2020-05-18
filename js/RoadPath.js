@@ -1,6 +1,6 @@
 import { Vector2 } from "./../lib/three/three.module.js";
 
-import { mod, minDistSquaredIndex } from "./math.js";
+import { fract, closestPointIndex } from "./math.js";
 import { makeSplinePath } from "./shapes.js";
 
 export default class RoadPath {
@@ -19,7 +19,7 @@ export default class RoadPath {
   }
 
   getPoint(t) {
-    const pos = this.curve.getPoint(mod(t, 1));
+    const pos = this.curve.getPoint(fract(t));
     return new Vector2(pos.x, pos.y);
   }
 
@@ -54,7 +54,7 @@ class Approximation {
   }
 
   getNearest(to) {
-    return minDistSquaredIndex(this.points, to) / this.resolution;
+    return closestPointIndex(this.points, to) / this.resolution;
   }
 
   getNearestPoint(to) {
