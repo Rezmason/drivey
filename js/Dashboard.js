@@ -4,6 +4,8 @@ import { lerp } from "./math.js";
 import { makeSplinePath, makeGeometry, expandShapePath, makeCirclePath, makePolygonPath } from "./shapes.js";
 import { makeShadedMesh } from "./rendering.js";
 
+const wheelScale = 5;
+
 export default class Dashboard {
   constructor() {
     this.object = new Group();
@@ -20,8 +22,9 @@ export default class Dashboard {
     this.needle2 = this.addDashboardElement(this.makeNeedle(), 0, true);
     this.needle2.position.set(-70, -35, -105);
     this.needle2.rotation.z = Math.PI * 1.5;
-    this.wheel = this.addDashboardElement(this.makeSteeringWheel(), edge1, true);
+    this.wheel = this.addDashboardElement(this.makeSteeringWheel(), edge1 * wheelScale, true);
     this.wheel.position.set(-50, -55, -100);
+    this.wheel.scale.set(1 / wheelScale, 1 / wheelScale, 1);
     this.wheel.rotation.z = Math.PI;
     this.drivingSide = -1;
   }
@@ -33,13 +36,13 @@ export default class Dashboard {
 
     const element = new Group();
     if (edgeAmount != 0) {
-      const edge = makeShadedMesh(makeGeometry(expandShapePath(path, 1 + edgeAmount, 250), 0, 0), 0.2);
+      const edge = makeShadedMesh(makeGeometry(expandShapePath(path, 1 + edgeAmount), 0, 0), 0.2);
       edge.position.z = -0.1;
       element.add(edge);
     }
 
     if (hasFill && edgeAmount != 0) {
-      const fill = makeShadedMesh(makeGeometry(expandShapePath(path, 1, 250), 0, 0), 0);
+      const fill = makeShadedMesh(makeGeometry(expandShapePath(path, 1), 0, 0), 0);
       fill.position.z = 0;
       element.add(fill);
     } else if (hasFill) {
@@ -103,7 +106,7 @@ export default class Dashboard {
   }
 
   makeSteeringWheel() {
-    const scale = 148;
+    const scale = 148 * wheelScale;
     const shapePath = new ShapePath();
     const outerRim = makeCirclePath(0, 0, scale * 0.5);
     const innerRim1Points = [];

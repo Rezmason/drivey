@@ -15,10 +15,19 @@ const makeSplinePath = (pts, closed) => {
   return path;
 };
 
+const zero = new Vector2();
+
 const makeCirclePath = (x, y, radius, aClockwise = true) => {
-  const path = new Path();
-  path.absarc(x, y, radius, 0, TWO_PI, aClockwise);
-  return path;
+  const numPoints = Math.max(10, Math.ceil(TWO_PI * radius * 10));
+  const ray = new Vector2(radius, 0);
+  const pos = new Vector2(x, y);
+  const points = Array(numPoints).fill().map((_, index) => {
+    return ray.clone().rotateAround(zero, index / numPoints * TWO_PI).add(pos);
+  });
+  if (aClockwise) {
+    points.reverse();
+  }
+  return new Shape(points);
 };
 
 const makeRectanglePath = (x, y, width, height) =>
@@ -26,9 +35,9 @@ const makeRectanglePath = (x, y, width, height) =>
 
 const makePolygonPath = points => new Shape(points);
 
-const expandShapePath = (source, offset, divisions) => {
+const expandShapePath = (source, offset) => {
   const expansion = new ShapePath();
-  source.subPaths.forEach(subPath => expansion.subPaths.push(new Path(getOffsetPoints(subPath, offset, 0, 1, 1 / divisions))));
+  source.subPaths.forEach(subPath => expansion.subPaths.push(new Path(getOffsetPoints(subPath, offset, 0, 1))));
   return expansion;
 };
 
