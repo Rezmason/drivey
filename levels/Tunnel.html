@@ -5,19 +5,19 @@
     <solid width="7"></solid>
   </mesh>
   <mesh id="roadLines" shade="{roadLineShade}" fade="1" y="0.1">
-    <dash x="3.5" width="0.2" length="30" spacing="2" mirror="true"></dash>
-    <dash x="-0.15" width="0.15" length="4" spacing="8"></dash>
+    <dashed x="3.5" width="0.2" length="30" spacing="2" mirror="true"></dashed>
+    <dashed x="-0.15" width="0.15" length="4" spacing="8"></dashed>
   </mesh>
   <mesh id="crossing" shade="{tarmacShade}" y="0.001">
-    <dash length="2" spacing="200"></dash>
+    <dashed length="2" spacing="200"></dashed>
   </mesh>
   <mesh id="crossingLines" shade="{roadLineShade}" fade="1" y="0.01">
     <repeat id="i" value="6">
-      <dash x="{i - 2.5}" width="0.5" length="2" spacing="200"></dash>
+      <dashed x="{i - 2.5}" width="0.5" length="2" spacing="200"></dashed>
     </repeat>
   </mesh>
   <mesh id="lights" height="0.1" shade="1" y="4">
-    <dash x="4" width="0.1" length="4" spacing="6" mirror="true"></dash>
+    <dashed x="4" width="0.1" length="4" spacing="6" mirror="true"></dashed>
   </mesh>
   <mesh id="wall" height="4" shade="0" fade="2">
     <solid x="5" width="0.4" mirror="true"></solid>

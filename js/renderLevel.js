@@ -52,8 +52,8 @@ const renderDottedLine = (shapePath, { spacing, road, x, width, start, end }) =>
 
 const lineRenderersByType = {
   solid: renderSolidLine,
-  dash: renderDashedLine,
-  dot: renderDottedLine
+  dashed: renderDashedLine,
+  dotted: renderDottedLine
 };
 
 const mergeMeshes = meshes => {
@@ -179,8 +179,8 @@ const renderClouds = ({ attributes }, { skyMeshes }) => {
 const renderMesh = (node, mush) => {
   const path = new ShapePath();
   forEachChildOfType(node, "solid", line => renderLine(line, path, mush));
-  forEachChildOfType(node, "dash", line => renderLine(line, path, mush));
-  forEachChildOfType(node, "dot", line => renderLine(line, path, mush));
+  forEachChildOfType(node, "dashed", line => renderLine(line, path, mush));
+  forEachChildOfType(node, "dotted", line => renderLine(line, path, mush));
   const { y, height, shade, alpha, fade, scale } = node.attributes;
   const mesh = makeShadedMesh(makeGeometry(path, height, 1), shade, alpha, fade);
   mesh.position.z = y;

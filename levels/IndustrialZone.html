@@ -6,38 +6,38 @@
   <!-- far off buildings -->
   <!-- very tall things -->
   <mesh id="smokestack1" height="2" shade="{lightShade}" y="60">
-    <dot x="300" width="0.5" spacing="250"></dot>
-    <dot x="320" width="0.75" spacing="250"></dot>
+    <dotted x="300" width="0.5" spacing="250"></dotted>
+    <dotted x="320" width="0.75" spacing="250"></dotted>
   </mesh>
   <mesh id="smokestack2" height="60" shade="{groundShade}">
-    <dot x="300" width="0.5" spacing="250"></dot>
-    <dot x="320" width="0.75" spacing="250"></dot>
-    <dot x="400" width="8" spacing="240"></dot>
-    <dot x="500" width="8" spacing="240"></dot>
+    <dotted x="300" width="0.5" spacing="250"></dotted>
+    <dotted x="320" width="0.75" spacing="250"></dotted>
+    <dotted x="400" width="8" spacing="240"></dotted>
+    <dotted x="500" width="8" spacing="240"></dotted>
   </mesh>
   <!-- medium-height buildings -->
   <mesh id="buildings" height="12" shade="{groundShade}">
-    <dash x="-80" width="20" length="40" spacing="60"></dash>
-    <dash x="180" width="50" length="40" spacing="30"></dash>
-    <dash x="300" width="50" length="20" spacing="20"></dash>
-    <dot x="-100" width="8" spacing="200"></dot>
-    <dot x="-60" width="8" spacing="1500"></dot>
-    <dot x="100" width="8" spacing="140"></dot>
-    <dot x="120" width="8" spacing="220"></dot>
+    <dashed x="-80" width="20" length="40" spacing="60"></dashed>
+    <dashed x="180" width="50" length="40" spacing="30"></dashed>
+    <dashed x="300" width="50" length="20" spacing="20"></dashed>
+    <dotted x="-100" width="8" spacing="200"></dotted>
+    <dotted x="-60" width="8" spacing="1500"></dotted>
+    <dotted x="100" width="8" spacing="140"></dotted>
+    <dotted x="120" width="8" spacing="220"></dotted>
   </mesh>
   <!-- do white lines -->
   <mesh id="whiteLines" shade="{whiteLinesShade}" fade="2.25">
-    <dash x="3.5" width="0.15" length="60" spacing="2" mirror="true"></dash>
-    <dash x="-0.15" width="0.125" length="4" spacing="6"></dash>
+    <dashed x="3.5" width="0.15" length="60" spacing="2" mirror="true"></dashed>
+    <dashed x="-0.15" width="0.125" length="4" spacing="6"></dashed>
     <solid x="0.125" width="0.125"></solid>
   </mesh>
   <!-- do crossings -->
   <mesh id="crossings" shade="{groundShade}" y="0.001">
-    <dash length="2" spacing="200"></dash>
+    <dashed length="2" spacing="200"></dashed>
   </mesh>
   <mesh id="crossingLines" shade="{whiteLinesShade}" fade="2.25" y="0.01">
     <repeat id="i" value="6">
-      <dash x="{i - 2.5}" width="0.5" length="2" spacing="200"></dash>
+      <dashed x="{i - 2.5}" width="0.5" length="2" spacing="200"></dashed>
     </repeat>
   </mesh>
   <!-- street lights -->
@@ -45,21 +45,21 @@
   <number id="streetLightThickness" value="0.2"></number>
   <number id="streetLightHeight" value="15"></number>
   <mesh id="streetLightPoles" height="{streetLightHeight + streetLightThickness}" shade="{groundShade}">
-    <dash x="-8" width="{streetLightThickness}" length="{streetLightThickness}" spacing="{streetLightSpacing}"></dash>
+    <dashed x="-8" width="{streetLightThickness}" length="{streetLightThickness}" spacing="{streetLightSpacing}"></dashed>
   </mesh>
   <mesh id="streetLightArms" height="{streetLightThickness}" shade="{groundShade}" y="{streetLightHeight + streetLightThickness}">
-    <dash x="-5.6" width="5" length="{streetLightThickness}" spacing="{streetLightSpacing}"></dash>
+    <dashed x="-5.6" width="5" length="{streetLightThickness}" spacing="{streetLightSpacing}"></dashed>
   </mesh>
   <mesh id="streetLightBulbs" height="{streetLightThickness * 2}" shade="{lightShade}" y="{streetLightHeight - streetLightThickness}">
-    <dash x="-4" width="2" length="{streetLightThickness}" spacing="{streetLightSpacing}"></dash>
+    <dashed x="-4" width="2" length="{streetLightThickness}" spacing="{streetLightSpacing}"></dashed>
   </mesh>
   <!-- Light circles beneath streetlamps -->
   <!--
     <mesh id="streetLightShines" shade="{brightShade}" y="-0.01">
-      <dot x="-4" width="8 0)" spacing="{streetLightSpacing}"></dot>
+      <dotted x="-4" width="8 0)" spacing="{streetLightSpacing}"></dotted>
     </mesh>
     <mesh id="streetLightShadows" shade="{groundShade}">
-      <dash x="-13" width="10" length="{streetLightThickness}" spacing="{streetLightSpacing}"></dash>
+      <dashed x="-13" width="10" length="{streetLightThickness}" spacing="{streetLightSpacing}"></dashed>
     </mesh>
    -->
   <!-- overpasses -->
@@ -67,19 +67,19 @@
   <number id="overpassSpacing" value="300"></number>
   <road id="highwayAbove" basis="{mainRoad}" scale="1, 1.5"></road>
   <mesh id="overpassSpans" height="3" shade="{groundShade}" y="12" scale="1, 0.6667">
-    <dash road="{highwayAbove}" width="500" length="{overpassDepth}" spacing="{overpassSpacing}"></dash>
+    <dashed road="{highwayAbove}" width="500" length="{overpassDepth}" spacing="{overpassSpacing}"></dashed>
   </mesh>
   <mesh id="overpassBases" height="12" shade="{groundShade}" scale="1, 0.6667">
-    <dash road="{highwayAbove}" x="200" width="130" length="{overpassDepth}" spacing="{overpassSpacing}" mirror="true"></dash>
+    <dashed road="{highwayAbove}" x="200" width="130" length="{overpassDepth}" spacing="{overpassSpacing}" mirror="true"></dashed>
   </mesh>
   <mesh id="overpassFeets" height="12" shade="{groundShade}" scale="1, 0.6667">
-    <dash road="{highwayAbove}" x="18" width="4" length="{overpassDepth - 4}" spacing="{overpassSpacing + 4}" mirror="true"></dash>
-    <dash road="{highwayAbove}" x="45" width="4" length="{overpassDepth - 4}" spacing="{overpassSpacing + 4}" mirror="true"></dash>
+    <dashed road="{highwayAbove}" x="18" width="4" length="{overpassDepth - 4}" spacing="{overpassSpacing + 4}" mirror="true"></dashed>
+    <dashed road="{highwayAbove}" x="45" width="4" length="{overpassDepth - 4}" spacing="{overpassSpacing + 4}" mirror="true"></dashed>
   </mesh>
   <!--
   <mesh id="wall">
-    <dash x="-15" width="2" length="{overpassDepth}" spacing="{overpassSpacing}"></dash>
-    <dash x="15" width="2" length="{overpassDepth}" spacing="{overpassSpacing}"></dash>
+    <dashed x="-15" width="2" length="{overpassDepth}" spacing="{overpassSpacing}"></dashed>
+    <dashed x="15" width="2" length="{overpassDepth}" spacing="{overpassSpacing}"></dashed>
   </mesh>
    -->
   <number id="knobSpacing1" value="110"></number>
@@ -91,17 +91,17 @@
   <number id="wireSpacing5" value="75"></number>
   <!-- various poles -->
   <mesh id="poles" height="12" shade="{groundShade}">
-    <dot id="Nicolaus Copernicus" x="-30" width="0.25" spacing="90"></dot>
-    <dot id="Marie Curie" x="-40" width="0.25" spacing="{knobSpacing1}"></dot>
-    <dot id="Monika Soćko" x="60" width="0.25" spacing="{knobSpacing2}"></dot>
-    <dot id="Raphael Lemkin" x="20" width="0.25" spacing="{wireSpacing3}" mirror="true"></dot>
-    <dot id="Wanda Krahelska-Filipowicz" x="50" width="0.125" spacing="{wireSpacing4}" mirror="true"></dot>
-    <dot id="André Citroën" x="70" width="0.25" spacing="{wireSpacing5}"></dot>
+    <dotted id="Nicolaus Copernicus" x="-30" width="0.25" spacing="90"></dotted>
+    <dotted id="Marie Curie" x="-40" width="0.25" spacing="{knobSpacing1}"></dotted>
+    <dotted id="Monika Soćko" x="60" width="0.25" spacing="{knobSpacing2}"></dotted>
+    <dotted id="Raphael Lemkin" x="20" width="0.25" spacing="{wireSpacing3}" mirror="true"></dotted>
+    <dotted id="Wanda Krahelska-Filipowicz" x="50" width="0.125" spacing="{wireSpacing4}" mirror="true"></dotted>
+    <dotted id="André Citroën" x="70" width="0.25" spacing="{wireSpacing5}"></dotted>
   </mesh>
   <!-- knobs -->
   <mesh id="knobs" height="1" shade="{groundShade}" y="12">
-    <dot x="-40" spacing="{knobSpacing1}"></dot>
-    <dot x="60" spacing="{knobSpacing2}"></dot>
+    <dotted x="-40" spacing="{knobSpacing1}"></dotted>
+    <dotted x="60" spacing="{knobSpacing2}"></dotted>
   </mesh>
   <!-- wires -->
   <number id="wireThickness" value="0.075"></number>
@@ -115,7 +115,7 @@
   <number id="fenceSpacing" value="30"></number>
   <number id="fenceDist" value="25"></number>
   <mesh id="fencePoles" height="{fenceTall}" shade="{groundShade}">
-    <dot x="{fenceDist}" width="0.1 0)" spacing="{fenceSpacing}" mirror="true"></dot>
+    <dotted x="{fenceDist}" width="0.1 0)" spacing="{fenceSpacing}" mirror="true"></dotted>
   </mesh>
   <mesh id="fenceTops" height="0.1" shade="{groundShade}" y="{fenceTall - 0.5}">
     <solid x="{fenceDist}" width="0.1" spacing="{fenceSpacing}" mirror="true"></solid>

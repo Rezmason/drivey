@@ -34,7 +34,7 @@ const lineTagSchema = {
   mirror: { parseFunc: parseBool, defaultValue: false }
 };
 
-const dashTagSchema = {
+const dashedTagSchema = {
   ...lineTagSchema,
   length: { parseFunc: safeParseFloat, defaultValue: 1 },
   spacing: { parseFunc: safeParseFloat, defaultValue: 1 }
@@ -45,7 +45,7 @@ const solidAttribute = {
   spacing: { parseFunc: safeParseFloat, defaultValue: 0 }
 };
 
-const dotTagSchema = {
+const dottedTagSchema = {
   ...lineTagSchema,
   spacing: { parseFunc: safeParseFloat, defaultValue: 1 }
 };
@@ -95,9 +95,9 @@ const schemasByType = {
   number: numberTagSchema,
   repeat: repeatTagSchema,
   mesh: meshTagSchema,
-  dash: dashTagSchema,
+  dashed: dashedTagSchema,
   solid: solidAttribute,
-  dot: dotTagSchema,
+  dotted: dottedTagSchema,
   cityscape: cityscapeTagSchema,
   clouds: cloudsTagSchema,
   road: roadTagSchema,
