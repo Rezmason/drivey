@@ -4,7 +4,6 @@ import { verbatim, safeParseFloat, safeParseInt, parseNumberList, parseColor, pa
 const idAttribute = { id: {} };
 const shadeAttribute = { shade: { parseFunc: safeParseFloat, defaultValue: 0.5 } };
 const alphaAttribute = { alpha: { parseFunc: safeParseFloat, defaultValue: 1 } };
-const zAttribute = { z: { parseFunc: safeParseFloat, defaultValue: 0 } };
 const roadAttribute = { road: { parseFunc: verbatim, defaultValue: "{mainRoad}" } };
 
 const numberTagSchema = {
@@ -18,17 +17,17 @@ const repeatTagSchema = {
 };
 
 const meshTagSchema = {
-  depth: { parseFunc: safeParseFloat, defaultValue: 0 },
+  height: { parseFunc: safeParseFloat, defaultValue: 0 },
   ...shadeAttribute,
   ...alphaAttribute,
-  ...zAttribute,
+  y: { parseFunc: safeParseFloat, defaultValue: 0 },
   fade: { parseFunc: safeParseFloat, defaultValue: 0 },
   scale: { parseFunc: parseVec2, defaultValue: new Vector2(1, 1) }
 };
 
 const lineTagSchema = {
   ...roadAttribute,
-  xPos: { parseFunc: safeParseFloat, defaultValue: 0 },
+  x: { parseFunc: safeParseFloat, defaultValue: 0 },
   width: { parseFunc: safeParseFloat, defaultValue: 1 },
   start: { parseFunc: safeParseFloat, defaultValue: 0 },
   end: { parseFunc: safeParseFloat, defaultValue: 1 },
@@ -37,8 +36,8 @@ const lineTagSchema = {
 
 const dashTagSchema = {
   ...lineTagSchema,
-  on: { parseFunc: safeParseFloat, defaultValue: 1 },
-  off: { parseFunc: safeParseFloat, defaultValue: 1 }
+  length: { parseFunc: safeParseFloat, defaultValue: 1 },
+  spacing: { parseFunc: safeParseFloat, defaultValue: 1 }
 };
 
 const solidAttribute = {
@@ -48,7 +47,7 @@ const solidAttribute = {
 
 const dotTagSchema = {
   ...lineTagSchema,
-  spacing: { parseFunc: safeParseFloat, defaultValue: 100 }
+  spacing: { parseFunc: safeParseFloat, defaultValue: 1 }
 };
 
 const cityscapeTagSchema = {
@@ -68,7 +67,7 @@ const cloudsTagSchema = {
   count: { parseFunc: safeParseInt, defaultValue: 100 },
   ...shadeAttribute,
   scale: { parseFunc: parseVec2, defaultValue: "1000, 1000" },
-  ...zAttribute,
+  altitude: { parseFunc: safeParseFloat, defaultValue: 0 },
   cloudRadius: { parseFunc: safeParseFloat, defaultValue: 50 }
 };
 

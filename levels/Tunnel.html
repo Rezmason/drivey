@@ -4,22 +4,22 @@
   <mesh id="tarmac" shade="{tarmacShade}">
     <solid width="7"></solid>
   </mesh>
-  <mesh id="roadLines" shade="{roadLineShade}" fade="1" z="0.1">
-    <dash x-pos="3.5" width="0.2" on="30" off="2" mirror="true"></dash>
-    <dash x-pos="-0.15" width="0.15" on="4" off="8"></dash>
+  <mesh id="roadLines" shade="{roadLineShade}" fade="1" y="0.1">
+    <dash x="3.5" width="0.2" length="30" spacing="2" mirror="true"></dash>
+    <dash x="-0.15" width="0.15" length="4" spacing="8"></dash>
   </mesh>
-  <mesh id="crossing" shade="{tarmacShade}" z="0.001">
-    <dash on="2" off="200"></dash>
+  <mesh id="crossing" shade="{tarmacShade}" y="0.001">
+    <dash length="2" spacing="200"></dash>
   </mesh>
-  <mesh id="crossingLines" shade="{roadLineShade}" fade="1" z="0.01">
+  <mesh id="crossingLines" shade="{roadLineShade}" fade="1" y="0.01">
     <repeat id="i" value="6">
-      <dash x-pos="{i - 2.5}" width="0.5" on="2" off="200"></dash>
+      <dash x="{i - 2.5}" width="0.5" length="2" spacing="200"></dash>
     </repeat>
   </mesh>
-  <mesh id="lights" depth="0.1" shade="1" z="4">
-    <dash x-pos="4" width="0.1" on="4" off="6" mirror="true"></dash>
+  <mesh id="lights" height="0.1" shade="1" y="4">
+    <dash x="4" width="0.1" length="4" spacing="6" mirror="true"></dash>
   </mesh>
-  <mesh id="wall" depth="4" shade="0" fade="2">
-    <solid x-pos="5" width="0.4" mirror="true"></solid>
+  <mesh id="wall" height="4" shade="0" fade="2">
+    <solid x="5" width="0.4" mirror="true"></solid>
   </mesh>
 </drivey>

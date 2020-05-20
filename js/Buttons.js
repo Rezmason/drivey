@@ -175,8 +175,26 @@ export default class Buttons {
   }
 
   setColors(backgroundColor, borderColor, lightColor) {
-    this.bodyRule.style.setProperty("--dashboard-background-color", `#${backgroundColor.getHex().toString(16).padStart(6, "0")}`);
-    this.bodyRule.style.setProperty("--dashboard-border-color", `#${borderColor.getHex().toString(16).padStart(6, "0")}`);
-    this.bodyRule.style.setProperty("--dashboard-light-color", `#${lightColor.getHex().toString(16).padStart(6, "0")}`);
+    this.bodyRule.style.setProperty(
+      "--dashboard-background-color",
+      `#${backgroundColor
+        .getHex()
+        .toString(16)
+        .padStart(6, "0")}`
+    );
+    this.bodyRule.style.setProperty(
+      "--dashboard-border-color",
+      `#${borderColor
+        .getHex()
+        .toString(16)
+        .padStart(6, "0")}`
+    );
+    this.bodyRule.style.setProperty(
+      "--dashboard-light-color",
+      `#${lightColor
+        .getHex()
+        .toString(16)
+        .padStart(6, "0")}`
+    );
   }
 }

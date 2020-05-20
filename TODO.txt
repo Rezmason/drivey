@@ -1,18 +1,11 @@
 HTML
-
-  Reformulate z/depth into bottom/top
-  Reformulate xPos/width into left/right
-  Reformulate dash spacing, the on/off thing is odd
-
   <feature spacing="100">
     <part
-      bottom, top, inside, outside
-      back/front (thickness and offset)
+      x, y, width, height
+      z, length
       shade, alpha
     ></part>
   </feature>
-
-  Or is this just pointless?
 
 Replace framerate gauge with simulated RPM
   Prevent moving in reverse on when on auto-pilot

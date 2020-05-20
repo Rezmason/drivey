@@ -1,20 +1,20 @@
 <drivey name="The City" tint="0.33, 0.33, 1" lane-width="3" sky-low="0.4" ground="0.05" num-lanes="2" windiness="{1/6}" scale="900, 900">
   <number id="groundShade" value="0.05"></number>
   <mesh id="roadLines" shade="0.6" fade="1">
-    <solid x-pos="0.1" width="0.1" mirror="true"></solid>
-    <dash x-pos="6" width="0.15" on="30" off="1" mirror="true"></dash>
-    <dash x-pos="3" width="0.15" on="3" off="12" mirror="true"></dash>
+    <solid x="0.1" width="0.1" mirror="true"></solid>
+    <dash x="6" width="0.15" length="30" spacing="1" mirror="true"></dash>
+    <dash x="3" width="0.15" length="3" spacing="12" mirror="true"></dash>
   </mesh>
-  <mesh id="signposts" depth="10" shade="{groundShade}">
-    <dash x-pos="12" width="0.2" on="0.2" off="300"></dash>
-    <dash x-pos="16" width="0.2" on="0.2" off="300"></dash>
-    <dash x-pos="-12" width="0.2" on="0.2" off="400"></dash>
-    <dash x-pos="-16" width="0.2" on="0.2" off="400"></dash>
+  <mesh id="signposts" height="10" shade="{groundShade}">
+    <dash x="12" width="0.2" length="0.2" spacing="300"></dash>
+    <dash x="16" width="0.2" length="0.2" spacing="300"></dash>
+    <dash x="-12" width="0.2" length="0.2" spacing="400"></dash>
+    <dash x="-16" width="0.2" length="0.2" spacing="400"></dash>
   </mesh>
-  <mesh id="signs" depth="4" shade="{groundShade}" z="10">
-    <dash x-pos="14" width="6" on="0.2" off="300"></dash>
-    <dash x-pos="-14" width="6" on="0.2" off="400"></dash>
+  <mesh id="signs" height="4" shade="{groundShade}" y="10">
+    <dash x="14" width="6" length="0.2" spacing="300"></dash>
+    <dash x="-14" width="6" length="0.2" spacing="400"></dash>
   </mesh>
   <cityscape row-spacing="90" column-spacing="90" width="24" proximity="36" radius="1080" heights="0,0,0,18,18,18,30,30,72" shade="{groundShade}"></cityscape>
-  <clouds count="100" scale="2000, 2000" z="80" shade="0.2"></clouds>
+  <clouds count="100" scale="2000, 2000" altitude="80" shade="0.2"></clouds>
 </drivey>

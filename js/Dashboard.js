@@ -5,6 +5,7 @@ import { makeSplinePath, makeGeometry, expandShapePath, makeCirclePath, makePoly
 import { makeShadedMesh } from "./rendering.js";
 
 const wheelScale = 5;
+const speedometerScale = 5;
 
 export default class Dashboard {
   constructor() {
@@ -14,11 +15,13 @@ export default class Dashboard {
     this.backing.position.set(-50, -80, -110);
     this.speedometer1 = this.addDashboardElement(this.makeSpeedometer(), 0, true);
     this.speedometer1.position.set(-25, -35, -105);
+    this.speedometer1.scale.set(1 / speedometerScale, 1 / speedometerScale, 1);
     this.needle1 = this.addDashboardElement(this.makeNeedle(), 0, true);
     this.needle1.position.set(-25, -35, -105);
     this.needle1.rotation.z = Math.PI * 1.5;
     this.speedometer2 = this.addDashboardElement(this.makeSpeedometer(), 0, true);
     this.speedometer2.position.set(-70, -35, -105);
+    this.speedometer2.scale.set(1 / speedometerScale, 1 / speedometerScale, 1);
     this.needle2 = this.addDashboardElement(this.makeNeedle(), 0, true);
     this.needle2.position.set(-70, -35, -105);
     this.needle2.rotation.z = Math.PI * 1.5;
@@ -36,17 +39,17 @@ export default class Dashboard {
 
     const element = new Group();
     if (edgeAmount != 0) {
-      const edge = makeShadedMesh(makeGeometry(expandShapePath(path, 1 + edgeAmount), 0, 0), 0.2);
+      const edge = makeShadedMesh(makeGeometry(expandShapePath(path, 1 + edgeAmount), 0), 0.2);
       edge.position.z = -0.1;
       element.add(edge);
     }
 
     if (hasFill && edgeAmount != 0) {
-      const fill = makeShadedMesh(makeGeometry(expandShapePath(path, 1), 0, 0), 0);
+      const fill = makeShadedMesh(makeGeometry(expandShapePath(path, 1), 0), 0);
       fill.position.z = 0;
       element.add(fill);
     } else if (hasFill) {
-      const fill1 = makeShadedMesh(makeGeometry(path, 0, 240), 0.2);
+      const fill1 = makeShadedMesh(makeGeometry(path, 0), 0.2);
       fill1.position.z = 0;
       element.add(fill1);
     }
@@ -56,12 +59,7 @@ export default class Dashboard {
   }
 
   makeDashboardBacking() {
-    const pts = [
-      new Vector2(-200, -40),
-      new Vector2(-200, 40),
-      new Vector2(200, 40),
-      new Vector2(200, -40)
-    ];
+    const pts = [new Vector2(-200, -40), new Vector2(-200, 40), new Vector2(200, 40), new Vector2(200, -40)];
     const path = makeSplinePath(pts, true);
     const shapePath = new ShapePath();
     shapePath.subPaths.push(path);
@@ -70,9 +68,9 @@ export default class Dashboard {
 
   makeSpeedometer() {
     const shapePath = new ShapePath();
-    const outerRadius = 20;
-    const innerRadius = outerRadius - 1;
-    const dashEnd = innerRadius - 2;
+    const outerRadius = 20 * speedometerScale;
+    const innerRadius = outerRadius - speedometerScale;
+    const dashEnd = innerRadius - 2 * speedometerScale;
     const outerRim = makeCirclePath(0, 0, outerRadius);
     const innerRim = makeCirclePath(0, 0, innerRadius, false);
     shapePath.subPaths.push(outerRim);
@@ -96,12 +94,14 @@ export default class Dashboard {
   makeNeedle() {
     const shapePath = new ShapePath();
     const scale = 40;
-    shapePath.subPaths.push(makePolygonPath([
-      new Vector2(-0.02 * scale, 0.1 * scale),
-      new Vector2(-0.005 * scale, -0.4 * scale),
-      new Vector2(0.005 * scale, -0.4 * scale),
-      new Vector2(0.02 * scale, 0.1 * scale)
-    ]));
+    shapePath.subPaths.push(
+      makePolygonPath([
+        new Vector2(-0.02 * scale, 0.1 * scale),
+        new Vector2(-0.005 * scale, -0.4 * scale),
+        new Vector2(0.005 * scale, -0.4 * scale),
+        new Vector2(0.02 * scale, 0.1 * scale)
+      ])
+    );
     return shapePath;
   }
 

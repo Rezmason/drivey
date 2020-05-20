@@ -18,12 +18,17 @@ const makeSplinePath = (pts, closed) => {
 const zero = new Vector2();
 
 const makeCirclePath = (x, y, radius, aClockwise = true) => {
-  const numPoints = Math.max(10, Math.ceil(TWO_PI * radius * 10));
+  const numPoints = Math.max(10, Math.ceil(TWO_PI * radius * 0.1));
   const ray = new Vector2(radius, 0);
   const pos = new Vector2(x, y);
-  const points = Array(numPoints).fill().map((_, index) => {
-    return ray.clone().rotateAround(zero, index / numPoints * TWO_PI).add(pos);
-  });
+  const points = Array(numPoints)
+    .fill()
+    .map((_, index) => {
+      return ray
+        .clone()
+        .rotateAround(zero, (index / numPoints) * TWO_PI)
+        .add(pos);
+    });
   if (aClockwise) {
     points.reverse();
   }
@@ -51,7 +56,7 @@ const getOffsetSample = (source, t, offset) => {
 
 const maxAllowedDistanceSquared = 50;
 const maxAllowedDifferenceAngle = TWO_PI / 360;
-const maxIterations = 20;
+const maxIterations = 10;
 
 const getOffsetPoints = (source, offset, start, end, spacing = 0) => {
   start = fract(start);
@@ -108,10 +113,10 @@ const getOffsetPoints = (source, offset, start, end, spacing = 0) => {
   return points;
 };
 
-const makeGeometry = (source, depth, curveSegments) =>
+const makeGeometry = (source, height) =>
   new ExtrudeBufferGeometry(source.toShapes(false, false), {
-    depth: Math.max(Math.abs(depth), 0.0000001),
-    curveSegments,
+    depth: Math.max(Math.abs(height), 0.0000001),
+    curveSegments: 10,
     bevelEnabled: false
   });
 

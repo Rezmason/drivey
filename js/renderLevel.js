@@ -4,13 +4,13 @@ import { fract, lerp, distance } from "./math.js";
 import { makeShadedMesh } from "./rendering.js";
 import RoadPath from "./RoadPath.js";
 
-const renderSolidLine = (shapePath, { spacing, road, xPos, width, start, end }) => {
+const renderSolidLine = (shapePath, { spacing, road, x, width, start, end }) => {
   if (start === end) {
     return;
   }
   width = Math.abs(width);
-  const outsidePoints = getOffsetPoints(road.curve, xPos - width / 2, start, end, spacing / road.length);
-  const insidePoints = getOffsetPoints(road.curve, xPos + width / 2, start, end, spacing / road.length);
+  const outsidePoints = getOffsetPoints(road.curve, x - width / 2, start, end, spacing / road.length);
+  const insidePoints = getOffsetPoints(road.curve, x + width / 2, start, end, spacing / road.length);
   outsidePoints.reverse();
   if (Math.abs(end - start) < 1) {
     addPath(shapePath, makePolygonPath(outsidePoints.concat(insidePoints)));
@@ -20,7 +20,7 @@ const renderSolidLine = (shapePath, { spacing, road, xPos, width, start, end }) 
   }
 };
 
-const renderDashedLine = (shapePath, { off, on, road, xPos, width, start, end }) => {
+const renderDashedLine = (shapePath, { spacing, length, road, x, width, start, end }) => {
   if (start === end) {
     return;
   }
@@ -29,25 +29,24 @@ const renderDashedLine = (shapePath, { off, on, road, xPos, width, start, end })
   if (end < start) {
     end++;
   }
-  const dashSpan = (on + off) / road.length;
-  const dashLength = (dashSpan * on) / (on + off);
+  const dashSpan = (length + spacing) / road.length;
+  const dashLength = (dashSpan * length) / (length + spacing);
   for (let dashStart = start; dashStart < end; dashStart += dashSpan) {
-    const dashEnd = Math.min(end, dashStart + dashLength);
     renderSolidLine(shapePath, {
       road,
-      xPos,
+      x,
       width,
       start: dashStart,
-      end: dashEnd
+      end: Math.min(end, dashStart + dashLength)
     });
   }
 };
 
-const renderDottedLine = (shapePath, { spacing, road, xPos, width, start, end }) => {
+const renderDottedLine = (shapePath, { spacing, road, x, width, start, end }) => {
   if (start === end) {
     return;
   }
-  const positions = getOffsetPoints(road.curve, xPos, start, end, spacing / road.length);
+  const positions = getOffsetPoints(road.curve, x, start, end, spacing / road.length);
   positions.forEach(pos => addPath(shapePath, makeCirclePath(pos.x, pos.y, width)));
 };
 
@@ -122,7 +121,7 @@ const renderLine = ({ attributes, type }, path, mush) => {
   const road = getRoad(attributes.road, mush);
   render(path, { ...attributes, road });
   if (attributes.mirror) {
-    render(path, { ...attributes, road, xPos: -attributes.xPos });
+    render(path, { ...attributes, road, x: -attributes.x });
   }
 };
 
@@ -151,7 +150,7 @@ const renderCityscape = ({ attributes }, mush) => {
       return;
     }
     const path = paths[index];
-    const geometry = makeGeometry(path, height, 1);
+    const geometry = makeGeometry(path, height);
     const mesh = makeShadedMesh(geometry, shade, alpha, fade);
     if (alpha < 1) {
       mush.transparentMeshes.push(mesh);
@@ -162,7 +161,7 @@ const renderCityscape = ({ attributes }, mush) => {
 };
 
 const renderClouds = ({ attributes }, { skyMeshes }) => {
-  const { count, shade, scale, z, cloudRadius } = attributes;
+  const { count, shade, scale, altitude, cloudRadius } = attributes;
   const path = new ShapePath();
   for (let i = 0; i < count; i++) {
     const pos = new Vector2(Math.random() - 0.5, Math.random() - 0.5);
@@ -172,8 +171,8 @@ const renderClouds = ({ attributes }, { skyMeshes }) => {
     }
   }
 
-  const cloudsMesh = makeShadedMesh(makeGeometry(path, 1, 200), shade);
-  cloudsMesh.position.z = z;
+  const cloudsMesh = makeShadedMesh(makeGeometry(path, 1), shade);
+  cloudsMesh.position.z = altitude;
   skyMeshes.push(cloudsMesh);
 };
 
@@ -182,9 +181,9 @@ const renderMesh = (node, mush) => {
   forEachChildOfType(node, "solid", line => renderLine(line, path, mush));
   forEachChildOfType(node, "dash", line => renderLine(line, path, mush));
   forEachChildOfType(node, "dot", line => renderLine(line, path, mush));
-  const { depth, shade, alpha, fade, z, scale } = node.attributes;
-  const mesh = makeShadedMesh(makeGeometry(path, depth, 1), shade, alpha, fade);
-  mesh.position.z = z;
+  const { y, height, shade, alpha, fade, scale } = node.attributes;
+  const mesh = makeShadedMesh(makeGeometry(path, height, 1), shade, alpha, fade);
+  mesh.position.z = y;
   mesh.scale.set(scale.x, scale.y, 1);
   if (alpha < 1) {
     mush.transparentMeshes.push(mesh);
