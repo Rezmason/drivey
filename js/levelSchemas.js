@@ -19,7 +19,6 @@ const repeatTagSchema = {
 
 const meshTagSchema = {
   depth: { parseFunc: safeParseFloat, defaultValue: 0 },
-  curveSegments: { parseFunc: safeParseInt, defaultValue: 0 },
   ...shadeAttribute,
   ...alphaAttribute,
   ...zAttribute,
@@ -39,13 +38,12 @@ const lineTagSchema = {
 const dashTagSchema = {
   ...lineTagSchema,
   on: { parseFunc: safeParseFloat, defaultValue: 1 },
-  off: { parseFunc: safeParseFloat, defaultValue: 1 },
-  pointSpacing: { parseFunc: safeParseFloat, defaultValue: 0 }
+  off: { parseFunc: safeParseFloat, defaultValue: 1 }
 };
 
 const solidAttribute = {
   ...lineTagSchema,
-  pointSpacing: { parseFunc: safeParseFloat, defaultValue: 0 }
+  spacing: { parseFunc: safeParseFloat, defaultValue: 0 }
 };
 
 const dotTagSchema = {

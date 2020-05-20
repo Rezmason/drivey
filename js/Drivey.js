@@ -61,6 +61,7 @@ const levelsByName = new Map(
     fetch(`./levels/${filename}.html`)
       .then(file => file.text())
       .then(readLevel)
+      .then(buildLevel)
   ])
 );
 
@@ -244,9 +245,9 @@ export default class Drivey {
 
   async setLevelByName(levelName) {
     this.loadingLevelName = levelName;
-    const levelDOM = await levelsByName.get(levelName);
+    const levelData = await levelsByName.get(levelName);
     if (this.loadingLevelName === levelName) {
-      this.setLevel(buildLevel(levelDOM));
+      this.setLevel(levelData);
     }
   }
 

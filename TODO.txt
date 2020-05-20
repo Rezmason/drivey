@@ -1,52 +1,28 @@
-Separate "solid" into "smooth" and "angular"
-  "smooth" and "dashed" will be smoothly approximated, ie have no declared spacing
-  "pointy" will have a spacing parameter (instead of "point-spacing")
+HTML
 
-Adaptive curve smoothness
+  Reformulate z/depth into bottom/top
+  Reformulate xPos/width into left/right
+  Reformulate dash spacing, the on/off thing is odd
 
-  2D spline extrusion
+  <feature spacing="100">
+    <part
+      bottom, top, inside, outside
+      back/front (thickness and offset)
+      shade, alpha
+    ></part>
+  </feature>
 
-    Get the beginning, middle, and end samples
-    const isStraightLine = samples have same tangent and their positions sit on a straight line
-    if (isStraightLine) {
-      return [start, end].map(({pos}) => pos);
-    }
-
-    const maxDistSquared = maxDist ** 2;
-    Get coarse samples of the curve
-    let iterate = true;
-    let samples = [ start, (start + middle) / 2, end ];
-    while (iterate) {
-      iterate = false;
-      for (every sample) {
-        Grab the successive sample: s0, s1 (looping around)
-        If (distanceSquared(s0.point, s1.point) > maxDist || abs(s0.angle  - s1.angle)) < maxAngle) {
-          insert a sample between s0 and s1;
-          iterate = true;
-        }
-      }
-    }
-
-    return samples.map(({pos}) => pos);
-
-  curveSegments of ExtrudeBufferGeometry
-    How do different shapes get extruded?
-      CurvePath::getPoints. Not great.
-    What we want is for all paths at this point to be polygonal, and to be extruded "verbatim"
-      Every function that makes a path, should make a polygon path
-
-Remake dashboard from smooth curves
-
-HTML revision
-  Right now, everything is a bunch of meshes with lines in them
-  What if there was a way to compose objects and then repeat them?
+  Or is this just pointless?
 
 Portable Drivey
   Like A-Frame, drivey.js (and minified) would find a root tag in the DOM and render it
   browserify / webpack / rollup
     Gotta prune, jeez
 
-Why doesn't it run on iPads?
+Revisit dashboard's composition
+
+Test on multiple devices
+  Chances are, the effect composer messes things up in browsers that don't support floating point textures
 
 Change car auto-steering logic when the car is going in reverse
 

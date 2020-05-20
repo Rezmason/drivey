@@ -4,23 +4,23 @@ import { fract, lerp, distance } from "./math.js";
 import { makeShadedMesh } from "./rendering.js";
 import RoadPath from "./RoadPath.js";
 
-const renderSolidLine = (shapePath, { pointSpacing, road, xPos, width, start, end }) => {
+const renderSolidLine = (shapePath, { spacing, road, xPos, width, start, end }) => {
   if (start === end) {
     return;
   }
   width = Math.abs(width);
-  const outsidePoints = getOffsetPoints(road.curve, xPos - width / 2, start, end, pointSpacing / road.length);
-  const insidePoints = getOffsetPoints(road.curve, xPos + width / 2, start, end, pointSpacing / road.length);
+  const outsidePoints = getOffsetPoints(road.curve, xPos - width / 2, start, end, spacing / road.length);
+  const insidePoints = getOffsetPoints(road.curve, xPos + width / 2, start, end, spacing / road.length);
   outsidePoints.reverse();
-  if (start === 0 && end === 1) {
+  if (Math.abs(end - start) < 1) {
+    addPath(shapePath, makePolygonPath(outsidePoints.concat(insidePoints)));
+  } else {
     addPath(shapePath, makePolygonPath(outsidePoints));
     addPath(shapePath, makePolygonPath(insidePoints));
-  } else {
-    addPath(shapePath, makePolygonPath(outsidePoints.concat(insidePoints)));
   }
 };
 
-const renderDashedLine = (shapePath, { off, on, pointSpacing, road, xPos, width, start, end }) => {
+const renderDashedLine = (shapePath, { off, on, road, xPos, width, start, end }) => {
   if (start === end) {
     return;
   }
@@ -34,7 +34,6 @@ const renderDashedLine = (shapePath, { off, on, pointSpacing, road, xPos, width,
   for (let dashStart = start; dashStart < end; dashStart += dashSpan) {
     const dashEnd = Math.min(end, dashStart + dashLength);
     renderSolidLine(shapePath, {
-      pointSpacing,
       road,
       xPos,
       width,
@@ -48,7 +47,8 @@ const renderDottedLine = (shapePath, { spacing, road, xPos, width, start, end })
   if (start === end) {
     return;
   }
-  getOffsetPoints(road.curve, xPos, start, end, spacing / road.length).forEach(pos => addPath(shapePath, makeCirclePath(pos.x, pos.y, width)));
+  const positions = getOffsetPoints(road.curve, xPos, start, end, spacing / road.length);
+  positions.forEach(pos => addPath(shapePath, makeCirclePath(pos.x, pos.y, width)));
 };
 
 const lineRenderersByType = {
@@ -182,8 +182,8 @@ const renderMesh = (node, mush) => {
   forEachChildOfType(node, "solid", line => renderLine(line, path, mush));
   forEachChildOfType(node, "dash", line => renderLine(line, path, mush));
   forEachChildOfType(node, "dot", line => renderLine(line, path, mush));
-  const { depth, curveSegments, shade, alpha, fade, z, scale } = node.attributes;
-  const mesh = makeShadedMesh(makeGeometry(path, depth, curveSegments), shade, alpha, fade);
+  const { depth, shade, alpha, fade, z, scale } = node.attributes;
+  const mesh = makeShadedMesh(makeGeometry(path, depth, 1), shade, alpha, fade);
   mesh.position.z = z;
   mesh.scale.set(scale.x, scale.y, 1);
   if (alpha < 1) {
@@ -199,6 +199,7 @@ const renderLevel = node => {
   const skyMeshes = [];
   const roadsById = {};
   const mush = { meshes, transparentMeshes, skyMeshes, roadsById }; // TODO: refactor
+  getRoad(node.attributes, mush);
 
   forEachChildOfType(node, "mesh", mesh => renderMesh(mesh, mush));
   forEachChildOfType(node, "cityscape", cityscape => renderCityscape(cityscape, mush));
@@ -213,6 +214,7 @@ const renderLevel = node => {
 };
 
 export default levelData => {
+  console.dir(levelData.attributes.name, levelData);
   console.time("Rendering " + levelData.attributes.name);
   const level = renderLevel(levelData);
   console.timeEnd("Rendering " + levelData.attributes.name);
@@ -225,7 +227,10 @@ export default levelData => {
   const combinedMesh = mergeMeshes(meshes);
   combinedMesh.geometry.computeBoundingSphere();
   level.worldRadius = combinedMesh.geometry.boundingSphere.radius;
-  if (meshes.length > 0) world.add(combinedMesh);
+  if (meshes.length > 0) {
+    world.add(combinedMesh);
+    console.log(combinedMesh.geometry.getAttribute("position").count / 3, "opaque triangles");
+  }
   meshes.forEach(mesh => mesh.geometry.dispose());
   meshes.length = 0;
 

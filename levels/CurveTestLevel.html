@@ -1,17 +1,13 @@
-<drivey name="Curve Test" tint="1, 0.3, 0" sky-high="1">
-  <mesh id="solidCoarseWhole"><solid x-pos="{-6*10}" width="1" start="0" end="1" point-spacing="100"></solid></mesh>
-  <mesh id="solidCoarseSummer" shade="0.75"><solid x-pos="{-5*10}" width="1" start="0.25" end="0.75" point-spacing="100"></solid></mesh>
-  <mesh id="solidCoarseWinter" shade="0.2"><solid x-pos="{-4*10}" width="1" start="0.75" end="0.25" point-spacing="100"></solid></mesh>
+<drivey name="Curve Test" tint="1, 0.3, 0" sky-high="1" lane-width="0" num-lanes="0">
+  <mesh id="spacedWhole"><solid x-pos="{-3*0.25}" width="1" start="0" end="1" spacing="60"></solid></mesh>
+  <mesh id="spacedSummer" shade="0.75"><solid x-pos="{-2*0.25}" width="0.25" start="0.25" end="0.75" spacing="60"></solid></mesh>
+  <mesh id="spacedWinter" shade="0.2"><solid x-pos="{-1*0.25}" width="0.25" start="0.75" end="0.25" spacing="60"></solid></mesh>
 
-  <mesh id="solidSmoothWhole" shade="1"><solid x-pos="{-3*10}" width="1" start="0" end="1" point-spacing="0"></solid></mesh>
-  <mesh id="solidSmoothSummer" shade="0.75"><solid x-pos="{-2*10}" width="1" start="0.25" end="0.75" point-spacing="0"></solid></mesh>
-  <mesh id="solidSmoothWinter" shade="0.2"><solid x-pos="{-1*10}" width="1" start="0.75" end="0.25" point-spacing="0"></solid></mesh>
+  <mesh id="smoothWhole" shade="1"><solid x-pos="{1*0.25}" width="0.25" start="0" end="1"></solid></mesh>
+  <mesh id="smoothSummer" shade="0.75"><solid x-pos="{2*0.25}" width="0.25" start="0.25" end="0.75"></solid></mesh>
+  <mesh id="smoothWinter" shade="0.2"><solid x-pos="{3*0.25}" width="0.25" start="0.75" end="0.25"></solid></mesh>
 
-  <mesh id="dashCoarseWhole"><dash x-pos="{1*10}" width="1" start="0" end="1" on="10" off="10" point-spacing="100"></dash></mesh>
-  <mesh id="dashCoarseSummer" shade="0.75"><dash x-pos="{2*10}" width="1" start="0.25" end="0.75" on="10" off="10" point-spacing="100"></dash></mesh>
-  <mesh id="dashCoarseWinter" shade="0.2"><dash x-pos="{3*10}" width="1" start="0.75" end="0.25" on="10" off="10" point-spacing="100"></dash></mesh>
-
-  <mesh id="dashSmoothWhole" shade="1"><dash x-pos="{4*10}" width="1" start="0" end="1" on="10" off="10"></dash></mesh>
-  <mesh id="dashSmoothSummer" shade="0.75"><dash x-pos="{5*10}" width="1" start="0.25" end="0.75" on="10" off="10"></dash></mesh>
-  <mesh id="dashSmoothWinter" shade="0.2"><dash x-pos="{6*10}" width="1" start="0.75" end="0.25" on="10" off="10"></dash></mesh>
+  <mesh id="dashWhole" shade="1"><dash x-pos="{4*0.25}" width="0.25" start="0" end="1" on="10" off="10"></dash></mesh>
+  <mesh id="dashSummer" shade="0.75"><dash x-pos="{5*0.25}" width="0.25" start="0.25" end="0.75" on="10" off="10"></dash></mesh>
+  <mesh id="dashWinter" shade="0.2"><dash x-pos="{6*0.25}" width="0.25" start="0.75" end="0.25" on="10" off="10"></dash></mesh>
 </drivey>

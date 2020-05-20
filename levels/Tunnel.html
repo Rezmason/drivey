@@ -2,10 +2,10 @@
   <number id="tarmacShade" value="0.1"></number>
   <number id="roadLineShade" value="0.8"></number>
   <mesh id="tarmac" shade="{tarmacShade}">
-    <solid width="7" point-spacing="5"></solid>
+    <solid width="7"></solid>
   </mesh>
   <mesh id="roadLines" shade="{roadLineShade}" fade="1" z="0.1">
-    <dash x-pos="3.5" width="0.2" on="30" off="2" point-spacing="5" mirror="true"></dash>
+    <dash x-pos="3.5" width="0.2" on="30" off="2" mirror="true"></dash>
     <dash x-pos="-0.15" width="0.15" on="4" off="8"></dash>
   </mesh>
   <mesh id="crossing" shade="{tarmacShade}" z="0.001">
@@ -20,6 +20,6 @@
     <dash x-pos="4" width="0.1" on="4" off="6" mirror="true"></dash>
   </mesh>
   <mesh id="wall" depth="4" shade="0" fade="2">
-    <solid x-pos="5" width="0.4" point-spacing="5" mirror="true"></solid>
+    <solid x-pos="5" width="0.4" mirror="true"></solid>
   </mesh>
 </drivey>

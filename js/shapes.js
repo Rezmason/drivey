@@ -40,6 +40,10 @@ const getOffsetSample = (source, t, offset) => {
   return { t, pos, angle };
 };
 
+const maxAllowedDistanceSquared = 50;
+const maxAllowedDifferenceAngle = TWO_PI / 360;
+const maxIterations = 20;
+
 const getOffsetPoints = (source, offset, start, end, spacing = 0) => {
   start = fract(start);
   end = fract(end);
@@ -58,9 +62,41 @@ const getOffsetPoints = (source, offset, start, end, spacing = 0) => {
     return [startSample.pos, ...points, endSample.pos];
   }
 
-  // TODO: smooth spacing
+  const middleSample = getOffsetSample(source, (start + end) / 2, offset);
+  startSample.next = middleSample;
+  middleSample.next = endSample;
+  let numSamples = 3;
+  for (let iteration = 0; iteration < maxIterations; iteration++) {
+    let numAddedSamples = 0;
+    let sample = startSample;
+    for (let i = 1; i < numSamples; i++) {
+      const nextSample = sample.next;
+      if (fract(sample.t) !== fract(nextSample.t)) {
+        const tooFarApart = sample.pos.distanceToSquared(nextSample.pos) > maxAllowedDistanceSquared;
+        const tooPointy = modDiffAngle(sample.angle, nextSample.angle) > maxAllowedDifferenceAngle;
+        if (tooFarApart || tooPointy) {
+          const halfwaySample = getOffsetSample(source, (sample.t + nextSample.t) / 2, offset);
+          halfwaySample.next = nextSample;
+          sample.next = halfwaySample;
+          numAddedSamples++;
+        }
+      }
+      sample = nextSample;
+    }
+    numSamples += numAddedSamples;
+    if (numAddedSamples === 0) {
+      break;
+    }
+  }
 
-  return [startSample.pos, endSample.pos];
+  const points = [];
+  let sample = startSample;
+  for (let i = 0; i < numSamples; i++) {
+    points.push(sample.pos);
+    sample = sample.next;
+  }
+
+  return points;
 };
 
 const makeGeometry = (source, depth, curveSegments) =>

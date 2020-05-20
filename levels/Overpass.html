@@ -1,34 +1,34 @@
 <drivey name="Overpass" tint="0.5, 0.8, 0.2" ground="0.1" sky-low="0.8" windiness="{1/6}" scale="300, 300" cruise-speed="4" lane-width="4">
-  <mesh id="tarmac" depth="0.5" curve-segments="100" shade="0.05" z="-0.5">
-    <solid width="9" point-spacing="2"></solid>
+  <mesh id="tarmac" depth="0.5" shade="0.05" z="-0.5">
+    <solid width="9"></solid>
   </mesh>
-  <mesh id="shoulder" depth="0.5" curve-segments="100" shade="0.25" z="-0.55">
-    <solid x-pos="5.5" width="2" point-spacing="2" mirror="true"></solid>
+  <mesh id="shoulder" depth="0.5" shade="0.25" z="-0.55">
+    <solid x-pos="5.5" width="2" mirror="true"></solid>
   </mesh>
   <mesh id="underneath" depth="2" shade="0.07" z="-2.5">
-    <solid width="5.25" point-spacing="10"></solid>
+    <solid width="5.25"></solid>
   </mesh>
   <mesh id="roadLines" shade="0.7" z="0.1">
-    <dash x-pos="4" width="0.1" on="30" off="1" point-spacing="2" mirror="true"></dash>
+    <dash x-pos="4" width="0.1" on="30" off="1" mirror="true"></dash>
     <dash width="0.15" on="5" off="5"></dash>
   </mesh>
   <mesh id="rails" depth="0.1" shade="0.3" z="0.25">
-    <solid x-pos="6.0" width="0.175" point-spacing="3" mirror="true"></solid>
+    <solid x-pos="6.0" width="0.175" mirror="true"></solid>
   </mesh>
   <mesh id="railsTop" depth="0.125" shade="0.35" z="0.25">
-    <solid x-pos="6.0" width="0.1" point-spacing="3" mirror="true"></solid>
+    <solid x-pos="6.0" width="0.1" mirror="true"></solid>
   </mesh>
   <mesh id="railStakes" depth="0.55" shade="0.3" z="-0.25">
     <dash x-pos="6.0" width="0.15" on="0.2" off="2" mirror="true"></dash>
   </mesh>
-  <mesh id="supports" depth="2" curve-segments="100" shade="0.07" z="-3.5">
+  <mesh id="supports" depth="2" shade="0.07" z="-3.5">
     <dot width="5" spacing="50"></dot>
   </mesh>
-  <mesh id="columns" depth="2" curve-segments="100" shade="0.07" z="-5.5">
+  <mesh id="columns" depth="2" shade="0.07" z="-5.5">
     <dot width="5" spacing="50"></dot>
   </mesh>
   <road id="river" windiness="0.9" scale="600, 600"></road>
-  <mesh id="marshland" curve-segments="100" fade="-1" z="-5.5">
-    <solid road="{river}" width="120" point-spacing="3"></solid>
+  <mesh id="marshland" fade="-1" z="-5.5">
+    <solid road="{river}" width="120"></solid>
   </mesh>
 </drivey>

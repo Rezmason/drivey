@@ -48,8 +48,4 @@ const simplify = (element, parentScope = {}) => {
   return { type, id: attributes.id, attributes, children, ...hoist };
 };
 
-export default dom => {
-  const level = simplify(dom.querySelector("drivey"));
-  console.dir(level.attributes.name, level);
-  return level;
-};
+export default dom => simplify(dom.querySelector("drivey"));
