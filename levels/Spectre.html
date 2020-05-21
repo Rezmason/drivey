@@ -4,13 +4,13 @@
       <dashed x="{5 * (i + 1)}" width="0.1" length="0.1" spacing="{20 + 3 * i}" mirror="true"></dashed>
     </repeat>
   </shape>
-  <shape id="flagpoles" height="14" shade="0.9">
-    <dashed x="12" width="0.2" length="0.2" spacing="300"></dashed>
-    <dashed x="-12" width="0.2" length="0.2" spacing="400"></dashed>
-  </shape>
-  <shape id="flags" height="4" shade="0.9" y="10">
-    <dashed x="15" width="6" length="0.2" spacing="300"></dashed>
-    <dashed x="-15" width="6" length="0.2" spacing="400"></dashed>
-  </shape>
+  <feature id="leftObjectives" spacing="400">
+    <box x="-12" width="0.2" length="0.2" height="10" shade="0.9"></box>
+    <box x="-15" width="6" length="0.2" y="10" height="4" shade="0.9"></box>
+  </feature>
+  <feature id="rightObjectives" spacing="300">
+    <box x="12" width="0.2" length="0.2" height="10" shade="0.9"></box>
+    <box x="15" width="6" length="0.2" y="10" height="4" shade="0.9"></box>
+  </feature>
   <cityscape row-spacing="300" width="9" column-spacing="60" proximity="9" radius="450" heights="10"></cityscape>
 </drivey>

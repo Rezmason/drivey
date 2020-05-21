@@ -1,12 +1,3 @@
-HTML
-  <feature spacing="100">
-    <part
-      x, y, width, height
-      z, length
-      shade, alpha
-    ></part>
-  </feature>
-
 Replace framerate gauge with simulated RPM
   Prevent moving in reverse on when on auto-pilot
   Simluated gearbox?

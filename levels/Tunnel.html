@@ -8,17 +8,15 @@
     <dashed x="3.5" width="0.2" length="30" spacing="2" mirror="true"></dashed>
     <dashed x="-0.15" width="0.15" length="4" spacing="8"></dashed>
   </shape>
-  <shape id="crossing" shade="{tarmacShade}" y="0.001">
-    <dashed length="2" spacing="200"></dashed>
-  </shape>
-  <shape id="crossingLines" shade="{roadLineShade}" fade="1" y="0.01">
+  <feature id="crossings" spacing="200">
+    <box length="2" shade="{tarmacShade}" y="0.001"></box>
     <repeat id="i" value="6">
-      <dashed x="{i - 2.5}" width="0.5" length="2" spacing="200"></dashed>
+      <box x="{i - 2.5}" width="0.5" y="0.01" length="2" shade="{roadLineShade}" fade="1"></box>
     </repeat>
-  </shape>
-  <shape id="lights" height="0.1" shade="1" y="4">
-    <dashed x="4" width="0.1" length="4" spacing="6" mirror="true"></dashed>
-  </shape>
+  </feature>
+  <feature id="lights" spacing="6">
+    <box x="4" width="0.1" y="4" height="0.1" length="4" mirror="true" shade="1"></box>
+  </feature>
   <shape id="wall" height="4" shade="0" fade="2">
     <solid x="5" width="0.4" mirror="true"></solid>
   </shape>

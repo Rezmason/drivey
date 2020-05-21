@@ -139,6 +139,62 @@ const renderShape = (node, roadsById) => {
   return [mesh];
 };
 
+const renderBox = attributes => {
+  const start = attributes.start + attributes.z;
+  const end = attributes.end + attributes.z;
+  const shape = wrapPaths(
+    renderDashedLine({
+      ...attributes,
+      start,
+      end
+    })
+  );
+
+  const { y, height, shade, alpha, fade } = attributes;
+  const mesh = makeShadedMesh(makeGeometry(shape, height, 1), shade, alpha, fade);
+  mesh.position.z = y;
+  return mesh;
+};
+
+const renderDisk = attributes => {
+  const start = attributes.start + attributes.z;
+  const end = attributes.end + attributes.z;
+  const shape = wrapPaths(
+    renderDottedLine({
+      ...attributes,
+      start,
+      end
+    })
+  );
+
+  const { y, height, shade, alpha, fade } = attributes;
+  const mesh = makeShadedMesh(makeGeometry(shape, height, 1), shade, alpha, fade);
+  mesh.position.z = y;
+  return mesh;
+};
+
+const partRenderersByType = {
+  disk: renderDisk,
+  box: renderBox
+};
+
+const renderPart = ({ attributes, type }, featureAttributes) => {
+  const render = partRenderersByType[type];
+  const mesh = render({ ...attributes, ...featureAttributes });
+  if (attributes.mirror) {
+    return [mesh, render({ ...attributes, ...featureAttributes, x: -attributes.x })];
+  }
+  return [mesh];
+};
+
+const renderFeature = (node, roadsById) => {
+  const road = getRoad(node.attributes.road, roadsById);
+  const attributes = { ...node.attributes, road };
+  return getChildrenOfTypes(node, ["box", "disk"])
+    .map(part => renderPart(part, attributes))
+    .flat();
+};
+
 const renderCityscape = ({ attributes }, roadsById) => {
   const { rowSpacing, columnSpacing, heights, proximity, width, radius } = attributes;
   const road = getRoad(attributes.road, roadsById);
@@ -182,12 +238,15 @@ const renderLevel = node => {
   const roadsById = {};
   getRoad(node.attributes, roadsById);
   const allMeshes = [
-    ...getChildrenOfTypes(node, "shape").map(mesh => renderShape(mesh, roadsById)),
-    ...getChildrenOfTypes(node, "cityscape").map(cityscape => renderCityscape(cityscape, roadsById))
+    ...getChildrenOfTypes(node, ["feature"])
+      .map(feature => renderFeature(feature, roadsById))
+      .flat(),
+    ...getChildrenOfTypes(node, ["shape"]).map(mesh => renderShape(mesh, roadsById)),
+    ...getChildrenOfTypes(node, ["cityscape"]).map(cityscape => renderCityscape(cityscape, roadsById))
   ].flat();
   const meshes = allMeshes.filter(mesh => !mesh.material.transparent);
   const transparentMeshes = allMeshes.filter(mesh => mesh.material.transparent);
-  const skyMeshes = getChildrenOfTypes(node, "clouds").map(renderClouds);
+  const skyMeshes = getChildrenOfTypes(node, ["clouds"]).map(renderClouds);
   return {
     ...node.attributes,
     meshes,

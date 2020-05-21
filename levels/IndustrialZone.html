@@ -32,14 +32,12 @@
     <solid x="0.125" width="0.125"></solid>
   </shape>
   <!-- do crossings -->
-  <shape id="crossings" shade="{groundShade}" y="0.001">
-    <dashed length="2" spacing="200"></dashed>
-  </shape>
-  <shape id="crossingLines" shade="{whiteLinesShade}" fade="2.25" y="0.01">
+  <feature id="crossings" spacing="200">
+    <box length="2" shade="{groundShade}" y="0.001"></box>
     <repeat id="i" value="6">
-      <dashed x="{i - 2.5}" width="0.5" length="2" spacing="200"></dashed>
+      <box x="{i - 2.5}" width="0.5" y="0.01" length="2" shade="{whiteLinesShade}" fade="2.25"></box>
     </repeat>
-  </shape>
+  </feature>
   <!-- street lights -->
   <number id="streetLightSpacing" value="80"></number>
   <number id="streetLightThickness" value="0.2"></number>
@@ -78,8 +76,8 @@
   </shape>
   <!--
   <shape id="wall">
-    <dashed x="-15" width="2" length="{overpassDepth}" spacing="{overpassSpacing}"></dashed>
-    <dashed x="15" width="2" length="{overpassDepth}" spacing="{overpassSpacing}"></dashed>
+    <solid x="-15" width="2" length="{overpassDepth}" spacing="{overpassSpacing}"></solid>
+    <solid x="15" width="2" length="{overpassDepth}" spacing="{overpassSpacing}"></solid>
   </shape>
    -->
   <number id="knobSpacing1" value="110"></number>

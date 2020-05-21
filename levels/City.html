@@ -5,16 +5,16 @@
     <dashed x="6" width="0.15" length="30" spacing="1" mirror="true"></dashed>
     <dashed x="3" width="0.15" length="3" spacing="12" mirror="true"></dashed>
   </shape>
-  <shape id="signposts" height="10" shade="{groundShade}">
-    <dashed x="12" width="0.2" length="0.2" spacing="300"></dashed>
-    <dashed x="16" width="0.2" length="0.2" spacing="300"></dashed>
-    <dashed x="-12" width="0.2" length="0.2" spacing="400"></dashed>
-    <dashed x="-16" width="0.2" length="0.2" spacing="400"></dashed>
-  </shape>
-  <shape id="signs" height="4" shade="{groundShade}" y="10">
-    <dashed x="14" width="6" length="0.2" spacing="300"></dashed>
-    <dashed x="-14" width="6" length="0.2" spacing="400"></dashed>
-  </shape>
+  <feature id="leftSigns" spacing="400">
+    <box x="-16" width="0.2" length="0.2" height="10" shade="{groundShade}"></box>
+    <box x="-12" width="0.2" length="0.2" height="10" shade="{groundShade}"></box>
+    <box x="-14" width="6" length="0.2" y="10" height="4" shade="{groundShade}"></box>
+  </feature>
+  <feature id="rightSigns" spacing="300">
+    <box x="16" width="0.2" length="0.2" height="10" shade="{groundShade}"></box>
+    <box x="12" width="0.2" length="0.2" height="10" shade="{groundShade}"></box>
+    <box x="14" width="6" length="0.2" y="10" height="4" shade="{groundShade}"></box>
+  </feature>
   <cityscape row-spacing="90" column-spacing="90" width="24" proximity="36" radius="1080" heights="0,0,0,18,18,18,30,30,72" shade="{groundShade}"></cityscape>
   <clouds count="100" scale="2000, 2000" altitude="80" shade="0.2"></clouds>
 </drivey>

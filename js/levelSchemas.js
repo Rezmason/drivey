@@ -5,6 +5,19 @@ const idAttribute = { id: {} };
 const shadeAttribute = { shade: { parseFunc: safeParseFloat, defaultValue: 0.5 } };
 const alphaAttribute = { alpha: { parseFunc: safeParseFloat, defaultValue: 1 } };
 const roadAttribute = { road: { parseFunc: verbatim, defaultValue: "{mainRoad}" } };
+const fadeAttribute = { fade: { parseFunc: safeParseFloat, defaultValue: 0 } };
+const spacingAttribute = { spacing: { parseFunc: safeParseFloat, defaultValue: 1 } };
+
+const horizontalTagSchema = {
+  mirror: { parseFunc: parseBool, defaultValue: false },
+  x: { parseFunc: safeParseFloat, defaultValue: 0 },
+  width: { parseFunc: safeParseFloat, defaultValue: 1 }
+};
+
+const verticalTagSchema = {
+  y: { parseFunc: safeParseFloat, defaultValue: 0 },
+  height: { parseFunc: safeParseFloat, defaultValue: 0 }
+};
 
 const numberTagSchema = {
   ...idAttribute,
@@ -17,27 +30,28 @@ const repeatTagSchema = {
 };
 
 const shapeTagSchema = {
-  height: { parseFunc: safeParseFloat, defaultValue: 0 },
   ...shadeAttribute,
   ...alphaAttribute,
-  y: { parseFunc: safeParseFloat, defaultValue: 0 },
-  fade: { parseFunc: safeParseFloat, defaultValue: 0 },
+  ...fadeAttribute,
+  ...verticalTagSchema,
   scale: { parseFunc: parseVec2, defaultValue: new Vector2(1, 1) }
+};
+
+const segmentTagSchema = {
+  start: { parseFunc: safeParseFloat, defaultValue: 0 },
+  end: { parseFunc: safeParseFloat, defaultValue: 1 }
 };
 
 const lineTagSchema = {
   ...roadAttribute,
-  x: { parseFunc: safeParseFloat, defaultValue: 0 },
-  width: { parseFunc: safeParseFloat, defaultValue: 1 },
-  start: { parseFunc: safeParseFloat, defaultValue: 0 },
-  end: { parseFunc: safeParseFloat, defaultValue: 1 },
-  mirror: { parseFunc: parseBool, defaultValue: false }
+  ...horizontalTagSchema,
+  ...segmentTagSchema
 };
 
 const dashedTagSchema = {
   ...lineTagSchema,
-  length: { parseFunc: safeParseFloat, defaultValue: 1 },
-  spacing: { parseFunc: safeParseFloat, defaultValue: 1 }
+  ...spacingAttribute,
+  length: { parseFunc: safeParseFloat, defaultValue: 1 }
 };
 
 const solidAttribute = {
@@ -47,7 +61,7 @@ const solidAttribute = {
 
 const dottedTagSchema = {
   ...lineTagSchema,
-  spacing: { parseFunc: safeParseFloat, defaultValue: 1 }
+  ...spacingAttribute
 };
 
 const cityscapeTagSchema = {
@@ -89,6 +103,30 @@ const driveyTagSchema = {
   numLanes: { parseFunc: safeParseFloat, defaultValue: 1 }
 };
 
+const featureTagSchema = {
+  ...spacingAttribute,
+  ...roadAttribute,
+  ...segmentTagSchema
+};
+
+const partTagSchema = {
+  ...shadeAttribute,
+  ...alphaAttribute,
+  ...fadeAttribute,
+  ...horizontalTagSchema,
+  ...verticalTagSchema,
+  z: { parseFunc: safeParseFloat, defaultValue: 0 }
+};
+
+const boxTagSchema = {
+  ...partTagSchema,
+  length: { parseFunc: safeParseFloat, defaultValue: 0 }
+};
+
+const diskTagSchema = {
+  ...partTagSchema
+};
+
 const schemasByType = {
   number: numberTagSchema,
   repeat: repeatTagSchema,
@@ -99,7 +137,10 @@ const schemasByType = {
   cityscape: cityscapeTagSchema,
   clouds: cloudsTagSchema,
   road: roadTagSchema,
-  drivey: driveyTagSchema
+  drivey: driveyTagSchema,
+  feature: featureTagSchema,
+  box: boxTagSchema,
+  disk: diskTagSchema
 };
 
 const hoistForId = renderFunc => attributes => ({
