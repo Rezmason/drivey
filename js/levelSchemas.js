@@ -127,6 +127,10 @@ const diskTagSchema = {
   ...partTagSchema
 };
 
+const wireTagSchema = {
+  ...partTagSchema
+};
+
 const schemasByType = {
   number: numberTagSchema,
   repeat: repeatTagSchema,
@@ -140,7 +144,8 @@ const schemasByType = {
   drivey: driveyTagSchema,
   feature: featureTagSchema,
   box: boxTagSchema,
-  disk: diskTagSchema
+  disk: diskTagSchema,
+  wire: wireTagSchema
 };
 
 const hoistForId = renderFunc => attributes => ({

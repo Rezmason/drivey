@@ -2,6 +2,8 @@ Replace framerate gauge with simulated RPM
   Prevent moving in reverse on when on auto-pilot
   Simluated gearbox?
 
+Put level rendering in a worker
+
 Refactor Dashboard a tiny bit
 
 Portable Drivey

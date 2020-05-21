@@ -139,6 +139,23 @@ const renderShape = (node, roadsById) => {
   return [mesh];
 };
 
+const renderWire = attributes => {
+  const start = attributes.start + attributes.z;
+  const end = attributes.end + attributes.z;
+  const shape = wrapPaths(
+    renderSolidLine({
+      ...attributes,
+      start,
+      end
+    })
+  );
+
+  const { y, height, shade, alpha, fade } = attributes;
+  const mesh = makeShadedMesh(makeGeometry(shape, height, 1), shade, alpha, fade);
+  mesh.position.z = y;
+  return mesh;
+};
+
 const renderBox = attributes => {
   const start = attributes.start + attributes.z;
   const end = attributes.end + attributes.z;
@@ -175,7 +192,8 @@ const renderDisk = attributes => {
 
 const partRenderersByType = {
   disk: renderDisk,
-  box: renderBox
+  box: renderBox,
+  wire: renderWire
 };
 
 const renderPart = ({ attributes, type }, featureAttributes) => {
@@ -190,7 +208,7 @@ const renderPart = ({ attributes, type }, featureAttributes) => {
 const renderFeature = (node, roadsById) => {
   const road = getRoad(node.attributes.road, roadsById);
   const attributes = { ...node.attributes, road };
-  return getChildrenOfTypes(node, ["box", "disk"])
+  return getChildrenOfTypes(node, ["box", "disk", "wire"])
     .map(part => renderPart(part, attributes))
     .flat();
 };

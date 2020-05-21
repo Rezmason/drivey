@@ -5,16 +5,16 @@
   <number id="groundShade" value="0.05"></number>
   <!-- far off buildings -->
   <!-- very tall things -->
-  <shape id="smokestack1" height="2" shade="{lightShade}" y="60">
-    <dotted x="300" width="0.5" spacing="250"></dotted>
-    <dotted x="320" width="0.75" spacing="250"></dotted>
-  </shape>
-  <shape id="smokestack2" height="60" shade="{groundShade}">
-    <dotted x="300" width="0.5" spacing="250"></dotted>
-    <dotted x="320" width="0.75" spacing="250"></dotted>
-    <dotted x="400" width="8" spacing="240"></dotted>
-    <dotted x="500" width="8" spacing="240"></dotted>
-  </shape>
+  <feature id="smokestack1" spacing="250">
+    <disk x="300" width="0.5" y="60" height="2" shade="{lightShade}"></disk>
+    <disk x="320" width="0.75" y="60" height="2" shade="{lightShade}"></disk>
+    <disk x="300" width="0.5" height="60" shade="{groundShade}"></disk>
+    <disk x="320" width="0.75" height="60" shade="{groundShade}"></disk>
+  </feature>
+  <feature id="smokestack2" spacing="240">
+    <disk x="400" width="8" height="60" shade="{groundShade}"></disk>
+    <disk x="500" width="8" height="60" shade="{groundShade}"></disk>
+  </feature>
   <!-- medium-height buildings -->
   <shape id="buildings" height="12" shade="{groundShade}">
     <dashed x="-80" width="20" length="40" spacing="60"></dashed>
@@ -39,86 +39,81 @@
     </repeat>
   </feature>
   <!-- street lights -->
-  <number id="streetLightSpacing" value="80"></number>
-  <number id="streetLightThickness" value="0.2"></number>
-  <number id="streetLightHeight" value="15"></number>
-  <shape id="streetLightPoles" height="{streetLightHeight + streetLightThickness}" shade="{groundShade}">
-    <dashed x="-8" width="{streetLightThickness}" length="{streetLightThickness}" spacing="{streetLightSpacing}"></dashed>
-  </shape>
-  <shape id="streetLightArms" height="{streetLightThickness}" shade="{groundShade}" y="{streetLightHeight + streetLightThickness}">
-    <dashed x="-5.6" width="5" length="{streetLightThickness}" spacing="{streetLightSpacing}"></dashed>
-  </shape>
-  <shape id="streetLightBulbs" height="{streetLightThickness * 2}" shade="{lightShade}" y="{streetLightHeight - streetLightThickness}">
-    <dashed x="-4" width="2" length="{streetLightThickness}" spacing="{streetLightSpacing}"></dashed>
-  </shape>
-  <!-- Light circles beneath streetlamps -->
-  <!--
-    <shape id="streetLightShines" shade="{brightShade}" y="-0.01">
-      <dotted x="-4" width="8 0)" spacing="{streetLightSpacing}"></dotted>
-    </shape>
-    <shape id="streetLightShadows" shade="{groundShade}">
-      <dashed x="-13" width="10" length="{streetLightThickness}" spacing="{streetLightSpacing}"></dashed>
-    </shape>
-   -->
+  <feature id="streetlights" spacing="80">
+    <number id="lampHeight" value="0.2"></number>
+    <number id="poleHeight" value="15"></number>
+    <box x="-8" width="{lampHeight}" height="{poleHeight + lampHeight}" length="{lampHeight}" shade="{groundShade}"></box>
+    <box x="-5.6" width="5" y="{poleHeight + lampHeight}" height="{lampHeight}" length="{lampHeight}" shade="{groundShade}"></box>
+    <box x="-4" width="2" y="{poleHeight - lampHeight}" height="{lampHeight * 2}" length="{lampHeight}" shade="{lightShade}"></box>
+    <!-- Light circles beneath streetlamps -->
+    <!--
+    <disk x="-4" width="8 0)" y="-0.01" shade="{brightShade}"></disk>
+    <box x="-13" width="10" length="{lampHeight}" shade="{groundShade}"></box>
+     -->
+  </feature>
   <!-- overpasses -->
-  <number id="overpassDepth" value="10"></number>
+  <number id="overpassHeight" value="10"></number>
   <number id="overpassSpacing" value="300"></number>
   <road id="highwayAbove" basis="{mainRoad}" scale="1, 1.5"></road>
   <shape id="overpassSpans" height="3" shade="{groundShade}" y="12" scale="1, 0.6667">
-    <dashed road="{highwayAbove}" width="500" length="{overpassDepth}" spacing="{overpassSpacing}"></dashed>
+    <dashed road="{highwayAbove}" width="500" length="{overpassHeight}" spacing="{overpassSpacing}"></dashed>
   </shape>
   <shape id="overpassBases" height="12" shade="{groundShade}" scale="1, 0.6667">
-    <dashed road="{highwayAbove}" x="200" width="130" length="{overpassDepth}" spacing="{overpassSpacing}" mirror="true"></dashed>
+    <dashed road="{highwayAbove}" x="200" width="130" length="{overpassHeight}" spacing="{overpassSpacing}" mirror="true"></dashed>
   </shape>
-  <shape id="overpassFeets" height="12" shade="{groundShade}" scale="1, 0.6667">
-    <dashed road="{highwayAbove}" x="18" width="4" length="{overpassDepth - 4}" spacing="{overpassSpacing + 4}" mirror="true"></dashed>
-    <dashed road="{highwayAbove}" x="45" width="4" length="{overpassDepth - 4}" spacing="{overpassSpacing + 4}" mirror="true"></dashed>
+  <shape id="overpassFeet" height="12" shade="{groundShade}" scale="1, 0.6667">
+    <dashed road="{highwayAbove}" x="18" width="4" length="{overpassHeight - 4}" spacing="{overpassSpacing + 4}" mirror="true"></dashed>
+    <dashed road="{highwayAbove}" x="45" width="4" length="{overpassHeight - 4}" spacing="{overpassSpacing + 4}" mirror="true"></dashed>
   </shape>
   <!--
   <shape id="wall">
-    <solid x="-15" width="2" length="{overpassDepth}" spacing="{overpassSpacing}"></solid>
-    <solid x="15" width="2" length="{overpassDepth}" spacing="{overpassSpacing}"></solid>
+    <solid x="-15" width="2"></solid>
+    <solid x="15" width="2"></solid>
   </shape>
    -->
-  <number id="knobSpacing1" value="110"></number>
-  <number id="knobSpacing2" value="60"></number>
-  <number id="wireSpacing1" value="60"></number>
-  <number id="wireSpacing2" value="100"></number>
-  <number id="wireSpacing3" value="45"></number>
-  <number id="wireSpacing4" value="50"></number>
-  <number id="wireSpacing5" value="75"></number>
   <!-- various poles -->
-  <shape id="poles" height="12" shade="{groundShade}">
-    <dotted id="Nicolaus Copernicus" x="-30" width="0.25" spacing="90"></dotted>
-    <dotted id="Marie Curie" x="-40" width="0.25" spacing="{knobSpacing1}"></dotted>
-    <dotted id="Monika Soćko" x="60" width="0.25" spacing="{knobSpacing2}"></dotted>
-    <dotted id="Raphael Lemkin" x="20" width="0.25" spacing="{wireSpacing3}" mirror="true"></dotted>
-    <dotted id="Wanda Krahelska-Filipowicz" x="50" width="0.125" spacing="{wireSpacing4}" mirror="true"></dotted>
-    <dotted id="André Citroën" x="70" width="0.25" spacing="{wireSpacing5}"></dotted>
-  </shape>
+  <number id="poleHeight" value="12"></number>
+  <number id="poleWidth" value="0.25"></number>
+  <feature id="Nicolaus Copernicus" spacing="90">
+    <disk x="-30" width="{poleWidth}" height="{poleHeight}" shade="{groundShade}"></disk>
+  </feature>
   <!-- knobs -->
-  <shape id="knobs" height="1" shade="{groundShade}" y="12">
-    <dotted x="-40" spacing="{knobSpacing1}"></dotted>
-    <dotted x="60" spacing="{knobSpacing2}"></dotted>
-  </shape>
+  <feature id="Marie Curie" spacing="110">
+    <number id="x" value="-40"></number>
+    <disk x="{x}" width="{poleWidth}" height="{poleHeight}" shade="{groundShade}"></disk>
+    <disk x="{x}" y="{poleHeight}" height="1" shade="{groundShade}"></disk>
+  </feature>
+  <feature id="Monika Soćko" spacing="60">
+    <number id="x" value="60"></number>
+    <disk x="{x}" width="{poleWidth}" height="{poleHeight}" shade="{groundShade}"></disk>
+    <disk x="{x}" y="{poleHeight}" height="1" shade="{groundShade}"></disk>
+  </feature>
   <!-- wires -->
   <number id="wireThickness" value="0.075"></number>
-  <shape id="wires" height="{wireThickness}" shade="{groundShade}" y="11.25">
-    <solid x="20" width="{wireThickness}" spacing="{wireSpacing3}" mirror="true"></solid>
-    <solid x="50" width="{wireThickness}" spacing="{wireSpacing4}" mirror="true"></solid>
-    <solid x="70" width="{wireThickness}" spacing="{wireSpacing5}"></solid>
-  </shape>
+  <number id="wireY" value="11.25"></number>
+  <feature id="wires1" spacing="45">
+    <number id="x" value="20"></number>
+    <disk id="Raphael Lemkin" x="{x}" width="{poleWidth}" height="{poleHeight}" shade="{groundShade}" mirror="true"></disk>
+    <wire x="{x}" width="{wireThickness}" y="{wireY}" height="{wireThickness}" shade="{groundShade}" mirror="true"></wire>
+  </feature>
+  <feature id="wires2" spacing="50">
+    <number id="x" value="50"></number>
+    <disk id="Wanda Krahelska-Filipowicz" x="{x}" width="0.125" height="{poleHeight}" shade="{groundShade}" mirror="true"></disk>
+    <wire x="{x}" width="{wireThickness}" y="{wireY}" height="{wireThickness}" shade="{groundShade}" mirror="true"></wire>
+  </feature>
+  <feature id="wires3" spacing="75">
+    <number id="x" value="70"></number>
+    <disk id="André Citroën" x="{x}" width="{poleWidth}" height="{poleHeight}" shade="{groundShade}"></disk>
+    <wire x="{x}" width="{wireThickness}" y="{wireY}" height="{wireThickness}" shade="{groundShade}"></wire>
+  </feature>
   <!-- fencing -->
-  <number id="fenceTall" value="5"></number>
-  <number id="fenceSpacing" value="30"></number>
-  <number id="fenceDist" value="25"></number>
-  <shape id="fencePoles" height="{fenceTall}" shade="{groundShade}">
-    <dotted x="{fenceDist}" width="0.1 0)" spacing="{fenceSpacing}" mirror="true"></dotted>
-  </shape>
-  <shape id="fenceTops" height="0.1" shade="{groundShade}" y="{fenceTall - 0.5}">
-    <solid x="{fenceDist}" width="0.1" spacing="{fenceSpacing}" mirror="true"></solid>
-  </shape>
-  <shape id="fenceTransparency" height="{fenceTall - 0.5}" shade="{groundShade}" alpha="0.25">
-    <solid x="{fenceDist}" width="0.1" spacing="{fenceSpacing}" mirror="true"></solid>
-  </shape>
+  <feature id="fence" spacing="30">
+    <number id="fencepostHeight" value="5"></number>
+    <number id="fenceHeight" value="{fencepostHeight - 0.5}"></number>
+    <number id="width" value="0.1"></number>
+    <number id="x" value="25"></number>
+    <disk x="{x}" width="{width}" height="{fencepostHeight}" shade="{groundShade}" mirror="true"></disk>
+    <wire x="{x}" width="{width}" y="{fenceHeight}" height="0.1" shade="{groundShade}" mirror="true"></wire>
+    <wire x="{x}" width="{width}" height="{fenceHeight}" shade="{groundShade}" alpha="0.25" mirror="true"></wire>
+  </feature>
 </drivey>
