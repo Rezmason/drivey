@@ -2,10 +2,6 @@ Replace framerate gauge with simulated RPM
   Prevent moving in reverse on when on auto-pilot
   Simluated gearbox?
 
-Put level rendering in a worker
-
-Refactor Dashboard a tiny bit
-
 Portable Drivey
   Like A-Frame, drivey.js (and minified) would find a root tag in the DOM and render it
   browserify / webpack / rollup
@@ -14,12 +10,16 @@ Portable Drivey
 Test on multiple devices
   Chances are, the effect composer messes things up in browsers that don't support floating point textures
 
+Refactor Dashboard a tiny bit
+
 Change car auto-steering logic when the car is going in reverse
 
 Improve performance of Approximation::getNearest
 
 Cavern level
   Stalagmites and stalagtites, subtle color variation?
+
+Put level rendering in a worker
 
 Much, much later
   Spotify playlist embed?
