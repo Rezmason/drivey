@@ -1,5 +1,4 @@
-import { Path, CatmullRomCurve3, Vector3, Vector2, Shape, ShapePath, BufferGeometry, ExtrudeBufferGeometry } from "./../lib/three/three.module.js";
-import { BufferGeometryUtils } from "./../lib/three/utils/BufferGeometryUtils.js";
+import { Path, CatmullRomCurve3, Vector3, Vector2 } from "./../lib/three/three.module.js";
 
 import { fract, modDiffAngle, PI, TWO_PI } from "./math.js";
 
@@ -16,49 +15,56 @@ const makeSplinePath = (pts, closed) => {
 };
 
 const zero = new Vector2();
+const unitVector = new Vector2(1, 0);
+
+const circleCache = new Map();
 
 const makeCirclePath = (x, y, radius, aClockwise = true) => {
-  const numPoints = Math.max(10, Math.ceil(TWO_PI * radius * 0.1));
-  const ray = new Vector2(radius, 0);
+  if (!circleCache.has(radius)) {
+    const numPoints = Math.max(10, Math.ceil(TWO_PI * radius * 0.1));
+    const wedges = Array(numPoints)
+      .fill()
+      .map((_, index) => {
+        return unitVector
+          .clone()
+          .rotateAround(zero, (index / numPoints) * TWO_PI)
+          .multiplyScalar(radius);
+      });
+    circleCache.set(radius, wedges);
+  }
   const pos = new Vector2(x, y);
-  const points = Array(numPoints)
-    .fill()
-    .map((_, index) => {
-      return ray
-        .clone()
-        .rotateAround(zero, (index / numPoints) * TWO_PI)
-        .add(pos);
-    });
+  const points = circleCache.get(radius).map(point => point.clone().add(pos));
   if (aClockwise) {
     points.reverse();
   }
-  return new Shape(points);
+  return makePolygonPath(points);
 };
 
-const makeRectanglePath = (x, y, width, height) =>
-  makePolygonPath([new Vector2(x, y), new Vector2(x + width, y), new Vector2(x + width, y + height), new Vector2(x, y + height)]);
+const makeSquarePath = (x, y, width) =>
+  makePolygonPath([
+    new Vector2(x - width / 2, y - width / 2),
+    new Vector2(x + width / 2, y - width / 2),
+    new Vector2(x + width / 2, y + width / 2),
+    new Vector2(x - width / 2, y + width / 2)
+  ]);
 
-const makePolygonPath = points => new Shape(points);
-
-const expandShapePath = (source, offset) => {
-  const expansion = new ShapePath();
-  source.subPaths.forEach(subPath => expansion.subPaths.push(new Path(getOffsetPoints(subPath, offset, 0, 1))));
-  return expansion;
-};
+const makePolygonPath = points => new Path(points);
 
 const getOffsetSample = (source, t, offset) => {
   const fractT = fract(t);
   const tangent = source.getTangent(fractT);
-  const pos = new Vector2(-tangent.y, tangent.x).multiplyScalar(offset).add(source.getPoint(fractT));
-  const angle = Math.atan2(-tangent.y, -tangent.x) + PI;
-  return { t, pos, angle };
+  return {
+    t,
+    pos: new Vector2(-tangent.y, tangent.x).multiplyScalar(offset).add(source.getPoint(fractT)),
+    angle: Math.atan2(tangent.y, tangent.x)
+  };
 };
 
 const maxAllowedDistanceSquared = 50;
 const maxAllowedDifferenceAngle = TWO_PI / 360;
 const maxIterations = 10;
 
-const getOffsetPoints = (source, offset, start, end, spacing = 0) => {
+const getOffsetPoints = (source, offset, start = 0, end = 1, spacing = 0) => {
   start = fract(start);
   end = fract(end);
   if (end <= start) {
@@ -113,32 +119,4 @@ const getOffsetPoints = (source, offset, start, end, spacing = 0) => {
   return points;
 };
 
-const makeGeometry = (source, height) =>
-  new ExtrudeBufferGeometry(source.toShapes(false, false), {
-    depth: Math.max(Math.abs(height), 0.0000001),
-    curveSegments: 10,
-    bevelEnabled: false
-  });
-
-const mergeGeometries = geometries => {
-  if (geometries.length == 0) {
-    return new BufferGeometry();
-  }
-
-  const numIndexed = geometries.filter(geometry => geometry.index != null).length;
-  if (numIndexed > 0 && numIndexed < geometries.length) {
-    throw new Error("You can't merge indexed and non-indexed buffer geometries.");
-  }
-
-  return BufferGeometryUtils.mergeBufferGeometries(geometries);
-};
-
-const mergeShapePaths = (source, other) => {
-  other.subPaths.forEach(path => source.subPaths.push(path.clone()));
-};
-
-const addPath = (source, path) => {
-  source.subPaths.push(path.clone());
-};
-
-export { addPath, makeGeometry, makeCirclePath, getOffsetPoints, mergeGeometries, makePolygonPath, makeRectanglePath, makeSplinePath, expandShapePath };
+export { makeCirclePath, makePolygonPath, makeSquarePath, makeSplinePath, getOffsetPoints };

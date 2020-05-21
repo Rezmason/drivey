@@ -1,16 +1,16 @@
 import { Vector2 } from "./../lib/three/three.module.js";
 
 import { fract, closestPointIndex } from "./math.js";
-import { makeSplinePath } from "./shapes.js";
+import { makeSplinePath } from "./paths.js";
 
-export default class RoadPath {
+export default class Road {
   constructor(points) {
     this.points = points;
     this.curve = makeSplinePath(points, true);
   }
 
   clone() {
-    return new RoadPath(this.points);
+    return new Road(this.points);
   }
 
   scale(x, y) {
@@ -44,12 +44,12 @@ export default class RoadPath {
 }
 
 class Approximation {
-  constructor(roadPath, resolution) {
-    this.roadPath = roadPath;
+  constructor(road, resolution) {
+    this.road = road;
     this.resolution = resolution;
     this.points = [];
     for (let i = 0; i < resolution; i++) {
-      this.points.push(roadPath.getPoint(i / resolution));
+      this.points.push(road.getPoint(i / resolution));
     }
   }
 
@@ -58,6 +58,6 @@ class Approximation {
   }
 
   getNearestPoint(to) {
-    return this.roadPath.getPoint(this.getNearest(to));
+    return this.road.getPoint(this.getNearest(to));
   }
 }

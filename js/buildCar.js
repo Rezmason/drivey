@@ -34,8 +34,7 @@
 import { BoxGeometry, BufferGeometry, Vector2, Group, Mesh, CylinderBufferGeometry } from "./../lib/three/three.module.js";
 
 import { lerp } from "./math.js";
-import { shadeGeometry, idGeometry, silhouette, transparent } from "./rendering.js";
-import { mergeGeometries } from "./shapes.js";
+import { mergeGeometries, shadeGeometry, idGeometry, silhouette, transparent } from "./rendering.js";
 
 const boxGeometry = new BoxGeometry();
 const createBoxes = (topFront, bottomFront, topRear, bottomRear, outerSlope, innerSlope, reflect = false) => {

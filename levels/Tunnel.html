@@ -1,25 +1,25 @@
 <drivey name="The Tunnel" tint="0.2, 0.7, 0.1" lane-width="3.5" windiness="{1/6}" scale="600, 600">
   <number id="tarmacShade" value="0.1"></number>
   <number id="roadLineShade" value="0.8"></number>
-  <mesh id="tarmac" shade="{tarmacShade}">
+  <shape id="tarmac" shade="{tarmacShade}">
     <solid width="7"></solid>
-  </mesh>
-  <mesh id="roadLines" shade="{roadLineShade}" fade="1" y="0.1">
+  </shape>
+  <shape id="roadLines" shade="{roadLineShade}" fade="1" y="0.1">
     <dashed x="3.5" width="0.2" length="30" spacing="2" mirror="true"></dashed>
     <dashed x="-0.15" width="0.15" length="4" spacing="8"></dashed>
-  </mesh>
-  <mesh id="crossing" shade="{tarmacShade}" y="0.001">
+  </shape>
+  <shape id="crossing" shade="{tarmacShade}" y="0.001">
     <dashed length="2" spacing="200"></dashed>
-  </mesh>
-  <mesh id="crossingLines" shade="{roadLineShade}" fade="1" y="0.01">
+  </shape>
+  <shape id="crossingLines" shade="{roadLineShade}" fade="1" y="0.01">
     <repeat id="i" value="6">
       <dashed x="{i - 2.5}" width="0.5" length="2" spacing="200"></dashed>
     </repeat>
-  </mesh>
-  <mesh id="lights" height="0.1" shade="1" y="4">
+  </shape>
+  <shape id="lights" height="0.1" shade="1" y="4">
     <dashed x="4" width="0.1" length="4" spacing="6" mirror="true"></dashed>
-  </mesh>
-  <mesh id="wall" height="4" shade="0" fade="2">
+  </shape>
+  <shape id="wall" height="4" shade="0" fade="2">
     <solid x="5" width="0.4" mirror="true"></solid>
-  </mesh>
+  </shape>
 </drivey>

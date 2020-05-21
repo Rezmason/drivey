@@ -3,11 +3,11 @@
     <number id="i" value="{l / 8}"></number>
     <number id="x" value="{cos(i * PI)}"></number>
     <number id="y" value="{sin(i * PI)}"></number>
-    <mesh height="0.1" y="{y * 4}" fade="1">
+    <shape height="0.1" y="{y * 4}" fade="1">
       <dashed x="{x * 4}" width="0.1" length="10" spacing="{(i + 1) * 10}"></dashed>
-    </mesh>
-    <mesh height="0.1" shade="1" y="{y * 20}" fade="1">
+    </shape>
+    <shape height="0.1" shade="1" y="{y * 20}" fade="1">
       <dashed x="{x * 20}" width="0.1" length="5" spacing="{(i + 1) * 50}"></dashed>
-    </mesh>
+    </shape>
   </repeat>
 </drivey>

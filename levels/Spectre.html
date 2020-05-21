@@ -1,16 +1,16 @@
 <drivey name="Central Systems Matrix" tint="1, 0, 1" lane-width="4" sky-high="-1" sky-low="0.35" windiness="{1/6}" scale="600, 600">
-  <mesh id="dots" height="0.1" shade="1">
+  <shape id="dots" height="0.1" shade="1">
     <repeat id="i" value="4">
       <dashed x="{5 * (i + 1)}" width="0.1" length="0.1" spacing="{20 + 3 * i}" mirror="true"></dashed>
     </repeat>
-  </mesh>
-  <mesh id="flagpoles" height="14" shade="0.9">
+  </shape>
+  <shape id="flagpoles" height="14" shade="0.9">
     <dashed x="12" width="0.2" length="0.2" spacing="300"></dashed>
     <dashed x="-12" width="0.2" length="0.2" spacing="400"></dashed>
-  </mesh>
-  <mesh id="flags" height="4" shade="0.9" y="10">
+  </shape>
+  <shape id="flags" height="4" shade="0.9" y="10">
     <dashed x="15" width="6" length="0.2" spacing="300"></dashed>
     <dashed x="-15" width="6" length="0.2" spacing="400"></dashed>
-  </mesh>
+  </shape>
   <cityscape row-spacing="300" width="9" column-spacing="60" proximity="9" radius="450" heights="10"></cityscape>
 </drivey>

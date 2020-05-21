@@ -1,4 +1,5 @@
-import { RawShaderMaterial, Vector2, Color, Float32BufferAttribute, Mesh } from "./../lib/three/three.module.js";
+import { RawShaderMaterial, Vector2, Color, Float32BufferAttribute, Mesh, BufferGeometry, ExtrudeBufferGeometry } from "./../lib/three/three.module.js";
+import { BufferGeometryUtils } from "./../lib/three/utils/BufferGeometryUtils.js";
 
 const blendColors = ({ dark, full, light }, value) => (value < 0.5 ? dark.clone().lerp(full, value * 2.0) : full.clone().lerp(light, value * 2.0 - 1.0));
 
@@ -138,6 +139,26 @@ const idGeometry = geometry => {
   return geometry;
 };
 
+const makeGeometry = (source, height) =>
+  new ExtrudeBufferGeometry(source.toShapes(false, false), {
+    depth: Math.max(Math.abs(height), 0.0000001),
+    curveSegments: 10,
+    bevelEnabled: false
+  });
+
+const mergeGeometries = geometries => {
+  if (geometries.length == 0) {
+    return new BufferGeometry();
+  }
+
+  const numIndexed = geometries.filter(geometry => geometry.index != null).length;
+  if (numIndexed > 0 && numIndexed < geometries.length) {
+    throw new Error("You can't merge indexed and non-indexed buffer geometries.");
+  }
+
+  return BufferGeometryUtils.mergeBufferGeometries(geometries);
+};
+
 const makeShadedMesh = (geom, value = 0, alpha = 1, fade = 0) => {
   shadeGeometry(geom, value, alpha, fade);
   idGeometry(geom);
@@ -145,4 +166,4 @@ const makeShadedMesh = (geom, value = 0, alpha = 1, fade = 0) => {
   return new Mesh(geom, alpha == 1 ? silhouette : transparent);
 };
 
-export { shadeGeometry, bulgeGeometry, idGeometry, silhouette, transparent, blendColors, makeShadedMesh };
+export { shadeGeometry, bulgeGeometry, idGeometry, silhouette, transparent, blendColors, makeShadedMesh, makeGeometry, mergeGeometries };

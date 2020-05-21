@@ -1,11 +1,17 @@
-import { Group, Vector2, ShapePath } from "./../lib/three/three.module.js";
+import { Group, Vector2, ShapePath, Path } from "./../lib/three/three.module.js";
 
 import { lerp } from "./math.js";
-import { makeSplinePath, makeGeometry, expandShapePath, makeCirclePath, makePolygonPath } from "./shapes.js";
-import { makeShadedMesh } from "./rendering.js";
+import { makeSplinePath, getOffsetPoints, makeCirclePath, makePolygonPath } from "./paths.js";
+import { makeGeometry, makeShadedMesh } from "./rendering.js";
 
 const wheelScale = 5;
 const speedometerScale = 5;
+
+const expandShapePath = (source, offset) => {
+  const expansion = new ShapePath();
+  source.subPaths.forEach(subPath => expansion.subPaths.push(new Path(getOffsetPoints(subPath, offset))));
+  return expansion;
+};
 
 export default class Dashboard {
   constructor() {
@@ -32,19 +38,20 @@ export default class Dashboard {
     this.drivingSide = -1;
   }
 
-  addDashboardElement(path, edgeAmount, hasFill) {
-    if (edgeAmount == null) {
-      edgeAmount = 0;
+  addDashboardElement(path, strokeWidth, hasFill) {
+    if (strokeWidth == null) {
+      strokeWidth = 0;
     }
+    strokeWidth = Math.abs(strokeWidth);
 
     const element = new Group();
-    if (edgeAmount != 0) {
-      const edge = makeShadedMesh(makeGeometry(expandShapePath(path, 1 + edgeAmount), 0), 0.2);
+    if (strokeWidth != 0) {
+      const edge = makeShadedMesh(makeGeometry(expandShapePath(path, 1 + strokeWidth), 0), 0.2);
       edge.position.z = -0.1;
       element.add(edge);
     }
 
-    if (hasFill && edgeAmount != 0) {
+    if (hasFill && strokeWidth != 0) {
       const fill = makeShadedMesh(makeGeometry(expandShapePath(path, 1), 0), 0);
       fill.position.z = 0;
       element.add(fill);

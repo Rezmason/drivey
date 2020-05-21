@@ -16,7 +16,7 @@ const repeatTagSchema = {
   value: { parseFunc: safeParseInt, defaultValue: 1 }
 };
 
-const meshTagSchema = {
+const shapeTagSchema = {
   height: { parseFunc: safeParseFloat, defaultValue: 0 },
   ...shadeAttribute,
   ...alphaAttribute,
@@ -58,9 +58,7 @@ const cityscapeTagSchema = {
   width: { parseFunc: safeParseFloat, defaultValue: 100 },
   proximity: { parseFunc: safeParseFloat, defaultValue: 100 },
   radius: { parseFunc: safeParseFloat, defaultValue: 2000 },
-
-  ...shadeAttribute,
-  ...alphaAttribute
+  ...shadeAttribute
 };
 
 const cloudsTagSchema = {
@@ -94,7 +92,7 @@ const driveyTagSchema = {
 const schemasByType = {
   number: numberTagSchema,
   repeat: repeatTagSchema,
-  mesh: meshTagSchema,
+  shape: shapeTagSchema,
   dashed: dashedTagSchema,
   solid: solidAttribute,
   dotted: dottedTagSchema,

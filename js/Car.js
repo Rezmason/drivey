@@ -9,16 +9,16 @@ export default class Car {
     this.lastVel = new Vector2();
   }
 
-  place(roadPath, approximation, along, laneWidth, numLanes, drivingSide, roadDir, initialSpeed) {
+  place(road, approximation, along, laneWidth, numLanes, drivingSide, roadDir, initialSpeed) {
     this.laneOffset = laneWidth * (0.5 + Math.floor(Math.random() * numLanes));
     this.weaving = (Math.random() - 0.5) * 0.5 * laneWidth;
 
-    const pos = roadPath.getPoint(along).add(roadPath.getNormal(along).multiplyScalar((this.laneOffset + this.weaving) * roadDir * drivingSide));
-    const tangent = roadPath.getTangent(along).multiplyScalar(roadDir);
+    const pos = road.getPoint(along).add(road.getNormal(along).multiplyScalar((this.laneOffset + this.weaving) * roadDir * drivingSide));
+    const tangent = road.getTangent(along).multiplyScalar(roadDir);
     const angle = getAngle(tangent);
     const vel = tangent.multiplyScalar(initialSpeed * 2);
 
-    this.roadPath = roadPath;
+    this.road = road;
     this.approximation = approximation;
 
     this.pos.copy(pos);
@@ -50,7 +50,7 @@ export default class Car {
   }
 
   remove() {
-    this.roadPath = null;
+    this.road = null;
     this.approximation = null;
   }
 
@@ -85,13 +85,13 @@ export default class Car {
     dir.multiplyScalar(lookAhead);
     const futurePos = this.pos.clone().add(dir);
     const along = this.approximation.getNearest(futurePos);
-    const targetDir = this.roadPath
+    const targetDir = this.road
       .getPoint(along)
       .sub(this.pos)
-      .add(this.roadPath.getNormal(along).multiplyScalar(4 * this.roadPos + this.roadDir * offset));
+      .add(this.road.getNormal(along).multiplyScalar(4 * this.roadPos + this.roadDir * offset));
 
     // mix it with the slope of the road at that point
-    let tangent = this.roadPath.getTangent(along);
+    let tangent = this.road.getTangent(along);
     tangent.multiplyScalar(this.roadDir);
     if (targetDir.length() > 0) tangent.lerp(targetDir, 0.1);
 
