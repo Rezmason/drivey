@@ -1,3 +1,5 @@
+Put level rendering in a worker
+
 Replace framerate gauge with simulated RPM
 Seeded random
 
@@ -20,8 +22,6 @@ Improve performance of Approximation::getNearest
 
 Cavern level
   Stalagmites and stalagtites, subtle color variation?
-
-Put level rendering in a worker
 
 Much, much later
   Spotify playlist embed?
