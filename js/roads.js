@@ -1,9 +1,8 @@
 import { Vector2 } from "./../lib/three/three.module.js";
-
-import { fract, closestPointIndex } from "./math.js";
+import { fract, lerp, closestPointIndex } from "./math.js";
 import { makeSplinePath } from "./paths.js";
 
-export default class Road {
+class Road {
   constructor(points) {
     this.points = points;
     this.curve = makeSplinePath(points, true);
@@ -61,3 +60,36 @@ class Approximation {
     return this.road.getPoint(this.getNearest(to));
   }
 }
+
+const roadWedges = Array(16)
+  .fill()
+  .map((_, index) => (index / 16) * Math.PI * 2)
+  .map(theta => new Vector2(-Math.cos(theta), Math.sin(theta)));
+
+const makeRoad = ({ windiness, scale }, basis) => {
+  if (basis != null) {
+    const road = basis.clone();
+    road.scale(scale.x, scale.y);
+    return road;
+  }
+
+  const controlPoints = roadWedges.map((point, i) => point.clone().multiplyScalar(lerp(1, Math.random(), windiness)));
+
+  const minX = Math.min(...controlPoints.map(({ x }) => x));
+  const maxX = Math.max(...controlPoints.map(({ x }) => x));
+  const minY = Math.min(...controlPoints.map(({ y }) => y));
+  const maxY = Math.max(...controlPoints.map(({ y }) => y));
+
+  const center = new Vector2(maxX + minX, maxY + minY).multiplyScalar(0.5);
+  const aspect = new Vector2(1, (maxY - minY) / (maxX - minX));
+
+  controlPoints.forEach(point => {
+    point.sub(center);
+    point.multiply(aspect);
+    point.multiply(scale);
+  });
+
+  return new Road(controlPoints);
+};
+
+export { Road, makeRoad };

@@ -17,7 +17,7 @@ const circleCache = new Map();
 
 const makeCirclePath = (x, y, radius, aClockwise = true) => {
   if (!circleCache.has(radius)) {
-    const numPoints = Math.max(10, Math.ceil(TWO_PI * radius));
+    const numPoints = Math.max(10, Math.ceil(5 * radius ** 0.5));
     const wedges = Array(numPoints)
       .fill()
       .map((_, index) => {

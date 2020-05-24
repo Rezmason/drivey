@@ -1,43 +1,11 @@
-import { Mesh, Group, Vector2, Vector3, Matrix4, ShapePath } from "./../lib/three/three.module.js";
-import { getOffsetPoints, makeCirclePath, makePolygonPath, makeSquarePath } from "./paths.js";
-import { fract, lerp, distance, origin, TWO_PI } from "./math.js";
-import { makeGeometry, mergeGeometries, makeMesh } from "./rendering.js";
-import Road from "./Road.js";
+import { Group, Vector2, Vector3, Matrix4, ShapePath } from "./../lib/three/three.module.js";
+import { getOffsetPoints, makeCirclePath, makeSquarePath } from "./paths.js";
+import { distance, origin, TWO_PI } from "./math.js";
+import { makeGeometry, getTriangleCount, mergeGeometries, makeMesh } from "./geometry.js";
+import { lineModelersByType, partModelersByType } from "./lineModelers.js";
+import { makeRoad } from "./roads.js";
 
 const getChildrenOfTypes = (node, types) => node.children.filter(child => types.includes(child.type));
-
-// Roads
-
-const roadWedges = Array(16)
-  .fill()
-  .map((_, index) => (index / 16) * Math.PI * 2)
-  .map(theta => new Vector2(-Math.cos(theta), Math.sin(theta)));
-
-const makeRoad = ({ windiness, scale }, basis) => {
-  if (basis != null) {
-    const road = basis.clone();
-    road.scale(scale.x, scale.y);
-    return road;
-  }
-
-  const controlPoints = roadWedges.map((point, i) => point.clone().multiplyScalar(lerp(1, Math.random(), windiness)));
-
-  const minX = Math.min(...controlPoints.map(({ x }) => x));
-  const maxX = Math.max(...controlPoints.map(({ x }) => x));
-  const minY = Math.min(...controlPoints.map(({ y }) => y));
-  const maxY = Math.max(...controlPoints.map(({ y }) => y));
-
-  const center = new Vector2(maxX + minX, maxY + minY).multiplyScalar(0.5);
-  const aspect = new Vector2(1, (maxY - minY) / (maxX - minX));
-
-  controlPoints.forEach(point => {
-    point.sub(center);
-    point.multiply(aspect);
-    point.multiply(scale);
-  });
-
-  return new Road(controlPoints);
-};
 
 const getRoad = (attributes, roadsById) => {
   if (attributes == null) return null;
@@ -49,66 +17,15 @@ const getRoad = (attributes, roadsById) => {
   return roadsById[id];
 };
 
-// Lines
-
-const renderSolidLine = ({ spacing, road, x, width, start, end }) => {
-  if (start === end) return [];
-  width = Math.abs(width);
-  const outsidePoints = getOffsetPoints(road.curve, x - width / 2, start, end, spacing / road.length);
-  const insidePoints = getOffsetPoints(road.curve, x + width / 2, start, end, spacing / road.length);
-  outsidePoints.reverse();
-  if (Math.abs(end - start) < 1) {
-    return [makePolygonPath(outsidePoints.concat(insidePoints))];
-  } else {
-    return [makePolygonPath(outsidePoints), makePolygonPath(insidePoints)];
-  }
-};
-
-const renderDashedLine = ({ spacing, length, road, x, width, start, end }) => {
-  if (start === end) return [];
-  start = fract(start);
-  end = end === 1 ? 1 : fract(end);
-  if (end < start) end++;
-  const dashSpan = (length + spacing) / road.length;
-  const dashLength = (dashSpan * length) / (length + spacing);
-  const dashes = [];
-  for (let dashStart = start; dashStart < end; dashStart += dashSpan) {
-    dashes.push(
-      renderSolidLine({
-        road,
-        x,
-        width,
-        start: dashStart,
-        end: Math.min(end, dashStart + dashLength)
-      })
-    );
-  }
-  return dashes.flat(); // TODO: array map
-};
-
-const renderDottedLine = ({ spacing, road, x, width, start, end }) => {
-  if (start === end) return [];
-  const positions = getOffsetPoints(road.curve, x, start, end, spacing / road.length);
-  return positions.map(pos => makeCirclePath(pos.x, pos.y, width)).flat();
-};
-
-const lineRenderersByType = {
-  solid: renderSolidLine,
-  dashed: renderDashedLine,
-  dotted: renderDottedLine
-};
-
-const renderLine = ({ attributes, type }, roadsById) => {
-  const render = lineRenderersByType[type];
+const modelLine = ({ attributes, type }, roadsById) => {
+  const modeler = lineModelersByType[type];
   const road = getRoad(attributes.road, roadsById);
-  const paths = render({ ...attributes, road });
+  const paths = modeler({ ...attributes, road });
   if (attributes.mirror) {
-    return paths.concat(render({ ...attributes, road, x: -attributes.x }));
+    return paths.concat(modeler({ ...attributes, road, x: -attributes.x }));
   }
   return paths;
 };
-
-// Models
 
 const pathsToModel = (paths, { y = 0, height = 0, shade = 0.5, alpha = 1, fade = 0, scaleX = 1, scaleY = 1, scaleZ = 1 }) => {
   const shape = new ShapePath();
@@ -122,10 +39,10 @@ const pathsToModel = (paths, { y = 0, height = 0, shade = 0.5, alpha = 1, fade =
   };
 };
 
-const renderShape = (node, roadsById) => [
+const modelShape = (node, roadsById) => [
   pathsToModel(
     getChildrenOfTypes(node, ["solid", "dashed", "dotted"])
-      .map(line => renderLine(line, roadsById))
+      .map(line => modelLine(line, roadsById))
       .flat(),
     {
       ...node.attributes,
@@ -135,36 +52,30 @@ const renderShape = (node, roadsById) => [
   )
 ];
 
-const partRenderersByType = {
-  disk: renderDottedLine,
-  box: renderDashedLine,
-  wire: renderSolidLine
-};
-
-const renderPart = ({ attributes, type }, featureAttributes) => {
-  const render = partRenderersByType[type];
+const modelPart = ({ attributes, type }, featureAttributes) => {
+  const modeler = partModelersByType[type];
   const lineAttributes = {
     ...attributes,
     ...featureAttributes,
     start: featureAttributes.start + attributes.z,
     end: featureAttributes.end + attributes.z
   };
-  const model = pathsToModel(render(lineAttributes), lineAttributes);
+  const model = pathsToModel(modeler(lineAttributes), lineAttributes);
   if (attributes.mirror) {
-    return [model, pathsToModel(render({ ...lineAttributes, x: -attributes.x }), lineAttributes)];
+    return [model, pathsToModel(modeler({ ...lineAttributes, x: -attributes.x }), lineAttributes)];
   }
   return [model];
 };
 
-const renderFeature = (node, roadsById) => {
+const modelFeature = (node, roadsById) => {
   const road = getRoad(node.attributes.road, roadsById);
   const attributes = { ...node.attributes, road };
   return getChildrenOfTypes(node, ["box", "disk", "wire"])
-    .map(part => renderPart(part, attributes))
+    .map(part => modelPart(part, attributes))
     .flat();
 };
 
-const renderCityscape = ({ attributes }, roadsById) => {
+const modelCityscape = ({ attributes }, roadsById) => {
   const { rowSpacing, columnSpacing, heights, proximity, width, radius } = attributes;
   const road = getRoad(attributes.road, roadsById);
   if (rowSpacing <= 0) rowSpacing = 100;
@@ -185,7 +96,7 @@ const renderCityscape = ({ attributes }, roadsById) => {
   return heights.filter(height => height > 0).map((height, index) => pathsToModel(paths[index], { ...attributes, height }));
 };
 
-const renderClouds = ({ attributes }) => {
+const modelClouds = ({ attributes }) => {
   const { count, shade, scale, altitude, cloudRadius } = attributes;
   const paths = Array(count)
     .fill()
@@ -211,21 +122,21 @@ const transformGeometry = ({ geometry, scale, position }) => {
   return geometry;
 };
 
-const renderLevel = node => {
+const modelLevel = node => {
   const roadsById = {};
   getRoad(node.attributes, roadsById);
   const allModels = [
     ...getChildrenOfTypes(node, ["feature"])
-      .map(feature => renderFeature(feature, roadsById))
+      .map(feature => modelFeature(feature, roadsById))
       .flat(),
-    ...getChildrenOfTypes(node, ["shape"]).map(shape => renderShape(shape, roadsById)),
-    ...getChildrenOfTypes(node, ["cityscape"]).map(cityscape => renderCityscape(cityscape, roadsById))
+    ...getChildrenOfTypes(node, ["shape"]).map(shape => modelShape(shape, roadsById)),
+    ...getChildrenOfTypes(node, ["cityscape"]).map(cityscape => modelCityscape(cityscape, roadsById))
   ].flat();
   const opaqueGeometry = mergeGeometries(allModels.filter(model => !model.transparent).map(transformGeometry));
   const transparentGeometry = mergeGeometries(allModels.filter(model => model.transparent).map(transformGeometry));
   const skyGeometry = mergeGeometries(
     getChildrenOfTypes(node, ["clouds"])
-      .map(renderClouds)
+      .map(modelClouds)
       .map(transformGeometry)
   );
   return {
@@ -237,13 +148,11 @@ const renderLevel = node => {
   };
 };
 
-const getTriangleCount = geometry => (geometry.getAttribute("position")?.count ?? 0) / 3;
-
 export default levelData => {
   console.dir(levelData.attributes.name, levelData);
-  console.time("Rendering " + levelData.attributes.name);
-  const level = renderLevel(levelData);
-  console.timeEnd("Rendering " + levelData.attributes.name);
+  console.time("Modeling " + levelData.attributes.name);
+  const level = modelLevel(levelData);
+  console.timeEnd("Modeling " + levelData.attributes.name);
 
   const { opaqueGeometry, transparentGeometry, skyGeometry } = level;
 

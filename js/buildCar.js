@@ -34,7 +34,8 @@
 import { BoxGeometry, BufferGeometry, Vector2, Group, Mesh, CylinderBufferGeometry } from "./../lib/three/three.module.js";
 
 import { lerp } from "./math.js";
-import { mergeGeometries, shadeGeometry, idGeometry, silhouette, transparent } from "./rendering.js";
+import { mergeGeometries, shadeGeometry, idGeometry } from "./geometry.js";
+import { silhouetteMaterial, transparentMaterial } from "./materials.js";
 
 const boxGeometry = new BoxGeometry();
 const createBoxes = (topFront, bottomFront, topRear, bottomRear, outerSlope, innerSlope, reflect = false) => {
@@ -281,20 +282,20 @@ export default () => {
 
   const mesh = new Group();
 
-  mesh.add(new Mesh(idGeometry(mergeGeometries(frame)), silhouette));
-  mesh.add(new Mesh(idGeometry(mergeGeometries(mirrors)), silhouette));
-  mesh.add(new Mesh(idGeometry(mergeGeometries(fenders)), silhouette));
-  mesh.add(new Mesh(idGeometry(mergeGeometries(frontLights)), silhouette));
-  mesh.add(new Mesh(idGeometry(mergeGeometries(tailLights)), silhouette));
-  mesh.add(new Mesh(idGeometry(mergeGeometries(plates)), silhouette));
-  mesh.add(new Mesh(idGeometry(mergeGeometries(antennas)), silhouette));
+  mesh.add(new Mesh(idGeometry(mergeGeometries(frame)), silhouetteMaterial));
+  mesh.add(new Mesh(idGeometry(mergeGeometries(mirrors)), silhouetteMaterial));
+  mesh.add(new Mesh(idGeometry(mergeGeometries(fenders)), silhouetteMaterial));
+  mesh.add(new Mesh(idGeometry(mergeGeometries(frontLights)), silhouetteMaterial));
+  mesh.add(new Mesh(idGeometry(mergeGeometries(tailLights)), silhouetteMaterial));
+  mesh.add(new Mesh(idGeometry(mergeGeometries(plates)), silhouetteMaterial));
+  mesh.add(new Mesh(idGeometry(mergeGeometries(antennas)), silhouetteMaterial));
 
   // merge opaque geometries
   const allGeometries = [].concat(frame, mirrors, fenders, frontLights, tailLights, plates, antennas);
   allGeometries.forEach(geometry => geometry.dispose());
 
   // merge transparent geometries
-  const windowMesh = new Mesh(mergeGeometries(windows), transparent);
+  const windowMesh = new Mesh(mergeGeometries(windows), transparentMaterial);
   mesh.add(windowMesh);
   mesh.rotation.x = Math.PI * 0.5;
   mesh.scale.multiplyScalar(1.5);
@@ -303,7 +304,7 @@ export default () => {
   // wants to turn them in the future or something
   const tireGeometry = idGeometry(shadeGeometry(new CylinderBufferGeometry(wheelRadius, wheelRadius, wheelThickness, 30), 0.1));
   const hubcapGeometry = idGeometry(shadeGeometry(new CylinderBufferGeometry(hubcapRadius, hubcapRadius, hubcapThickness, 30), carColor));
-  const frontLeftWheel = new Mesh(mergeGeometries([tireGeometry, hubcapGeometry]), silhouette);
+  const frontLeftWheel = new Mesh(mergeGeometries([tireGeometry, hubcapGeometry]), silhouetteMaterial);
   frontLeftWheel.rotation.z = Math.PI * 0.5;
   frontLeftWheel.position.y = wheelRadius;
 

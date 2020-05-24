@@ -2,7 +2,7 @@ import { Group, Vector2, ShapePath, Path } from "./../lib/three/three.module.js"
 
 import { lerp } from "./math.js";
 import { makeSplinePath, getOffsetPoints, makeCirclePath, makePolygonPath } from "./paths.js";
-import { makeGeometry, makeMesh } from "./rendering.js";
+import { makeGeometry, makeMesh } from "./geometry.js";
 
 const wheelScale = 5;
 const speedometerScale = 5;

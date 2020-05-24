@@ -23,7 +23,8 @@ import { Group, Color, CylinderBufferGeometry, Mesh } from "./../lib/three/three
 import buildLevel from "./buildLevel.js";
 import renderLevel from "./renderLevel.js";
 import { lerp } from "./math.js";
-import { shadeGeometry, silhouette, transparent, blendColors } from "./rendering.js";
+import { silhouetteMaterial, transparentMaterial, blendColors } from "./materials.js";
+import { shadeGeometry } from "./geometry.js";
 import isTouchDevice from "./isTouchDevice.js";
 import { Input, controlSchemesByName } from "./Input.js";
 
@@ -368,13 +369,13 @@ export default class Drivey {
 
     this.themeColors = { dark, full, light };
 
-    silhouette.uniforms.fullTint.value = full;
-    silhouette.uniforms.darkTint.value = dark;
-    silhouette.uniforms.lightTint.value = light;
+    silhouetteMaterial.uniforms.fullTint.value = full;
+    silhouetteMaterial.uniforms.darkTint.value = dark;
+    silhouetteMaterial.uniforms.lightTint.value = light;
 
-    transparent.uniforms.fullTint.value = full;
-    transparent.uniforms.darkTint.value = dark;
-    transparent.uniforms.lightTint.value = light;
+    transparentMaterial.uniforms.fullTint.value = full;
+    transparentMaterial.uniforms.darkTint.value = dark;
+    transparentMaterial.uniforms.lightTint.value = light;
 
     this.updateBackgroundColor();
     this.updateButtonTint();
@@ -399,7 +400,7 @@ export default class Drivey {
 
     const geometry = new CylinderBufferGeometry(1, 1, -100, 100, 1, true, 0, Math.PI);
     shadeGeometry(geometry, 0);
-    const mesh = new Mesh(geometry, silhouette);
+    const mesh = new Mesh(geometry, silhouetteMaterial);
     mesh.scale.multiplyScalar(100000);
     mesh.rotation.x = Math.PI * 0.5;
     mesh.rotation.z = Math.PI * 0.5;
@@ -424,8 +425,8 @@ export default class Drivey {
         this.currentEffect = value;
         const isWireframe = this.currentEffect === "wireframe";
         this.screen.setWireframe(isWireframe);
-        silhouette.uniforms.isWireframe.value = isWireframe;
-        transparent.uniforms.isWireframe.value = isWireframe;
+        silhouetteMaterial.uniforms.isWireframe.value = isWireframe;
+        transparentMaterial.uniforms.isWireframe.value = isWireframe;
         this.screen.setCycleColors(this.currentEffect === "technicolor");
         if (this.currentEffect === "merveilles") {
           if (this.theme.active.background == null) {

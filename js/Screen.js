@@ -12,7 +12,7 @@ import { ShaderPass } from "./../lib/three/postprocessing/ShaderPass.js";
 import { SMAAPass } from "./../lib/three/postprocessing/SMAAPass.js";
 import { SobelOperatorShader } from "./../lib/three/shaders/SobelOperatorShader.js";
 
-import { silhouette, transparent } from "./rendering.js";
+import { silhouetteMaterial, transparentMaterial } from "./materials.js";
 
 export default class Screen {
   constructor(animate = true) {
@@ -146,7 +146,7 @@ export default class Screen {
     this.sobelPass.uniforms.resolution.value.y = height;
 
     this.composer.setSize(width, height);
-    silhouette.uniforms.resolution.value.set(width, height);
+    silhouetteMaterial.uniforms.resolution.value.set(width, height);
   }
 
   setWireframe(enabled) {
@@ -173,8 +173,8 @@ export default class Screen {
     if (!this.active) return;
 
     this.time += 0.05;
-    silhouette.uniforms.scramble.value = this.time;
-    transparent.uniforms.scramble.value = this.time;
+    silhouetteMaterial.uniforms.scramble.value = this.time;
+    transparentMaterial.uniforms.scramble.value = this.time;
     this.colorCyclePass.uniforms.time.value = this.time * 0.02;
 
     if (this.camera != null) {
