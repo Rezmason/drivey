@@ -8,6 +8,8 @@ const makeGeometry = (source, height, shade = 0, alpha = 1, fade = 0) => {
     curveSegments: 10,
     bevelEnabled: false
   });
+  geom.deleteAttribute("uv");
+  geom.deleteAttribute("normal");
   shadeGeometry(geom, shade, alpha, fade);
   idGeometry(geom);
   bulgeGeometry(geom);

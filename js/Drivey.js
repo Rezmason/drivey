@@ -248,12 +248,12 @@ export default class Drivey {
     this.loadingLevelName = levelName;
     const levelData = await levelsByName.get(levelName);
     if (this.loadingLevelName === levelName) {
-      this.setLevel(levelData);
+      await this.setLevel(levelData);
     }
   }
 
-  setLevel(levelData) {
-    const level = renderLevel(levelData);
+  async setLevel(levelData) {
+    const level = await renderLevel(levelData);
 
     if (this.level != null) {
       this.screen.scene.remove(this.level.world);

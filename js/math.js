@@ -20,6 +20,10 @@ const origin = new Vector2();
 
 const unitVector = new Vector2(1, 0);
 
+const intMax = Math.pow(2, 32);
+
+const lcg = seed => (seed * 1664525 + 1013904223) % intMax;
+
 const rotate = (v2, angle) => {
   const cos = Math.cos(angle);
   const sin = Math.sin(angle);
@@ -58,4 +62,22 @@ const modDiffAngle = (angle1, angle2) => {
   return diffAngle;
 };
 
-export { PI, TWO_PI, sign, fract, getAngle, lerp, distanceSquared, distance, modAngle, rotate, rotateY, closestPointIndex, modDiffAngle, origin, unitVector };
+export {
+  PI,
+  TWO_PI,
+  sign,
+  fract,
+  getAngle,
+  lerp,
+  distanceSquared,
+  distance,
+  modAngle,
+  rotate,
+  rotateY,
+  closestPointIndex,
+  modDiffAngle,
+  origin,
+  unitVector,
+  lcg,
+  intMax
+};

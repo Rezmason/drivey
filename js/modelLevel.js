@@ -122,7 +122,16 @@ const transformGeometry = ({ geometry, scale, position }) => {
   return geometry;
 };
 
-export default (node) => {
+const dehydrate = geometry =>
+  Object.fromEntries(
+    ["bulgeDirection", "idColor", "monochromeValue", "position"].map(name => {
+      const { array, itemSize } = geometry.attributes[name] ?? { array: null, itemSize: 0 };
+      return [name, { array, itemSize }];
+    })
+  );
+
+export default node => {
+  const { uid } = node;
   const roadsById = {};
   getRoad(node.attributes, roadsById);
   const allModels = [
@@ -132,18 +141,20 @@ export default (node) => {
     ...getChildrenOfTypes(node, ["shape"]).map(shape => modelShape(shape, roadsById)),
     ...getChildrenOfTypes(node, ["cityscape"]).map(cityscape => modelCityscape(cityscape, roadsById))
   ].flat();
-  const opaqueGeometry = mergeGeometries(allModels.filter(model => !model.transparent).map(transformGeometry));
-  const transparentGeometry = mergeGeometries(allModels.filter(model => model.transparent).map(transformGeometry));
-  const skyGeometry = mergeGeometries(
-    getChildrenOfTypes(node, ["clouds"])
-      .map(modelClouds)
-      .map(transformGeometry)
+  const opaqueGeometry = dehydrate(mergeGeometries(allModels.filter(model => !model.transparent).map(transformGeometry)));
+  const transparentGeometry = dehydrate(mergeGeometries(allModels.filter(model => model.transparent).map(transformGeometry)));
+  const skyGeometry = dehydrate(
+    mergeGeometries(
+      getChildrenOfTypes(node, ["clouds"])
+        .map(modelClouds)
+        .map(transformGeometry)
+    )
   );
   return {
-    ...node.attributes,
+    uid,
     opaqueGeometry,
     transparentGeometry,
     skyGeometry,
-    ...roadsById
+    roadsById: Object.fromEntries(Object.entries(roadsById).map(([key, { points }]) => [key, points]))
   };
 };

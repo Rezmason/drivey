@@ -1,7 +1,4 @@
-Put level rendering in a worker
-
 Replace framerate gauge with simulated RPM
-Seeded random
 
 Minified Drivey: browserify / webpack / rollup
 
@@ -17,6 +14,8 @@ Test on multiple devices
   Chances are, the effect composer messes things up in browsers that don't support floating point textures
 
 Refactor Dashboard a tiny bit
+
+Activate level modeling in a worker
 
 Improve performance of Approximation::getNearest
 

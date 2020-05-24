@@ -87,7 +87,8 @@ const roadTagSchema = {
   ...idAttribute,
   basis: { parseFunc: verbatim, defaultValue: null },
   windiness: { parseFunc: safeParseFloat, defaultValue: 0 },
-  scale: { parseFunc: parseVec2, defaultValue: new Vector2(100, 100) }
+  scale: { parseFunc: parseVec2, defaultValue: new Vector2(100, 100) },
+  seed: { parseFunc: safeParseInt, defaultValue: NaN }
 };
 
 const driveyTagSchema = {

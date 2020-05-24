@@ -1,5 +1,5 @@
 import { Vector2 } from "./../lib/three/three.module.js";
-import { fract, lerp, closestPointIndex } from "./math.js";
+import { fract, lerp, closestPointIndex, lcg, intMax } from "./math.js";
 import { makeSplinePath } from "./paths.js";
 
 class Road {
@@ -61,19 +61,28 @@ class Approximation {
   }
 }
 
-const roadWedges = Array(16)
+const numControlPoints = 16;
+
+const roadWedges = Array(numControlPoints)
   .fill()
-  .map((_, index) => (index / 16) * Math.PI * 2)
+  .map((_, index) => (index / numControlPoints) * Math.PI * 2)
   .map(theta => new Vector2(-Math.cos(theta), Math.sin(theta)));
 
-const makeRoad = ({ windiness, scale }, basis) => {
+const makeRoad = ({ windiness, scale, seed }, basis) => {
   if (basis != null) {
     const road = basis.clone();
     road.scale(scale.x, scale.y);
     return road;
   }
 
-  const controlPoints = roadWedges.map((point, i) => point.clone().multiplyScalar(lerp(1, Math.random(), windiness)));
+  const randomValues = [];
+  let value = lcg(isNaN(seed) ? Date.now() : seed);
+  for (let i = 0; i < numControlPoints; i++) {
+    randomValues.push(value / intMax);
+    value = lcg(value);
+  }
+
+  const controlPoints = roadWedges.map((point, i) => point.clone().multiplyScalar(lerp(1, randomValues[i], windiness)));
 
   const minX = Math.min(...controlPoints.map(({ x }) => x));
   const maxX = Math.max(...controlPoints.map(({ x }) => x));
