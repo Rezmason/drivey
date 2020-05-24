@@ -16,6 +16,10 @@ const distance = (v1, v2) => Math.sqrt(distanceSquared(v1, v2));
 
 const modAngle = angle => (angle % TWO_PI) * sign(angle);
 
+const origin = new Vector2();
+
+const unitVector = new Vector2(1, 0);
+
 const rotate = (v2, angle) => {
   const cos = Math.cos(angle);
   const sin = Math.sin(angle);
@@ -54,4 +58,4 @@ const modDiffAngle = (angle1, angle2) => {
   return diffAngle;
 };
 
-export { PI, TWO_PI, sign, fract, getAngle, lerp, distanceSquared, distance, modAngle, rotate, rotateY, closestPointIndex, modDiffAngle };
+export { PI, TWO_PI, sign, fract, getAngle, lerp, distanceSquared, distance, modAngle, rotate, rotateY, closestPointIndex, modDiffAngle, origin, unitVector };

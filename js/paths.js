@@ -1,6 +1,5 @@
 import { Path, CatmullRomCurve3, Vector3, Vector2 } from "./../lib/three/three.module.js";
-
-import { fract, modDiffAngle, PI, TWO_PI } from "./math.js";
+import { fract, modDiffAngle, TWO_PI, origin, unitVector } from "./math.js";
 
 const makeSplinePath = (pts, closed) => {
   const path = new Path();
@@ -14,9 +13,6 @@ const makeSplinePath = (pts, closed) => {
   return path;
 };
 
-const zero = new Vector2();
-const unitVector = new Vector2(1, 0);
-
 const circleCache = new Map();
 
 const makeCirclePath = (x, y, radius, aClockwise = true) => {
@@ -27,7 +23,7 @@ const makeCirclePath = (x, y, radius, aClockwise = true) => {
       .map((_, index) => {
         return unitVector
           .clone()
-          .rotateAround(zero, (index / numPoints) * TWO_PI)
+          .rotateAround(origin, (index / numPoints) * TWO_PI)
           .multiplyScalar(radius);
       });
     circleCache.set(radius, wedges);

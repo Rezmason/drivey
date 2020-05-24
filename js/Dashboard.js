@@ -2,7 +2,7 @@ import { Group, Vector2, ShapePath, Path } from "./../lib/three/three.module.js"
 
 import { lerp } from "./math.js";
 import { makeSplinePath, getOffsetPoints, makeCirclePath, makePolygonPath } from "./paths.js";
-import { makeGeometry, makeShadedMesh } from "./rendering.js";
+import { makeGeometry, makeMesh } from "./rendering.js";
 
 const wheelScale = 5;
 const speedometerScale = 5;
@@ -46,17 +46,17 @@ export default class Dashboard {
 
     const element = new Group();
     if (strokeWidth != 0) {
-      const edge = makeShadedMesh(makeGeometry(expandShapePath(path, 1 + strokeWidth), 0), 0.2);
+      const edge = makeMesh(makeGeometry(expandShapePath(path, 1 + strokeWidth), 0, 0.2));
       edge.position.z = -0.1;
       element.add(edge);
     }
 
     if (hasFill && strokeWidth != 0) {
-      const fill = makeShadedMesh(makeGeometry(expandShapePath(path, 1), 0), 0);
+      const fill = makeMesh(makeGeometry(expandShapePath(path, 1), 0, 0));
       fill.position.z = 0;
       element.add(fill);
     } else if (hasFill) {
-      const fill1 = makeShadedMesh(makeGeometry(path, 0), 0.2);
+      const fill1 = makeMesh(makeGeometry(path, 0, 0.2));
       fill1.position.z = 0;
       element.add(fill1);
     }

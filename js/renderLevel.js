@@ -1,7 +1,7 @@
-import { Mesh, Group, Vector2, ShapePath } from "./../lib/three/three.module.js";
+import { Mesh, Group, Vector2, Vector3, Matrix4, ShapePath } from "./../lib/three/three.module.js";
 import { getOffsetPoints, makeCirclePath, makePolygonPath, makeSquarePath } from "./paths.js";
-import { fract, lerp, distance } from "./math.js";
-import { makeGeometry, mergeGeometries, makeShadedMesh } from "./rendering.js";
+import { fract, lerp, distance, origin, TWO_PI } from "./math.js";
+import { makeGeometry, mergeGeometries, makeMesh } from "./rendering.js";
 import Road from "./Road.js";
 
 const getChildrenOfTypes = (node, types) => node.children.filter(child => types.includes(child.type));
@@ -40,9 +40,7 @@ const makeRoad = ({ windiness, scale }, basis) => {
 };
 
 const getRoad = (attributes, roadsById) => {
-  if (attributes == null) {
-    return null;
-  }
+  if (attributes == null) return null;
   const { id } = attributes;
   if (roadsById[id] == null) {
     const basis = getRoad(attributes.basis, roadsById);
@@ -54,9 +52,7 @@ const getRoad = (attributes, roadsById) => {
 // Lines
 
 const renderSolidLine = ({ spacing, road, x, width, start, end }) => {
-  if (start === end) {
-    return [];
-  }
+  if (start === end) return [];
   width = Math.abs(width);
   const outsidePoints = getOffsetPoints(road.curve, x - width / 2, start, end, spacing / road.length);
   const insidePoints = getOffsetPoints(road.curve, x + width / 2, start, end, spacing / road.length);
@@ -69,14 +65,10 @@ const renderSolidLine = ({ spacing, road, x, width, start, end }) => {
 };
 
 const renderDashedLine = ({ spacing, length, road, x, width, start, end }) => {
-  if (start === end) {
-    return [];
-  }
+  if (start === end) return [];
   start = fract(start);
   end = end === 1 ? 1 : fract(end);
-  if (end < start) {
-    end++;
-  }
+  if (end < start) end++;
   const dashSpan = (length + spacing) / road.length;
   const dashLength = (dashSpan * length) / (length + spacing);
   const dashes = [];
@@ -95,9 +87,7 @@ const renderDashedLine = ({ spacing, length, road, x, width, start, end }) => {
 };
 
 const renderDottedLine = ({ spacing, road, x, width, start, end }) => {
-  if (start === end) {
-    return [];
-  }
+  if (start === end) return [];
   const positions = getOffsetPoints(road.curve, x, start, end, spacing / road.length);
   return positions.map(pos => makeCirclePath(pos.x, pos.y, width)).flat();
 };
@@ -118,91 +108,52 @@ const renderLine = ({ attributes, type }, roadsById) => {
   return paths;
 };
 
-// Meshes
+// Models
 
-const wrapPaths = paths => {
+const pathsToModel = (paths, { y = 0, height = 0, shade = 0.5, alpha = 1, fade = 0, scaleX = 1, scaleY = 1, scaleZ = 1 }) => {
   const shape = new ShapePath();
-  shape.subPaths = paths.slice();
-  return shape;
+  shape.subPaths = paths;
+  const transparent = alpha < 1;
+  return {
+    transparent,
+    geometry: makeGeometry(shape, height, shade, alpha, fade),
+    position: new Vector3(0, 0, y),
+    scale: new Vector3(scaleX, scaleY, scaleZ)
+  };
 };
 
-const renderShape = (node, roadsById) => {
-  const shape = wrapPaths(
+const renderShape = (node, roadsById) => [
+  pathsToModel(
     getChildrenOfTypes(node, ["solid", "dashed", "dotted"])
       .map(line => renderLine(line, roadsById))
-      .flat()
-  );
-  const { y, height, shade, alpha, fade, scale } = node.attributes;
-  const mesh = makeShadedMesh(makeGeometry(shape, height, 1), shade, alpha, fade);
-  mesh.position.z = y;
-  mesh.scale.set(scale.x, scale.y, 1);
-  return [mesh];
-};
-
-const renderWire = attributes => {
-  const start = attributes.start + attributes.z;
-  const end = attributes.end + attributes.z;
-  const shape = wrapPaths(
-    renderSolidLine({
-      ...attributes,
-      start,
-      end
-    })
-  );
-
-  const { y, height, shade, alpha, fade } = attributes;
-  const mesh = makeShadedMesh(makeGeometry(shape, height, 1), shade, alpha, fade);
-  mesh.position.z = y;
-  return mesh;
-};
-
-const renderBox = attributes => {
-  const start = attributes.start + attributes.z;
-  const end = attributes.end + attributes.z;
-  const shape = wrapPaths(
-    renderDashedLine({
-      ...attributes,
-      start,
-      end
-    })
-  );
-
-  const { y, height, shade, alpha, fade } = attributes;
-  const mesh = makeShadedMesh(makeGeometry(shape, height, 1), shade, alpha, fade);
-  mesh.position.z = y;
-  return mesh;
-};
-
-const renderDisk = attributes => {
-  const start = attributes.start + attributes.z;
-  const end = attributes.end + attributes.z;
-  const shape = wrapPaths(
-    renderDottedLine({
-      ...attributes,
-      start,
-      end
-    })
-  );
-
-  const { y, height, shade, alpha, fade } = attributes;
-  const mesh = makeShadedMesh(makeGeometry(shape, height, 1), shade, alpha, fade);
-  mesh.position.z = y;
-  return mesh;
-};
+      .flat(),
+    {
+      ...node.attributes,
+      scaleX: node.attributes.scale.x,
+      scaleY: node.attributes.scale.y
+    }
+  )
+];
 
 const partRenderersByType = {
-  disk: renderDisk,
-  box: renderBox,
-  wire: renderWire
+  disk: renderDottedLine,
+  box: renderDashedLine,
+  wire: renderSolidLine
 };
 
 const renderPart = ({ attributes, type }, featureAttributes) => {
   const render = partRenderersByType[type];
-  const mesh = render({ ...attributes, ...featureAttributes });
+  const lineAttributes = {
+    ...attributes,
+    ...featureAttributes,
+    start: featureAttributes.start + attributes.z,
+    end: featureAttributes.end + attributes.z
+  };
+  const model = pathsToModel(render(lineAttributes), lineAttributes);
   if (attributes.mirror) {
-    return [mesh, render({ ...attributes, ...featureAttributes, x: -attributes.x })];
+    return [model, pathsToModel(render({ ...lineAttributes, x: -attributes.x }), lineAttributes)];
   }
-  return [mesh];
+  return [model];
 };
 
 const renderFeature = (node, roadsById) => {
@@ -231,60 +182,62 @@ const renderCityscape = ({ attributes }, roadsById) => {
       }
     }
   }
-
-  const { shade, fade } = attributes;
-  return heights.filter(height => height > 0).map((height, index) => makeShadedMesh(makeGeometry(wrapPaths(paths[index]), height), shade, 1, fade));
+  return heights.filter(height => height > 0).map((height, index) => pathsToModel(paths[index], { ...attributes, height }));
 };
 
 const renderClouds = ({ attributes }) => {
   const { count, shade, scale, altitude, cloudRadius } = attributes;
-  const paths = [];
-  for (let i = 0; i < count; i++) {
-    const pos = new Vector2(Math.random() - 0.5, Math.random() - 0.5);
-    if (pos.length() < 0.9 && pos.length() > 0.3) {
-      pos.multiply(scale);
-      paths.push(makeCirclePath(pos.x, pos.y, cloudRadius));
-    }
-  }
+  const paths = Array(count)
+    .fill()
+    .map(_ => new Vector2(Math.random() * 0.6 + 0.3).rotateAround(origin, Math.random() * TWO_PI).multiply(scale))
+    .map(({ x, y }) => makeCirclePath(x, y, cloudRadius));
+  return pathsToModel(paths, {
+    y: altitude,
+    height: 1,
+    shade
+  });
+};
 
-  const cloudsMesh = makeShadedMesh(makeGeometry(wrapPaths(paths), 1), shade);
-  cloudsMesh.position.z = altitude;
-  return cloudsMesh;
+const matrixElements = Array(16).fill(0);
+const transformGeometry = ({ geometry, scale, position }) => {
+  matrixElements[0] = scale.x;
+  matrixElements[5] = scale.y;
+  matrixElements[10] = scale.z;
+  matrixElements[11] = position.z;
+  matrixElements[12] = position.x;
+  matrixElements[13] = position.y;
+  matrixElements[15] = 1;
+  geometry.applyMatrix4(new Matrix4().set(...matrixElements));
+  return geometry;
 };
 
 const renderLevel = node => {
   const roadsById = {};
   getRoad(node.attributes, roadsById);
-  const allMeshes = [
+  const allModels = [
     ...getChildrenOfTypes(node, ["feature"])
       .map(feature => renderFeature(feature, roadsById))
       .flat(),
-    ...getChildrenOfTypes(node, ["shape"]).map(mesh => renderShape(mesh, roadsById)),
+    ...getChildrenOfTypes(node, ["shape"]).map(shape => renderShape(shape, roadsById)),
     ...getChildrenOfTypes(node, ["cityscape"]).map(cityscape => renderCityscape(cityscape, roadsById))
   ].flat();
-  const meshes = allMeshes.filter(mesh => !mesh.material.transparent);
-  const transparentMeshes = allMeshes.filter(mesh => mesh.material.transparent);
-  const skyMeshes = getChildrenOfTypes(node, ["clouds"]).map(renderClouds);
+  const opaqueGeometry = mergeGeometries(allModels.filter(model => !model.transparent).map(transformGeometry));
+  const transparentGeometry = mergeGeometries(allModels.filter(model => model.transparent).map(transformGeometry));
+  const skyGeometry = mergeGeometries(
+    getChildrenOfTypes(node, ["clouds"])
+      .map(renderClouds)
+      .map(transformGeometry)
+  );
   return {
     ...node.attributes,
-    meshes,
-    transparentMeshes,
-    skyMeshes,
+    opaqueGeometry,
+    transparentGeometry,
+    skyGeometry,
     ...roadsById
   };
 };
 
-const mergeMeshes = meshes => new Mesh(mergeGeometries(meshes.map(({ geometry }) => geometry)), meshes[0]?.material);
-
-const flattenMesh = mesh => {
-  const geom = mesh.geometry;
-  mesh.updateMatrix();
-  geom.applyMatrix4(mesh.matrix);
-  mesh.position.set(0, 0, 0);
-  mesh.rotation.set(0, 0, 0);
-  mesh.scale.set(1, 1, 1);
-  mesh.updateMatrix();
-};
+const getTriangleCount = geometry => (geometry.getAttribute("position")?.count ?? 0) / 3;
 
 export default levelData => {
   console.dir(levelData.attributes.name, levelData);
@@ -292,38 +245,35 @@ export default levelData => {
   const level = renderLevel(levelData);
   console.timeEnd("Rendering " + levelData.attributes.name);
 
-  const { meshes, transparentMeshes, skyMeshes } = level;
+  const { opaqueGeometry, transparentGeometry, skyGeometry } = level;
 
   const world = new Group();
   level.world = world;
-  meshes.forEach(flattenMesh);
-  const combinedMesh = mergeMeshes(meshes);
-  combinedMesh.geometry.computeBoundingSphere();
-  level.worldRadius = combinedMesh.geometry.boundingSphere.radius;
-  if (meshes.length > 0) {
-    world.add(combinedMesh);
-    console.log(combinedMesh.geometry.getAttribute("position").count / 3, "opaque triangles");
+  opaqueGeometry.computeBoundingSphere();
+  level.worldRadius = opaqueGeometry.boundingSphere.radius;
+
+  const opaqueCount = getTriangleCount(opaqueGeometry);
+  if (opaqueCount > 0) {
+    world.add(makeMesh(opaqueGeometry, false));
+    console.log(opaqueCount, "opaque triangles");
   }
-  meshes.forEach(mesh => mesh.geometry.dispose());
-  meshes.length = 0;
 
-  transparentMeshes.forEach(flattenMesh);
-  if (transparentMeshes.length > 0) world.add(mergeMeshes(transparentMeshes));
-  transparentMeshes.forEach(mesh => mesh.geometry.dispose());
-  transparentMeshes.length = 0;
+  const transparentCount = getTriangleCount(transparentGeometry);
+  if (transparentCount > 0) {
+    world.add(makeMesh(transparentGeometry, true));
+    console.log(transparentCount, "transparent triangles");
+  }
 
-  skyMeshes.forEach(flattenMesh);
   const sky = new Group();
   level.sky = sky;
-  if (skyMeshes.length > 0) sky.add(mergeMeshes(skyMeshes));
-  skyMeshes.forEach(mesh => mesh.geometry.dispose());
-  skyMeshes.length = 0;
+  const skyCount = getTriangleCount(skyGeometry);
+  if (skyCount > 0) {
+    sky.add(makeMesh(skyGeometry, false));
+    console.log(skyCount, "sky triangles");
+  }
 
   level.dispose = () => {
-    if (world.parent != null) {
-      world.parent.remove(world);
-    }
-
+    world.parent?.remove(world);
     world.children.forEach(child => child.geometry.dispose());
   };
 

@@ -1,7 +1,7 @@
 import { RawShaderMaterial, Vector2, Color, Float32BufferAttribute, Mesh, BufferGeometry, ExtrudeBufferGeometry } from "./../lib/three/three.module.js";
 import { BufferGeometryUtils } from "./../lib/three/utils/BufferGeometryUtils.js";
 
-const blendColors = ({ dark, full, light }, value) => (value < 0.5 ? dark.clone().lerp(full, value * 2.0) : full.clone().lerp(light, value * 2.0 - 1.0));
+const blendColors = ({ dark, full, light }, shade) => (shade < 0.5 ? dark.clone().lerp(full, shade * 2.0) : full.clone().lerp(light, shade * 2.0 - 1.0));
 
 const silhouette = new RawShaderMaterial({
   uniforms: {
@@ -20,13 +20,13 @@ const silhouette = new RawShaderMaterial({
     varying float vOpacity;
     varying vec4 vIdColor;
     void main() {
-      float value = monochromeValue.r;
+      float shade = monochromeValue.r;
       float fade = monochromeValue.b;
       vec4 worldPosition = modelViewMatrix * vec4(position, 1.0);
       float screenZ = (projectionMatrix * worldPosition).z;
 
-      value = clamp(value - fade * screenZ / resolution.y, 0., 1.);
-      vShade = value;
+      shade = clamp(shade - fade * screenZ / resolution.y, 0., 1.);
+      vShade = shade;
       vOpacity = monochromeValue.g;
       vIdColor = vec4(idColor, 1.0);
 
@@ -65,11 +65,11 @@ const silhouette = new RawShaderMaterial({
 
         gl_FragColor = vIdColor;
       } else {
-        float value = clamp(vShade + (rand( gl_FragCoord.xy, scramble ) - 0.5) * ditherMagnitude, 0., 1.);
+        float shade = clamp(vShade + (rand( gl_FragCoord.xy, scramble ) - 0.5) * ditherMagnitude, 0., 1.);
 
-        vec3 color = value < 0.5
-          ? mix(darkTint, fullTint, value * 2.0)
-          : mix(fullTint, lightTint, value * 2.0 - 1.0);
+        vec3 color = shade < 0.5
+          ? mix(darkTint, fullTint, shade * 2.0)
+          : mix(fullTint, lightTint, shade * 2.0 - 1.0);
 
         gl_FragColor = vec4(color, vOpacity);
       }
@@ -108,11 +108,11 @@ const bulgeGeometry = geometry => {
   return geometry;
 };
 
-const shadeGeometry = (geometry, value, alpha = 1, fade = 0) => {
+const shadeGeometry = (geometry, shade, alpha = 1, fade = 0) => {
   const numVertices = geometry.getAttribute("position").count;
   const monochromeValues = [];
   for (let i = 0; i < numVertices; i++) {
-    monochromeValues.push(value);
+    monochromeValues.push(shade);
     monochromeValues.push(alpha);
     monochromeValues.push(fade);
   }
@@ -139,14 +139,19 @@ const idGeometry = geometry => {
   return geometry;
 };
 
-const makeGeometry = (source, height) =>
-  new ExtrudeBufferGeometry(source.toShapes(false, false), {
+const makeGeometry = (source, height, shade = 0, alpha = 1, fade = 0) => {
+  const geom = new ExtrudeBufferGeometry(source.toShapes(false, false), {
     depth: Math.max(Math.abs(height), 0.0000001),
     curveSegments: 10,
     bevelEnabled: false
   });
+  shadeGeometry(geom, shade, alpha, fade);
+  idGeometry(geom);
+  bulgeGeometry(geom);
+  return geom;
+};
 
-const mergeGeometries = geometries => {
+const mergeGeometries = (geometries, dispose = true) => {
   if (geometries.length == 0) {
     return new BufferGeometry();
   }
@@ -156,14 +161,11 @@ const mergeGeometries = geometries => {
     throw new Error("You can't merge indexed and non-indexed buffer geometries.");
   }
 
-  return BufferGeometryUtils.mergeBufferGeometries(geometries);
+  const merged = BufferGeometryUtils.mergeBufferGeometries(geometries);
+  if (dispose) geometries.forEach(geom => geom.dispose());
+  return merged;
 };
 
-const makeShadedMesh = (geom, value = 0, alpha = 1, fade = 0) => {
-  shadeGeometry(geom, value, alpha, fade);
-  idGeometry(geom);
-  bulgeGeometry(geom);
-  return new Mesh(geom, alpha == 1 ? silhouette : transparent);
-};
+const makeMesh = (geom, isTransparent = false) => new Mesh(geom, isTransparent ? transparent : silhouette);
 
-export { shadeGeometry, bulgeGeometry, idGeometry, silhouette, transparent, blendColors, makeShadedMesh, makeGeometry, mergeGeometries };
+export { shadeGeometry, bulgeGeometry, idGeometry, silhouette, transparent, blendColors, makeGeometry, mergeGeometries, makeMesh };
