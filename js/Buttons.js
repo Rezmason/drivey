@@ -21,7 +21,7 @@ export default class Buttons {
         .join(" ")}</div>`;
     });
 
-    this.addButton("npcCars", 0, [0, 1, 2, 3], value => {
+    this.addButton("npcCars", 2, [0, 1, 2, 3], value => {
       const index = parseInt(value);
       const lights = Array(3)
         .fill()

@@ -5,7 +5,9 @@ import { makeSplinePath, getOffsetPoints, makeCirclePath, makePolygonPath } from
 import { makeGeometry, makeMesh } from "./geometry.js";
 
 const wheelScale = 5;
-const speedometerScale = 5;
+const gaugeScale = 5;
+const gaugeMinAngle = Math.PI * (1 + 0.8);
+const gaugeMaxAngle = Math.PI * (1 - 0.8);
 
 const expandShapePath = (source, offset) => {
   const expansion = new ShapePath();
@@ -15,22 +17,24 @@ const expandShapePath = (source, offset) => {
 
 export default class Dashboard {
   constructor() {
+    this.speed = 1;
+    this.tach = 1;
     this.object = new Group();
     const edge1 = 2;
     this.backing = this.addDashboardElement(this.makeDashboardBacking(), edge1, true);
     this.backing.position.set(-50, -80, -110);
-    this.speedometer1 = this.addDashboardElement(this.makeSpeedometer(), 0, true);
-    this.speedometer1.position.set(-25, -35, -105);
-    this.speedometer1.scale.set(1 / speedometerScale, 1 / speedometerScale, 1);
-    this.needle1 = this.addDashboardElement(this.makeNeedle(), 0, true);
-    this.needle1.position.set(-25, -35, -105);
-    this.needle1.rotation.z = Math.PI * 1.5;
-    this.speedometer2 = this.addDashboardElement(this.makeSpeedometer(), 0, true);
-    this.speedometer2.position.set(-70, -35, -105);
-    this.speedometer2.scale.set(1 / speedometerScale, 1 / speedometerScale, 1);
-    this.needle2 = this.addDashboardElement(this.makeNeedle(), 0, true);
-    this.needle2.position.set(-70, -35, -105);
-    this.needle2.rotation.z = Math.PI * 1.5;
+    this.speedGauge = this.addDashboardElement(this.makeGauge(), 0, true);
+    this.speedGauge.position.set(-25, -35, -105);
+    this.speedGauge.scale.set(1 / gaugeScale, 1 / gaugeScale, 1);
+    this.speedNeedle = this.addDashboardElement(this.makeNeedle(), 0, true);
+    this.speedNeedle.position.set(-25, -35, -105);
+    this.speedNeedle.rotation.z = Math.PI * 1.5;
+    this.tachGauge = this.addDashboardElement(this.makeGauge(), 0, true);
+    this.tachGauge.position.set(-70, -35, -105);
+    this.tachGauge.scale.set(1 / gaugeScale, 1 / gaugeScale, 1);
+    this.tachNeedle = this.addDashboardElement(this.makeNeedle(), 0, true);
+    this.tachNeedle.position.set(-70, -35, -105);
+    this.tachNeedle.rotation.z = Math.PI * 1.5;
     this.wheel = this.addDashboardElement(this.makeSteeringWheel(), edge1 * wheelScale, true);
     this.wheel.position.set(-50, -55, -100);
     this.wheel.scale.set(1 / wheelScale, 1 / wheelScale, 1);
@@ -73,11 +77,11 @@ export default class Dashboard {
     return shapePath;
   }
 
-  makeSpeedometer() {
+  makeGauge() {
     const shapePath = new ShapePath();
-    const outerRadius = 20 * speedometerScale;
-    const innerRadius = outerRadius - speedometerScale;
-    const dashEnd = innerRadius - 2 * speedometerScale;
+    const outerRadius = 20 * gaugeScale;
+    const innerRadius = outerRadius - gaugeScale;
+    const dashEnd = innerRadius - 2 * gaugeScale;
     const outerRim = makeCirclePath(0, 0, outerRadius);
     const innerRim = makeCirclePath(0, 0, innerRadius, false);
     shapePath.subPaths.push(outerRim);
@@ -154,33 +158,18 @@ export default class Dashboard {
     return value;
   }
 
-  get needle1Rotation() {
-    return this.needle1.rotation.z;
-  }
-
-  set needle1Rotation(value) {
-    this.needle1.rotation.z = value;
-    return value;
-  }
-
-  get needle2Rotation() {
-    return this.needle2.rotation.z;
-  }
-
-  set needle2Rotation(value) {
-    this.needle2.rotation.z = value;
-    return value;
-  }
-
   update() {
     const lerpAmount = 0.05;
     this.backing.position.x = lerp(this.backing.position.x, 50 * this.drivingSide, lerpAmount);
     this.wheel.position.x = lerp(this.wheel.position.x, 50 * this.drivingSide, lerpAmount);
-    const speedometerPositions = [25 * this.drivingSide, 70 * this.drivingSide];
-    this.speedometer1.position.x = lerp(this.speedometer1.position.x, Math.max(...speedometerPositions), lerpAmount);
-    this.speedometer2.position.x = lerp(this.speedometer2.position.x, Math.min(...speedometerPositions), lerpAmount);
+    const gaugePositions = [25 * this.drivingSide, 70 * this.drivingSide];
+    this.speedGauge.position.x = lerp(this.speedGauge.position.x, Math.max(...gaugePositions), lerpAmount);
+    this.tachGauge.position.x = lerp(this.tachGauge.position.x, Math.min(...gaugePositions), lerpAmount);
 
-    this.needle1.position.x = this.speedometer1.position.x;
-    this.needle2.position.x = this.speedometer2.position.x;
+    this.speedNeedle.position.x = this.speedGauge.position.x;
+    this.tachNeedle.position.x = this.tachGauge.position.x;
+
+    this.speedNeedle.rotation.z = lerp(this.speedNeedle.rotation.z, lerp(gaugeMinAngle, gaugeMaxAngle, Math.min(this.speed, 1)), 0.05);
+    this.tachNeedle.rotation.z = lerp(this.tachNeedle.rotation.z, lerp(gaugeMinAngle, gaugeMaxAngle, Math.min(this.tach, 1)), 0.05);
   }
 }

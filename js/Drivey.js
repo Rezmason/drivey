@@ -220,6 +220,7 @@ export default class Drivey {
     this.dashboard.object.scale.set(0.0018, 0.0018, 0.001);
     this.dashboard.object.position.y = -0.02;
     this.driverCameraMount.add(this.dashboard.object);
+    this.gear = 1;
 
     this.cameraMountsByName = new Map([
       ["driver", { mount: this.driverCameraMount, drawBrighterGround: false }],
@@ -234,6 +235,8 @@ export default class Drivey {
 
     // Initial level is Industrial Zone
     await this.setLevelByName("industrial");
+
+    this.setNumOtherCars(2 * 8);
 
     if (localStorage.getItem("theme") != null) {
       this.theme.start();
@@ -512,10 +515,17 @@ export default class Drivey {
     // Update the dashboard
     this.dashboard.object.rotation.z = this.driver.rotation.y;
     this.dashboard.wheelRotation = lerp(this.dashboard.wheelRotation, Math.PI + this.myCar.steerPos * 50, 0.3);
-    const speed1 = lerp(Math.PI * (1 + 0.8), Math.PI * (1 - 0.8), Math.min(this.myCar.vel.length() * 0.009, 1));
-    this.dashboard.needle1Rotation = lerp(this.dashboard.needle1Rotation, speed1, 0.05);
-    const speed2 = lerp(Math.PI * (1 + 0.8), Math.PI * (1 - 0.8), Math.min(this.screen.frameRate / 80, 1));
-    this.dashboard.needle2Rotation = lerp(this.dashboard.needle2Rotation, speed2, 0.005);
+    const speed = this.myCar.vel.length() * 0.009;
+
+    let tach = (2 * speed) / this.gear ** 0.5;
+    if (this.gear < 3 && tach > 0.8) {
+      this.gear++;
+    } else if (this.gear > 1 && tach < 0.4) {
+      this.gear--;
+    }
+
+    this.dashboard.speed = speed;
+    this.dashboard.tach = tach; // this.screen.frameRate / 80;
   }
 
   setNumOtherCars(num) {

@@ -1,4 +1,3 @@
-Replace framerate gauge with simulated RPM
 
 Minified Drivey: browserify / webpack / rollup
 
