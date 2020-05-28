@@ -1,6 +1,6 @@
 import { Vector2, Vector3, Matrix4, ShapePath } from "./../lib/three/three.module.js";
 import { getOffsetPoints, makeCirclePath, makeSquarePath } from "./paths.js";
-import { distance, origin, TWO_PI } from "./math.js";
+import { distance, origin, sanitize, TWO_PI } from "./math.js";
 import { makeGeometry, mergeGeometries } from "./geometry.js";
 import { lineModelersByType, partModelersByType } from "./lineModelers.js";
 import { makeRoad } from "./roads.js";
@@ -20,9 +20,13 @@ const getRoad = (attributes, roadsById) => {
 const modelLine = ({ attributes, type }, roadsById) => {
   const modeler = lineModelersByType[type];
   const road = getRoad(attributes.road, roadsById);
-  const paths = modeler({ ...attributes, road });
+  const segmentAttributes = {
+    start: sanitize(attributes.start / road.length, 0),
+    end: sanitize(attributes.end / road.length, 1)
+  };
+  const paths = modeler({ ...attributes, road, ...segmentAttributes });
   if (attributes.mirror) {
-    return paths.concat(modeler({ ...attributes, road, x: -attributes.x }));
+    return paths.concat(modeler({ ...attributes, road, ...segmentAttributes, x: -attributes.x }));
   }
   return paths;
 };
@@ -69,7 +73,12 @@ const modelPart = ({ attributes, type }, featureAttributes) => {
 
 const modelFeature = (node, roadsById) => {
   const road = getRoad(node.attributes.road, roadsById);
-  const attributes = { ...node.attributes, road };
+  const attributes = {
+    ...node.attributes,
+    road,
+    start: sanitize(node.attributes.start / road.length, 0),
+    end: sanitize(node.attributes.end / road.length, 1)
+  };
   return getChildrenOfTypes(node, ["box", "disk", "wire"])
     .map(part => modelPart(part, attributes))
     .flat();

@@ -38,8 +38,8 @@ const shapeTagSchema = {
 };
 
 const segmentTagSchema = {
-  start: { parseFunc: safeParseFloat, defaultValue: 0 },
-  end: { parseFunc: safeParseFloat, defaultValue: 1 }
+  start: { parseFunc: safeParseFloat, defaultValue: NaN },
+  end: { parseFunc: safeParseFloat, defaultValue: NaN }
 };
 
 const lineTagSchema = {

@@ -265,7 +265,6 @@ export default class Drivey {
     }
 
     this.level = level;
-    console.info(level.name, level.mainRoad.length);
     this.autoSteerApproximation = level.mainRoad.approximate(10000); // Used by car steering logic
 
     // Retint the sky
