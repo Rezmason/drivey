@@ -62,6 +62,8 @@ const modDiffAngle = (angle1, angle2) => {
   return diffAngle;
 };
 
+const sanitize = (value, defaultValue) => isNaN(value) ? defaultValue : value;
+
 export {
   PI,
   TWO_PI,
@@ -79,5 +81,6 @@ export {
   origin,
   unitVector,
   lcg,
-  intMax
+  intMax,
+  sanitize
 };

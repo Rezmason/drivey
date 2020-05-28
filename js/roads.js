@@ -68,20 +68,13 @@ const roadWedges = Array(numControlPoints)
   .map((_, index) => (index / numControlPoints) * Math.PI * 2)
   .map(theta => new Vector2(-Math.cos(theta), Math.sin(theta)));
 
-const makeRoad = ({ windiness, scale, seed }, basis) => {
-  if (basis != null) {
-    const road = basis.clone();
-    road.scale(scale.x, scale.y);
-    return road;
-  }
-
+const makeRandomControlPoints = (seed, windiness, scale) => {
   const randomValues = [];
   let value = lcg(isNaN(seed) ? Date.now() : seed);
   for (let i = 0; i < numControlPoints; i++) {
     randomValues.push(value / intMax);
     value = lcg(value);
   }
-
   const controlPoints = roadWedges.map((point, i) => point.clone().multiplyScalar(lerp(1, randomValues[i], windiness)));
 
   const minX = Math.min(...controlPoints.map(({ x }) => x));
@@ -98,7 +91,28 @@ const makeRoad = ({ windiness, scale, seed }, basis) => {
     point.multiply(scale);
   });
 
-  return new Road(controlPoints);
+  return controlPoints;
+};
+
+const makeControlPoints = splinePoints =>
+  splinePoints.length < 6
+    ? null
+    : Array(splinePoints.length / 2)
+        .fill()
+        .map((_, index) => new Vector2(splinePoints[index * 2], splinePoints[index * 2 + 1]));
+
+const makeRoad = ({ windiness, scale, seed, splinePoints, length }, basis) => {
+  if (basis != null) {
+    const road = basis.clone();
+    road.scale(scale.x, scale.y);
+    return road;
+  }
+
+  const controlPoints = makeControlPoints(splinePoints) ?? makeRandomControlPoints(seed, windiness, scale);
+  const road = new Road(controlPoints);
+  const scalarMultiply = length / road.length;
+  road.scale(scalarMultiply, scalarMultiply);
+  return road;
 };
 
 export { Road, makeRoad };

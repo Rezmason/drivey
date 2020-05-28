@@ -1,3 +1,11 @@
+Make start and end absolute
+  If they're NaN, they should be 0 and road length
+  Divide them by road length
+
+  Line
+  Feature
+
+STAR GUITAR
 
 Minified Drivey: browserify / webpack / rollup
 

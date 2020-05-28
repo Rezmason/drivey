@@ -68,7 +68,7 @@ const cityscapeTagSchema = {
   ...roadAttribute,
   rowSpacing: { parseFunc: safeParseFloat, defaultValue: 200 },
   columnSpacing: { parseFunc: safeParseFloat, defaultValue: 200 },
-  heights: { parseFunc: parseNumberList, defaultValue: "50" },
+  heights: { parseFunc: parseNumberList, defaultValue: [50] },
   width: { parseFunc: safeParseFloat, defaultValue: 100 },
   proximity: { parseFunc: safeParseFloat, defaultValue: 100 },
   radius: { parseFunc: safeParseFloat, defaultValue: 2000 },
@@ -78,7 +78,7 @@ const cityscapeTagSchema = {
 const cloudsTagSchema = {
   count: { parseFunc: safeParseInt, defaultValue: 100 },
   ...shadeAttribute,
-  scale: { parseFunc: parseVec2, defaultValue: "1000, 1000" },
+  scale: { parseFunc: parseVec2, defaultValue: new Vector2(1000, 1000) },
   altitude: { parseFunc: safeParseFloat, defaultValue: 0 },
   cloudRadius: { parseFunc: safeParseFloat, defaultValue: 50 }
 };
@@ -87,8 +87,10 @@ const roadTagSchema = {
   ...idAttribute,
   basis: { parseFunc: verbatim, defaultValue: null },
   windiness: { parseFunc: safeParseFloat, defaultValue: 0 },
-  scale: { parseFunc: parseVec2, defaultValue: new Vector2(100, 100) },
-  seed: { parseFunc: safeParseInt, defaultValue: NaN }
+  scale: { parseFunc: parseVec2, defaultValue: new Vector2(1, 1) },
+  seed: { parseFunc: safeParseInt, defaultValue: NaN },
+  splinePoints: { parseFunc: parseNumberList, defaultValue: [] },
+  length: { parseFunc: safeParseFloat, defaultValue: 1000 }
 };
 
 const driveyTagSchema = {
