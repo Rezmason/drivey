@@ -22,7 +22,7 @@ import { Group, Color, CylinderBufferGeometry, Mesh } from "./../lib/three/three
 
 import buildLevel from "./buildLevel.js";
 import renderLevel from "./renderLevel.js";
-import { lerp } from "./math.js";
+import { lerp, PI } from "./math.js";
 import { silhouetteMaterial, transparentMaterial, blendColors } from "./materials.js";
 import { shadeGeometry } from "./geometry.js";
 import isTouchDevice from "./isTouchDevice.js";
@@ -154,6 +154,7 @@ export default class Drivey {
           myCarInterior
             myCarMesh
             driver
+              <backseatCameraMount>
               <rearCameraMount>
               <driverCameraMount>
                 dashboard
@@ -182,13 +183,13 @@ export default class Drivey {
     this.myCarExterior.add(this.sky);
 
     this.chaseCameraMount = new Group();
-    this.chaseCameraMount.rotation.x = Math.PI * 0.5;
+    this.chaseCameraMount.rotation.x = PI * 0.5;
     this.chaseCameraMount.position.y = -5;
     this.chaseCameraMount.position.z = 2;
     this.myCarExterior.add(this.chaseCameraMount);
 
     this.hoodCameraMount = new Group();
-    this.hoodCameraMount.rotation.x = Math.PI * 0.5;
+    this.hoodCameraMount.rotation.x = PI * 0.5;
     this.hoodCameraMount.position.y = 3;
     this.hoodCameraMount.position.z = 0.5;
     this.myCarExterior.add(this.hoodCameraMount);
@@ -202,13 +203,19 @@ export default class Drivey {
     this.myCarInterior.add(this.driver);
 
     this.driverCameraMount = new Group();
-    this.driverCameraMount.rotation.x = Math.PI * (0.5 + this.defaultTilt);
+    this.driverCameraMount.rotation.x = PI * (0.5 + this.defaultTilt);
     this.driverCameraMount.position.z = 1;
     this.driver.add(this.driverCameraMount);
 
+    this.backseatCameraMount = new Group();
+    this.backseatCameraMount.rotation.x = PI * 0.5;
+    this.backseatCameraMount.rotation.y = PI * 0.625;
+    this.backseatCameraMount.position.z = 1;
+    this.driver.add(this.backseatCameraMount);
+
     this.rearCameraMount = new Group();
-    this.rearCameraMount.rotation.x = Math.PI * (0.5 - this.defaultTilt);
-    this.rearCameraMount.rotation.y = Math.PI;
+    this.rearCameraMount.rotation.x = PI * (0.5 - this.defaultTilt);
+    this.rearCameraMount.rotation.y = PI;
     this.rearCameraMount.position.z = 1;
     this.driver.add(this.rearCameraMount);
 
@@ -226,6 +233,7 @@ export default class Drivey {
       ["driver", { mount: this.driverCameraMount, drawBrighterGround: false }],
       ["hood", { mount: this.hoodCameraMount, drawBrighterGround: false }],
       ["rear", { mount: this.rearCameraMount, drawBrighterGround: false }],
+      ["backseat", { mount: this.backseatCameraMount, drawBrighterGround: false }],
       ["chase", { mount: this.chaseCameraMount, drawBrighterGround: false }],
       ["aerial", { mount: this.aerialCameraMount, drawBrighterGround: true }],
       ["satellite", { mount: this.satelliteCameraMount, drawBrighterGround: true }]
@@ -401,12 +409,12 @@ export default class Drivey {
 
     */
 
-    const geometry = new CylinderBufferGeometry(1, 1, -100, 100, 1, true, 0, Math.PI);
+    const geometry = new CylinderBufferGeometry(1, 1, -100, 100, 1, true, 0, PI);
     shadeGeometry(geometry, 0);
     const mesh = new Mesh(geometry, silhouetteMaterial);
     mesh.scale.multiplyScalar(100000);
-    mesh.rotation.x = Math.PI * 0.5;
-    mesh.rotation.z = Math.PI * 0.5;
+    mesh.rotation.x = PI * 0.5;
+    mesh.rotation.z = PI * 0.5;
     return mesh;
   }
 
@@ -474,9 +482,13 @@ export default class Drivey {
     if (this.level != null) {
       this.level.sky.visible = !this.isWireframe && this.cameraMount != this.aerialCameraMount && this.cameraMount != this.satelliteCameraMount;
     }
+    this.sky.rotation.y = this.cameraMount.rotation.y;
 
     // Only show my car if the camera is not the driver camera
-    this.myCarMesh.visible = this.cameraMount != this.driverCameraMount && this.cameraMount != this.rearCameraMount;
+    this.myCarMesh.visible =
+      this.cameraMount !== this.driverCameraMount &&
+      this.cameraMount !== this.rearCameraMount &&
+      this.cameraMount !== this.backseatCameraMount;
     this.myCarMesh.needsUpdate = true;
 
     if (this.level != null) {
@@ -507,14 +519,14 @@ export default class Drivey {
     const myCruiseSpeed = Math.max(this.controlScheme.minCruiseSpeed, this.cruiseSpeed) * this.level.cruiseSpeed;
     this.myCar.drive(simDelta, myCruiseSpeed, this.controlScheme, this.drivingSide);
     this.updateCarExterior(this.myCar, this.myCarExterior);
-    this.myCarInterior.rotation.x = this.myCar.pitch * Math.PI;
-    this.driver.rotation.y = this.myCar.tilt * Math.PI;
-    this.hoodCameraMount.rotation.z = -this.myCar.tilt * Math.PI;
-    this.hoodCameraMount.rotation.x = (this.myCar.pitch + 0.5) * Math.PI;
+    this.myCarInterior.rotation.x = this.myCar.pitch * PI;
+    this.driver.rotation.y = this.myCar.tilt * PI;
+    this.hoodCameraMount.rotation.z = -this.myCar.tilt * PI;
+    this.hoodCameraMount.rotation.x = (this.myCar.pitch + 0.5) * PI;
 
     // Update the dashboard
     this.dashboard.object.rotation.z = this.driver.rotation.y;
-    this.dashboard.wheelRotation = lerp(this.dashboard.wheelRotation, Math.PI + this.myCar.steerPos * 50, 0.3);
+    this.dashboard.wheelRotation = lerp(this.dashboard.wheelRotation, PI + this.myCar.steerPos * 50, 0.3);
     const speed = this.myCar.vel.length() * 0.009;
 
     let tach = (2 * speed) / this.gear ** 0.5;
@@ -567,6 +579,6 @@ export default class Drivey {
   updateCarExterior(car, exterior) {
     exterior.position.x = car.pos.x;
     exterior.position.y = car.pos.y;
-    exterior.rotation.z = car.angle - Math.PI * 0.5;
+    exterior.rotation.z = car.angle - PI * 0.5;
   }
 }

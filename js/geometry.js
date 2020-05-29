@@ -63,7 +63,7 @@ const idGeometry = geometry => {
 };
 
 const mergeGeometries = (geometries, dispose = true) => {
-  if (geometries.length == 0) return new BufferGeometry();
+  if (geometries.length === 0) return new BufferGeometry();
 
   const numIndexed = geometries.filter(geometry => geometry.index != null).length;
   if (numIndexed > 0 && numIndexed < geometries.length) {

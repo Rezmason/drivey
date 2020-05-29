@@ -1,5 +1,4 @@
 STAR GUITAR
-  "Backseat" camera position
   Leverage loops
   Make it work before you make it look good
 

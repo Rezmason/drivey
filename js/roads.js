@@ -1,5 +1,5 @@
 import { Vector2 } from "./../lib/three/three.module.js";
-import { fract, lerp, closestPointIndex, lcg, intMax } from "./math.js";
+import { fract, lerp, closestPointIndex, lcg, intMax, TWO_PI } from "./math.js";
 import { makeSplinePath } from "./paths.js";
 
 class Road {
@@ -65,7 +65,7 @@ const numControlPoints = 16;
 
 const roadWedges = Array(numControlPoints)
   .fill()
-  .map((_, index) => (index / numControlPoints) * Math.PI * 2)
+  .map((_, index) => (index / numControlPoints) * TWO_PI)
   .map(theta => new Vector2(-Math.cos(theta), Math.sin(theta)));
 
 const makeRandomControlPoints = (seed, windiness, scale) => {
