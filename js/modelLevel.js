@@ -20,13 +20,17 @@ const getRoad = (attributes, roadsById) => {
 const modelLine = ({ attributes, type }, roadsById) => {
   const modeler = lineModelersByType[type];
   const road = getRoad(attributes.road, roadsById);
+  const roadLength = road.length;
+  const curve = road.curve;
   const segmentAttributes = {
-    start: sanitize(attributes.start / road.length, 0),
-    end: sanitize(attributes.end / road.length, 1)
+    start: sanitize(attributes.start / roadLength, 0),
+    end: sanitize(attributes.end / roadLength, 1),
+    spacing: attributes.spacing / roadLength,
+    length: attributes.length / roadLength
   };
-  const paths = modeler({ ...attributes, road, ...segmentAttributes });
+  const paths = modeler({ ...attributes, curve, ...segmentAttributes });
   if (attributes.mirror) {
-    return paths.concat(modeler({ ...attributes, road, ...segmentAttributes, x: -attributes.x }));
+    return paths.concat(modeler({ ...attributes, curve, ...segmentAttributes, x: -attributes.x }));
   }
   return paths;
 };
@@ -61,8 +65,10 @@ const modelPart = ({ attributes, type }, featureAttributes) => {
   const lineAttributes = {
     ...attributes,
     ...featureAttributes,
+    curve: featureAttributes.road.curve,
     start: featureAttributes.start + attributes.z,
-    end: featureAttributes.end + attributes.z
+    end: featureAttributes.end + attributes.z,
+    length: attributes.length / featureAttributes.road.length
   };
   const model = pathsToModel(modeler(lineAttributes), lineAttributes);
   if (attributes.mirror) {
@@ -73,11 +79,13 @@ const modelPart = ({ attributes, type }, featureAttributes) => {
 
 const modelFeature = (node, roadsById) => {
   const road = getRoad(node.attributes.road, roadsById);
+  const roadLength = road.length;
   const attributes = {
     ...node.attributes,
     road,
-    start: sanitize(node.attributes.start / road.length, 0),
-    end: sanitize(node.attributes.end / road.length, 1)
+    start: sanitize(node.attributes.start / roadLength, 0),
+    end: sanitize(node.attributes.end / roadLength, 1),
+    spacing: node.attributes.spacing / roadLength
   };
   return getChildrenOfTypes(node, ["box", "disk", "wire"])
     .map(part => modelPart(part, attributes))
