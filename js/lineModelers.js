@@ -21,19 +21,20 @@ const modelDashedLine = ({ spacing, length, curve, x, width, start, end }) => {
   if (end < start) end++;
 
   const dashSpan = length + spacing;
-  const dashes = [];
-  for (let dashStart = start; dashStart < end; dashStart += dashSpan) {
-    dashes.push(
+  const numDashes = Math.floor((end - start) / dashSpan);
+  return Array(numDashes)
+    .fill()
+    .map((_, index) => start + index * dashSpan)
+    .map(start =>
       modelSolidLine({
         curve,
         x,
         width,
-        start: dashStart,
-        end: Math.min(end, dashStart + length)
+        start,
+        end: Math.min(end, start + length)
       })
-    );
-  }
-  return dashes.flat(); // TODO: array map
+    )
+    .flat();
 };
 
 const modelDottedLine = ({ spacing, curve, x, width, start, end }) => {

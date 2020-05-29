@@ -486,9 +486,7 @@ export default class Drivey {
 
     // Only show my car if the camera is not the driver camera
     this.myCarMesh.visible =
-      this.cameraMount !== this.driverCameraMount &&
-      this.cameraMount !== this.rearCameraMount &&
-      this.cameraMount !== this.backseatCameraMount;
+      this.cameraMount !== this.driverCameraMount && this.cameraMount !== this.rearCameraMount && this.cameraMount !== this.backseatCameraMount;
     this.myCarMesh.needsUpdate = true;
 
     if (this.level != null) {
