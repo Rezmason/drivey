@@ -1,4 +1,7 @@
 STAR GUITAR
+  "Backseat" camera position
+  Leverage loops
+  Make it work before you make it look good
 
 Minified Drivey: browserify / webpack / rollup
 
@@ -13,9 +16,8 @@ Driving in reverse stinks
 Test on multiple devices
   Chances are, the effect composer messes things up in browsers that don't support floating point textures
 
-Refactor Dashboard a tiny bit
-
 Activate level modeling in a worker
+  Waiting on browser support
 
 Improve performance of Approximation::getNearest
 
