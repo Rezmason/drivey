@@ -23,7 +23,7 @@ export default class Screen {
     this.resolution = 1;
     this.active = true;
     this.scene = new Scene();
-    this.camera = new PerspectiveCamera(90, 1, 0.001, 100000);
+    this.camera = new PerspectiveCamera(90, 1, 0.05, 100000);
     this.camera.rotation.order = "YZX";
     this.renderer = new WebGLRenderer();
     this.renderer.setPixelRatio(window.devicePixelRatio);

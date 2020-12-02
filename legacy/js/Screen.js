@@ -16,7 +16,7 @@ class Screen {
     this.resolution = 1;
     this.active = true;
     this.scene = new THREE.Scene();
-    this.camera = new THREE.PerspectiveCamera(90, 1, 0.001, 100000);
+    this.camera = new THREE.PerspectiveCamera(90, 1, 0.05, 100000);
     this.camera.rotation.order = "YZX";
     this.renderer = new THREE.WebGLRenderer();
     this.renderer.setPixelRatio(window.devicePixelRatio);
