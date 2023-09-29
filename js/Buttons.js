@@ -7,6 +7,8 @@ export default class Buttons {
     this.buttonsContainer.id = "buttonsContainer";
     this.element = document.createElement("div");
     this.element.id = "buttons";
+    this.isMouseOverEmbeddedPlaylist = false;
+    this.isMouseOver = false;
     document.body.appendChild(this.buttonsContainer);
     this.buttonsContainer.appendChild(this.element);
 
@@ -97,6 +99,22 @@ export default class Buttons {
       </div>`
     );
 
+    const embeddedPlaylist = document.createElement("div");
+    embeddedPlaylist.id = "embedded-playlist";
+    embeddedPlaylist.innerHTML = `
+    <div id="backdrop"></div>
+    <iframe
+      src="https://open.spotify.com/embed/playlist/4ukrs3cTKjTbLoFcxqssXi?theme=0"
+      src=""
+      allowtransparency="true"
+      allow="autoplay; clipboard-write; encrypted-media;"
+      scrolling="no"
+      loading="lazy">
+    </iframe>`
+    this.element.appendChild(embeddedPlaylist);
+    embeddedPlaylist.addEventListener("mouseover", () => this.isMouseOverEmbeddedPlaylist = true);
+    embeddedPlaylist.addEventListener("mouseout", () => this.isMouseOverEmbeddedPlaylist = false);
+
     this.addButton(
       "level",
       "industrial",
@@ -117,6 +135,9 @@ export default class Buttons {
     document.addEventListener("touchstart", this.onMouse.bind(this), false);
     document.addEventListener("touchmove", this.onMouse.bind(this), false);
     document.addEventListener("touchend", this.onMouse.bind(this), false);
+
+    this.element.addEventListener("mouseover", () => this.isMouseOver = true);
+    this.element.addEventListener("mouseout", () => this.isMouseOver = false);
   }
 
   onMouse() {
@@ -124,10 +145,15 @@ export default class Buttons {
   }
 
   wakeUp() {
-    if (this.buttonsContainer.className === "awake") return;
+    if (this.buttonsContainer.classList.contains("awake")) return;
     clearTimeout(this.awakeTimer);
-    this.buttonsContainer.className = "awake";
-    this.awakeTimer = setTimeout(() => (this.buttonsContainer.className = ""), 3000);
+    this.buttonsContainer.classList.toggle("awake", true);
+    this.awakeTimer = setTimeout(() => {
+      this.buttonsContainer.classList.toggle("awake", false);
+      if (this.isMouseOver || this.isMouseOverEmbeddedPlaylist) {
+        this.wakeUp();
+      }
+    }, 3000);
   }
 
   addListener(func) {
@@ -196,5 +222,9 @@ export default class Buttons {
         .toString(16)
         .padStart(6, "0")}`
     );
+  }
+
+  setWireframe(enabled) {
+    this.element.classList.toggle("wireframe", enabled);
   }
 }

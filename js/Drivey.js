@@ -96,8 +96,25 @@ export default class Drivey {
     document.body.appendChild(this.theme.el);
     window.addEventListener("dragover", this.drag.bind(this));
     window.addEventListener("drop", this.drop.bind(this));
+    window.addEventListener("focus", this.onWindowFocus.bind(this), false);
+    window.addEventListener("blur", this.onWindowBlur.bind(this), false);
     this.theme.onLoad = this.onThemeLoaded.bind(this);
     this.init();
+  }
+
+  onWindowFocus() {
+    if (this.screen != null) {
+      this.screen.active = true;
+    }
+  }
+
+  onWindowBlur() {
+    if (this.buttons != null && this.buttons.isMouseOverEmbeddedPlaylist) {
+      return;
+    }
+    if (this.screen != null) {
+      this.screen.active = false;
+    }
   }
 
   drag(event) {
@@ -337,6 +354,7 @@ export default class Drivey {
         this.buttons.setColors(this.themeColors.dark, this.themeColors.full, this.themeColors.light);
         break;
     }
+    this.buttons.setWireframe(this.currentEffect === "wireframe");
   }
 
   onThemeLoaded() {
