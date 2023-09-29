@@ -1,11 +1,11 @@
 ![Drivey screenshot](/readme_assets/screenshot.png?raw=true "Drivey's industrial zone.")
 
-# Drivey.js
+# [Drivey.js](https://rezmason.github.io/drivey/)
 
-This is a 2018 ECMAScript port of the **graphics demo** [Drivey](http://drivey.com), from 2007.
+This is a JavaScript port of the **2007 graphics demo** [Drivey](http://web.archive.org/web/20211022163339/https://drivey.com/).
 
-Play Drivey.js online [here](https://rezmason.github.io/drivey/).
-On older browsers, try the [legacy version](https://rezmason.github.io/drivey/legacy).
+### Play Drivey.js online [here](https://rezmason.github.io/drivey/).
+### On older browsers, try the [legacy version](https://rezmason.github.io/drivey/legacy).
 
 ### Purpose
 
@@ -67,9 +67,9 @@ JujuScript is very similar to JavaScript, but adds strong type support and opera
 
 Unfortunately JujuScript's launcher is a Windows-only executable (which [runs very well](https://appdb.winehq.org/objectManager.php?sClass=application&iId=8828) under wine), and isn't open source. Its "2.5D" graphics API is also undocumented. To expand its reach, break its dependency on 2000s-era Windows APIs and boost its [bus factor](https://en.wikipedia.org/wiki/Bus_factor), it made sense to convert the Drivey demo to a more broadly adopted platform (ie. *the web*).
 
-In the intervening decades, JavaScript (technically ECMAScript 6+) has matured into a robust, expressive language, bolstered by a thriving ecosystem. It did take a while to get there, but its momentum has also increased at the same time. The advent of WebGL and three.js marked the introduction of a common hardware-accelerated graphics pipeline to the world's most widespread platform.
+In the intervening decades, JavaScript has matured into a robust, expressive language, bolstered by a thriving ecosystem. It did take a while to get there, but its momentum has also increased at the same time. The advent of [WebGL](https://developer.mozilla.org/en-US/docs/Web/API/WebGL_API) and [three.js](https://threejs.org/) marked the introduction of a common hardware-accelerated graphics pipeline to the world's most widespread platform.
 
-As of October 2018, **Drivey.js** is not yet feature complete; already, though, it ties the long-term fate of the demo to the long-term fate of the web. [The old Windows demo is still online](http://drivey.com), in the meantime, and is still notable for its unique approach to rendering a 3D scene.
+As of September 2023, **Drivey.js** is just shy of being feature complete (see above); already, though, it ties the long-term fate of the demo to the long-term fate of the web. [The old Windows demo is still online](http://web.archive.org/web/20211022163339/https://drivey.com/), in the meantime, and is still notable for its unique approach to rendering realtime 3D graphics.
 
 ## Techniques
 
