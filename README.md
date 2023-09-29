@@ -1,6 +1,6 @@
-![Drivey screenshot](/readme_assets/screenshot.png?raw=true "Drivey's industrial zone.")
+[![Drivey screenshot](/readme_assets/screenshot.png?raw=true "Drivey's industrial zone.")](https://rezmason.github.io/drivey)
 
-# [Drivey.js](https://rezmason.github.io/drivey/)
+# [Drivey.js](https://rezmason.github.io/drivey)
 
 This is a JavaScript port of the **2007 graphics demo** [Drivey](http://web.archive.org/web/20211022163339/https://drivey.com/).
 
