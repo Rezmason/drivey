@@ -25,13 +25,13 @@ const modelDashedLine = ({ spacing, length, curve, x, width, start, end }) => {
   return Array(numDashes)
     .fill()
     .map((_, index) => start + index * dashSpan)
-    .map(start =>
+    .map((start) =>
       modelSolidLine({
         curve,
         x,
         width,
         start,
-        end: Math.min(end, start + length)
+        end: Math.min(end, start + length),
       })
     )
     .flat();
@@ -40,19 +40,19 @@ const modelDashedLine = ({ spacing, length, curve, x, width, start, end }) => {
 const modelDottedLine = ({ spacing, curve, x, width, start, end }) => {
   if (start === end) return [];
   const positions = getOffsetPoints(curve, x, start, end, spacing);
-  return positions.map(pos => makeCirclePath(pos.x, pos.y, width)).flat();
+  return positions.map((pos) => makeCirclePath(pos.x, pos.y, width)).flat();
 };
 
 const lineModelersByType = {
   solid: modelSolidLine,
   dashed: modelDashedLine,
-  dotted: modelDottedLine
+  dotted: modelDottedLine,
 };
 
 const partModelersByType = {
   disk: modelDottedLine,
   box: modelDashedLine,
-  wire: modelSolidLine
+  wire: modelSolidLine,
 };
 
 export { lineModelersByType, partModelersByType };

@@ -13,7 +13,7 @@ class Road {
   }
 
   scale(x, y) {
-    this.points = this.points.map(point => new Vector2(point.x * x, point.y * y));
+    this.points = this.points.map((point) => new Vector2(point.x * x, point.y * y));
     this.curve = makeSplinePath(this.points, true);
   }
 
@@ -66,7 +66,7 @@ const numControlPoints = 16;
 const roadWedges = Array(numControlPoints)
   .fill()
   .map((_, index) => (index / numControlPoints) * TWO_PI)
-  .map(theta => new Vector2(-Math.cos(theta), Math.sin(theta)));
+  .map((theta) => new Vector2(-Math.cos(theta), Math.sin(theta)));
 
 const makeRandomControlPoints = (seed, windiness, scale) => {
   const randomValues = [];
@@ -85,7 +85,7 @@ const makeRandomControlPoints = (seed, windiness, scale) => {
   const center = new Vector2(maxX + minX, maxY + minY).multiplyScalar(0.5);
   const aspect = new Vector2(1, (maxY - minY) / (maxX - minX));
 
-  controlPoints.forEach(point => {
+  controlPoints.forEach((point) => {
     point.sub(center);
     point.multiply(aspect);
     point.multiply(scale);
@@ -94,7 +94,7 @@ const makeRandomControlPoints = (seed, windiness, scale) => {
   return controlPoints;
 };
 
-const makeControlPoints = splinePoints =>
+const makeControlPoints = (splinePoints) =>
   splinePoints.length < 6
     ? null
     : Array(splinePoints.length / 2)

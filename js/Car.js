@@ -124,51 +124,20 @@ export default class Car {
 
     let dir = this.dir();
 
-    const acc = dir
-      .clone()
-      .multiplyScalar(this.accelerate)
-      .multiplyScalar(10)
-      .add(this.vel.clone().multiplyScalar(-0.1));
-    const newVel = dir.clone().multiplyScalar(
-      this.vel
-        .clone()
-        .add(acc.clone().multiplyScalar(t))
-        .dot(dir)
-    );
+    const acc = dir.clone().multiplyScalar(this.accelerate).multiplyScalar(10).add(this.vel.clone().multiplyScalar(-0.1));
+    const newVel = dir.clone().multiplyScalar(this.vel.clone().add(acc.clone().multiplyScalar(t)).dot(dir));
 
     if (this.handbrake >= 0.9) newVel.set(0, 0, 0);
 
-    if (
-      !this.sliding &&
-      newVel
-        .clone()
-        .sub(this.vel)
-        .length() /
-        t >
-        750
-    ) {
+    if (!this.sliding && newVel.clone().sub(this.vel).length() / t > 750) {
       // maximum acceleration allowable?
       this.sliding = true;
-    } else if (
-      this.sliding &&
-      newVel
-        .clone()
-        .sub(this.vel)
-        .length() /
-        t <
-        50
-    ) {
+    } else if (this.sliding && newVel.clone().sub(this.vel).length() / t < 50) {
       this.sliding = false;
     }
 
     if (this.sliding) {
-      const friction = newVel
-        .clone()
-        .sub(this.vel)
-        .clone()
-        .normalize()
-        .clone()
-        .multiplyScalar(20);
+      const friction = newVel.clone().sub(this.vel).clone().normalize().clone().multiplyScalar(20);
       this.vel = this.vel.clone().add(friction.clone().multiplyScalar(t));
     }
 

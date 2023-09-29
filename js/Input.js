@@ -16,7 +16,7 @@ class Input {
   update() {}
 }
 
-const touchesFrom = event => Array.from(event.changedTouches);
+const touchesFrom = (event) => Array.from(event.changedTouches);
 
 class TouchInput extends Input {
   constructor() {
@@ -24,40 +24,45 @@ class TouchInput extends Input {
     this.manualSteerSensitivity = 0.025;
     this.deltas = new Map();
 
-    document.addEventListener("touchstart", event => {
+    document.addEventListener("touchstart", (event) => {
       touchesFrom(event)
-        .filter(touch => touch.target.type !== "button")
-        .forEach(touch => {
-          this.deltas.set(touch.identifier, { x: touch.clientX, y: touch.clientY, dx: 0, dy: 0 });
+        .filter((touch) => touch.target.type !== "button")
+        .forEach((touch) => {
+          this.deltas.set(touch.identifier, {
+            x: touch.clientX,
+            y: touch.clientY,
+            dx: 0,
+            dy: 0,
+          });
         });
     });
-    document.addEventListener("touchend", event => {
+    document.addEventListener("touchend", (event) => {
       touchesFrom(event)
-        .filter(touch => this.deltas.has(touch.identifier))
-        .forEach(touch => {
+        .filter((touch) => this.deltas.has(touch.identifier))
+        .forEach((touch) => {
           this.deltas.delete(touch.identifier);
         });
     });
-    document.addEventListener("touchmove", event => {
+    document.addEventListener("touchmove", (event) => {
       touchesFrom(event)
-        .filter(touch => this.deltas.has(touch.identifier))
-        .forEach(touch => {
+        .filter((touch) => this.deltas.has(touch.identifier))
+        .forEach((touch) => {
           const delta = this.deltas.get(touch.identifier);
           [delta.dx, delta.dy] = [touch.clientX - delta.x, touch.clientY - delta.y];
         });
     });
-    document.addEventListener("touchcancel", event => this.deltas.clear());
-    document.addEventListener("mousedown", event => {
+    document.addEventListener("touchcancel", (event) => this.deltas.clear());
+    document.addEventListener("mousedown", (event) => {
       if (event.target.type === "button") return;
       if (event.button !== 0) return;
       this.deltas.set(-1, { x: event.clientX, y: event.clientY, dx: 0, dy: 0 });
     });
-    document.addEventListener("mouseup", event => this.deltas.delete(-1));
-    document.addEventListener("mousemove", event => {
+    document.addEventListener("mouseup", (event) => this.deltas.delete(-1));
+    document.addEventListener("mousemove", (event) => {
       const delta = this.deltas.get(-1);
       if (delta != null) [delta.dx, delta.dy] = [event.clientX - delta.x, event.clientY - delta.y];
     });
-    document.addEventListener("mouseout", event => this.deltas.delete(-1));
+    document.addEventListener("mouseout", (event) => this.deltas.delete(-1));
   }
 
   update() {
@@ -84,8 +89,8 @@ class KeyboardInput extends Input {
     super();
     this.manualSteerSensitivity = 0.025;
     this.keysDown = new Set();
-    document.addEventListener("keydown", event => this.keysDown.add(event.code));
-    document.addEventListener("keyup", event => this.keysDown.delete(event.code));
+    document.addEventListener("keydown", (event) => this.keysDown.add(event.code));
+    document.addEventListener("keyup", (event) => this.keysDown.delete(event.code));
   }
 
   update() {
@@ -109,10 +114,10 @@ class OneSwitchInput extends Input {
     this.cruiseSpeedMultiplier = 4;
     this.shiftSpeed = -0.2;
 
-    document.addEventListener("click", event => {
+    document.addEventListener("click", (event) => {
       if (event.target.type !== "button") this.shiftSpeed *= -1;
     });
-    document.addEventListener("touchstart", event => {
+    document.addEventListener("touchstart", (event) => {
       if (event.target.type !== "button") this.shiftSpeed *= -1;
     });
   }
@@ -132,11 +137,11 @@ class EyeGazeInput extends Input {
     this.xRatio = 0.5;
     this.yRatio = 0.5;
 
-    document.addEventListener("mousemove", event => {
+    document.addEventListener("mousemove", (event) => {
       this.xRatio = event.clientX / window.innerWidth;
       this.yRatio = event.clientY / window.innerWidth;
     });
-    document.addEventListener("touchstart", event => {
+    document.addEventListener("touchstart", (event) => {
       this.xRatio = touchesFrom(event).pop().clientX / window.innerWidth;
       this.yRatio = touchesFrom(event).pop().clientY / window.innerWidth;
     });
@@ -159,7 +164,7 @@ const controlSchemesByName = new Map([
   ["touch", new TouchInput()],
   ["arrows", new KeyboardInput()],
   ["1 switch", new OneSwitchInput()],
-  ["eye gaze", new EyeGazeInput()]
+  ["eye gaze", new EyeGazeInput()],
 ]);
 
 export { Input, controlSchemesByName };

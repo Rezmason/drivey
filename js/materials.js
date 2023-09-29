@@ -4,7 +4,7 @@ const blendColors = ({ dark, full, light }, shade) => (shade < 0.5 ? dark.clone(
 
 const silhouetteMaterial = new RawShaderMaterial({
   uniforms: {
-    resolution: { type: "v2", value: new Vector2(1, 1) }
+    resolution: { type: "v2", value: new Vector2(1, 1) },
   },
   vertexShader: `
     attribute vec3 idColor;
@@ -73,7 +73,7 @@ const silhouetteMaterial = new RawShaderMaterial({
         gl_FragColor = vec4(color, vOpacity);
       }
     }
-  `
+  `,
 });
 silhouetteMaterial.uniforms.ditherMagnitude = { value: 0.02 };
 silhouetteMaterial.uniforms.isWireframe = { value: false };
@@ -85,7 +85,7 @@ silhouetteMaterial.uniforms.lightTint = { value: new Color(1, 1, 1) };
 const transparentMaterial = new RawShaderMaterial({
   vertexShader: silhouetteMaterial.vertexShader,
   fragmentShader: silhouetteMaterial.fragmentShader,
-  transparent: true
+  transparent: true,
 });
 transparentMaterial.uniforms.ditherMagnitude = { value: 0.02 };
 transparentMaterial.uniforms.isWireframe = { value: false };

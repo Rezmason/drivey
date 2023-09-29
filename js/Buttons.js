@@ -12,7 +12,7 @@ export default class Buttons {
     document.body.appendChild(this.buttonsContainer);
     this.buttonsContainer.appendChild(this.element);
 
-    this.addButton("cruise", 2, [0, 1, 2, 3], value => {
+    this.addButton("cruise", 2, [0, 1, 2, 3], (value) => {
       const index = parseInt(value);
       return `<div class='label'>autopilot</div>
       <div class='option'>${Array(3)
@@ -23,7 +23,7 @@ export default class Buttons {
         .join(" ")}</div>`;
     });
 
-    this.addButton("npcCars", 2, [0, 1, 2, 3], value => {
+    this.addButton("npcCars", 2, [0, 1, 2, 3], (value) => {
       const index = parseInt(value);
       const lights = Array(3)
         .fill()
@@ -37,7 +37,7 @@ export default class Buttons {
       "drivingSide",
       "right",
       ["left", "right"],
-      value => `
+      (value) => `
       <div class='label'>&nbsp;&nbsp;side&nbsp;&nbsp;</div>
         <div class='option'>
         <span class="indicator">${value}</span>
@@ -48,7 +48,7 @@ export default class Buttons {
       "camera",
       "driver",
       ["driver", "hood", "rear", "backseat", "chase", "aerial", "satellite"],
-      value => `
+      (value) => `
       <div class='label'>camera</div>
         <div class='option'>
         <span class="indicator">${value}</span>
@@ -59,7 +59,7 @@ export default class Buttons {
       "effect",
       "ombré",
       ["ombré", "wireframe", "technicolor", "merveilles"],
-      value => `
+      (value) => `
       <div class='label'>effect</div>
         <div class='option'>
         <span class="indicator">${value}</span>
@@ -70,7 +70,7 @@ export default class Buttons {
       "controls",
       isTouchDevice ? "touch" : "arrows",
       ["touch", "arrows", "1 switch", "eye gaze"],
-      value => `
+      (value) => `
       <div class='label'>controls</div>
         <div class='option'>
         <span class="indicator">${value.replace("_", "<br>")}</span>
@@ -81,7 +81,7 @@ export default class Buttons {
       "quality",
       "high",
       ["high", "medium", "low"],
-      value => `
+      (value) => `
       <div class='label'>quality</div>
         <div class='option'>
         <span class="indicator">${value}</span>
@@ -92,7 +92,7 @@ export default class Buttons {
       "music",
       "",
       [""],
-      value => `
+      (value) => `
       <div class='label'>mixtape</div>
         <div class='option'>
         <span class="indicator">play</span>
@@ -110,24 +110,24 @@ export default class Buttons {
       allow="autoplay; clipboard-write; encrypted-media;"
       scrolling="no"
       loading="lazy">
-    </iframe>`
+    </iframe>`;
     this.element.appendChild(embeddedPlaylist);
-    embeddedPlaylist.addEventListener("mouseover", () => this.isMouseOverEmbeddedPlaylist = true);
-    embeddedPlaylist.addEventListener("mouseout", () => this.isMouseOverEmbeddedPlaylist = false);
+    embeddedPlaylist.addEventListener("mouseover", () => (this.isMouseOverEmbeddedPlaylist = true));
+    embeddedPlaylist.addEventListener("mouseout", () => (this.isMouseOverEmbeddedPlaylist = false));
 
     this.addButton(
       "level",
       "industrial",
       ["industrial", "night", "city", "tunnel", "beach", "warp", "spectre", "nullarbor", "marshland"],
-      value => `
+      (value) => `
       <div class='label'>level select</div>
         <div class='option'>
         <span class="indicator">${value}</span>
       </div>`
     );
 
-    const stylesheet = Array.from(document.styleSheets).find(sheet => sheet.title === "main");
-    this.bodyRule = Array.from(stylesheet.cssRules).find(rule => rule.selectorText === "body, colors");
+    const stylesheet = Array.from(document.styleSheets).find((sheet) => sheet.title === "main");
+    this.bodyRule = Array.from(stylesheet.cssRules).find((rule) => rule.selectorText === "body, colors");
 
     document.addEventListener("mousemove", this.onMouse.bind(this), false);
     document.addEventListener("mousedown", this.onMouse.bind(this), false);
@@ -136,8 +136,8 @@ export default class Buttons {
     document.addEventListener("touchmove", this.onMouse.bind(this), false);
     document.addEventListener("touchend", this.onMouse.bind(this), false);
 
-    this.element.addEventListener("mouseover", () => this.isMouseOver = true);
-    this.element.addEventListener("mouseout", () => this.isMouseOver = false);
+    this.element.addEventListener("mouseover", () => (this.isMouseOver = true));
+    this.element.addEventListener("mouseout", () => (this.isMouseOver = false));
   }
 
   onMouse() {
@@ -170,7 +170,7 @@ export default class Buttons {
 
   addButton(id, defaultValue, allValues, labelMaker) {
     const button = document.createElement("button");
-    allValues = allValues.map(value => value.toString());
+    allValues = allValues.map((value) => value.toString());
     button.allValues = allValues;
     button.value = defaultValue.toString();
     button.index = allValues.indexOf(button.value);
@@ -201,27 +201,9 @@ export default class Buttons {
   }
 
   setColors(backgroundColor, borderColor, lightColor) {
-    this.bodyRule.style.setProperty(
-      "--dashboard-background-color",
-      `#${backgroundColor
-        .getHex()
-        .toString(16)
-        .padStart(6, "0")}`
-    );
-    this.bodyRule.style.setProperty(
-      "--dashboard-border-color",
-      `#${borderColor
-        .getHex()
-        .toString(16)
-        .padStart(6, "0")}`
-    );
-    this.bodyRule.style.setProperty(
-      "--dashboard-light-color",
-      `#${lightColor
-        .getHex()
-        .toString(16)
-        .padStart(6, "0")}`
-    );
+    this.bodyRule.style.setProperty("--dashboard-background-color", `#${backgroundColor.getHex().toString(16).padStart(6, "0")}`);
+    this.bodyRule.style.setProperty("--dashboard-border-color", `#${borderColor.getHex().toString(16).padStart(6, "0")}`);
+    this.bodyRule.style.setProperty("--dashboard-light-color", `#${lightColor.getHex().toString(16).padStart(6, "0")}`);
   }
 
   setWireframe(enabled) {

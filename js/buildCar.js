@@ -42,7 +42,7 @@ const createBoxes = (topFront, bottomFront, topRear, bottomRear, outerSlope, inn
   // A slope is just a function that returns the horizontal offset of a given vertex.
   // This way guarantees that the six sides of the box are still planar.
   if (outerSlope == null) throw new Error("Unspecified outer slope");
-  if (innerSlope == null) innerSlope = v => -outerSlope(v); // By default, boxes are bilaterally symmetrical
+  if (innerSlope == null) innerSlope = (v) => -outerSlope(v); // By default, boxes are bilaterally symmetrical
   boxGeometry.vertices[0].set(outerSlope(topFront), topFront.y, topFront.x);
   boxGeometry.vertices[1].set(outerSlope(bottomFront), bottomFront.y, bottomFront.x);
   boxGeometry.vertices[2].set(outerSlope(topRear), topRear.y, topRear.x);
@@ -64,8 +64,8 @@ const createBoxes = (topFront, bottomFront, topRear, bottomRear, outerSlope, inn
         bottomFront,
         topRear,
         bottomRear,
-        v => -innerSlope(v),
-        v => -outerSlope(v),
+        (v) => -innerSlope(v),
+        (v) => -outerSlope(v),
         false
       ).pop()
     );
@@ -94,7 +94,7 @@ export default () => {
     rand(0.1, wheelRadius * 2 + 0.1), // front windshield
     rand(isCoupe ? 0.2 : 0.1, 0.7), // front seats
     isCoupe ? 0 : rand(0.1, 0.5), // rear seats
-    rand(hasTailgate && !isCoupe ? 0.2 : 0.1, wheelRadius * 2 + 0.1) // rear windshield
+    rand(hasTailgate && !isCoupe ? 0.2 : 0.1, wheelRadius * 2 + 0.1), // rear windshield
   ];
 
   const cabinWidth = rand(0.3, 0.9);
@@ -112,8 +112,8 @@ export default () => {
   const carColor = 0.075;
   const frame = [];
   const windows = [];
-  const bodySlope = v => cabinWidth / 2;
-  const roofSlope = v => roofWidth / 2;
+  const bodySlope = (v) => cabinWidth / 2;
+  const roofSlope = (v) => roofWidth / 2;
 
   // frame bottom
   const a = new Vector2(0 + bottomTaper, groundClearance);
@@ -169,8 +169,8 @@ export default () => {
   const s2 = s.clone().sub(columnNudge);
 
   // Greenhouse
-  const greenhouseOuterSlope = v => lerp(cabinWidth, roofWidth, (v.y - l.y) / roofHeight) / 2;
-  const greenhouseInnerSlope = v => greenhouseOuterSlope(v) - columnThickness;
+  const greenhouseOuterSlope = (v) => lerp(cabinWidth, roofWidth, (v.y - l.y) / roofHeight) / 2;
+  const greenhouseInnerSlope = (v) => greenhouseOuterSlope(v) - columnThickness;
 
   frame.push(...createBoxes(p, l, p2, l2, greenhouseOuterSlope, greenhouseInnerSlope, true));
   windows.push(...createBoxes(p2, l2, p2, l2, greenhouseInnerSlope));
@@ -208,10 +208,10 @@ export default () => {
   const undercarriageTR = e.clone();
   const undercarriageBR = rearWheelPos.clone();
   undercarriageBR.y -= 0.1;
-  frame.push(...createBoxes(undercarriageTF, undercarriageBF, undercarriageTR, undercarriageBR, v => (cabinWidth / 2) * 0.7));
+  frame.push(...createBoxes(undercarriageTF, undercarriageBF, undercarriageTR, undercarriageBR, (v) => (cabinWidth / 2) * 0.7));
 
-  frame.forEach(box => shadeGeometry(box, carColor));
-  windows.forEach(box => shadeGeometry(box, carColor, 0.4));
+  frame.forEach((box) => shadeGeometry(box, carColor));
+  windows.forEach((box) => shadeGeometry(box, carColor, 0.4));
 
   // fenders
   const frontFenderTF = f.clone(); frontFenderTF.x -= 0.02; frontFenderTF.y -= cabinHeight1 * 0.5;
@@ -223,9 +223,9 @@ export default () => {
   const rearFenderTR = j.clone(); rearFenderTR.x += 0.02; rearFenderTR.y -= cabinHeight1 * 0.5;
   const rearFenderBR = e.clone(); rearFenderBR.x += 0.02; rearFenderBR.y -= 0.01;
   const fenders = [];
-  fenders.push(...createBoxes(frontFenderTF, frontFenderBF, frontFenderTR, frontFenderBR, v => cabinWidth / 2 + 0.01));
-  fenders.push(...createBoxes(rearFenderTF, rearFenderBF, rearFenderTR, rearFenderBR, v => cabinWidth / 2 + 0.01));
-  fenders.forEach(fender => shadeGeometry(fender, carColor + 0.05));
+  fenders.push(...createBoxes(frontFenderTF, frontFenderBF, frontFenderTR, frontFenderBR, (v) => cabinWidth / 2 + 0.01));
+  fenders.push(...createBoxes(rearFenderTF, rearFenderBF, rearFenderTR, rearFenderBR, (v) => cabinWidth / 2 + 0.01));
+  fenders.forEach((fender) => shadeGeometry(fender, carColor + 0.05));
 
   // mirrors
   const mirrorBF = l.clone();
@@ -262,8 +262,8 @@ export default () => {
   const antennaBR = antennaBF.clone();
   antennaBF.x -= 0.01;
   const antennas = [];
-  antennas.push(...createBoxes(antennaTF, antennaBF, antennaTR, antennaBR, greenhouseOuterSlope, v => greenhouseOuterSlope(v) - 0.01));
-  antennas.forEach(antenna => shadeGeometry(antenna, carColor));
+  antennas.push(...createBoxes(antennaTF, antennaBF, antennaTR, antennaBR, greenhouseOuterSlope, (v) => greenhouseOuterSlope(v) - 0.01));
+  antennas.forEach((antenna) => shadeGeometry(antenna, carColor));
 
   // license plates
   const frontPlateTF = frontFenderTF.clone();
@@ -276,9 +276,9 @@ export default () => {
   rearPlateBF.x += 0.01;
   rearPlateBF.y -= 0.05;
   const plates = [];
-  plates.push(...createBoxes(frontPlateTF, frontPlateBF, frontPlateTF, frontPlateBF, v => 0.1));
-  plates.push(...createBoxes(rearPlateTF, rearPlateBF, rearPlateTF, rearPlateBF, v => 0.1));
-  plates.forEach(plate => shadeGeometry(plate, 0.2));
+  plates.push(...createBoxes(frontPlateTF, frontPlateBF, frontPlateTF, frontPlateBF, (v) => 0.1));
+  plates.push(...createBoxes(rearPlateTF, rearPlateBF, rearPlateTF, rearPlateBF, (v) => 0.1));
+  plates.forEach((plate) => shadeGeometry(plate, 0.2));
 
   const mesh = new Group();
 
@@ -292,7 +292,7 @@ export default () => {
 
   // merge opaque geometries
   const allGeometries = [].concat(frame, mirrors, fenders, frontLights, tailLights, plates, antennas);
-  allGeometries.forEach(geometry => geometry.dispose());
+  allGeometries.forEach((geometry) => geometry.dispose());
 
   // merge transparent geometries
   const windowMesh = new Mesh(mergeGeometries(windows), transparentMaterial);

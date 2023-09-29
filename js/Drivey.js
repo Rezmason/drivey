@@ -35,7 +35,7 @@ import buildCar from "./buildCar.js";
 import Dashboard from "./Dashboard.js";
 
 const parser = new DOMParser();
-const readLevel = htmlText => {
+const readLevel = (htmlText) => {
   const levelDOM = parser.parseFromString(htmlText, "text/html").documentElement;
   if (levelDOM?.querySelector("drivey") != null) {
     return levelDOM;
@@ -56,13 +56,13 @@ const levelsByName = new Map(
     ["spectre", "Spectre"],
     ["beach", "CliffsideBeach"],
     ["nullarbor", "TrainTracks"],
-    ["marshland", "Overpass"]
+    ["marshland", "Overpass"],
   ].map(([levelName, filename]) => [
     levelName,
     fetch(`./levels/${filename}.html`)
-      .then(file => file.text())
+      .then((file) => file.text())
       .then(readLevel)
-      .then(buildLevel)
+      .then(buildLevel),
   ])
 );
 
@@ -70,18 +70,18 @@ const cruiseSpeeds = new Map([
   [0, 0.0],
   [1, 0.5],
   [2, 1.0],
-  [3, 4.0]
+  [3, 4.0],
 ]);
 
 const drivingSidesByName = new Map([
   ["left", 1],
-  ["right", -1]
+  ["right", -1],
 ]);
 
 const screenResolutions = new Map([
   ["low", 1 / 4],
   ["medium", 1 / 2],
-  ["high", 1 / 1]
+  ["high", 1 / 1],
 ]);
 
 export default class Drivey {
@@ -132,7 +132,7 @@ export default class Drivey {
 
     if (isSVG || isHTML) {
       const reader = new FileReader();
-      reader.onload = event => {
+      reader.onload = (event) => {
         const text = event.target.result;
         if (isSVG) {
           this.theme.load(text);
@@ -253,7 +253,7 @@ export default class Drivey {
       ["backseat", { mount: this.backseatCameraMount, drawBrighterGround: false }],
       ["chase", { mount: this.chaseCameraMount, drawBrighterGround: false }],
       ["aerial", { mount: this.aerialCameraMount, drawBrighterGround: true }],
-      ["satellite", { mount: this.satelliteCameraMount, drawBrighterGround: true }]
+      ["satellite", { mount: this.satelliteCameraMount, drawBrighterGround: true }],
     ]);
 
     this.setCameraMount("driver");
@@ -373,15 +373,15 @@ export default class Drivey {
         }
 
         const hsl = Array.from(new Set([active.f_high, active.f_med, active.f_low, active.b_high, active.b_med, active.background]))
-          .map(hex => new Color(parseInt(hex.substring(1), 16)))
-          .map(color => color.getHSL({ color }));
-        const minLightness = Math.min(...hsl.map(o => o.l));
-        const darkHSL = hsl.find(o => o.l === minLightness);
-        const maxLightness = Math.max(...hsl.map(o => o.l));
-        const lightHSL = hsl.find(o => o.l === maxLightness);
-        const remainingHSL = hsl.filter(o => o != darkHSL && o != lightHSL);
-        const maxSaturation = Math.max(...remainingHSL.map(o => o.s));
-        const fullHSL = remainingHSL.find(o => o.s === maxSaturation);
+          .map((hex) => new Color(parseInt(hex.substring(1), 16)))
+          .map((color) => color.getHSL({ color }));
+        const minLightness = Math.min(...hsl.map((o) => o.l));
+        const darkHSL = hsl.find((o) => o.l === minLightness);
+        const maxLightness = Math.max(...hsl.map((o) => o.l));
+        const lightHSL = hsl.find((o) => o.l === maxLightness);
+        const remainingHSL = hsl.filter((o) => o != darkHSL && o != lightHSL);
+        const maxSaturation = Math.max(...remainingHSL.map((o) => o.s));
+        const fullHSL = remainingHSL.find((o) => o.s === maxSaturation);
         [dark, light, full] = [darkHSL.color, lightHSL.color, fullHSL.color];
         // console.log(dark.getHexString(), full.getHexString(), light.getHexString());
         break;

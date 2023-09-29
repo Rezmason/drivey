@@ -6,7 +6,7 @@ const makeGeometry = (source, height, shade = 0, alpha = 1, fade = 0) => {
   const geom = new ExtrudeBufferGeometry(source.toShapes(false, false), {
     depth: Math.max(Math.abs(height), 0.0000001),
     curveSegments: 10,
-    bevelEnabled: false
+    bevelEnabled: false,
   });
   geom.deleteAttribute("uv");
   geom.deleteAttribute("normal");
@@ -16,9 +16,9 @@ const makeGeometry = (source, height, shade = 0, alpha = 1, fade = 0) => {
   return geom;
 };
 
-const getTriangleCount = geometry => (geometry.getAttribute("position")?.count ?? 0) / 3;
+const getTriangleCount = (geometry) => (geometry.getAttribute("position")?.count ?? 0) / 3;
 
-const bulgeGeometry = geometry => {
+const bulgeGeometry = (geometry) => {
   const positions = geometry.getAttribute("position");
   const numVertices = positions.count;
   const bulgeDirections = [];
@@ -46,7 +46,7 @@ const shadeGeometry = (geometry, shade, alpha = 1, fade = 0) => {
 
 let [idRed, idGreen, idBlue] = [0, 0, 0];
 
-const idGeometry = geometry => {
+const idGeometry = (geometry) => {
   const numVertices = geometry.getAttribute("position").count;
   idRed = (idRed + 0x23) % 0xff;
   idGreen = (idGreen + 0x67) % 0xff;
@@ -65,13 +65,13 @@ const idGeometry = geometry => {
 const mergeGeometries = (geometries, dispose = true) => {
   if (geometries.length === 0) return new BufferGeometry();
 
-  const numIndexed = geometries.filter(geometry => geometry.index != null).length;
+  const numIndexed = geometries.filter((geometry) => geometry.index != null).length;
   if (numIndexed > 0 && numIndexed < geometries.length) {
     throw new Error("You can't merge indexed and non-indexed buffer geometries.");
   }
 
   const merged = BufferGeometryUtils.mergeBufferGeometries(geometries);
-  if (dispose) geometries.forEach(geom => geom.dispose());
+  if (dispose) geometries.forEach((geom) => geom.dispose());
   return merged;
 };
 

@@ -11,7 +11,7 @@ const gaugeMaxAngle = PI * (1 - 0.8);
 
 const expandShapePath = (source, offset) => {
   const expansion = new ShapePath();
-  source.subPaths.forEach(subPath => expansion.subPaths.push(new Path(getOffsetPoints(subPath, offset))));
+  source.subPaths.forEach((subPath) => expansion.subPaths.push(new Path(getOffsetPoints(subPath, offset))));
   return expansion;
 };
 
@@ -55,14 +55,14 @@ const makeGauge = () => {
     ...Array(10)
       .fill()
       .map((_, index) => (TWO_PI * (index + 0.5)) / 10)
-      .map(angle =>
+      .map((angle) =>
         makePolygonPath([
           new Vector2(Math.cos(angle - nudge) * outerRadius, Math.sin(angle - nudge) * outerRadius),
           new Vector2(Math.cos(angle - nudge) * dashEnd, Math.sin(angle - nudge) * dashEnd),
           new Vector2(Math.cos(angle + nudge) * dashEnd, Math.sin(angle + nudge) * dashEnd),
-          new Vector2(Math.cos(angle + nudge) * outerRadius, Math.sin(angle + nudge) * outerRadius)
+          new Vector2(Math.cos(angle + nudge) * outerRadius, Math.sin(angle + nudge) * outerRadius),
         ])
-      )
+      ),
   ];
 
   return shapePath;
@@ -76,7 +76,7 @@ const makeNeedle = () => {
       new Vector2(-0.02 * scale, 0.1 * scale),
       new Vector2(-0.005 * scale, -0.4 * scale),
       new Vector2(0.005 * scale, -0.4 * scale),
-      new Vector2(0.02 * scale, 0.1 * scale)
+      new Vector2(0.02 * scale, 0.1 * scale),
     ])
   );
   return shapePath;
@@ -116,7 +116,7 @@ const makeSteeringWheel = () => {
       new Vector2(scale * -0.25, scale * 0.085),
       new Vector2(scale * -0.125, scale * 0.235),
       new Vector2(scale * 0.125, scale * 0.235),
-      new Vector2(scale * 0.25, scale * 0.085)
+      new Vector2(scale * 0.25, scale * 0.085),
     ]);
 
   shapePath.subPaths.push(makeSplinePath(lowerVertices, true));
@@ -155,7 +155,7 @@ export default class Dashboard {
     this.wheel.position.set(-50, -55, -100);
     this.wheel.scale.set(1 / wheelScale, 1 / wheelScale, 1);
 
-    [this.backing, this.speedGauge, this.speedNeedle, this.tachGauge, this.tachNeedle, this.wheel].forEach(element => this.object.add(element));
+    [this.backing, this.speedGauge, this.speedNeedle, this.tachGauge, this.tachNeedle, this.wheel].forEach((element) => this.object.add(element));
 
     this.update();
   }

@@ -2,11 +2,11 @@ import { Vector2, Vector3 } from "./../lib/three/three.module.js";
 
 const [PI, TWO_PI] = [Math.PI, Math.PI * 2];
 
-const sign = input => (input < 0 ? -1 : 1);
+const sign = (input) => (input < 0 ? -1 : 1);
 
-const fract = n => ((n % 1) + 1) % 1;
+const fract = (n) => ((n % 1) + 1) % 1;
 
-const getAngle = v2 => Math.atan2(v2.y, v2.x);
+const getAngle = (v2) => Math.atan2(v2.y, v2.x);
 
 const lerp = (from, to, amount) => from * (1 - amount) + to * amount;
 
@@ -14,7 +14,7 @@ const distanceSquared = (v1, v2) => (v1.x - v2.x) ** 2 + (v1.y - v2.y) ** 2;
 
 const distance = (v1, v2) => Math.sqrt(distanceSquared(v1, v2));
 
-const modAngle = angle => (angle % TWO_PI) * sign(angle);
+const modAngle = (angle) => (angle % TWO_PI) * sign(angle);
 
 const origin = new Vector2();
 
@@ -22,7 +22,7 @@ const unitVector = new Vector2(1, 0);
 
 const intMax = Math.pow(2, 32);
 
-const lcg = seed => (seed * 1664525 + 1013904223) % intMax;
+const lcg = (seed) => (seed * 1664525 + 1013904223) % intMax;
 
 const rotate = (v2, angle) => {
   const cos = Math.cos(angle);
@@ -82,5 +82,5 @@ export {
   unitVector,
   lcg,
   intMax,
-  sanitize
+  sanitize,
 };

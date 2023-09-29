@@ -29,7 +29,7 @@ const makeCirclePath = (x, y, radius, aClockwise = true) => {
     circleCache.set(radius, wedges);
   }
   const pos = new Vector2(x, y);
-  const points = circleCache.get(radius).map(point => point.clone().add(pos));
+  const points = circleCache.get(radius).map((point) => point.clone().add(pos));
   if (aClockwise) {
     points.reverse();
   }
@@ -41,10 +41,10 @@ const makeSquarePath = (x, y, width) =>
     new Vector2(x - width / 2, y - width / 2),
     new Vector2(x + width / 2, y - width / 2),
     new Vector2(x + width / 2, y + width / 2),
-    new Vector2(x - width / 2, y + width / 2)
+    new Vector2(x - width / 2, y + width / 2),
   ]);
 
-const makePolygonPath = points => new Path(points);
+const makePolygonPath = (points) => new Path(points);
 
 const getOffsetSample = (source, t, offset) => {
   const fractT = fract(t);
@@ -52,7 +52,7 @@ const getOffsetSample = (source, t, offset) => {
   return {
     t,
     pos: new Vector2(-tangent.y, tangent.x).multiplyScalar(offset).add(source.getPoint(fractT)),
-    angle: Math.atan2(tangent.y, tangent.x)
+    angle: Math.atan2(tangent.y, tangent.x),
   };
 };
 

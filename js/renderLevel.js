@@ -3,9 +3,9 @@ import { Road } from "./roads.js";
 import { getTriangleCount, makeMesh } from "./geometry.js";
 import modelLevel from "./modelLevel.js";
 
-const rehydrate = attributeData => {
+const rehydrate = (attributeData) => {
   const geometry = new BufferGeometry();
-  Object.keys(attributeData).forEach(name => {
+  Object.keys(attributeData).forEach((name) => {
     const { array, itemSize } = attributeData[name];
     if (itemSize > 0) {
       geometry.setAttribute(name, new BufferAttribute(array, itemSize));
@@ -17,8 +17,8 @@ const rehydrate = attributeData => {
 // const worker = new Worker("./js/worker.js", {type: "module"});
 // worker.addEventListener("error", event => console.log(event));
 
-const modelLevelAsync = levelData =>
-  new Promise(resolve => {
+const modelLevelAsync = (levelData) =>
+  new Promise((resolve) => {
     resolve(modelLevel(levelData));
     /*
   const uid = Math.floor(Math.random() * 0xFFFFFFFF);
@@ -33,7 +33,7 @@ const modelLevelAsync = levelData =>
   */
   });
 
-export default async levelData => {
+export default async (levelData) => {
   console.dir(levelData.attributes.name, levelData);
   console.time("Modeling " + levelData.attributes.name);
   const models = await modelLevelAsync(levelData);
@@ -69,7 +69,7 @@ export default async levelData => {
 
   const dispose = () => {
     world.parent?.remove(world);
-    world.children.forEach(child => child.geometry.dispose());
+    world.children.forEach((child) => child.geometry.dispose());
   };
 
   return {
@@ -78,6 +78,6 @@ export default async levelData => {
     world,
     sky,
     worldRadius,
-    dispose
+    dispose,
   };
 };

@@ -40,7 +40,7 @@ export default class Screen {
 
     this.blueprintPass = new ShaderPass({
       uniforms: {
-        tDiffuse: { type: "t", value: null }
+        tDiffuse: { type: "t", value: null },
       },
       vertexShader: `
         varying vec2 vUV;
@@ -65,7 +65,7 @@ export default class Screen {
           vec3 color = mix(prussianBlue, vec3(0.9, 0.9, 1.0), edge);
           gl_FragColor = vec4(color, 1.);
         }
-      `
+      `,
     });
     this.composer.addPass(this.blueprintPass);
     this.blueprintPass.enabled = false;
@@ -73,7 +73,7 @@ export default class Screen {
     this.colorCyclePass = new ShaderPass({
       uniforms: {
         tDiffuse: { type: "t", value: null },
-        time: { type: "f", value: 0 }
+        time: { type: "f", value: 0 },
       },
       vertexShader: `
         varying vec2 vUV;
@@ -98,7 +98,7 @@ export default class Screen {
         void main() {
           gl_FragColor = vec4(hueShift(texture2D(tDiffuse, vUV).rgb, time), 1.0);
         }
-      `
+      `,
     });
     this.composer.addPass(this.colorCyclePass);
     this.colorCyclePass.enabled = false;

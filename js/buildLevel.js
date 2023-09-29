@@ -17,14 +17,14 @@ const evaluateRawValue = (parser, scope, rawValue) => {
 };
 
 const dashed = /(.*?)-([a-zA-Z])/g;
-const dashedToCamelCase = s => s.replace(dashed, (_, a, b) => a + b.toUpperCase());
+const dashedToCamelCase = (s) => s.replace(dashed, (_, a, b) => a + b.toUpperCase());
 
 const simplify = (element, parentScope = {}) => {
   const type = element.tagName.toLowerCase();
 
   const rawAttributes = {
     ...getDefaultValuesForType(type),
-    ...Object.fromEntries(Array.from(element.attributes).map(({ name, value }) => [dashedToCamelCase(name), value]))
+    ...Object.fromEntries(Array.from(element.attributes).map(({ name, value }) => [dashedToCamelCase(name), value])),
   };
 
   const attributes = Object.fromEntries(
@@ -40,12 +40,12 @@ const simplify = (element, parentScope = {}) => {
     .fill()
     .map((_, index) => ({ ...parentScope, [iteratorId]: index }));
   const children = scopes
-    .map(scope => Array.from(element.children).map(child => simplify(child, scope)))
+    .map((scope) => Array.from(element.children).map((child) => simplify(child, scope)))
     .flat()
-    .map(child => (child.type === "repeat" ? child.children : [child]))
+    .map((child) => (child.type === "repeat" ? child.children : [child]))
     .flat();
 
   return { type, id: attributes.id, attributes, children, ...hoist };
 };
 
-export default dom => simplify(dom.querySelector("drivey"));
+export default (dom) => simplify(dom.querySelector("drivey"));

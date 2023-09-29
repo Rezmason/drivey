@@ -5,7 +5,7 @@ import { makeGeometry, mergeGeometries } from "./geometry.js";
 import { lineModelersByType, partModelersByType } from "./lineModelers.js";
 import { makeRoad } from "./roads.js";
 
-const getChildrenOfTypes = (node, types) => node.children.filter(child => types.includes(child.type));
+const getChildrenOfTypes = (node, types) => node.children.filter((child) => types.includes(child.type));
 
 const getRoad = (attributes, roadsById) => {
   if (attributes == null) return null;
@@ -26,7 +26,7 @@ const modelLine = ({ attributes, type }, roadsById) => {
     start: sanitize(attributes.start / roadLength, 0),
     end: sanitize(attributes.end / roadLength, 1),
     spacing: attributes.spacing / roadLength,
-    length: attributes.length / roadLength
+    length: attributes.length / roadLength,
   };
   const paths = modeler({ ...attributes, curve, ...segmentAttributes });
   if (attributes.mirror) {
@@ -43,21 +43,21 @@ const pathsToModel = (paths, { y = 0, height = 0, shade = 0.5, alpha = 1, fade =
     transparent,
     geometry: makeGeometry(shape, height, shade, alpha, fade),
     position: new Vector3(0, 0, y),
-    scale: new Vector3(scaleX, scaleY, scaleZ)
+    scale: new Vector3(scaleX, scaleY, scaleZ),
   };
 };
 
 const modelShape = (node, roadsById) => [
   pathsToModel(
     getChildrenOfTypes(node, ["solid", "dashed", "dotted"])
-      .map(line => modelLine(line, roadsById))
+      .map((line) => modelLine(line, roadsById))
       .flat(),
     {
       ...node.attributes,
       scaleX: node.attributes.scale.x,
-      scaleY: node.attributes.scale.y
+      scaleY: node.attributes.scale.y,
     }
-  )
+  ),
 ];
 
 const modelPart = ({ attributes, type }, featureAttributes) => {
@@ -68,7 +68,7 @@ const modelPart = ({ attributes, type }, featureAttributes) => {
     curve: featureAttributes.road.curve,
     start: featureAttributes.start + attributes.z,
     end: featureAttributes.end + attributes.z,
-    length: attributes.length / featureAttributes.road.length
+    length: attributes.length / featureAttributes.road.length,
   };
   const model = pathsToModel(modeler(lineAttributes), lineAttributes);
   if (attributes.mirror) {
@@ -85,10 +85,10 @@ const modelFeature = (node, roadsById) => {
     road,
     start: sanitize(node.attributes.start / roadLength, 0),
     end: sanitize(node.attributes.end / roadLength, 1),
-    spacing: node.attributes.spacing / roadLength
+    spacing: node.attributes.spacing / roadLength,
   };
   return getChildrenOfTypes(node, ["box", "disk", "wire"])
-    .map(part => modelPart(part, attributes))
+    .map((part) => modelPart(part, attributes))
     .flat();
 };
 
@@ -99,7 +99,7 @@ const modelCityscape = ({ attributes }, roadsById) => {
   if (columnSpacing <= 0) columnSpacing = 100;
   const paths = Array(heights.length)
     .fill()
-    .map(_ => []);
+    .map((_) => []);
 
   const approximation = road.approximate();
   for (let x = -radius; x < radius; x += rowSpacing) {
@@ -110,19 +110,19 @@ const modelCityscape = ({ attributes }, roadsById) => {
       }
     }
   }
-  return heights.filter(height => height > 0).map((height, index) => pathsToModel(paths[index], { ...attributes, height }));
+  return heights.filter((height) => height > 0).map((height, index) => pathsToModel(paths[index], { ...attributes, height }));
 };
 
 const modelClouds = ({ attributes }) => {
   const { count, shade, scale, altitude, cloudRadius } = attributes;
   const paths = Array(count)
     .fill()
-    .map(_ => new Vector2(Math.random() * 0.6 + 0.3).rotateAround(origin, Math.random() * TWO_PI).multiply(scale))
+    .map((_) => new Vector2(Math.random() * 0.6 + 0.3).rotateAround(origin, Math.random() * TWO_PI).multiply(scale))
     .map(({ x, y }) => makeCirclePath(x, y, cloudRadius));
   return pathsToModel(paths, {
     y: altitude,
     height: 1,
-    shade
+    shade,
   });
 };
 
@@ -139,39 +139,36 @@ const transformGeometry = ({ geometry, scale, position }) => {
   return geometry;
 };
 
-const dehydrate = geometry =>
+const dehydrate = (geometry) =>
   Object.fromEntries(
-    ["bulgeDirection", "idColor", "monochromeValue", "position"].map(name => {
-      const { array, itemSize } = geometry.attributes[name] ?? { array: null, itemSize: 0 };
+    ["bulgeDirection", "idColor", "monochromeValue", "position"].map((name) => {
+      const { array, itemSize } = geometry.attributes[name] ?? {
+        array: null,
+        itemSize: 0,
+      };
       return [name, { array, itemSize }];
     })
   );
 
-export default node => {
+export default (node) => {
   const { uid } = node;
   const roadsById = {};
   getRoad(node.attributes, roadsById);
   const allModels = [
     ...getChildrenOfTypes(node, ["feature"])
-      .map(feature => modelFeature(feature, roadsById))
+      .map((feature) => modelFeature(feature, roadsById))
       .flat(),
-    ...getChildrenOfTypes(node, ["shape"]).map(shape => modelShape(shape, roadsById)),
-    ...getChildrenOfTypes(node, ["cityscape"]).map(cityscape => modelCityscape(cityscape, roadsById))
+    ...getChildrenOfTypes(node, ["shape"]).map((shape) => modelShape(shape, roadsById)),
+    ...getChildrenOfTypes(node, ["cityscape"]).map((cityscape) => modelCityscape(cityscape, roadsById)),
   ].flat();
-  const opaqueGeometry = dehydrate(mergeGeometries(allModels.filter(model => !model.transparent).map(transformGeometry)));
-  const transparentGeometry = dehydrate(mergeGeometries(allModels.filter(model => model.transparent).map(transformGeometry)));
-  const skyGeometry = dehydrate(
-    mergeGeometries(
-      getChildrenOfTypes(node, ["clouds"])
-        .map(modelClouds)
-        .map(transformGeometry)
-    )
-  );
+  const opaqueGeometry = dehydrate(mergeGeometries(allModels.filter((model) => !model.transparent).map(transformGeometry)));
+  const transparentGeometry = dehydrate(mergeGeometries(allModels.filter((model) => model.transparent).map(transformGeometry)));
+  const skyGeometry = dehydrate(mergeGeometries(getChildrenOfTypes(node, ["clouds"]).map(modelClouds).map(transformGeometry)));
   return {
     uid,
     opaqueGeometry,
     transparentGeometry,
     skyGeometry,
-    roadsById: Object.fromEntries(Object.entries(roadsById).map(([key, { points }]) => [key, points]))
+    roadsById: Object.fromEntries(Object.entries(roadsById).map(([key, { points }]) => [key, points])),
   };
 };
