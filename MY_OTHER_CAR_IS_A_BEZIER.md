@@ -4,7 +4,7 @@ by Rezmason
 
 *Disclaimer: These are the observations and opinions of one person.*
 
-On January 23, 2005, [Andy Baio](https://waxy.org/) shared a link he found to the [original Drivey demo](https://drivey.com); by mid-August, its site got [thoroughly Slashdotted](https://tech.slashdot.org/story/05/08/10/0151200/moody-non-photo-realistic-driving).
+On January 23, 2005, [Andy Baio](https://waxy.org/) shared a link he found to the [original Drivey demo](http://web.archive.org/web/20211022163339/https://drivey.com/); by mid-August, its site got [thoroughly Slashdotted](https://tech.slashdot.org/story/05/08/10/0151200/moody-non-photo-realistic-driving).
 Overnight, the side project of an Australian programmer who highly values his privacy was downloaded roughly *eighty thousand times*. Random strangers around the world praised its look and feel, argued over its feature set and swapped proposed mixtapes, as Drivey's humble website strained under the unexpected load.
 
 It really struck a chord with people, and fifteen years on, I'd like to take a moment to overanalyze why.
